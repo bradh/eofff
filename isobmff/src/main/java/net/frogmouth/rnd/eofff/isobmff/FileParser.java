@@ -1,7 +1,6 @@
 package net.frogmouth.rnd.eofff.isobmff;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,13 +19,13 @@ public class FileParser extends AbstractParser {
                         Files.size(testFile),
                         FileChannel.MapMode.READ_ONLY,
                         ResourceScope.newImplicitScope());
-        ByteBuffer byteBuffer = segment.asByteBuffer();
-        while (byteBuffer.hasRemaining()) {
-            long offset = byteBuffer.position();
-            long boxSize = readInteger(byteBuffer);
-            String boxName = readFourCC(byteBuffer);
+        ParseContext parseContext = new ParseContext(segment);
+        while (parseContext.hasRemaining()) {
+            long offset = parseContext.getCursorPosition();
+            long boxSize = parseContext.getUnsignedInteger();
+            FourCC boxName = parseContext.readFourCC();
             BoxParser parser = BoxFactoryManager.getParser(boxName);
-            Box box = parser.parse(byteBuffer, offset, boxSize, boxName);
+            Box box = parser.parse(parseContext, offset, boxSize, boxName.toString());
             boxes.add(box);
         }
         return boxes;

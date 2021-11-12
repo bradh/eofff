@@ -7,7 +7,7 @@ import java.util.ServiceLoader;
 public class BoxFactoryManager {
 
     private final ServiceLoader<BoxParser> loader;
-    protected final Map<String, BoxParser> boxFactories = new HashMap<>();
+    protected final Map<FourCC, BoxParser> boxFactories = new HashMap<>();
 
     private BoxFactoryManager() {
         loader = ServiceLoader.load(BoxParser.class);
@@ -16,12 +16,12 @@ public class BoxFactoryManager {
         }
     }
 
-    public BoxParser findParser(String fourcc) {
+    public BoxParser findParser(FourCC fourcc) {
         BoxParser boxParser = boxFactories.getOrDefault(fourcc, new BaseBoxParser());
         return boxParser;
     }
 
-    public static BoxParser getParser(String fourcc) {
+    public static BoxParser getParser(FourCC fourcc) {
         return getInstance().findParser(fourcc);
     }
 
