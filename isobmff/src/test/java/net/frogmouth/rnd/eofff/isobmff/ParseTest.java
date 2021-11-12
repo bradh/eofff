@@ -14,6 +14,7 @@ import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
+import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 
 public class ParseTest {
 
@@ -62,5 +63,29 @@ public class ParseTest {
         assertEquals(ftyp.getCompatibleBrands().get(0), "mif1");
         assertEquals(ftyp.getCompatibleBrands().get(1), "heic");
         assertEquals(ftyp.getCompatibleBrands().get(2), "hevc");
+        Box box1 = boxes.get(1);
+        assertTrue(box1 instanceof MetaBox);
+        MetaBox meta = (MetaBox)box1;
+        assertEquals(meta.getFourCC(), "meta");
+        assertEquals(meta.getFullName(), "MetaBox");
+        assertEquals(meta.getVersion(), 0);
+        assertEquals(meta.getFlags(), new byte[] {0x00, 0x00, 0x00});
+        assertEquals(meta.getNestedBoxes().size(), 6);
+        
+        Box box2 = boxes.get(2);
+        assertEquals(box2.getBoxName(), "mdat");
+        
+        Box box3 = boxes.get(3);
+        assertEquals(box3.getBoxName(), "mdat");
+        
+        Box box4 = boxes.get(4);
+        assertEquals(box4.getBoxName(), "mdat");
+        
+        Box box5 = boxes.get(5);
+        assertEquals(box5.getBoxName(), "mdat");
+        
+        Box box6 = boxes.get(6);
+        assertEquals(box6.getBoxName(), "mdat");
+        
     }
 }
