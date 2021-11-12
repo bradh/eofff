@@ -1,10 +1,10 @@
 package net.frogmouth.rnd.eofff.isobmff;
 
 public class FullBox extends BaseBox {
-    
+
     private int version;
     private byte[] flags;
-    
+
     public FullBox(long size, String name) {
         super(size, name);
     }
@@ -24,5 +24,4 @@ public class FullBox extends BaseBox {
     public void setFlags(byte[] flags) {
         this.flags = flags;
     }
-    
 }

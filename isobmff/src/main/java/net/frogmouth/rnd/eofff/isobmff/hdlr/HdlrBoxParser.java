@@ -1,6 +1,5 @@
 package net.frogmouth.rnd.eofff.isobmff.hdlr;
 
-import net.frogmouth.rnd.eofff.isobmff.meta.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -9,11 +8,11 @@ import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.BoxFactoryManager;
 import net.frogmouth.rnd.eofff.isobmff.BoxParser;
+import net.frogmouth.rnd.eofff.isobmff.meta.*;
 
 public class HdlrBoxParser extends BoxParser {
 
-    public HdlrBoxParser() {
-    }
+    public HdlrBoxParser() {}
 
     @Override
     public String getFourCC() {
@@ -40,7 +39,7 @@ public class HdlrBoxParser extends BoxParser {
         int nameLength = (int) ((initialOffset + boxSize) - byteBuffer.position());
         byte[] dst = new byte[nameLength];
         byteBuffer.get(dst);
-        String name = new String(dst, 0, dst.length -1, StandardCharsets.UTF_8);
+        String name = new String(dst, 0, dst.length - 1, StandardCharsets.UTF_8);
         box.setName(name);
         return box;
     }

@@ -7,7 +7,7 @@ import net.frogmouth.rnd.eofff.isobmff.BoxParser;
 public class FtypBoxParser extends BoxParser {
 
     public FtypBoxParser() {}
-    
+
     @Override
     public String getFourCC() {
         return "ftyp";

@@ -1,27 +1,24 @@
 package net.frogmouth.rnd.eofff.isobmff.hdlr;
 
-import java.util.ArrayList;
-import java.util.List;
-import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 
 public class HdlrBox extends FullBox {
     private int preDefined;
-    private  String handlerType;
-    private  int reserved0;
+    private String handlerType;
+    private int reserved0;
     private int reserved1;
-    private  int reserved2;
+    private int reserved2;
     private String name;
 
     public HdlrBox(long size, String name) {
         super(size, name);
     }
-    
+
     @Override
     public String getFullName() {
         return "HandlerBox";
     }
-    
+
     public String getFourCC() {
         return "hdlr";
     }
@@ -85,5 +82,4 @@ public class HdlrBox extends FullBox {
         sb.append("'");
         return sb.toString();
     }
-    
 }

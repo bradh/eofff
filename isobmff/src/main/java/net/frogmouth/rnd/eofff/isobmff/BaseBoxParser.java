@@ -10,7 +10,8 @@ public class BaseBoxParser extends BoxParser {
 
     @Override
     public String getFourCC() {
-        throw new UnsupportedOperationException("BaseBox getFourCC() should not be called directly");
+        throw new UnsupportedOperationException(
+                "BaseBox getFourCC() should not be called directly");
     }
 
     @Override
@@ -19,5 +20,4 @@ public class BaseBoxParser extends BoxParser {
         byteBuffer.position((int) (offset + boxSize));
         return box;
     }
-
 }

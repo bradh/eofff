@@ -11,20 +11,20 @@ public class MetaBox extends FullBox {
     public MetaBox(long size, String name) {
         super(size, name);
     }
-    
+
     @Override
     public String getFullName() {
         return "MetaBox";
     }
-    
+
     public String getFourCC() {
         return "meta";
     }
-    
+
     public List<Box> getNestedBoxes() {
         return new ArrayList<>(nestedBoxes);
     }
-    
+
     public void addNestedBoxes(List<Box> boxes) {
         nestedBoxes.addAll(boxes);
     }
@@ -36,12 +36,11 @@ public class MetaBox extends FullBox {
         sb.append(" '");
         sb.append(getFourCC());
         sb.append("':   (Container)");
-        for (Box nestedBox: getNestedBoxes()) {
+        for (Box nestedBox : getNestedBoxes()) {
             sb.append("\n");
             sb.append("\t");
             sb.append(nestedBox.toString());
         }
         return sb.toString();
     }
-    
 }

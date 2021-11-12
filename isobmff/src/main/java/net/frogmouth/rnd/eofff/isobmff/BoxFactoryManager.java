@@ -20,9 +20,9 @@ public class BoxFactoryManager {
         BoxParser boxParser = boxFactories.getOrDefault(fourcc, new BaseBoxParser());
         return boxParser;
     }
-    
+
     public static BoxParser getParser(String fourcc) {
-            return getInstance().findParser(fourcc);
+        return getInstance().findParser(fourcc);
     }
 
     public static BoxFactoryManager getInstance() {

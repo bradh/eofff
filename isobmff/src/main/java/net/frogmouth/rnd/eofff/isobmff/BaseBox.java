@@ -8,7 +8,7 @@ public class BaseBox implements Box {
         setBoxName(name);
         setSize(size);
     }
-    
+
     @Override
     public long getSize() {
         return size;

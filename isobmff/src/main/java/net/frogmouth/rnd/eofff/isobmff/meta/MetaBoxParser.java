@@ -11,8 +11,7 @@ import net.frogmouth.rnd.eofff.isobmff.BoxParser;
 
 public class MetaBoxParser extends BoxParser {
 
-    public MetaBoxParser() {
-    }
+    public MetaBoxParser() {}
 
     @Override
     public String getFourCC() {

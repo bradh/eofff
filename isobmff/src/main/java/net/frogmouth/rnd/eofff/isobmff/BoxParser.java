@@ -7,8 +7,9 @@ public abstract class BoxParser {
 
     public abstract String getFourCC();
 
-    public abstract Box parse(ByteBuffer byteBuffer, long initialOffset, long boxSize, String boxName);
-    
+    public abstract Box parse(
+            ByteBuffer byteBuffer, long initialOffset, long boxSize, String boxName);
+
     protected String readFourCC(ByteBuffer byteBuffer) {
         byte[] dst = new byte[4];
         byteBuffer.get(dst);
@@ -18,5 +19,4 @@ public abstract class BoxParser {
     protected int readInteger(ByteBuffer byteBuffer) {
         return byteBuffer.getInt();
     }
-    
 }

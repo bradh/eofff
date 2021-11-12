@@ -7,5 +7,4 @@ public interface Box {
     String getBoxName();
 
     long getSize();
-    
 }

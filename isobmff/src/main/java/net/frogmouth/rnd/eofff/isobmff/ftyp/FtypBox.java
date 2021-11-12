@@ -13,12 +13,12 @@ public class FtypBox extends BaseBox {
     public FtypBox(long size, String name) {
         super(size, name);
     }
-    
+
     @Override
     public String getFullName() {
         return "FileTypeBox";
     }
-    
+
     public String getFourCC() {
         return "ftyp";
     }
@@ -57,9 +57,8 @@ public class FtypBox extends BaseBox {
         sb.append("major-brand=");
         sb.append(majorBrand);
         sb.append(", compatible-brands='");
-        sb.append(String.join(",",compatibleBrands));
+        sb.append(String.join(",", compatibleBrands));
         sb.append("'");
         return sb.toString();
     }
-    
 }
