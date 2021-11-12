@@ -3,16 +3,9 @@ package net.frogmouth.rnd.eofff.isobmff;
 import static org.testng.Assert.*;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FtypBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import org.testng.annotations.Test;
@@ -34,11 +27,13 @@ public class ParseTest {
     @Test
     public void test() throws IOException {
         Path testFile = getExample();
-        List<Box> boxes = parseFile(testFile);
+        FileParser fileParser = new FileParser();
+        List<Box> boxes = fileParser.parse(testFile);
         for (Box box : boxes) {
             System.out.println(box.toString());
         }
         assertEquals(boxes.size(), 7);
+
         Box box0 = boxes.get(0);
         assertTrue(box0 instanceof FtypBox);
         FtypBox ftyp = (FtypBox) box0;
@@ -50,6 +45,7 @@ public class ParseTest {
         assertEquals(ftyp.getCompatibleBrands().get(0), "mif1");
         assertEquals(ftyp.getCompatibleBrands().get(1), "heic");
         assertEquals(ftyp.getCompatibleBrands().get(2), "hevc");
+
         Box box1 = boxes.get(1);
         assertTrue(box1 instanceof MetaBox);
         MetaBox meta = (MetaBox) box1;
@@ -73,28 +69,5 @@ public class ParseTest {
 
         Box box6 = boxes.get(6);
         assertEquals(box6.getBoxName(), "mdat");
-    }
-
-    private List<Box> parseFile(Path testFile) throws IOException {
-        List<Box> boxes = new ArrayList<>();
-        MemorySegment segment =
-                MemorySegment.mapFile(
-                        testFile,
-                        0,
-                        Files.size(testFile),
-                        FileChannel.MapMode.READ_ONLY,
-                        ResourceScope.newImplicitScope());
-        ByteBuffer byteBuffer = segment.asByteBuffer();
-        while (byteBuffer.hasRemaining()) {
-            long offset = byteBuffer.position();
-            long boxSize = byteBuffer.getInt();
-            byte[] labelBytes = new byte[4];
-            byteBuffer.get(labelBytes);
-            String boxName = new String(labelBytes, StandardCharsets.US_ASCII);
-            BoxParser parser = BoxFactoryManager.getParser(boxName);
-            Box box = parser.parse(byteBuffer, offset, boxSize, boxName);
-            boxes.add(box);
-        }
-        return boxes;
     }
 }
