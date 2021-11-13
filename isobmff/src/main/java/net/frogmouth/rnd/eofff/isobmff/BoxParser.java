@@ -1,6 +1,6 @@
 package net.frogmouth.rnd.eofff.isobmff;
 
-public abstract class BoxParser extends AbstractParser {
+public abstract class BoxParser {
     public abstract FourCC getFourCC();
 
     public abstract Box parse(

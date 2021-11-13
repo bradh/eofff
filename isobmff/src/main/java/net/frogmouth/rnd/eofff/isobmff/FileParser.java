@@ -9,7 +9,7 @@ import java.util.List;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
 
-public class FileParser extends AbstractParser {
+public class FileParser {
     public List<Box> parse(Path testFile) throws IOException {
         List<Box> boxes = new ArrayList<>();
         MemorySegment segment =
