@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FtypBox;
+import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -57,7 +58,6 @@ public class ParseTest {
 
     @Test
     public void checkMetaBox() {
-
         Box box1 = boxes.get(1);
         assertTrue(box1 instanceof MetaBox);
         MetaBox meta = (MetaBox) box1;
@@ -66,7 +66,17 @@ public class ParseTest {
         assertEquals(meta.getVersion(), 0);
         assertEquals(meta.getFlags(), new byte[] {0x00, 0x00, 0x00});
         assertEquals(meta.getNestedBoxes().size(), 6);
-        // TODO: more test values here.
+        Box nestedBox0 = meta.getNestedBoxes().get(0);
+        assertTrue(nestedBox0 instanceof HdlrBox);
+        assertEquals(nestedBox0.getFourCC(), new FourCC("hdlr"));
+        HdlrBox hdlr = (HdlrBox) nestedBox0;
+        assertEquals(hdlr.getFullName(), "HandlerBox");
+        assertEquals(hdlr.getHandlerType(), "pict");
+        assertEquals(hdlr.getPreDefined(), 0);
+        assertEquals(hdlr.getName(), "");
+        assertEquals(hdlr.getReserved0(), 0);
+        assertEquals(hdlr.getReserved1(), 0);
+        assertEquals(hdlr.getReserved2(), 0);
     }
 
     @Test
