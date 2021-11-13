@@ -2,9 +2,9 @@ package net.frogmouth.rnd.eofff.isobmff;
 
 public class BaseBox implements Box {
     private long size;
-    private String boxName;
+    private FourCC boxName;
 
-    public BaseBox(long size, String name) {
+    public BaseBox(long size, FourCC name) {
         setBoxName(name);
         setSize(size);
     }
@@ -19,11 +19,11 @@ public class BaseBox implements Box {
     }
 
     @Override
-    public String getBoxName() {
+    public FourCC getFourCC() {
         return boxName;
     }
 
-    public final void setBoxName(String name) {
+    public final void setBoxName(FourCC name) {
         this.boxName = name;
     }
 
@@ -34,6 +34,6 @@ public class BaseBox implements Box {
 
     @Override
     public String toString() {
-        return getFullName() + " '" + getBoxName() + "'";
+        return getFullName() + " '" + getFourCC() + "'";
     }
 }

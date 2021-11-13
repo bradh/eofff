@@ -3,14 +3,15 @@ package net.frogmouth.rnd.eofff.isobmff.ftyp;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.BaseBox;
+import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class FtypBox extends BaseBox {
 
-    private String majorBrand;
+    private FourCC majorBrand;
     private int minorVersion;
-    private final List<String> compatibleBrands = new ArrayList<>();
+    private final List<FourCC> compatibleBrands = new ArrayList<>();
 
-    public FtypBox(long size, String name) {
+    public FtypBox(long size, FourCC name) {
         super(size, name);
     }
 
@@ -19,15 +20,11 @@ public class FtypBox extends BaseBox {
         return "FileTypeBox";
     }
 
-    public String getFourCC() {
-        return "ftyp";
-    }
-
-    public String getMajorBrand() {
+    public FourCC getMajorBrand() {
         return majorBrand;
     }
 
-    public void setMajorBrand(String majorBrand) {
+    public void setMajorBrand(FourCC majorBrand) {
         this.majorBrand = majorBrand;
     }
 
@@ -39,11 +36,11 @@ public class FtypBox extends BaseBox {
         this.minorVersion = minorVersion;
     }
 
-    public List<String> getCompatibleBrands() {
+    public List<FourCC> getCompatibleBrands() {
         return new ArrayList<>(compatibleBrands);
     }
 
-    public void addCompatibleBrand(String compatibleBrand) {
+    public void addCompatibleBrand(FourCC compatibleBrand) {
         this.compatibleBrands.add(compatibleBrand);
     }
 
@@ -57,7 +54,12 @@ public class FtypBox extends BaseBox {
         sb.append("major-brand=");
         sb.append(majorBrand);
         sb.append(", compatible-brands='");
-        sb.append(String.join(",", compatibleBrands));
+        List<String> brands = new ArrayList<>();
+        compatibleBrands.forEach(
+                brand -> {
+                    brands.add(brand.toString());
+                });
+        sb.append(String.join(",", brands));
         sb.append("'");
         return sb.toString();
     }

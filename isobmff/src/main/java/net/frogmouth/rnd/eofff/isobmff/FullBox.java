@@ -5,7 +5,7 @@ public class FullBox extends BaseBox {
     private int version;
     private byte[] flags;
 
-    public FullBox(long size, String name) {
+    public FullBox(long size, FourCC name) {
         super(size, name);
     }
 

@@ -72,7 +72,7 @@ public class ParseContext {
         long boxSize = getUnsignedInteger();
         FourCC boxName = readFourCC();
         BoxParser parser = BoxFactoryManager.getParser(boxName);
-        Box box = parser.parse(this, offset, boxSize, boxName.toString());
+        Box box = parser.parse(this, offset, boxSize, boxName);
         return box;
     }
 }

@@ -1,5 +1,6 @@
 package net.frogmouth.rnd.eofff.isobmff.hdlr;
 
+import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 
 public class HdlrBox extends FullBox {
@@ -10,17 +11,13 @@ public class HdlrBox extends FullBox {
     private int reserved2;
     private String name;
 
-    public HdlrBox(long size, String name) {
+    public HdlrBox(long size, FourCC name) {
         super(size, name);
     }
 
     @Override
     public String getFullName() {
         return "HandlerBox";
-    }
-
-    public String getFourCC() {
-        return "hdlr";
     }
 
     public int getPreDefined() {

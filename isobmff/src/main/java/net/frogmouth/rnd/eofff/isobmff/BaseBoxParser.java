@@ -9,8 +9,9 @@ public class BaseBoxParser extends BoxParser {
     }
 
     @Override
-    public Box parse(ParseContext parseContext, long initialOffset, long boxSize, String boxName) {
+    public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
         BaseBox box = new BaseBox(boxSize, boxName);
+        // TODO: This isn't valid in general
         parseContext.skipBytes(boxSize - 8);
         return box;
     }

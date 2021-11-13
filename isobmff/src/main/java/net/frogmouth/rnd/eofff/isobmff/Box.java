@@ -4,7 +4,7 @@ public interface Box {
 
     public String getFullName();
 
-    String getBoxName();
+    FourCC getFourCC();
 
     long getSize();
 }

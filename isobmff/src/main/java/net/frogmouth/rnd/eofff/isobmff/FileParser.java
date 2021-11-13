@@ -25,7 +25,7 @@ public class FileParser {
             long boxSize = parseContext.getUnsignedInteger();
             FourCC boxName = parseContext.readFourCC();
             BoxParser parser = BoxFactoryManager.getParser(boxName);
-            Box box = parser.parse(parseContext, offset, boxSize, boxName.toString());
+            Box box = parser.parse(parseContext, offset, boxSize, boxName);
             boxes.add(box);
         }
         return boxes;

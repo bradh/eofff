@@ -8,13 +8,7 @@ import org.testng.annotations.Test;
 public class FtypBoxTest {
     @Test
     public void checkFullName() {
-        FtypBox box = new FtypBox(28, "ftyp");
+        FtypBox box = new FtypBox(28, new FourCC("ftyp"));
         assertEquals(box.getFullName(), "FileTypeBox");
-    }
-
-    @Test
-    public void checkBoxName() {
-        FtypBox box = new FtypBox(28, "ftyp");
-        assertEquals(box.getBoxName(), "ftyp");
     }
 }

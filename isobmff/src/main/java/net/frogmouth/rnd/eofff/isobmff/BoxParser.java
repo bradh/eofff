@@ -4,5 +4,5 @@ public abstract class BoxParser {
     public abstract FourCC getFourCC();
 
     public abstract Box parse(
-            ParseContext parseContext, long initialOffset, long boxSize, String boxName);
+            ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName);
 }

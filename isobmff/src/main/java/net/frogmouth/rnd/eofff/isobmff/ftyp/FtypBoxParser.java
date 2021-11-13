@@ -15,13 +15,13 @@ public class FtypBoxParser extends BoxParser {
     }
 
     @Override
-    public Box parse(ParseContext parseContext, long initialOffset, long boxSize, String boxName) {
+    public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
         FtypBox box = new FtypBox(boxSize, boxName);
         // TODO: validate minimum box size
-        box.setMajorBrand(parseContext.readFourCC().toString());
+        box.setMajorBrand(parseContext.readFourCC());
         box.setMinorVersion(parseContext.getInteger());
         while (parseContext.getCursorPosition() < (initialOffset + boxSize)) {
-            String compatibleBrand = parseContext.readFourCC().toString();
+            FourCC compatibleBrand = parseContext.readFourCC();
             box.addCompatibleBrand(compatibleBrand);
         }
         return box;

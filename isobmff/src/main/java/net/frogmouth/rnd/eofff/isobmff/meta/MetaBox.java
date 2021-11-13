@@ -3,22 +3,19 @@ package net.frogmouth.rnd.eofff.isobmff.meta;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.Box;
+import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 
 public class MetaBox extends FullBox {
     private final List<Box> nestedBoxes = new ArrayList<>();
 
-    public MetaBox(long size, String name) {
+    public MetaBox(long size, FourCC name) {
         super(size, name);
     }
 
     @Override
     public String getFullName() {
         return "MetaBox";
-    }
-
-    public String getFourCC() {
-        return "meta";
     }
 
     public List<Box> getNestedBoxes() {

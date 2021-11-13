@@ -15,7 +15,7 @@ public class MetaBoxParser extends BoxParser {
     }
 
     @Override
-    public Box parse(ParseContext parseContext, long initialOffset, long boxSize, String boxName) {
+    public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
         MetaBox box = new MetaBox(boxSize, boxName);
         int version = parseContext.getByte();
         // TODO: check supported versions
