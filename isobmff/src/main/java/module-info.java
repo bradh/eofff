@@ -5,6 +5,7 @@ module net.frogmouth.rnd.eofff.isobmff {
 
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
             net.frogmouth.rnd.eofff.isobmff.ftyp.FtypBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoEntryParser,
             net.frogmouth.rnd.eofff.isobmff.meta.ItemReferenceBoxParser,
