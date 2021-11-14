@@ -1,5 +1,6 @@
 module net.frogmouth.rnd.eofff.isobmff {
     requires jdk.incubator.foreign;
+    requires org.slf4j;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
 

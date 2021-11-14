@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemorySegment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ParseContext {
+    private static final Logger LOG = LoggerFactory.getLogger(ParseContext.class);
     private final MemorySegment memorySegment;
     private long cursor;
 
@@ -77,11 +80,14 @@ public class ParseContext {
     }
 
     void setCursorPosition(long l) {
+        if (cursor != l) {
+            LOG.warn("Adjusting cursor by {} which might mean missing parsing", l);
+        }
         cursor = l;
     }
 
     public void skipBytes(long l) {
-        System.out.println("skipping " + l);
+        LOG.debug("skipping {}", l);
         cursor += l;
     }
 

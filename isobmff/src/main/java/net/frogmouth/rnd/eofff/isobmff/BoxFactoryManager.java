@@ -3,21 +3,26 @@ package net.frogmouth.rnd.eofff.isobmff;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BoxFactoryManager {
-
+    private static final Logger LOG = LoggerFactory.getLogger(BoxFactoryManager.class);
     private final ServiceLoader<BoxParser> loader;
     protected final Map<FourCC, BoxParser> boxFactories = new HashMap<>();
 
     private BoxFactoryManager() {
         loader = ServiceLoader.load(BoxParser.class);
         for (BoxParser factory : loader) {
+            LOG.debug("Loading parser for {}", factory.getFourCC().toString());
             boxFactories.put(factory.getFourCC(), factory);
         }
     }
 
     public BoxParser findParser(FourCC fourcc) {
+        LOG.trace("Looking up parser for {}", fourcc.toString());
         BoxParser boxParser = boxFactories.getOrDefault(fourcc, new BaseBoxParser());
+        LOG.trace("Providing parser: {}", boxParser.toString());
         return boxParser;
     }
 

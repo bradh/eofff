@@ -2,8 +2,12 @@ package net.frogmouth.rnd.eofff.isobmff.meta.property;
 
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ImageSpatialExtentsPropertyParser extends ItemFullPropertyParser {
+    private static final Logger LOG =
+            LoggerFactory.getLogger(ImageSpatialExtentsPropertyParser.class);
 
     public ImageSpatialExtentsPropertyParser() {}
 
@@ -19,7 +23,7 @@ public class ImageSpatialExtentsPropertyParser extends ItemFullPropertyParser {
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
-            // TODO: LOG
+            LOG.warn("Got unsupported version {}, parsing as unknown property.", version);
             return parseAsUnknownProperty(parseContext, initialOffset, boxSize, boxName);
         }
         box.setFlags(parseFlags(parseContext));

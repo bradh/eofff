@@ -4,8 +4,11 @@ import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ItemReferenceBoxParser extends FullBoxParser {
+    private static final Logger LOG = LoggerFactory.getLogger(ItemReferenceBoxParser.class);
 
     public ItemReferenceBoxParser() {}
 
@@ -20,7 +23,7 @@ public class ItemReferenceBoxParser extends FullBoxParser {
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
-            // TODO: LOG
+            LOG.warn("Got unsupported version {}, parsing as base box.", version);
             return parseAsBaseBox(parseContext, initialOffset, boxSize, boxName);
         }
         box.setFlags(parseFlags(parseContext));

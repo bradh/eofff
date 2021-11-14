@@ -26,9 +26,9 @@ public class AssociationEntry {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("item_id=").append(itemId);
+        sb.append("\titem_id=").append(itemId);
         for (PropertyAssociation association : this.associations) {
-            sb.append("\n\t\t").append(association.toString());
+            sb.append("\n\t\t\t").append(association.toString());
         }
         return sb.toString();
     }

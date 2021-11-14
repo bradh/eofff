@@ -4,8 +4,11 @@ import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ItemInfoBoxParser extends FullBoxParser {
+    private static final Logger LOG = LoggerFactory.getLogger(ItemInfoBoxParser.class);
 
     public ItemInfoBoxParser() {}
 
@@ -20,7 +23,7 @@ public class ItemInfoBoxParser extends FullBoxParser {
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
-            // TODO: LOG
+            LOG.warn("Got unsupported version {}, parsing as base box.", version);
             return parseAsBaseBox(parseContext, initialOffset, boxSize, boxName);
         }
         box.setFlags(parseFlags(parseContext));
@@ -44,7 +47,9 @@ public class ItemInfoBoxParser extends FullBoxParser {
     private ItemInfoEntry parseItemInfoEntry(ParseContext parseContext) {
         Box box = parseContext.parseBox();
         if (!(box instanceof ItemInfoEntry)) {
-            System.out.println("need to parse " + box.getFourCC().toString());
+            LOG.warn(
+                    "Expecting ItemInfoEntry, but got unsupported box type {}, ignoring.",
+                    box.getFourCC().toString());
             return null;
         }
         ItemInfoEntry entryBox = (ItemInfoEntry) box;

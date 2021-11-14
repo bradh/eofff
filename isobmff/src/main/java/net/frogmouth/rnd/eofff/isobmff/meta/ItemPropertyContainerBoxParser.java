@@ -6,8 +6,11 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import net.frogmouth.rnd.eofff.isobmff.meta.property.PropertyFactoryManager;
 import net.frogmouth.rnd.eofff.isobmff.meta.property.PropertyParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ItemPropertyContainerBoxParser extends BoxParser {
+    private static final Logger LOG = LoggerFactory.getLogger(ItemPropertyContainerBoxParser.class);
 
     public ItemPropertyContainerBoxParser() {}
 
@@ -23,7 +26,7 @@ public class ItemPropertyContainerBoxParser extends BoxParser {
             long initialPropertyPosition = parseContext.getCursorPosition();
             long propertyBoxSize = parseContext.readUnsignedInt32();
             FourCC propertyBoxName = parseContext.readFourCC();
-            // System.out.println("Property: " + propertyBoxName);
+            LOG.trace("Got property: {}", propertyBoxName);
             PropertyParser parser = PropertyFactoryManager.getParser(propertyBoxName);
             box.addProperty(
                     parser.parse(

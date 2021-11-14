@@ -9,10 +9,13 @@ import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FtypBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 public class ParseTest {
+    private static final Logger LOG = LoggerFactory.getLogger(ParseTest.class);
     private List<Box> boxes;
 
     public ParseTest() {}
@@ -33,7 +36,7 @@ public class ParseTest {
         FileParser fileParser = new FileParser();
         boxes = fileParser.parse(testFile);
         for (Box box : boxes) {
-            System.out.println(box.toString());
+            LOG.info(box.toString());
         }
     }
 
