@@ -19,8 +19,8 @@ public class FtypBoxParser extends BoxParser {
         FtypBox box = new FtypBox(boxSize, boxName);
         // TODO: validate minimum box size
         box.setMajorBrand(parseContext.readFourCC());
-        box.setMinorVersion(parseContext.getInteger());
-        while (parseContext.getCursorPosition() < (initialOffset + boxSize)) {
+        box.setMinorVersion(parseContext.readInt32());
+        while (parseContext.hasRemainingUntil(initialOffset + boxSize)) {
             FourCC compatibleBrand = parseContext.readFourCC();
             box.addCompatibleBrand(compatibleBrand);
         }

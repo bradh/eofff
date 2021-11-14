@@ -19,13 +19,31 @@ public class ParseContext {
         return cursor < memorySegment.byteSize();
     }
 
-    public int getInteger() {
+    public boolean hasRemainingUntil(long pos) {
+        return cursor < pos;
+    }
+
+    public int readInt32() {
         int i = MemoryAccess.getIntAtOffset(memorySegment, cursor, ByteOrder.BIG_ENDIAN);
         cursor += Integer.BYTES;
         return i;
     }
 
-    public long getUnsignedInteger() {
+    public int readUnsignedInt8() {
+        int i = MemoryAccess.getByteAtOffset(memorySegment, cursor) & 0x00FF;
+        cursor += Byte.BYTES;
+        return i;
+    }
+
+    public int readUnsignedInt16() {
+        int i =
+                MemoryAccess.getShortAtOffset(memorySegment, cursor, ByteOrder.BIG_ENDIAN)
+                        & 0x00FFFF;
+        cursor += Short.BYTES;
+        return i;
+    }
+
+    public long readUnsignedInt32() {
         long i =
                 MemoryAccess.getIntAtOffset(memorySegment, cursor, ByteOrder.BIG_ENDIAN)
                         & 0x00FFFFFFFFl;
@@ -33,9 +51,33 @@ public class ParseContext {
         return i;
     }
 
+    public long readUnsignedInt64() {
+        long i = MemoryAccess.getLongAtOffset(memorySegment, cursor, ByteOrder.BIG_ENDIAN);
+        cursor += Long.BYTES;
+        return i;
+    }
+
+    public long readUnsignedInt(int numBits) {
+        if (numBits == Integer.SIZE) {
+            return readUnsignedInt32();
+        } else if (numBits == Long.SIZE) {
+            return readUnsignedInt64();
+        }
+        throw new IllegalArgumentException(
+                String.format("Only reading of 32 and 64 bits is supported, not %d", numBits));
+    }
+
     public FourCC readFourCC() {
-        int i = getInteger();
+        int i = readInt32();
         return new FourCC(i);
+    }
+
+    public long getCursorPosition() {
+        return cursor;
+    }
+
+    void setCursorPosition(long l) {
+        cursor = l;
     }
 
     public void skipBytes(long l) {
@@ -43,19 +85,15 @@ public class ParseContext {
         cursor += l;
     }
 
-    public long getCursorPosition() {
-        return cursor;
-    }
-
-    public byte getByte() {
+    public byte readByte() {
         byte b = MemoryAccess.getByteAtOffset(memorySegment, cursor);
         cursor += Byte.BYTES;
         return b;
     }
 
-    public void getBytes(byte[] flags) {
+    public void readBytes(byte[] flags) {
         for (int i = 0; i < flags.length; i++) {
-            flags[i] = getByte();
+            flags[i] = readByte();
         }
     }
 
@@ -67,12 +105,31 @@ public class ParseContext {
         return nestedBoxes;
     }
 
-    private Box parseBox() {
+    public Box parseBox() {
         long offset = cursor;
-        long boxSize = getUnsignedInteger();
+        long boxSize = readUnsignedInt32();
         FourCC boxName = readFourCC();
         BoxParser parser = BoxFactoryManager.getParser(boxName);
         Box box = parser.parse(this, offset, boxSize, boxName);
+        setCursorPosition(offset + boxSize);
         return box;
+    }
+
+    public String readNullDelimitedString(long maxLength) {
+        if ((maxLength < 0) || (maxLength > Integer.MAX_VALUE)) {
+            throw new IllegalArgumentException(
+                    "There is no way this code can produce a string that long.");
+        }
+        int maxLen = (int) maxLength;
+        byte[] bytes = new byte[maxLen];
+        int len = 0;
+        while (len < maxLength) {
+            bytes[len] = readByte();
+            if (bytes[len] == 0x00) {
+                break;
+            }
+            len += 1;
+        }
+        return new String(bytes, 0, len);
     }
 }

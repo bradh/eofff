@@ -22,10 +22,11 @@ public class FileParser {
         ParseContext parseContext = new ParseContext(segment);
         while (parseContext.hasRemaining()) {
             long offset = parseContext.getCursorPosition();
-            long boxSize = parseContext.getUnsignedInteger();
+            long boxSize = parseContext.readUnsignedInt32();
             FourCC boxName = parseContext.readFourCC();
             BoxParser parser = BoxFactoryManager.getParser(boxName);
             Box box = parser.parse(parseContext, offset, boxSize, boxName);
+            parseContext.setCursorPosition(offset + boxSize);
             boxes.add(box);
         }
         return boxes;

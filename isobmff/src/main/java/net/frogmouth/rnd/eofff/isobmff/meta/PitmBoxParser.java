@@ -5,18 +5,18 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
-public class MetaBoxParser extends FullBoxParser {
+public class PitmBoxParser extends FullBoxParser {
 
-    public MetaBoxParser() {}
+    public PitmBoxParser() {}
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("meta");
+        return new FourCC("pitm");
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        MetaBox box = new MetaBox(boxSize, boxName);
+        PitmBox box = new PitmBox(boxSize, boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
@@ -24,11 +24,15 @@ public class MetaBoxParser extends FullBoxParser {
             return parseAsBaseBox(parseContext, initialOffset, boxSize, boxName);
         }
         box.setFlags(parseFlags(parseContext));
-        box.addNestedBoxes(parseContext.parseNestedBoxes(initialOffset + boxSize));
+        if (version == 0) {
+            box.setItemID(parseContext.readUnsignedInt16());
+        } else {
+            box.setItemID(parseContext.readUnsignedInt32());
+        }
         return box;
     }
 
     private boolean isSupportedVersion(int version) {
-        return version == 0x00;
+        return ((version == 0x00) || (version == 0x01));
     }
 }
