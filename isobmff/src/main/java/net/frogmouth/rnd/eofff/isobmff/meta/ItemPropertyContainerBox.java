@@ -34,11 +34,17 @@ public class ItemPropertyContainerBox extends BaseBox {
         sb.append(" '");
         sb.append(getFourCC());
         sb.append("':");
+        int i = 1;
         for (AbstractItemProperty property : properties) {
-            if (property != null) {
-                sb.append("\n\t\t");
+            sb.append("\n\t\t");
+            sb.append(i);
+            sb.append(".\t");
+            if (property == null) {
+                sb.append("[Unhandled property]");
+            } else {
                 sb.append(property.toString());
             }
+            i += 1;
         }
         return sb.toString();
     }

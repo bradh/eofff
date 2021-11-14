@@ -1,5 +1,6 @@
 package net.frogmouth.rnd.eofff.isobmff;
 
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
@@ -137,5 +138,11 @@ public class ParseContext {
             len += 1;
         }
         return new String(bytes, 0, len);
+    }
+
+    public ByteBuffer getByteBuffer(long offset, long length) {
+        MemorySegment slice = this.memorySegment.asSlice(offset, length);
+        ByteBuffer byteBuffer = slice.asByteBuffer();
+        return byteBuffer;
     }
 }

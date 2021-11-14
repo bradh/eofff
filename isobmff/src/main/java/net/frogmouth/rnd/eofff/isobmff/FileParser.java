@@ -24,6 +24,11 @@ public class FileParser {
             long offset = parseContext.getCursorPosition();
             long boxSize = parseContext.readUnsignedInt32();
             FourCC boxName = parseContext.readFourCC();
+            if (boxSize == 1) {
+                boxSize = parseContext.readUnsignedInt64();
+            } else if (boxSize == 0) {
+                throw new UnsupportedOperationException("We don't do that yet");
+            }
             BoxParser parser = BoxFactoryManager.getParser(boxName);
             Box box = parser.parse(parseContext, offset, boxSize, boxName);
             parseContext.setCursorPosition(offset + boxSize);
