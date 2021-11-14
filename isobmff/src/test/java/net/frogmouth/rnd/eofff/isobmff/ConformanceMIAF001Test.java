@@ -21,7 +21,7 @@ public class ConformanceMIAF001Test {
     public ConformanceMIAF001Test() {}
 
     private Path getExample() {
-        String fileName = "conformance_files/MIAF001.heic";
+        String fileName = "heif_conformance/conformance_files/MIAF001.heic";
         return getPathFromResourceName(fileName);
     }
 
