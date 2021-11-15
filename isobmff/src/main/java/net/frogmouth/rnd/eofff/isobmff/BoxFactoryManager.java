@@ -20,9 +20,12 @@ public class BoxFactoryManager {
     }
 
     public BoxParser findParser(FourCC fourcc) {
-        LOG.trace("Looking up parser for {}", fourcc.toString());
+        LOG.trace("Looking up box parser for {}", fourcc.toString());
         BoxParser boxParser = boxFactories.getOrDefault(fourcc, new BaseBoxParser());
         LOG.trace("Providing parser: {}", boxParser.toString());
+        if (boxParser instanceof BaseBoxParser) {
+            LOG.warn("Failed to find box parser for " + fourcc.toString());
+        }
         return boxParser;
     }
 

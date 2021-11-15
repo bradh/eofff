@@ -1,3 +1,3 @@
-[submodule "isobmff/src/test/resources/heif_conformance"]
-	path = isobmff/src/test/resources/heif_conformance
+[submodule "imagefileformat/src/test/resources/heif_conformance"]
+	path = imagefileformat/src/test/resources/heif_conformance
 	url = https://github.com/nokiatech/heif_conformance.git

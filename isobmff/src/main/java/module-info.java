@@ -6,21 +6,20 @@ module net.frogmouth.rnd.eofff.isobmff {
 
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
             net.frogmouth.rnd.eofff.isobmff.ftyp.FtypBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoEntryParser,
             net.frogmouth.rnd.eofff.isobmff.meta.ItemReferenceBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.meta.ItemPropertiesBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.meta.ItemPropertyContainerBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.meta.propertyassociation.ItemPropertyAssociationParser,
             net.frogmouth.rnd.eofff.isobmff.meta.ILocBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.MetaBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.PitmBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBoxParser;
+            net.frogmouth.rnd.eofff.isobmff.moov.MovieBoxParser;
 
-    uses net.frogmouth.rnd.eofff.isobmff.meta.property.PropertyParser;
-
-    provides net.frogmouth.rnd.eofff.isobmff.meta.property.PropertyParser with
-            net.frogmouth.rnd.eofff.isobmff.meta.property.HEVCConfigurationItemPropertyParser,
-            net.frogmouth.rnd.eofff.isobmff.meta.property.ImageSpatialExtentsPropertyParser;
+    exports net.frogmouth.rnd.eofff.isobmff;
+    exports net.frogmouth.rnd.eofff.isobmff.ftyp;
+    exports net.frogmouth.rnd.eofff.isobmff.hdlr;
+    exports net.frogmouth.rnd.eofff.isobmff.mdat;
+    exports net.frogmouth.rnd.eofff.isobmff.meta;
+    exports net.frogmouth.rnd.eofff.isobmff.moov;
 }

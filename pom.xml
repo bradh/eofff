@@ -7,6 +7,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>isobmff</module>
+        <module>imagefileformat</module>
     </modules>
     <properties>
         <googleformatter.maven.plugin.version>1.7.5</googleformatter.maven.plugin.version>
