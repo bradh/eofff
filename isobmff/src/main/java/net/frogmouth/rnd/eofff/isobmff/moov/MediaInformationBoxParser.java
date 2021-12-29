@@ -5,17 +5,17 @@ import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
-public class MovieBoxParser extends BaseBoxParser {
-    public MovieBoxParser() {}
+public class MediaInformationBoxParser extends BaseBoxParser {
+    public MediaInformationBoxParser() {}
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("moov");
+        return new FourCC("minf");
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        MovieBox box = new MovieBox(boxSize, boxName);
+        MediaInformationBox box = new MediaInformationBox(boxSize, boxName);
         box.addNestedBoxes(parseContext.parseNestedBoxes(initialOffset + boxSize));
         return box;
     }

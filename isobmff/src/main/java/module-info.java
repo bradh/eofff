@@ -8,13 +8,20 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.ftyp.FtypBoxParser,
             net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.meta.ItemDataBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoEntryParser,
             net.frogmouth.rnd.eofff.isobmff.meta.ItemReferenceBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.ILocBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.MetaBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.PitmBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.moov.MovieBoxParser;
+            net.frogmouth.rnd.eofff.isobmff.moov.MediaBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.moov.MediaInformationBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.moov.MovieBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.moov.MovieHeaderBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.moov.SampleTableBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.moov.TrackBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.moov.TrackHeaderBoxParser;
 
     exports net.frogmouth.rnd.eofff.isobmff;
     exports net.frogmouth.rnd.eofff.isobmff.ftyp;

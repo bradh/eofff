@@ -17,14 +17,14 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-public class ConformanceMIAF001Test {
-    private static final Logger LOG = LoggerFactory.getLogger(ConformanceMIAF001Test.class);
+public class ConformanceC005Test {
+    private static final Logger LOG = LoggerFactory.getLogger(ConformanceC005Test.class);
     private List<Box> boxes;
 
-    public ConformanceMIAF001Test() {}
+    public ConformanceC005Test() {}
 
     private Path getExample() {
-        String fileName = "heif_conformance/conformance_files/MIAF001.heic";
+        String fileName = "heif_conformance/conformance_files/C005.heic";
         return getPathFromResourceName(fileName);
     }
 
@@ -56,18 +56,16 @@ public class ConformanceMIAF001Test {
         assertEquals(ftyp.getFourCC(), new FourCC("ftyp"));
         assertEquals(ftyp.getMajorBrand(), new FourCC("mif1"));
         assertEquals(ftyp.getMinorVersion(), 0);
-        assertEquals(ftyp.getCompatibleBrands().size(), 4);
+        assertEquals(ftyp.getCompatibleBrands().size(), 2);
         assertEquals(ftyp.getCompatibleBrands().get(0), new FourCC("heic"));
         assertEquals(ftyp.getCompatibleBrands().get(1), new FourCC("mif1"));
-        assertEquals(ftyp.getCompatibleBrands().get(2), new FourCC("miaf"));
-        assertEquals(ftyp.getCompatibleBrands().get(3), new FourCC("MiHB"));
     }
 
     @Test
     public void checkMetaBox() {
-        Box box2 = boxes.get(2);
-        assertTrue(box2 instanceof MetaBox);
-        MetaBox meta = (MetaBox) box2;
+        Box box1 = boxes.get(1);
+        assertTrue(box1 instanceof MetaBox);
+        MetaBox meta = (MetaBox) box1;
         assertEquals(meta.getFourCC(), new FourCC("meta"));
         assertEquals(meta.getFullName(), "MetaBox");
         assertEquals(meta.getVersion(), 0);

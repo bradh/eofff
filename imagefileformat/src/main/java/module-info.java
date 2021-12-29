@@ -6,6 +6,8 @@ module net.frogmouth.rnd.eofff.imagefileformat {
     uses net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser;
 
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
+            net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.AlternativesParser,
+            net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.GroupsListBoxParser,
             net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertiesBoxParser,
             net.frogmouth.rnd.eofff.imagefileformat.extensions.properties
                     .ItemPropertyContainerBoxParser,
@@ -14,6 +16,9 @@ module net.frogmouth.rnd.eofff.imagefileformat {
     provides net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser with
             net.frogmouth.rnd.eofff.imagefileformat.properties.hevc
                     .HEVCConfigurationItemPropertyParser,
+            net.frogmouth.rnd.eofff.imagefileformat.properties.image.AuxiliaryTypePropertyParser,
+            net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageMirrorParser,
+            net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageRotationParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.image
                     .ImageSpatialExtentsPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.image.PixelInformationPropertyParser;

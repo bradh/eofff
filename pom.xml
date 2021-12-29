@@ -8,10 +8,12 @@
     <modules>
         <module>isobmff</module>
         <module>imagefileformat</module>
+        <module>visualiser</module>
     </modules>
     <properties>
         <googleformatter.maven.plugin.version>1.7.5</googleformatter.maven.plugin.version>
         <jacoco.version>0.8.7</jacoco.version>
+        <log4j2.version>2.17.1</log4j2.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -19,7 +21,6 @@
         <sortpom.version>3.0.0</sortpom.version>
         <testng.version>7.4.0</testng.version>
     </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -35,11 +36,10 @@
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-slf4j-impl</artifactId>
-                <version>2.14.1</version>
+                <version>${log4j2.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
-
     <build>
         <plugins>
             <plugin>
@@ -72,7 +72,7 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <nrOfIndentSpace>4</nrOfIndentSpace>
                     <sortProperties>true</sortProperties>
-                    <keepBlankLines>true</keepBlankLines>
+                    <keepBlankLines>false</keepBlankLines>
                     <sortDependencies>scope</sortDependencies>
                 </configuration>
                 <executions>
@@ -86,5 +86,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
