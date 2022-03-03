@@ -3,7 +3,7 @@ package net.frogmouth.rnd.eofff.isobmff;
 public class FullBox extends BaseBox {
 
     private int version;
-    private byte[] flags;
+    private int flags;
 
     public FullBox(long size, FourCC name) {
         super(size, name);
@@ -17,11 +17,15 @@ public class FullBox extends BaseBox {
         this.version = version;
     }
 
-    public byte[] getFlags() {
+    public int getFlags() {
         return flags;
     }
 
-    public void setFlags(byte[] flags) {
+    public void setFlags(int flags) {
         this.flags = flags;
+    }
+
+    public boolean isFlagSet(int bitmask) {
+        return ((this.flags & bitmask) == bitmask);
     }
 }

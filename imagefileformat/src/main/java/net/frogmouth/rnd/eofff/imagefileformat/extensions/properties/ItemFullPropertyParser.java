@@ -11,9 +11,9 @@ public abstract class ItemFullPropertyParser extends PropertyParser {
         return parser.parse(parseContext, initialOffset, boxSize, boxName);
     }
 
-    protected byte[] parseFlags(ParseContext parseContext) {
+    protected int parseFlags(ParseContext parseContext) {
         byte[] flags = new byte[3];
         parseContext.readBytes(flags);
-        return flags;
+        return ((flags[0] & 0xFF) << 16) | ((flags[1] & 0xFF) << 8) | (flags[2] & 0xFF);
     }
 }

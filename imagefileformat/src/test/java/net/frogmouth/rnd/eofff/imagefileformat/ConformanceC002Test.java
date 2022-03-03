@@ -9,7 +9,7 @@ import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FileParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.ftyp.FtypBox;
+import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import org.slf4j.Logger;
@@ -51,8 +51,8 @@ public class ConformanceC002Test {
     @Test
     public void checkFtypBox() {
         Box box0 = boxes.get(0);
-        assertTrue(box0 instanceof FtypBox);
-        FtypBox ftyp = (FtypBox) box0;
+        assertTrue(box0 instanceof FileTypeBox);
+        FileTypeBox ftyp = (FileTypeBox) box0;
         assertEquals(ftyp.getFourCC(), new FourCC("ftyp"));
         assertEquals(ftyp.getMajorBrand(), new FourCC("mif1"));
         assertEquals(ftyp.getMinorVersion(), 0);
@@ -69,7 +69,7 @@ public class ConformanceC002Test {
         assertEquals(meta.getFourCC(), new FourCC("meta"));
         assertEquals(meta.getFullName(), "MetaBox");
         assertEquals(meta.getVersion(), 0);
-        assertEquals(meta.getFlags(), new byte[] {0x00, 0x00, 0x00});
+        assertEquals(meta.getFlags(), 0x000000);
         assertEquals(meta.getNestedBoxes().size(), 5);
         Box nestedBox0 = meta.getNestedBoxes().get(0);
         assertTrue(nestedBox0 instanceof HdlrBox);

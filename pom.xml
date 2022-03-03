@@ -9,6 +9,7 @@
         <module>isobmff</module>
         <module>imagefileformat</module>
         <module>visualiser</module>
+        <module>dash</module>
     </modules>
     <properties>
         <googleformatter.maven.plugin.version>1.7.5</googleformatter.maven.plugin.version>

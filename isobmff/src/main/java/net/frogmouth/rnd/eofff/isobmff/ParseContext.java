@@ -145,4 +145,10 @@ public class ParseContext {
         ByteBuffer byteBuffer = slice.asByteBuffer();
         return byteBuffer;
     }
+
+    public byte[] getBytes(long numBytes) {
+        MemorySegment slice = this.memorySegment.asSlice(this.cursor, numBytes);
+        cursor += numBytes;
+        return slice.toByteArray();
+    }
 }

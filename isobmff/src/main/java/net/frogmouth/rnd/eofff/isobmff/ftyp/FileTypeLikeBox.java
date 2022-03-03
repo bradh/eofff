@@ -5,19 +5,14 @@ import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
-public class FtypBox extends BaseBox {
+public class FileTypeLikeBox extends BaseBox {
 
-    private FourCC majorBrand;
-    private int minorVersion;
-    private final List<FourCC> compatibleBrands = new ArrayList<>();
+    protected FourCC majorBrand;
+    protected int minorVersion;
+    protected final List<FourCC> compatibleBrands = new ArrayList<>();
 
-    public FtypBox(long size, FourCC name) {
+    public FileTypeLikeBox(long size, FourCC name) {
         super(size, name);
-    }
-
-    @Override
-    public String getFullName() {
-        return "FileTypeBox";
     }
 
     public FourCC getMajorBrand() {

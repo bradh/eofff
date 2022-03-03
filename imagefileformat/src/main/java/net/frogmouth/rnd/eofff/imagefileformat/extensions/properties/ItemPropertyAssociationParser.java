@@ -40,7 +40,7 @@ public class ItemPropertyAssociationParser extends FullBoxParser {
                 PropertyAssociation association = new PropertyAssociation();
                 int propertyIndex;
                 boolean essential;
-                if ((box.getFlags()[2] & 0x01) == 0x01) {
+                if (box.isFlagSet(0x01)) {
                     int value = parseContext.readUnsignedInt16();
                     essential = ((value & 0x8000) == 0x8000);
                     propertyIndex = value & 0x7FFF;

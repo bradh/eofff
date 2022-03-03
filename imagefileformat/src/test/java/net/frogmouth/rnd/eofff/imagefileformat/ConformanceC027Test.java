@@ -9,7 +9,7 @@ import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FileParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.ftyp.FtypBox;
+import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeTest;
@@ -49,8 +49,8 @@ public class ConformanceC027Test {
     @Test
     public void checkFtypBox() {
         Box box0 = boxes.get(0);
-        assertTrue(box0 instanceof FtypBox);
-        FtypBox ftyp = (FtypBox) box0;
+        assertTrue(box0 instanceof FileTypeBox);
+        FileTypeBox ftyp = (FileTypeBox) box0;
         assertEquals(ftyp.getFourCC(), new FourCC("ftyp"));
         assertEquals(ftyp.getMajorBrand(), new FourCC("msf1"));
         assertEquals(ftyp.getMinorVersion(), 0);

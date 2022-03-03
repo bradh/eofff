@@ -14,7 +14,7 @@ public class TrackHeaderBoxParser extends FullBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("trak");
+        return new FourCC("tkhd");
     }
 
     @Override
