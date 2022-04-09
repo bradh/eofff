@@ -27,15 +27,21 @@ public class ParseContext {
         return cursor < pos;
     }
 
-    public long readInt64() {
-        long i = MemoryAccess.getLongAtIndex(memorySegment, cursor, ByteOrder.BIG_ENDIAN);
-        cursor += Long.BYTES;
+    public int readInt16() {
+        int i = MemoryAccess.getShortAtOffset(memorySegment, cursor, ByteOrder.BIG_ENDIAN);
+        cursor += Short.BYTES;
         return i;
     }
 
     public int readInt32() {
         int i = MemoryAccess.getIntAtOffset(memorySegment, cursor, ByteOrder.BIG_ENDIAN);
         cursor += Integer.BYTES;
+        return i;
+    }
+
+    public long readInt64() {
+        long i = MemoryAccess.getLongAtIndex(memorySegment, cursor, ByteOrder.BIG_ENDIAN);
+        cursor += Long.BYTES;
         return i;
     }
 

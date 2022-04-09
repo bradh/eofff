@@ -8,6 +8,8 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.cslg.CompositionToDecodeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.ctts.CompositionOffsetBoxParser,
             net.frogmouth.rnd.eofff.isobmff.dinf.DataInformationBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.edts.EditBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.elst.EditListBoxParser,
             net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBoxParser,
@@ -40,12 +42,15 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.stsz.SampleSizeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stts.TimeToSampleBoxParser,
             net.frogmouth.rnd.eofff.isobmff.styp.SegmentTypeBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.tref.TrackReferenceBoxParser,
             net.frogmouth.rnd.eofff.isobmff.vmhd.VideoMediaHeaderBoxParser;
 
     exports net.frogmouth.rnd.eofff.isobmff;
     exports net.frogmouth.rnd.eofff.isobmff.cslg;
     exports net.frogmouth.rnd.eofff.isobmff.ctts;
     exports net.frogmouth.rnd.eofff.isobmff.dinf;
+    exports net.frogmouth.rnd.eofff.isobmff.edts;
+    exports net.frogmouth.rnd.eofff.isobmff.elst;
     exports net.frogmouth.rnd.eofff.isobmff.ftyp;
     exports net.frogmouth.rnd.eofff.isobmff.hdlr;
     exports net.frogmouth.rnd.eofff.isobmff.mdat;
@@ -61,5 +66,6 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.stsz;
     exports net.frogmouth.rnd.eofff.isobmff.stts;
     exports net.frogmouth.rnd.eofff.isobmff.styp;
+    exports net.frogmouth.rnd.eofff.isobmff.tref;
     exports net.frogmouth.rnd.eofff.isobmff.vmhd;
 }

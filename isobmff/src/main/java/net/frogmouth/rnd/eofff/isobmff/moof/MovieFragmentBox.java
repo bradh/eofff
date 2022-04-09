@@ -11,6 +11,6 @@ public class MovieFragmentBox extends AbstractContainerBox {
 
     @Override
     public String getFullName() {
-        return "Movie Fragment Box";
+        return "MovieFragmentBox";
     }
 }

@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class FourCC {
+
+    public static final int BYTES = 4;
     private final int integerCode;
 
     public FourCC(int code) {

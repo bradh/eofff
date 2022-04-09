@@ -3,6 +3,11 @@ package net.frogmouth.rnd.eofff.isobmff.moov;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 
+/**
+ * Track Header Box.
+ *
+ * <p>See ISO/IEC 14496-12:2015 Section 8.3.2.
+ */
 public class TrackHeaderBox extends FullBox {
     private long creationTime;
     private long modificationTime;
@@ -110,7 +115,15 @@ public class TrackHeaderBox extends FullBox {
         sb.append(getFullName());
         sb.append(" '");
         sb.append(getFourCC());
-        sb.append("': TODO");
+        sb.append("': creation_time=");
+        sb.append(getCreationTime());
+        sb.append(", modification_time=");
+        sb.append(getModificationTime());
+        sb.append(", track_ID=");
+        sb.append(getTrackId());
+        sb.append(", duration=");
+        sb.append(getDuration());
+        sb.append(", TODO");
         return sb.toString();
     }
 }
