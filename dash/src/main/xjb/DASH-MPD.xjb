@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bindings version="3.0" xmlns="https://jakarta.ee/xml/ns/jaxb" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <bindings schemaLocation="../xsd/DASHSchema/DASH-MPD.xsd" version="1.0">
+        <schemaBindings>
+            <package name="net.frogmouth.rnd.eofff.dash.mpd.gen"/>
+        </schemaBindings>
+        <bindings node="//xs:complexType[@name='SegmentTemplateType']">
+            <bindings node=".//xs:attribute[@name='initialization']">
+                <property name="InitializationAttribute"/>
+            </bindings>
+            <bindings node=".//xs:attribute[@name='bitstreamSwitching']">
+                <property name="BitstreamSwitchingAttribute"/>
+            </bindings>
+        </bindings>
+        <!--
+        <bindings node="//xs:complexType[@name='ProgramInformationType']">
+            <bindings node=".//xs:element[@name='Title']">
+                <property name="ProgramTitle"/>
+            </bindings>
+        </bindings>
+        -->
+    </bindings>
+    <bindings schemaLocation="http://www.w3.org/XML/2008/06/xlink.xsd" version="1.0">
+        <schemaBindings>
+            <package name="net.frogmouth.rnd.eofff.dash.mpd.gen"/>
+        </schemaBindings>
+        <bindings node="//xs:group[@name='locatorModel']">
+            <bindings node=".//xs:element[@ref='xlink:title']">
+                <property name="LocatorModelTitle"/>
+            </bindings>
+        </bindings>
+        <bindings node="//xs:group[@name='arcModel']">
+            <bindings node=".//xs:element[@ref='xlink:title']">
+                <property name="ArcModelTitle"/>
+            </bindings>
+        </bindings>
+    </bindings>
+        -->
+</bindings>

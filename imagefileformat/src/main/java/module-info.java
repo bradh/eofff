@@ -18,6 +18,7 @@ module net.frogmouth.rnd.eofff.imagefileformat {
             net.frogmouth.rnd.eofff.imagefileformat.properties.hevc
                     .HEVCConfigurationItemPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.image.AuxiliaryTypePropertyParser,
+            net.frogmouth.rnd.eofff.imagefileformat.properties.image.CleanApertureParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageMirrorParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageRotationParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.image

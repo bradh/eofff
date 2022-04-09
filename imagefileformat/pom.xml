@@ -45,23 +45,8 @@
                 </configuration>
             </plugin>
             <plugin>
-                <!-- java source code formatter -->
-                <groupId>com.theoryinpractise</groupId>
-                <artifactId>googleformatter-maven-plugin</artifactId>
-                <version>${googleformatter.maven.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>reformat-sources</id>
-                        <goals>
-                            <goal>format</goal>
-                        </goals>
-                        <phase>process-sources</phase>
-                        <configuration>
-                            <style>AOSP</style>
-                            <fixImports>true</fixImports>
-                        </configuration>
-                    </execution>
-                </executions>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <!-- jacoco plugin for test coverage report -->

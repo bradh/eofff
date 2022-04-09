@@ -10,6 +10,11 @@
     <packaging>jar</packaging>
     <name>dash</name>
     <properties>
+        <glassfish.jaxb.version>3.0.2</glassfish.jaxb.version>
+        <jakarta.activation.version>2.1.0</jakarta.activation.version>
+        <jakarta.xml.bind.version>3.0.1</jakarta.xml.bind.version>
+        <jaxb.api.version>2.3.0</jaxb.api.version>
+        <jaxbmavenplugin.version>2.5.0</jaxbmavenplugin.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
@@ -22,6 +27,16 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>3.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
@@ -45,6 +60,31 @@
                     <compilerArgument>--add-modules=jdk.incubator.foreign</compilerArgument>
                     <compilerArgument>-Xlint:unchecked</compilerArgument>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.evolvedbinary.maven.jvnet</groupId>
+                <artifactId>jaxb30-maven-plugin</artifactId>
+                <version>0.15.0</version>
+                <configuration>
+                    <schemaDirectory>src/main/xsd</schemaDirectory>
+                    <schemaIncludes>
+                        <include>DASHSchema/DASH-MPD.xsd</include>
+                    </schemaIncludes>
+                    <schemaExcludes>
+                        <exclude>*.mpd</exclude>
+                    </schemaExcludes>
+                    <bindingDirectory>src/main/xjb</bindingDirectory>
+                    <bindingIncludes>
+                        <include>DASH-MPD.xjb</include>
+                    </bindingIncludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <!-- java source code formatter -->

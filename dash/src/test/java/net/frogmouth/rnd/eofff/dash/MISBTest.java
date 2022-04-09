@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.cmaf;
+package net.frogmouth.rnd.eofff.dash;
 
 import static org.testng.Assert.*;
 

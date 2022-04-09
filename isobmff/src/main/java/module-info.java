@@ -5,9 +5,13 @@ module net.frogmouth.rnd.eofff.isobmff {
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
 
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
+            net.frogmouth.rnd.eofff.isobmff.cslg.CompositionToDecodeBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.ctts.CompositionOffsetBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.dinf.DataInformationBoxParser,
             net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.mdhd.MediaHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.ItemDataBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoEntryParser,
@@ -28,16 +32,34 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.moov.SampleTableBoxParser,
             net.frogmouth.rnd.eofff.isobmff.moov.TrackBoxParser,
             net.frogmouth.rnd.eofff.isobmff.moov.TrackHeaderBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.sbgp.SampleToGroupBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sidx.SegmentIndexBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.styp.SegmentTypeBoxParser;
+            net.frogmouth.rnd.eofff.isobmff.stco.ChunkOffsetBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.stsc.SampleToChunkBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.stss.SyncSampleBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.stsz.SampleSizeBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.stts.TimeToSampleBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.styp.SegmentTypeBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.vmhd.VideoMediaHeaderBoxParser;
 
     exports net.frogmouth.rnd.eofff.isobmff;
+    exports net.frogmouth.rnd.eofff.isobmff.cslg;
+    exports net.frogmouth.rnd.eofff.isobmff.ctts;
+    exports net.frogmouth.rnd.eofff.isobmff.dinf;
     exports net.frogmouth.rnd.eofff.isobmff.ftyp;
     exports net.frogmouth.rnd.eofff.isobmff.hdlr;
     exports net.frogmouth.rnd.eofff.isobmff.mdat;
+    exports net.frogmouth.rnd.eofff.isobmff.mdhd;
     exports net.frogmouth.rnd.eofff.isobmff.meta;
     exports net.frogmouth.rnd.eofff.isobmff.moof;
     exports net.frogmouth.rnd.eofff.isobmff.moov;
+    exports net.frogmouth.rnd.eofff.isobmff.sbgp;
     exports net.frogmouth.rnd.eofff.isobmff.sidx;
+    exports net.frogmouth.rnd.eofff.isobmff.stco;
+    exports net.frogmouth.rnd.eofff.isobmff.stsc;
+    exports net.frogmouth.rnd.eofff.isobmff.stss;
+    exports net.frogmouth.rnd.eofff.isobmff.stsz;
+    exports net.frogmouth.rnd.eofff.isobmff.stts;
     exports net.frogmouth.rnd.eofff.isobmff.styp;
+    exports net.frogmouth.rnd.eofff.isobmff.vmhd;
 }

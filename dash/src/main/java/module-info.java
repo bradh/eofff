@@ -6,7 +6,8 @@
  * for dynamic adaptive streaming delivery of MPEG media over HTTP. It is applicable to streaming
  * services over the Internet.
  */
-module net.frogmouth.rnd.eofff.cmaf {
+module net.frogmouth.rnd.eofff.dash {
+    requires jakarta.xml.bind;
     requires net.frogmouth.rnd.eofff.isobmff;
     requires org.slf4j;
 
@@ -16,4 +17,7 @@ module net.frogmouth.rnd.eofff.cmaf {
             net.frogmouth.rnd.eofff.dash.emsg.EventMessageBoxParser;
 
     exports net.frogmouth.rnd.eofff.dash.emsg;
+
+    opens net.frogmouth.rnd.eofff.dash.mpd.gen to
+            jakarta.xml.bind;
 }

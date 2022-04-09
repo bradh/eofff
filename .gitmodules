@@ -1,3 +1,7 @@
 [submodule "imagefileformat/src/test/resources/heif_conformance"]
 	path = imagefileformat/src/test/resources/heif_conformance
 	url = https://github.com/nokiatech/heif_conformance.git
+[submodule "dash/src/main/xsd/DASHSchema"]
+	path = dash/src/main/xsd/DASHSchema
+	url = https://github.com/MPEGGroup/DASHSchema.git
+	branch = 5th-Ed
