@@ -1,5 +1,7 @@
 package net.frogmouth.rnd.eofff.isobmff.meta;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
@@ -99,6 +101,29 @@ public class ItemInfoEntry extends FullBox {
 
     public void setExtension(ItemInfoExtension extension) {
         this.extension = extension;
+    }
+
+    @Override
+    public void writeTo(OutputStream stream) throws IOException {
+        stream.write(this.getSizeAsBytes());
+        stream.write(getFourCC().toBytes());
+        // TODO: handle version 0 and 1
+        if ((getVersion() == 2) && (itemID >= (2 << 16))) {
+            setVersion(3);
+        }
+        stream.write(getVersionAndFlagsAsBytes());
+        if (getVersion() == 2) {
+            stream.write(shortToBytes((short) this.itemID));
+        } else {
+            stream.write(intToBytes((int) this.itemID));
+        }
+        stream.write(shortToBytes((short) itemProtectionIndex));
+        stream.write(intToBytes((int) this.itemType));
+        if (this.getItemTypeAsText().equals("mime")) {
+            // TODO
+        } else if (this.getItemTypeAsText().equals("uri ")) {
+            stream.write(itemUriType.getBytes(StandardCharsets.US_ASCII));
+        }
     }
 
     @Override

@@ -1,5 +1,9 @@
 package net.frogmouth.rnd.eofff.isobmff.stsc;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import net.frogmouth.rnd.eofff.isobmff.BaseBox;
+
 public record SampleToChunkEntry(
         long firstChunk, long samplesPerChunk, long sampleDescriptionIndex) {
 
@@ -13,5 +17,11 @@ public record SampleToChunkEntry(
         sb.append(", sample_description_index=");
         sb.append(sampleDescriptionIndex);
         return sb.toString();
+    }
+
+    void writeTo(OutputStream stream) throws IOException {
+        stream.write(BaseBox.intToBytes((int) firstChunk));
+        stream.write(BaseBox.intToBytes((int) samplesPerChunk));
+        stream.write(BaseBox.intToBytes((int) sampleDescriptionIndex));
     }
 }

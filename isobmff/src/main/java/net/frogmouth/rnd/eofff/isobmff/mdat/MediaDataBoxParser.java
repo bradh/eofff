@@ -1,10 +1,5 @@
 package net.frogmouth.rnd.eofff.isobmff.mdat;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.BoxParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
@@ -22,9 +17,11 @@ public class MediaDataBoxParser extends BoxParser {
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
         MediaDataBox box = new MediaDataBox(boxSize, boxName);
-        box.setDataOffset(parseContext.getCursorPosition());
-        box.setDataLength(initialOffset + boxSize - parseContext.getCursorPosition());
-        parseContext.skipBytes(box.getDataLength());
+        // box.setDataOffset(parseContext.getCursorPosition());
+        //  box.setDataLength(initialOffset + boxSize - parseContext.getCursorPosition());
+        byte[] data = parseContext.getBytes(boxSize - (Integer.BYTES + FourCC.BYTES));
+        box.setData(data);
+        /*
         if (box.getDataLength() > 1000) {
             ByteBuffer bb = parseContext.getByteBuffer(box.getDataOffset(), box.getDataLength());
             File file =
@@ -34,7 +31,7 @@ public class MediaDataBoxParser extends BoxParser {
             try {
                 FileChannel wChannel = new FileOutputStream(file, false).getChannel();
                 wChannel.write(bb);
-                /*
+
                 while (bb.position() < box.getDataLength()) {
                     int nalLength = bb.getInt();
                     System.out.println("reading " + nalLength);
@@ -42,12 +39,12 @@ public class MediaDataBoxParser extends BoxParser {
                     wChannel.write(nalu);
                     bb.position(bb.position() + nalLength);
                 }
-                */
 
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
+        */
         return box;
     }
 }

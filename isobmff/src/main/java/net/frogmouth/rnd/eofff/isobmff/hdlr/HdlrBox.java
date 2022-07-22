@@ -1,5 +1,8 @@
 package net.frogmouth.rnd.eofff.isobmff.hdlr;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 
@@ -66,6 +69,20 @@ public class HdlrBox extends FullBox {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public void writeTo(OutputStream stream) throws IOException {
+        stream.write(this.getSizeAsBytes());
+        stream.write(getFourCC().toBytes());
+        stream.write(getVersionAndFlagsAsBytes());
+        stream.write(intToBytes(this.preDefined));
+        stream.write(this.handlerType.getBytes(StandardCharsets.US_ASCII));
+        stream.write(intToBytes(this.reserved0));
+        stream.write(intToBytes(this.reserved1));
+        stream.write(intToBytes(this.reserved2));
+        stream.write(name.getBytes(StandardCharsets.US_ASCII));
+        stream.write(0); // NULL terminator
     }
 
     @Override

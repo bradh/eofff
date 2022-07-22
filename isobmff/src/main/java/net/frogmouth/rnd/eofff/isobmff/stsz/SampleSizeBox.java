@@ -1,10 +1,17 @@
 package net.frogmouth.rnd.eofff.isobmff.stsz;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 
+/**
+ * File Type Box.
+ *
+ * <p>See ISO/IEC 14496-12:2015 Section 8.7.3.
+ */
 public class SampleSizeBox extends FullBox {
 
     private long sampleSize;
@@ -33,6 +40,18 @@ public class SampleSizeBox extends FullBox {
 
     public void addEntry(Long entry) {
         this.entries.add(entry);
+    }
+
+    @Override
+    public void writeTo(OutputStream stream) throws IOException {
+        stream.write(this.getSizeAsBytes());
+        stream.write(getFourCC().toBytes());
+        stream.write(getVersionAndFlagsAsBytes());
+        stream.write(intToBytes((int) this.sampleSize));
+        stream.write(intToBytes(this.entries.size()));
+        for (long entry : entries) {
+            stream.write(intToBytes((int) entry));
+        }
     }
 
     @Override

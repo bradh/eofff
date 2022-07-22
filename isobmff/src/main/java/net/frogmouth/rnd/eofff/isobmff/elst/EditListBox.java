@@ -1,5 +1,7 @@
 package net.frogmouth.rnd.eofff.isobmff.elst;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
@@ -28,6 +30,17 @@ public class EditListBox extends FullBox {
 
     public void addEntry(EditListBoxEntry item) {
         this.entries.add(item);
+    }
+
+    @Override
+    public void writeTo(OutputStream stream) throws IOException {
+        stream.write(this.getSizeAsBytes());
+        stream.write(getFourCC().toBytes());
+        stream.write(getVersionAndFlagsAsBytes());
+        stream.write(intToBytes(entries.size()));
+        for (EditListBoxEntry entry : entries) {
+            entry.writeTo(stream, this.getVersion());
+        }
     }
 
     @Override

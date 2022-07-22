@@ -1,5 +1,7 @@
 package net.frogmouth.rnd.eofff.isobmff.ftyp;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.BaseBox;
@@ -37,6 +39,17 @@ public class FileTypeLikeBox extends BaseBox {
 
     public void addCompatibleBrand(FourCC compatibleBrand) {
         this.compatibleBrands.add(compatibleBrand);
+    }
+
+    @Override
+    public void writeTo(OutputStream stream) throws IOException {
+        stream.write(this.getSizeAsBytes());
+        stream.write(getFourCC().toBytes());
+        stream.write(this.majorBrand.toBytes());
+        stream.write(intToBytes(minorVersion));
+        for (FourCC brand : this.compatibleBrands) {
+            stream.write(brand.toBytes());
+        }
     }
 
     @Override

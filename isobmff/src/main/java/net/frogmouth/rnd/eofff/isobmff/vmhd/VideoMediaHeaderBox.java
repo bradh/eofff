@@ -1,8 +1,15 @@
 package net.frogmouth.rnd.eofff.isobmff.vmhd;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 
+/**
+ * Video Media Header Box.
+ *
+ * <p>See ISO/IEC 14496-12:2015 Section 12.1.2.
+ */
 public class VideoMediaHeaderBox extends FullBox {
     private int graphicsmode = 0;
     private int[] opcolor;
@@ -30,6 +37,17 @@ public class VideoMediaHeaderBox extends FullBox {
 
     public void setOpcolor(int[] opcolor) {
         this.opcolor = opcolor;
+    }
+
+    @Override
+    public void writeTo(OutputStream stream) throws IOException {
+        stream.write(this.getSizeAsBytes());
+        stream.write(getFourCC().toBytes());
+        stream.write(getVersionAndFlagsAsBytes());
+        stream.write(shortToBytes((short) graphicsmode));
+        for (int i = 0; i < opcolor.length; i++) {
+            stream.write(shortToBytes((short) opcolor[i]));
+        }
     }
 
     @Override

@@ -1,5 +1,9 @@
 package net.frogmouth.rnd.eofff.isobmff.stts;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import net.frogmouth.rnd.eofff.isobmff.BaseBox;
+
 public record TimeToSampleEntry(long sampleCount, long sampleDelta) {
 
     @Override
@@ -10,5 +14,10 @@ public record TimeToSampleEntry(long sampleCount, long sampleDelta) {
         sb.append(", sample_delta=");
         sb.append(sampleDelta);
         return sb.toString();
+    }
+
+    void writeTo(OutputStream stream) throws IOException {
+        stream.write(BaseBox.intToBytes((int) sampleCount));
+        stream.write(BaseBox.intToBytes((int) sampleDelta));
     }
 }

@@ -1,5 +1,7 @@
 package net.frogmouth.rnd.eofff.isobmff.meta;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.Box;
@@ -24,6 +26,16 @@ public class MetaBox extends FullBox {
 
     public void addNestedBoxes(List<Box> boxes) {
         nestedBoxes.addAll(boxes);
+    }
+
+    @Override
+    public void writeTo(OutputStream stream) throws IOException {
+        stream.write(this.getSizeAsBytes());
+        stream.write(getFourCC().toBytes());
+        stream.write(getVersionAndFlagsAsBytes());
+        for (Box box : nestedBoxes) {
+            box.writeTo(stream);
+        }
     }
 
     @Override

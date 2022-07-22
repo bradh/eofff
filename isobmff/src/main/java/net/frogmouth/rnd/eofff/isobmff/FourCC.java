@@ -46,4 +46,10 @@ public class FourCC {
         }
         return true;
     }
+
+    public byte[] toBytes() {
+        ByteBuffer bb = ByteBuffer.allocate(Integer.BYTES);
+        bb.putInt(integerCode);
+        return bb.array();
+    }
 }

@@ -1,5 +1,7 @@
 package net.frogmouth.rnd.eofff.isobmff.stts;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
@@ -23,6 +25,17 @@ public class TimeToSampleBox extends FullBox {
 
     public void addEntry(TimeToSampleEntry item) {
         this.entries.add(item);
+    }
+
+    @Override
+    public void writeTo(OutputStream stream) throws IOException {
+        stream.write(this.getSizeAsBytes());
+        stream.write(getFourCC().toBytes());
+        stream.write(getVersionAndFlagsAsBytes());
+        stream.write(intToBytes(entries.size()));
+        for (TimeToSampleEntry entry : entries) {
+            entry.writeTo(stream);
+        }
     }
 
     @Override

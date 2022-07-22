@@ -1,8 +1,19 @@
 package net.frogmouth.rnd.eofff.isobmff.mdhd;
 
+import static net.frogmouth.rnd.eofff.isobmff.BaseBox.intToBytes;
+import static net.frogmouth.rnd.eofff.isobmff.BaseBox.shortToBytes;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 
+/**
+ * Media Header Box.
+ *
+ * <p>See ISO/IEC 14496-12:2015 Section 8.4.2.
+ */
 public class MediaHeaderBox extends FullBox {
     private long creationTime;
     private long modificationTime;
@@ -57,6 +68,30 @@ public class MediaHeaderBox extends FullBox {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    @Override
+    public void writeTo(OutputStream stream) throws IOException {
+        stream.write(this.getSizeAsBytes());
+        stream.write(getFourCC().toBytes());
+        stream.write(getVersionAndFlagsAsBytes());
+        if (getVersion() == 1) {
+            stream.write(longToBytes(this.creationTime));
+            stream.write(longToBytes(this.modificationTime));
+            stream.write(longToBytes(this.timescale));
+            stream.write(longToBytes(this.duration));
+        } else {
+            stream.write(intToBytes((int) this.creationTime));
+            stream.write(intToBytes((int) this.modificationTime));
+            stream.write(intToBytes((int) this.timescale));
+            stream.write(intToBytes((int) this.duration));
+        }
+        byte[] languageBytes = language.getBytes(StandardCharsets.US_ASCII);
+        short packedLanguage = (short) (languageBytes[2] - 0x60);
+        packedLanguage |= (short) (languageBytes[1] - 0x60) << 5;
+        packedLanguage |= (short) (languageBytes[0] - 0x60) << 10;
+        stream.write(shortToBytes(packedLanguage));
+        stream.write(shortToBytes((short) 0));
     }
 
     @Override

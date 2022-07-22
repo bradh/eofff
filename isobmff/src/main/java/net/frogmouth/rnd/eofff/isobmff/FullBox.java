@@ -28,4 +28,13 @@ public class FullBox extends BaseBox {
     public boolean isFlagSet(int bitmask) {
         return ((this.flags & bitmask) == bitmask);
     }
+
+    protected byte[] getVersionAndFlagsAsBytes() {
+        byte[] bytes = new byte[4];
+        bytes[0] = (byte) version;
+        bytes[1] = (byte) ((flags >> 16) & 0xFF);
+        bytes[2] = (byte) ((flags >> 8) & 0xFF);
+        bytes[3] = (byte) ((flags) & 0xFF);
+        return bytes;
+    }
 }
