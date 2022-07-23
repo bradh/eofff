@@ -7,6 +7,11 @@ import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 
+/**
+ * Item Information Box.
+ *
+ * <p>See ISO/IEC 14496-12:2015 Section 8.11.6.
+ */
 public class ItemInfoBox extends FullBox {
     private final List<ItemInfoEntry> items = new ArrayList<>();
 
@@ -31,7 +36,7 @@ public class ItemInfoBox extends FullBox {
     public void writeTo(OutputStream stream) throws IOException {
         stream.write(this.getSizeAsBytes());
         stream.write(getFourCC().toBytes());
-        if ((getVersion() == 0) && (items.size() >= (2 << 16))) {
+        if ((getVersion() == 0) && (items.size() >= (1 << 16))) {
             setVersion(1);
         }
         stream.write(getVersionAndFlagsAsBytes());

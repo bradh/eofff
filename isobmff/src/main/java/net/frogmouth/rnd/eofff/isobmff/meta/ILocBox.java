@@ -5,6 +5,11 @@ import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 
+/**
+ * Item Location Box.
+ *
+ * <p>See ISO/IEC 14496-12:2015 Section 8.11.3.
+ */
 public class ILocBox extends FullBox {
     private int offsetSize;
     private int lengthSize;

@@ -41,6 +41,11 @@ public class FileTypeLikeBox extends BaseBox {
         this.compatibleBrands.add(compatibleBrand);
     }
 
+    public void appendCompatibleBrand(FourCC fourCC) {
+        addCompatibleBrand(fourCC);
+        adjustSize(FourCC.BYTES);
+    }
+
     @Override
     public void writeTo(OutputStream stream) throws IOException {
         stream.write(this.getSizeAsBytes());

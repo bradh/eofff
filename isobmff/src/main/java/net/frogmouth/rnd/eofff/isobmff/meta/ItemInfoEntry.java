@@ -108,7 +108,7 @@ public class ItemInfoEntry extends FullBox {
         stream.write(this.getSizeAsBytes());
         stream.write(getFourCC().toBytes());
         // TODO: handle version 0 and 1
-        if ((getVersion() == 2) && (itemID >= (2 << 16))) {
+        if ((getVersion() == 2) && (itemID >= (1 << 16))) {
             setVersion(3);
         }
         stream.write(getVersionAndFlagsAsBytes());
@@ -119,10 +119,15 @@ public class ItemInfoEntry extends FullBox {
         }
         stream.write(shortToBytes((short) itemProtectionIndex));
         stream.write(intToBytes((int) this.itemType));
+        if (itemName != null) {
+            stream.write(itemName.getBytes(StandardCharsets.US_ASCII));
+        }
+        stream.write(0); // Null terminator for string.
         if (this.getItemTypeAsText().equals("mime")) {
             // TODO
         } else if (this.getItemTypeAsText().equals("uri ")) {
             stream.write(itemUriType.getBytes(StandardCharsets.US_ASCII));
+            stream.write(0); // Null terminator for string.
         }
     }
 

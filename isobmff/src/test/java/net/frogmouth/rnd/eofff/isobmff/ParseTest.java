@@ -10,17 +10,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
-import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBox;
-import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBoxBuilder;
-import net.frogmouth.rnd.eofff.isobmff.meta.ItemDataBox;
-import net.frogmouth.rnd.eofff.isobmff.meta.ItemDataBoxBuilder;
-import net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoBox;
-import net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoBoxBuilder;
-import net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoEntry;
-import net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoEntryBuilder;
-import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
-import net.frogmouth.rnd.eofff.isobmff.meta.MetaBoxBuilder;
-import net.frogmouth.rnd.eofff.isobmff.moov.MovieBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeTest;
@@ -82,66 +71,6 @@ public class ParseTest {
             box.writeTo(baos);
         }
         File testOut = new File("G340_out.mp4");
-        Files.write(testOut.toPath(), baos.toByteArray(), StandardOpenOption.CREATE);
-    }
-
-    @Test
-    public void hackBoxes() throws IOException {
-        MovieBox moov = null;
-        for (Box box : boxes) {
-            if (box.getFourCC().equals(new FourCC("moov"))) {
-                moov = (MovieBox) box;
-                break;
-            }
-        }
-        if (moov != null) {
-            Box udta = null;
-            for (Box box : moov.getNestedBoxes()) {
-                if (box.getFourCC().equals(new FourCC("udta"))) {
-                    udta = box;
-                    break;
-                }
-            }
-            if (udta != null) {
-                moov.removeNestedBox(udta);
-            }
-            HdlrBox hdlr =
-                    new HdlrBoxBuilder()
-                            .withVersion(0)
-                            .withFlags(0)
-                            .withHandlerType("meta")
-                            .withName("MIMD static metadata")
-                            .build();
-            ItemInfoEntry infe0 =
-                    new ItemInfoEntryBuilder()
-                            .withVersion(2)
-                            .withItemType("uri ")
-                            .withItemUriType("urn:misb.KLV.ul.060EE2B24.02050101.0E010503.00000000")
-                            .build();
-            ItemInfoBox iinf =
-                    new ItemInfoBoxBuilder()
-                            .withVersion(0)
-                            .withFlags(0)
-                            .withItemInfo(infe0)
-                            .build();
-            // TODO: make something meaningful in MIMD
-            ItemDataBox idat =
-                    new ItemDataBoxBuilder().withData(new byte[] {0x31, 0x32, 0x33}).build();
-            MetaBox metaBox =
-                    new MetaBoxBuilder()
-                            .withVersion(0)
-                            .withFlags(0)
-                            .withNesteBox(hdlr)
-                            .withNesteBox(iinf)
-                            .withNesteBox(idat)
-                            .build();
-            moov.appendNestedBox(metaBox);
-        }
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        for (Box box : boxes) {
-            box.writeTo(baos);
-        }
-        File testOut = new File("G340_out_no_udta.mp4");
         Files.write(testOut.toPath(), baos.toByteArray(), StandardOpenOption.CREATE);
     }
 }

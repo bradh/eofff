@@ -29,6 +29,11 @@ public class ItemInfoBoxBuilder {
 
     public ItemInfoBox build() {
         int size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        if ((version == 1) || (entries.size() >= (1 << 16))) {
+            size += Integer.BYTES;
+        } else {
+            size += Short.BYTES;
+        }
         for (ItemInfoEntry entry : this.entries) {
             size += entry.getSize();
         }
