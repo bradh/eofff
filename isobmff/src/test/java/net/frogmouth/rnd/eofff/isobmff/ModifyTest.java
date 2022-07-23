@@ -43,6 +43,33 @@ import org.jmisb.mimd.st1903.Security_ClassifyingMethod;
 import org.jmisb.mimd.st1905.Platform;
 import org.jmisb.mimd.st1905.PlatformType;
 import org.jmisb.mimd.st1905.Platform_Name;
+import org.jmisb.mimd.st1905.Platform_Payloads;
+import org.jmisb.mimd.st1905.Platform_Stages;
+import org.jmisb.mimd.st1906.AbsEnu;
+import org.jmisb.mimd.st1906.AbsGeodetic;
+import org.jmisb.mimd.st1906.AbsGeodetic_Hae;
+import org.jmisb.mimd.st1906.AbsGeodetic_Lat;
+import org.jmisb.mimd.st1906.AbsGeodetic_Lon;
+import org.jmisb.mimd.st1906.Orientation;
+import org.jmisb.mimd.st1906.Position;
+import org.jmisb.mimd.st1906.RelPosition;
+import org.jmisb.mimd.st1906.RelPosition_X;
+import org.jmisb.mimd.st1906.RelPosition_Y;
+import org.jmisb.mimd.st1906.RelPosition_Z;
+import org.jmisb.mimd.st1906.Stage;
+import org.jmisb.mimd.st1907.GISensorType;
+import org.jmisb.mimd.st1907.GeoIntelligenceSensor;
+import org.jmisb.mimd.st1907.GeoIntelligenceSensor_NCols;
+import org.jmisb.mimd.st1907.GeoIntelligenceSensor_NRows;
+import org.jmisb.mimd.st1907.GeoIntelligenceSensor_Stages;
+import org.jmisb.mimd.st1907.Payload;
+import org.jmisb.mimd.st1907.Payload_GeoIntelligenceSensors;
+import org.jmisb.mimd.st1908.ImagerSystem;
+import org.jmisb.mimd.st1908.ImagerSystem_Name;
+import org.jmisb.mimd.st1908.MIIS;
+import org.jmisb.mimd.st1908.MIIS_Version;
+import org.jmisb.mimd.st1908.MinorCoreId;
+import org.jmisb.mimd.st1908.MinorCoreId_Uuid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeTest;
@@ -52,6 +79,7 @@ public class ModifyTest {
     private static final Logger LOG = LoggerFactory.getLogger(ModifyTest.class);
     private static final int SECURITY_ID_GROUP = 1;
     private static final int SECURITY_ID_SERIAL = 2;
+    private static final int STAGES_ID_GROUP = 2;
     private List<Box> boxes;
 
     public ModifyTest() {}
@@ -72,6 +100,8 @@ public class ModifyTest {
         FileTypeBox ftyp = (FileTypeBox) getTopLevelBoxByFourCC("ftyp");
         if (ftyp != null) {
             ftyp.setMajorBrand(new FourCC("iso6"));
+            ftyp.setMinorVersion(0);
+            ftyp.removeCompatibleBrand(new FourCC("iso2"));
             ftyp.appendCompatibleBrand(new FourCC("misb"));
         }
         MovieBox moov = (MovieBox) getTopLevelBoxByFourCC("moov");
@@ -144,30 +174,26 @@ public class ModifyTest {
         try {
             MIMD mimd = new MIMD();
             mimd.setVersion(new MIMD_Version(1));
-            Security security = new Security();
-            MimdId securityId = new MimdId(SECURITY_ID_SERIAL, SECURITY_ID_GROUP);
-            security.setMimdId(securityId);
-            security.setClassification(new Security_Classification("UNCLASSIFIED//"));
-            security.setClassifyingMethod(new Security_ClassifyingMethod("US-1"));
-            List<Security> securities = new ArrayList<>();
-            securities.add(security);
-            MIMD_SecurityOptions securityOptions = new MIMD_SecurityOptions(securities);
-            mimd.setSecurityOptions(securityOptions);
-            MimdIdReference securityIdRef =
+            mimd.setSecurityOptions(buildSecurityOptions());
+            mimd.setCompositeMetadataSecurity(
                     new MimdIdReference(
-                            SECURITY_ID_SERIAL, SECURITY_ID_GROUP, "Security", "Security");
-            mimd.setCompositeMetadataSecurity(securityIdRef);
-            mimd.setCompositeProductSecurity(securityIdRef);
-            mimd.setCompositeMotionImagerySecurity(securityIdRef);
-            Platform platform = new Platform();
-            Platform_Name platformName = new Platform_Name("MEVA Camera G340");
-            platform.setName(platformName);
-            platform.setType(PlatformType.Structure);
-            // TODO: add location and orientation
-            List<Platform> platformsList = new ArrayList<>();
-            platformsList.add(platform);
-            MIMD_Platforms platforms = new MIMD_Platforms(platformsList);
-            mimd.setPlatforms(platforms);
+                            SECURITY_ID_SERIAL,
+                            SECURITY_ID_GROUP,
+                            "CompositeMetadataSecurity",
+                            "Security"));
+            mimd.setCompositeProductSecurity(
+                    new MimdIdReference(
+                            SECURITY_ID_SERIAL,
+                            SECURITY_ID_GROUP,
+                            "CompositeProductSecurity",
+                            "Security"));
+            mimd.setCompositeMotionImagerySecurity(
+                    new MimdIdReference(
+                            SECURITY_ID_SERIAL,
+                            SECURITY_ID_GROUP,
+                            "CompositeMotionImagerySecurity",
+                            "Security"));
+            mimd.setPlatforms(buildPlatforms());
             dumpMimd(mimd);
             byte[] mimdBytes = mimd.frameMessage(false);
             BerField ber = BerDecoder.decode(mimdBytes, UniversalLabel.LENGTH, false);
@@ -183,6 +209,143 @@ public class ModifyTest {
         } catch (KlvParseException ex) {
             throw new IOException(ex.toString());
         }
+    }
+
+    private MIMD_SecurityOptions buildSecurityOptions() throws KlvParseException {
+        Security security = new Security();
+        MimdId securityId = new MimdId(SECURITY_ID_SERIAL, SECURITY_ID_GROUP);
+        security.setMimdId(securityId);
+        security.setClassification(new Security_Classification("UNCLASSIFIED//"));
+        security.setClassifyingMethod(new Security_ClassifyingMethod("US-1"));
+        List<Security> securities = new ArrayList<>();
+        securities.add(security);
+        MIMD_SecurityOptions securityOptions = new MIMD_SecurityOptions(securities);
+        return securityOptions;
+    }
+
+    private MIMD_Platforms buildPlatforms() throws KlvParseException {
+        Platform platform = new Platform();
+        Platform_Name platformName = new Platform_Name("MEVA Camera G340");
+        platform.setName(platformName);
+        platform.setType(PlatformType.Structure);
+        platform.setStages(buildStages());
+        platform.setPayloads(buildPayloads());
+        List<Platform> platformsList = new ArrayList<>();
+        platformsList.add(platform);
+        MIMD_Platforms platforms = new MIMD_Platforms(platformsList);
+        return platforms;
+    }
+
+    private Platform_Payloads buildPayloads() throws KlvParseException {
+        Payload payload = new Payload();
+        payload.setGeoIntelligenceSensors(buildGeoIntelligenceSensors());
+        List<Payload> payloadsList = new ArrayList<>();
+        payloadsList.add(payload);
+        Platform_Payloads payloads = new Platform_Payloads(payloadsList);
+        return payloads;
+    }
+
+    private Payload_GeoIntelligenceSensors buildGeoIntelligenceSensors() throws KlvParseException {
+        List<GeoIntelligenceSensor> sensorList = new ArrayList<>();
+        GeoIntelligenceSensor geoIntelligenceSensor = new GeoIntelligenceSensor();
+        GeoIntelligenceSensor_NCols numColumns = new GeoIntelligenceSensor_NCols(1920);
+        geoIntelligenceSensor.setNCols(numColumns);
+        GeoIntelligenceSensor_NRows numRows = new GeoIntelligenceSensor_NRows(1080);
+        geoIntelligenceSensor.setNRows(numRows);
+        geoIntelligenceSensor.setType(GISensorType.EO);
+        geoIntelligenceSensor.setImagerSystem(buildImagerSystem());
+        List<Stage> giSensorStagesList = new ArrayList<>();
+        Stage geoIntelligenceSensorStage = new Stage();
+        geoIntelligenceSensorStage.setParentStage(
+                new MimdIdReference(3, STAGES_ID_GROUP, "ParentStage", "Stage"));
+        giSensorStagesList.add(geoIntelligenceSensorStage);
+        GeoIntelligenceSensor_Stages giSensorStages =
+                new GeoIntelligenceSensor_Stages(giSensorStagesList);
+        geoIntelligenceSensor.setStages(giSensorStages);
+        sensorList.add(geoIntelligenceSensor);
+        Payload_GeoIntelligenceSensors geoIntelligenceSensors =
+                new Payload_GeoIntelligenceSensors(sensorList);
+        return geoIntelligenceSensors;
+    }
+
+    private ImagerSystem buildImagerSystem() throws KlvParseException {
+        ImagerSystem imagerSystem = new ImagerSystem();
+        ImagerSystem_Name imagerSystemName = new ImagerSystem_Name("Shopkeeper Mini PTZ");
+        imagerSystem.setName(imagerSystemName);
+        imagerSystem.setMiis(buildMIIS());
+        // TODO: need FOV horizontal and vertical
+        return imagerSystem;
+    }
+
+    private MIIS buildMIIS() throws KlvParseException {
+        MIIS miis = new MIIS();
+        MinorCoreId minorCoreId = new MinorCoreId();
+        MinorCoreId_Uuid minorCoreUUID =
+                new MinorCoreId_Uuid(
+                        new long[] {
+                            0x43, 0xbb, 0x3a, 0x8d, 0x48, 0x99, 0x4d, 0xec, 0x80, 0x93, 0xa9, 0x09,
+                            0x52, 0x48, 0xe5, 0xe6
+                        });
+        minorCoreId.setUuid(minorCoreUUID);
+        miis.setMinorCoreId(minorCoreId);
+        MIIS_Version miisVersion = new MIIS_Version(1);
+        miis.setVersion(miisVersion);
+        return miis;
+    }
+
+    private Platform_Stages buildStages() throws KlvParseException {
+        KrtdConverter krtd =
+                new KrtdConverter(
+                        new File(
+                                "/home/bradh/meva/meva-data-repo/metadata/camera-models/krtd/2018-03-07.11-45-09.11-50-09.bus.G340.krtd"));
+        List<Stage> stagesList = new ArrayList<>();
+        stagesList.add(buildRootStage(krtd));
+        stagesList.add(buildCameraOffsetStage(krtd));
+        stagesList.add(buildCameraOrientationStage(krtd));
+        Platform_Stages stages = new Platform_Stages(stagesList);
+        return stages;
+    }
+
+    private Stage buildRootStage(KrtdConverter krtd) throws KlvParseException {
+        Stage rootStage = new Stage();
+        rootStage.setMimdId(new MimdId(1, STAGES_ID_GROUP));
+        rootStage.setParentStage(new MimdIdReference(0, STAGES_ID_GROUP, "ParentStage", "Stage"));
+        Position rootStagePosition = new Position();
+        AbsGeodetic absGeodeticRootStage = new AbsGeodetic();
+        absGeodeticRootStage.setLat(new AbsGeodetic_Lat(krtd.getAbsGeodeticLat()));
+        absGeodeticRootStage.setLon(new AbsGeodetic_Lon(krtd.getAbsGeodeticLon()));
+        absGeodeticRootStage.setHae(new AbsGeodetic_Hae(krtd.getAbsGeodeticHae()));
+        rootStagePosition.setAbsGeodetic(absGeodeticRootStage);
+        rootStage.setPosition(rootStagePosition);
+        return rootStage;
+    }
+
+    private Stage buildCameraOffsetStage(KrtdConverter krtd) throws KlvParseException {
+        Stage cameraPositionStage = new Stage();
+        cameraPositionStage.setMimdId(new MimdId(2, STAGES_ID_GROUP));
+        cameraPositionStage.setParentStage(
+                new MimdIdReference(1, STAGES_ID_GROUP, "ParentStage", "Stage"));
+        Position cameraPositionStagePosition = new Position();
+        RelPosition relPosition = new RelPosition();
+        relPosition.setX(new RelPosition_X(krtd.getRelPositionX()));
+        relPosition.setY(new RelPosition_Y(krtd.getRelPositionY()));
+        relPosition.setZ(new RelPosition_Z(krtd.getRelPositionZ()));
+        cameraPositionStagePosition.setRelPosition(relPosition);
+        cameraPositionStage.setPosition(cameraPositionStagePosition);
+        return cameraPositionStage;
+    }
+
+    private Stage buildCameraOrientationStage(KrtdConverter krtd) throws KlvParseException {
+        Stage cameraOrientationStage = new Stage();
+        cameraOrientationStage.setMimdId(new MimdId(3, STAGES_ID_GROUP));
+        cameraOrientationStage.setParentStage(
+                new MimdIdReference(2, STAGES_ID_GROUP, "ParentStage", "Stage"));
+        Orientation cameraOrientationStageStage = new Orientation();
+        AbsEnu absEnu = new AbsEnu();
+        // TODO: add orientation stage values
+        cameraOrientationStageStage.setAbsEnu(absEnu);
+        cameraOrientationStage.setOrientation(cameraOrientationStageStage);
+        return cameraOrientationStage;
     }
 
     private void dumpMimd(MIMD mimd) {

@@ -41,6 +41,11 @@ public class FileTypeLikeBox extends BaseBox {
         this.compatibleBrands.add(compatibleBrand);
     }
 
+    public void removeCompatibleBrand(FourCC fourCC) {
+        this.compatibleBrands.remove(fourCC);
+        adjustSize(-1 * FourCC.BYTES);
+    }
+
     public void appendCompatibleBrand(FourCC fourCC) {
         addCompatibleBrand(fourCC);
         adjustSize(FourCC.BYTES);
