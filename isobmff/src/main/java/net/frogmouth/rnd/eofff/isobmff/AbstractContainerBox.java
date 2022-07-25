@@ -46,12 +46,14 @@ public abstract class AbstractContainerBox extends BaseBox {
         stream.write(this.getSizeAsBytes());
         stream.write(getFourCC().toBytes());
         for (Box box : nestedBoxes) {
+            /*
             System.out.println(
                     "writing nested box: "
                             + box.getFourCC().toString()
                             + " ["
                             + box.getFullName()
                             + "]");
+            */
             box.writeTo(stream);
         }
     }

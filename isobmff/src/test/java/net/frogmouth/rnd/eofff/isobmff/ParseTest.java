@@ -28,7 +28,7 @@ public class ParseTest {
         FileParser fileParser = new FileParser();
         boxes = fileParser.parse(testFile);
         for (Box box : boxes) {
-            LOG.info(box.toString());
+            // LOG.info(box.toString());
         }
     }
 

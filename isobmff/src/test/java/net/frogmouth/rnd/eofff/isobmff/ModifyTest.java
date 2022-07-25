@@ -12,6 +12,7 @@ import net.frogmouth.rnd.eofff.isobmff.free.FreeBox;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.ItemDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.ItemDataBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoBox;
@@ -22,7 +23,16 @@ import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.meta.PitmBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.PrimaryItemBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.moov.MediaBox;
+import net.frogmouth.rnd.eofff.isobmff.moov.MediaInformationBox;
 import net.frogmouth.rnd.eofff.isobmff.moov.MovieBox;
+import net.frogmouth.rnd.eofff.isobmff.moov.MovieBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.moov.MovieHeaderBox;
+import net.frogmouth.rnd.eofff.isobmff.moov.SampleTableBox;
+import net.frogmouth.rnd.eofff.isobmff.moov.TrackBox;
+import net.frogmouth.rnd.eofff.isobmff.moov.TrackBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.saiz.SampleAuxiliaryInformationSizesBox;
+import net.frogmouth.rnd.eofff.isobmff.saiz.SampleAuxiliaryInformationSizesBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.stco.ChunkOffsetBox;
 import org.jmisb.api.common.KlvParseException;
 import org.jmisb.api.klv.BerDecoder;
@@ -74,7 +84,6 @@ import org.jmisb.mimd.st1908.MinorCoreId;
 import org.jmisb.mimd.st1908.MinorCoreId_Uuid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 public class ModifyTest {
@@ -82,22 +91,20 @@ public class ModifyTest {
     private static final int SECURITY_ID_GROUP = 1;
     private static final int SECURITY_ID_SERIAL = 2;
     private static final int STAGES_ID_GROUP = 2;
-    private List<Box> originalBoxes;
 
     public ModifyTest() {}
 
-    @BeforeTest
-    public void parseFile() throws IOException {
+    public List<Box> parseFile() throws IOException {
         File file = new File("/home/bradh/meva/2018-03-07.16-55-00.17-00-00.bus.G340.recoded.mp4");
         Path testFile = file.toPath();
         FileParser fileParser = new FileParser();
-        originalBoxes = fileParser.parse(testFile);
+        return fileParser.parse(testFile);
     }
 
     @Test
     public void hackBoxes() throws IOException {
         List<Box> boxes = new ArrayList<>();
-        boxes.addAll(originalBoxes);
+        boxes.addAll(parseFile());
         FileTypeBox ftyp = (FileTypeBox) getTopLevelBoxByFourCC(boxes, "ftyp");
         MovieBox moov = (MovieBox) getTopLevelBoxByFourCC(boxes, "moov");
         ChunkOffsetBox stco =
@@ -118,40 +125,7 @@ public class ModifyTest {
             if (udta != null) {
                 moov.removeNestedBox(udta);
             }
-            HdlrBox hdlr =
-                    new HdlrBoxBuilder()
-                            .withVersion(0)
-                            .withFlags(0)
-                            .withHandlerType("meta")
-                            .withName("MIMD static metadata")
-                            .build();
-            ItemInfoEntry infe0 =
-                    new ItemInfoEntryBuilder()
-                            .withVersion(2)
-                            .withItemId(1)
-                            .withItemType("uri ")
-                            .withItemUriType("urn:misb.KLV.ul.060E2B34.02050101.0E010503.00000000")
-                            .build();
-            PitmBox pitm =
-                    new PrimaryItemBoxBuilder().withVersion(0).withFlags(0).withItemId(1).build();
-            ItemInfoBox iinf =
-                    new ItemInfoBoxBuilder()
-                            .withVersion(0)
-                            .withFlags(0)
-                            .withItemInfo(infe0)
-                            .build();
-            byte[] mimdMessageWithoutKeyAndLength = buildSimpleMIMD();
-            ItemDataBox idat =
-                    new ItemDataBoxBuilder().withData(mimdMessageWithoutKeyAndLength).build();
-            MetaBox metaBox =
-                    new MetaBoxBuilder()
-                            .withVersion(0)
-                            .withFlags(0)
-                            .withNesteBox(hdlr)
-                            .withNesteBox(pitm)
-                            .withNesteBox(iinf)
-                            .withNesteBox(idat)
-                            .build();
+            MetaBox metaBox = buildMetaBox();
             moov.appendNestedBox(metaBox);
         }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -160,6 +134,111 @@ public class ModifyTest {
         }
         File testOut = new File("G340_to_NGA.STND.0076_0.1_MIFF_static.mp4");
         Files.write(testOut.toPath(), baos.toByteArray(), StandardOpenOption.CREATE);
+    }
+
+    @Test
+    public void addAuxiliaryInformation() throws IOException {
+        List<Box> boxes = new ArrayList<>();
+        List<Box> originalBoxes = parseFile();
+        for (Box originalBox : originalBoxes) {
+            if (originalBox instanceof FileTypeBox) {
+                boxes.add(originalBox);
+            }
+            if (originalBox instanceof FreeBox) {
+                boxes.add(originalBox);
+            }
+            if (originalBox instanceof MediaDataBox) {
+                boxes.add(originalBox);
+            }
+        }
+        FileTypeBox ftyp = (FileTypeBox) getTopLevelBoxByFourCC(boxes, "ftyp");
+        MovieBox originalMoov = (MovieBox) getTopLevelBoxByFourCC(originalBoxes, "moov");
+        MovieHeaderBox mvhd = (MovieHeaderBox) findBox(originalMoov, "mvhd");
+        TrackBox motionImageryTrack = (TrackBox) findBox(originalMoov, "trak");
+        MediaBox mdia = (MediaBox) findBox(motionImageryTrack, "mdia");
+        MediaInformationBox minf = (MediaInformationBox) findBox(mdia, "minf");
+        SampleTableBox stbl = (SampleTableBox) findBox(minf, "stbl");
+        ChunkOffsetBox stco = (ChunkOffsetBox) findBox(stbl, "stco");
+        if (ftyp != null) {
+            ftyp.setMajorBrand(new FourCC("iso6"));
+            ftyp.setMinorVersion(0);
+            ftyp.removeCompatibleBrand(new FourCC("iso2"));
+            stco.shiftChunks(-1 * FourCC.BYTES);
+            ftyp.appendCompatibleBrand(new FourCC("misb"));
+            stco.shiftChunks(FourCC.BYTES);
+        }
+        FreeBox free = (FreeBox) getTopLevelBoxByFourCC(boxes, "free");
+        long freeBoxSize = free.getSize();
+        boxes.remove(free);
+        stco.shiftChunks(-1 * freeBoxSize);
+        MetaBox metaBox = buildMetaBox();
+        // TODO variable length sizes
+        SampleAuxiliaryInformationSizesBox saiz =
+                new SampleAuxiliaryInformationSizesBoxBuilder()
+                        .withVersion(0)
+                        .withFlags(1)
+                        .withAuxInfoType(new FourCC("misb"))
+                        .withAuxInfoTypeParameter(0)
+                        .withURI("urn:misb.KLV.ul:060E2B34.02050101.0E010505.00000000")
+                        .withDefaultSampleInfoSize(8)
+                        .withSampleCount(5 * 60 * 30)
+                        .build();
+        stbl.appendNestedBox(saiz);
+        minf.adjustSize(saiz.getSize());
+        mdia.adjustSize(saiz.getSize());
+        motionImageryTrack.adjustSize(saiz.getSize());
+        // TODO: saio
+        // TODO: write time stamps
+        TrackBox metadataTrack = new TrackBoxBuilder().build();
+        MovieBox moov =
+                new MovieBoxBuilder()
+                        .withNestedBox(mvhd)
+                        .withNestedBox(motionImageryTrack)
+                        // .withNestedBox(metadataTrack)
+                        .withNestedBox(metaBox)
+                        .build();
+        boxes.add(moov);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        for (Box box : boxes) {
+            box.writeTo(baos);
+        }
+        File testOut = new File("G340_to_NGA.STND.0076_0.1_MIFF_aux_info.mp4");
+        Files.write(testOut.toPath(), baos.toByteArray(), StandardOpenOption.CREATE);
+    }
+
+    private MetaBox buildMetaBox() throws IOException {
+        HdlrBox hdlr =
+                new HdlrBoxBuilder()
+                        .withVersion(0)
+                        .withFlags(0)
+                        .withHandlerType("meta")
+                        .withName("MIMD static metadata")
+                        .build();
+        ItemInfoEntry infe0 =
+                new ItemInfoEntryBuilder()
+                        .withVersion(2)
+                        .withItemId(1)
+                        .withItemType("uri ")
+                        .withItemUriType("urn:misb.KLV.ul.060E2B34.02050101.0E010503.00000000")
+                        .build();
+        PitmBox pitm =
+                new PrimaryItemBoxBuilder().withVersion(0).withFlags(0).withItemId(1).build();
+        ItemInfoBox iinf =
+                new ItemInfoBoxBuilder().withVersion(0).withFlags(0).withItemInfo(infe0).build();
+        byte[] mimdMessageWithoutKeyAndLength = buildSimpleMIMD();
+        ItemDataBox idat =
+                new ItemDataBoxBuilder().withData(mimdMessageWithoutKeyAndLength).build();
+        MetaBox metaBox =
+                new MetaBoxBuilder()
+                        .withVersion(0)
+                        .withFlags(0)
+                        .withNesteBox(hdlr)
+                        .withNesteBox(pitm)
+                        .withNesteBox(iinf)
+                        .withNesteBox(idat)
+                        .build();
+        return metaBox;
     }
 
     private static Box findBox(AbstractContainerBox parent, String... fourCCs) {
