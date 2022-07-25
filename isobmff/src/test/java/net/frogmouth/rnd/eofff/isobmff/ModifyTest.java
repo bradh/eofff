@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import net.frogmouth.rnd.eofff.isobmff.free.FreeBox;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBoxBuilder;
@@ -22,6 +23,7 @@ import net.frogmouth.rnd.eofff.isobmff.meta.MetaBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.meta.PitmBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.PrimaryItemBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.moov.MovieBox;
+import net.frogmouth.rnd.eofff.isobmff.stco.ChunkOffsetBox;
 import org.jmisb.api.common.KlvParseException;
 import org.jmisb.api.klv.BerDecoder;
 import org.jmisb.api.klv.BerField;
@@ -80,7 +82,7 @@ public class ModifyTest {
     private static final int SECURITY_ID_GROUP = 1;
     private static final int SECURITY_ID_SERIAL = 2;
     private static final int STAGES_ID_GROUP = 2;
-    private List<Box> boxes;
+    private List<Box> originalBoxes;
 
     public ModifyTest() {}
 
@@ -89,30 +91,30 @@ public class ModifyTest {
         File file = new File("/home/bradh/meva/2018-03-07.16-55-00.17-00-00.bus.G340.recoded.mp4");
         Path testFile = file.toPath();
         FileParser fileParser = new FileParser();
-        boxes = fileParser.parse(testFile);
-        for (Box box : boxes) {
-            LOG.info(box.toString());
-        }
+        originalBoxes = fileParser.parse(testFile);
     }
 
     @Test
     public void hackBoxes() throws IOException {
-        FileTypeBox ftyp = (FileTypeBox) getTopLevelBoxByFourCC("ftyp");
+        List<Box> boxes = new ArrayList<>();
+        boxes.addAll(originalBoxes);
+        FileTypeBox ftyp = (FileTypeBox) getTopLevelBoxByFourCC(boxes, "ftyp");
+        MovieBox moov = (MovieBox) getTopLevelBoxByFourCC(boxes, "moov");
+        ChunkOffsetBox stco =
+                (ChunkOffsetBox) findBox(moov, "trak", "mdia", "minf", "stbl", "stco");
         if (ftyp != null) {
             ftyp.setMajorBrand(new FourCC("iso6"));
             ftyp.setMinorVersion(0);
-            ftyp.removeCompatibleBrand(new FourCC("iso2"));
+            // ftyp.removeCompatibleBrand(new FourCC("iso2"));
             ftyp.appendCompatibleBrand(new FourCC("misb"));
+            stco.shiftChunks(FourCC.BYTES);
         }
-        MovieBox moov = (MovieBox) getTopLevelBoxByFourCC("moov");
+        FreeBox free = (FreeBox) getTopLevelBoxByFourCC(boxes, "free");
+        long freeBoxSize = free.getSize();
+        boxes.remove(free);
+        stco.shiftChunks(-1 * freeBoxSize);
         if (moov != null) {
-            Box udta = null;
-            for (Box box : moov.getNestedBoxes()) {
-                if (box.getFourCC().equals(new FourCC("udta"))) {
-                    udta = box;
-                    break;
-                }
-            }
+            Box udta = findChildBox(moov, "udta");
             if (udta != null) {
                 moov.removeNestedBox(udta);
             }
@@ -138,7 +140,6 @@ public class ModifyTest {
                             .withFlags(0)
                             .withItemInfo(infe0)
                             .build();
-            // TODO: make something meaningful in MIMD
             byte[] mimdMessageWithoutKeyAndLength = buildSimpleMIMD();
             ItemDataBox idat =
                     new ItemDataBoxBuilder().withData(mimdMessageWithoutKeyAndLength).build();
@@ -161,7 +162,30 @@ public class ModifyTest {
         Files.write(testOut.toPath(), baos.toByteArray(), StandardOpenOption.CREATE);
     }
 
-    private Box getTopLevelBoxByFourCC(String fourCC) {
+    private static Box findBox(AbstractContainerBox parent, String... fourCCs) {
+        Box child = null;
+        for (String fourCC : fourCCs) {
+            child = findChildBox(parent, fourCC);
+            if (child instanceof AbstractContainerBox abstractContainerBox) {
+                parent = abstractContainerBox;
+            }
+        }
+        return child;
+    }
+
+    private static Box findChildBox(AbstractContainerBox parent, String fourCC) {
+        if (parent == null) {
+            return null;
+        }
+        for (Box box : parent.getNestedBoxes()) {
+            if (box.getFourCC().equals(new FourCC(fourCC))) {
+                return box;
+            }
+        }
+        return null;
+    }
+
+    private static Box getTopLevelBoxByFourCC(List<Box> boxes, String fourCC) {
         for (Box box : boxes) {
             if (box.getFourCC().equals(new FourCC(fourCC))) {
                 return box;
@@ -170,7 +194,7 @@ public class ModifyTest {
         return null;
     }
 
-    private byte[] buildSimpleMIMD() throws IOException {
+    private static byte[] buildSimpleMIMD() throws IOException {
         try {
             MIMD mimd = new MIMD();
             mimd.setVersion(new MIMD_Version(1));
@@ -211,7 +235,7 @@ public class ModifyTest {
         }
     }
 
-    private MIMD_SecurityOptions buildSecurityOptions() throws KlvParseException {
+    private static MIMD_SecurityOptions buildSecurityOptions() throws KlvParseException {
         Security security = new Security();
         MimdId securityId = new MimdId(SECURITY_ID_SERIAL, SECURITY_ID_GROUP);
         security.setMimdId(securityId);
@@ -223,7 +247,7 @@ public class ModifyTest {
         return securityOptions;
     }
 
-    private MIMD_Platforms buildPlatforms() throws KlvParseException {
+    private static MIMD_Platforms buildPlatforms() throws KlvParseException {
         Platform platform = new Platform();
         Platform_Name platformName = new Platform_Name("MEVA Camera G340");
         platform.setName(platformName);
@@ -236,7 +260,7 @@ public class ModifyTest {
         return platforms;
     }
 
-    private Platform_Payloads buildPayloads() throws KlvParseException {
+    private static Platform_Payloads buildPayloads() throws KlvParseException {
         Payload payload = new Payload();
         payload.setGeoIntelligenceSensors(buildGeoIntelligenceSensors());
         List<Payload> payloadsList = new ArrayList<>();
@@ -245,7 +269,8 @@ public class ModifyTest {
         return payloads;
     }
 
-    private Payload_GeoIntelligenceSensors buildGeoIntelligenceSensors() throws KlvParseException {
+    private static Payload_GeoIntelligenceSensors buildGeoIntelligenceSensors()
+            throws KlvParseException {
         List<GeoIntelligenceSensor> sensorList = new ArrayList<>();
         GeoIntelligenceSensor geoIntelligenceSensor = new GeoIntelligenceSensor();
         GeoIntelligenceSensor_NCols numColumns = new GeoIntelligenceSensor_NCols(1920);
@@ -268,7 +293,7 @@ public class ModifyTest {
         return geoIntelligenceSensors;
     }
 
-    private ImagerSystem buildImagerSystem() throws KlvParseException {
+    private static ImagerSystem buildImagerSystem() throws KlvParseException {
         ImagerSystem imagerSystem = new ImagerSystem();
         ImagerSystem_Name imagerSystemName = new ImagerSystem_Name("Shopkeeper Mini PTZ");
         imagerSystem.setName(imagerSystemName);
@@ -277,7 +302,7 @@ public class ModifyTest {
         return imagerSystem;
     }
 
-    private MIIS buildMIIS() throws KlvParseException {
+    private static MIIS buildMIIS() throws KlvParseException {
         MIIS miis = new MIIS();
         MinorCoreId minorCoreId = new MinorCoreId();
         MinorCoreId_Uuid minorCoreUUID =
@@ -293,7 +318,7 @@ public class ModifyTest {
         return miis;
     }
 
-    private Platform_Stages buildStages() throws KlvParseException {
+    private static Platform_Stages buildStages() throws KlvParseException {
         KrtdConverter krtd =
                 new KrtdConverter(
                         new File(
@@ -306,7 +331,7 @@ public class ModifyTest {
         return stages;
     }
 
-    private Stage buildRootStage(KrtdConverter krtd) throws KlvParseException {
+    private static Stage buildRootStage(KrtdConverter krtd) throws KlvParseException {
         Stage rootStage = new Stage();
         rootStage.setMimdId(new MimdId(1, STAGES_ID_GROUP));
         rootStage.setParentStage(new MimdIdReference(0, STAGES_ID_GROUP, "ParentStage", "Stage"));
@@ -320,7 +345,7 @@ public class ModifyTest {
         return rootStage;
     }
 
-    private Stage buildCameraOffsetStage(KrtdConverter krtd) throws KlvParseException {
+    private static Stage buildCameraOffsetStage(KrtdConverter krtd) throws KlvParseException {
         Stage cameraPositionStage = new Stage();
         cameraPositionStage.setMimdId(new MimdId(2, STAGES_ID_GROUP));
         cameraPositionStage.setParentStage(
@@ -335,7 +360,7 @@ public class ModifyTest {
         return cameraPositionStage;
     }
 
-    private Stage buildCameraOrientationStage(KrtdConverter krtd) throws KlvParseException {
+    private static Stage buildCameraOrientationStage(KrtdConverter krtd) throws KlvParseException {
         Stage cameraOrientationStage = new Stage();
         cameraOrientationStage.setMimdId(new MimdId(3, STAGES_ID_GROUP));
         cameraOrientationStage.setParentStage(
@@ -348,12 +373,12 @@ public class ModifyTest {
         return cameraOrientationStage;
     }
 
-    private void dumpMimd(MIMD mimd) {
+    private static void dumpMimd(MIMD mimd) {
         outputTopLevelMessageHeader(mimd);
         outputNestedKlvValue(mimd, 1);
     }
 
-    private void outputTopLevelMessageHeader(IMisbMessage misbMessage) {
+    private static void outputTopLevelMessageHeader(IMisbMessage misbMessage) {
         String displayHeader = misbMessage.displayHeader();
         if (displayHeader.equalsIgnoreCase("Unknown")) {
             System.out.println(
@@ -368,11 +393,11 @@ public class ModifyTest {
         }
     }
 
-    private void outputUnknownMessageContent(byte[] frameMessage) {
+    private static void outputUnknownMessageContent(byte[] frameMessage) {
         System.out.println(ArrayUtils.toHexString(frameMessage, 16, true));
     }
 
-    private void outputNestedKlvValue(INestedKlvValue nestedKlvValue, int indentationLevel) {
+    private static void outputNestedKlvValue(INestedKlvValue nestedKlvValue, int indentationLevel) {
         for (IKlvKey identifier : nestedKlvValue.getIdentifiers()) {
             IKlvValue value = nestedKlvValue.getField(identifier);
             outputValueWithIndentation(value, indentationLevel);
@@ -383,7 +408,7 @@ public class ModifyTest {
         }
     }
 
-    private void outputValueWithIndentation(IKlvValue value, int indentationLevel) {
+    private static void outputValueWithIndentation(IKlvValue value, int indentationLevel) {
         for (int i = 0; i < indentationLevel; ++i) {
             System.out.print("\t");
         }

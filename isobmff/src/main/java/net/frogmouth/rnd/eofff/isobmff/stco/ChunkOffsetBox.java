@@ -35,6 +35,14 @@ public class ChunkOffsetBox extends FullBox {
         this.entries.add(entry);
     }
 
+    public void shiftChunks(long shift) {
+        for (int i = 0; i < entries.size(); i++) {
+            long entry = entries.get(i);
+            entry += shift;
+            entries.set(i, entry);
+        }
+    }
+
     @Override
     public void writeTo(OutputStream stream) throws IOException {
         stream.write(this.getSizeAsBytes());
