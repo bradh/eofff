@@ -31,7 +31,9 @@ public class DataEntryUrlBox extends DataEntryBox {
         stream.write(this.getSizeAsBytes());
         stream.write(getFourCC().toBytes());
         stream.write(getVersionAndFlagsAsBytes());
-        stream.write(location.getBytes(StandardCharsets.US_ASCII));
+        if (!this.isFlagSet(DataEntryBox.MEDIA_DATA_IN_SAME_FILE_FLAG)) {
+            stream.write(location.getBytes(StandardCharsets.US_ASCII));
+        }
     }
 
     @Override

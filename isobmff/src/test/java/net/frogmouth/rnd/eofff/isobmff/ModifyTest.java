@@ -6,13 +6,22 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import net.frogmouth.rnd.eofff.isobmff.dinf.DataInformationBox;
+import net.frogmouth.rnd.eofff.isobmff.dinf.DataInformationBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceBox;
+import net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.free.FreeBox;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
+import net.frogmouth.rnd.eofff.isobmff.mdhd.MediaHeaderBox;
+import net.frogmouth.rnd.eofff.isobmff.mdhd.MediaHeaderBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.meta.ItemDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.ItemDataBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoBox;
@@ -24,16 +33,29 @@ import net.frogmouth.rnd.eofff.isobmff.meta.MetaBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.meta.PitmBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.PrimaryItemBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.moov.MediaBox;
+import net.frogmouth.rnd.eofff.isobmff.moov.MediaBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.moov.MediaInformationBox;
+import net.frogmouth.rnd.eofff.isobmff.moov.MediaInformationBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.moov.MovieBox;
 import net.frogmouth.rnd.eofff.isobmff.moov.MovieBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.moov.MovieHeaderBox;
 import net.frogmouth.rnd.eofff.isobmff.moov.SampleTableBox;
+import net.frogmouth.rnd.eofff.isobmff.moov.SampleTableBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.moov.TrackBox;
 import net.frogmouth.rnd.eofff.isobmff.moov.TrackBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.moov.TrackHeaderBox;
+import net.frogmouth.rnd.eofff.isobmff.moov.TrackHeaderBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.nmhd.NullMediaHeaderBox;
+import net.frogmouth.rnd.eofff.isobmff.nmhd.NullMediaHeaderBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.saiz.SampleAuxiliaryInformationSizesBox;
 import net.frogmouth.rnd.eofff.isobmff.saiz.SampleAuxiliaryInformationSizesBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.stco.ChunkOffsetBox;
+import net.frogmouth.rnd.eofff.isobmff.tref.TrackReferenceBox;
+import net.frogmouth.rnd.eofff.isobmff.tref.TrackReferenceBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.tref.TrackReferenceTypeBox;
+import net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupBox;
+import net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupTypeBox;
 import org.jmisb.api.common.KlvParseException;
 import org.jmisb.api.klv.BerDecoder;
 import org.jmisb.api.klv.BerField;
@@ -91,6 +113,14 @@ public class ModifyTest {
     private static final int SECURITY_ID_GROUP = 1;
     private static final int SECURITY_ID_SERIAL = 2;
     private static final int STAGES_ID_GROUP = 2;
+    private static final int TRACK_GROUP_ID = 16;
+    /** Timescale is in inverse units. */
+    private static final long TIMESCALE_MILLISECONDS = 1000;
+
+    private static final long DURATION_SECONDS = 5 * 60;
+    private static final int FRAME_RATE = 30;
+    private static final ZonedDateTime BASE_DATE =
+            ZonedDateTime.of(1904, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
 
     public ModifyTest() {}
 
@@ -125,7 +155,7 @@ public class ModifyTest {
             if (udta != null) {
                 moov.removeNestedBox(udta);
             }
-            MetaBox metaBox = buildMetaBox();
+            MetaBox metaBox = buildPresentationLevelMetaBox();
             moov.appendNestedBox(metaBox);
         }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -155,6 +185,14 @@ public class ModifyTest {
         MovieBox originalMoov = (MovieBox) getTopLevelBoxByFourCC(originalBoxes, "moov");
         MovieHeaderBox mvhd = (MovieHeaderBox) findBox(originalMoov, "mvhd");
         TrackBox motionImageryTrack = (TrackBox) findBox(originalMoov, "trak");
+        TrackGroupBox motionImageryTrackGroup =
+                new TrackGroupBoxBuilder()
+                        .withGroup(new TrackGroupTypeBox(new FourCC("msrc"), TRACK_GROUP_ID))
+                        .build();
+        motionImageryTrack.appendNestedBox(motionImageryTrackGroup);
+        motionImageryTrack.appendNestedBox(buildStaticMotionImageryTrackLevelMetaBox());
+        TrackHeaderBox motionImageryTrackHeader =
+                (TrackHeaderBox) findBox(motionImageryTrack, "tkhd");
         MediaBox mdia = (MediaBox) findBox(motionImageryTrack, "mdia");
         MediaInformationBox minf = (MediaInformationBox) findBox(mdia, "minf");
         SampleTableBox stbl = (SampleTableBox) findBox(minf, "stbl");
@@ -171,7 +209,7 @@ public class ModifyTest {
         long freeBoxSize = free.getSize();
         boxes.remove(free);
         stco.shiftChunks(-1 * freeBoxSize);
-        MetaBox metaBox = buildMetaBox();
+        MetaBox metaBox = buildPresentationLevelMetaBox();
         // TODO variable length sizes
         SampleAuxiliaryInformationSizesBox saiz =
                 new SampleAuxiliaryInformationSizesBoxBuilder()
@@ -181,7 +219,7 @@ public class ModifyTest {
                         .withAuxInfoTypeParameter(0)
                         .withURI("urn:misb.KLV.ul:060E2B34.02050101.0E010505.00000000")
                         .withDefaultSampleInfoSize(8)
-                        .withSampleCount(5 * 60 * 30)
+                        .withSampleCount(DURATION_SECONDS * FRAME_RATE)
                         .build();
         stbl.appendNestedBox(saiz);
         minf.adjustSize(saiz.getSize());
@@ -189,12 +227,73 @@ public class ModifyTest {
         motionImageryTrack.adjustSize(saiz.getSize());
         // TODO: saio
         // TODO: write time stamps
-        TrackBox metadataTrack = new TrackBoxBuilder().build();
+        // TODO: additional track data
+        TrackHeaderBox metadataTrackHeader =
+                new TrackHeaderBoxBuilder()
+                        .withVersion(0)
+                        .withFlags(3)
+                        .withTrackID(2)
+                        .withDuration(motionImageryTrackHeader.getDuration())
+                        .build();
+
+        HdlrBox metadataHandlerBox =
+                new HdlrBoxBuilder()
+                        .withVersion(0)
+                        .withFlags(0)
+                        .withHandlerType("meta")
+                        .withName("MIMD timed metadata")
+                        .build();
+        TrackReferenceBox metadataTrackRefToMotionImagery =
+                new TrackReferenceBoxBuilder()
+                        .withReference(
+                                new TrackReferenceTypeBox(new FourCC("cdsc"), new long[] {1}))
+                        .build();
+        TrackGroupBox metadataTrackGroup =
+                new TrackGroupBoxBuilder()
+                        .withGroup(new TrackGroupTypeBox(new FourCC("msrc"), TRACK_GROUP_ID))
+                        .build();
+        NullMediaHeaderBox nmhd = new NullMediaHeaderBoxBuilder().build();
+        DataReferenceBox metadataDref =
+                new DataReferenceBoxBuilder().withLocalFileReference().build();
+        DataInformationBox metadataDinf =
+                new DataInformationBoxBuilder().withNestedBox(metadataDref).build();
+        // TODO: stbl contents
+        SampleTableBox metadataStbl = new SampleTableBoxBuilder().build();
+        MediaInformationBox metadataMediaInformation =
+                new MediaInformationBoxBuilder()
+                        .withNestedBox(nmhd)
+                        .withNestedBox(metadataDinf)
+                        .withNestedBox(metadataStbl)
+                        .build();
+        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+        long secondsOffset = ChronoUnit.SECONDS.between(BASE_DATE, now);
+        MediaHeaderBox metadataMediaHeaderBox =
+                new MediaHeaderBoxBuilder()
+                        .withCreationTime(secondsOffset)
+                        .withModificationTime(secondsOffset)
+                        .withTimeScale(TIMESCALE_MILLISECONDS)
+                        .withDuration(DURATION_SECONDS * TIMESCALE_MILLISECONDS)
+                        .withLanguage("eng")
+                        .build();
+        MediaBox metadataMediaBox =
+                new MediaBoxBuilder()
+                        .withNestedBox(metadataMediaHeaderBox)
+                        .withNestedBox(metadataHandlerBox)
+                        .withNestedBox(metadataMediaInformation)
+                        .build();
+        TrackBox metadataTrack =
+                new TrackBoxBuilder()
+                        .withNestedBox(metadataTrackHeader)
+                        .withNestedBox(buildStaticMetadataTrackLevelMetaBox())
+                        .withNestedBox(metadataTrackGroup)
+                        .withNestedBox(metadataTrackRefToMotionImagery)
+                        .withNestedBox(metadataMediaBox)
+                        .build();
         MovieBox moov =
                 new MovieBoxBuilder()
                         .withNestedBox(mvhd)
                         .withNestedBox(motionImageryTrack)
-                        // .withNestedBox(metadataTrack)
+                        .withNestedBox(metadataTrack)
                         .withNestedBox(metaBox)
                         .build();
         boxes.add(moov);
@@ -207,7 +306,7 @@ public class ModifyTest {
         Files.write(testOut.toPath(), baos.toByteArray(), StandardOpenOption.CREATE);
     }
 
-    private MetaBox buildMetaBox() throws IOException {
+    private MetaBox buildPresentationLevelMetaBox() throws IOException {
         HdlrBox hdlr =
                 new HdlrBoxBuilder()
                         .withVersion(0)
@@ -227,6 +326,74 @@ public class ModifyTest {
         ItemInfoBox iinf =
                 new ItemInfoBoxBuilder().withVersion(0).withFlags(0).withItemInfo(infe0).build();
         byte[] mimdMessageWithoutKeyAndLength = buildSimpleMIMD();
+        ItemDataBox idat =
+                new ItemDataBoxBuilder().withData(mimdMessageWithoutKeyAndLength).build();
+        MetaBox metaBox =
+                new MetaBoxBuilder()
+                        .withVersion(0)
+                        .withFlags(0)
+                        .withNesteBox(hdlr)
+                        .withNesteBox(pitm)
+                        .withNesteBox(iinf)
+                        .withNesteBox(idat)
+                        .build();
+        return metaBox;
+    }
+
+    private MetaBox buildStaticMotionImageryTrackLevelMetaBox() throws IOException {
+        HdlrBox hdlr =
+                new HdlrBoxBuilder()
+                        .withVersion(0)
+                        .withFlags(0)
+                        .withHandlerType("meta")
+                        .withName("Motion Imagery Track Static Metadata")
+                        .build();
+        ItemInfoEntry infe =
+                new ItemInfoEntryBuilder()
+                        .withVersion(2)
+                        .withItemId(2)
+                        .withItemType("uri ")
+                        .withItemUriType("urn:misb.KLV.ul.060E2B34.02050101.0E010503.00000000")
+                        .build();
+        PitmBox pitm =
+                new PrimaryItemBoxBuilder().withVersion(0).withFlags(0).withItemId(2).build();
+        ItemInfoBox iinf =
+                new ItemInfoBoxBuilder().withVersion(0).withFlags(0).withItemInfo(infe).build();
+        byte[] mimdMessageWithoutKeyAndLength = buildStaticMotionImageryTrackMIMD();
+        ItemDataBox idat =
+                new ItemDataBoxBuilder().withData(mimdMessageWithoutKeyAndLength).build();
+        MetaBox metaBox =
+                new MetaBoxBuilder()
+                        .withVersion(0)
+                        .withFlags(0)
+                        .withNesteBox(hdlr)
+                        .withNesteBox(pitm)
+                        .withNesteBox(iinf)
+                        .withNesteBox(idat)
+                        .build();
+        return metaBox;
+    }
+
+    private MetaBox buildStaticMetadataTrackLevelMetaBox() throws IOException {
+        HdlrBox hdlr =
+                new HdlrBoxBuilder()
+                        .withVersion(0)
+                        .withFlags(0)
+                        .withHandlerType("meta")
+                        .withName("Metadata Track Static Metadata")
+                        .build();
+        ItemInfoEntry infe =
+                new ItemInfoEntryBuilder()
+                        .withVersion(2)
+                        .withItemId(3)
+                        .withItemType("uri ")
+                        .withItemUriType("urn:misb.KLV.ul.060E2B34.02050101.0E010503.00000000")
+                        .build();
+        PitmBox pitm =
+                new PrimaryItemBoxBuilder().withVersion(0).withFlags(0).withItemId(3).build();
+        ItemInfoBox iinf =
+                new ItemInfoBoxBuilder().withVersion(0).withFlags(0).withItemInfo(infe).build();
+        byte[] mimdMessageWithoutKeyAndLength = buildStaticMetadataTrackMIMD();
         ItemDataBox idat =
                 new ItemDataBoxBuilder().withData(mimdMessageWithoutKeyAndLength).build();
         MetaBox metaBox =
@@ -278,25 +445,70 @@ public class ModifyTest {
             MIMD mimd = new MIMD();
             mimd.setVersion(new MIMD_Version(1));
             mimd.setSecurityOptions(buildSecurityOptions());
-            mimd.setCompositeMetadataSecurity(
-                    new MimdIdReference(
-                            SECURITY_ID_SERIAL,
-                            SECURITY_ID_GROUP,
-                            "CompositeMetadataSecurity",
-                            "Security"));
             mimd.setCompositeProductSecurity(
                     new MimdIdReference(
                             SECURITY_ID_SERIAL,
                             SECURITY_ID_GROUP,
                             "CompositeProductSecurity",
                             "Security"));
+            mimd.setPlatforms(buildPlatforms());
+            System.out.println("Static metadata for timed presentation");
+            dumpMimd(mimd);
+            byte[] mimdBytes = mimd.frameMessage(false);
+            BerField ber = BerDecoder.decode(mimdBytes, UniversalLabel.LENGTH, false);
+            int lengthOfLength = ber.getLength();
+            byte[] mimdValueBytes = new byte[ber.getValue()];
+            System.arraycopy(
+                    mimdBytes,
+                    UniversalLabel.LENGTH + lengthOfLength,
+                    mimdValueBytes,
+                    0,
+                    mimdValueBytes.length);
+            return mimdValueBytes;
+        } catch (KlvParseException ex) {
+            throw new IOException(ex.toString());
+        }
+    }
+
+    private static byte[] buildStaticMotionImageryTrackMIMD() throws IOException {
+        try {
+            MIMD mimd = new MIMD();
+            mimd.setVersion(new MIMD_Version(1));
             mimd.setCompositeMotionImagerySecurity(
                     new MimdIdReference(
                             SECURITY_ID_SERIAL,
                             SECURITY_ID_GROUP,
                             "CompositeMotionImagerySecurity",
                             "Security"));
-            mimd.setPlatforms(buildPlatforms());
+            System.out.println("Static metadata for Motion Imagery track");
+            dumpMimd(mimd);
+            byte[] mimdBytes = mimd.frameMessage(false);
+            BerField ber = BerDecoder.decode(mimdBytes, UniversalLabel.LENGTH, false);
+            int lengthOfLength = ber.getLength();
+            byte[] mimdValueBytes = new byte[ber.getValue()];
+            System.arraycopy(
+                    mimdBytes,
+                    UniversalLabel.LENGTH + lengthOfLength,
+                    mimdValueBytes,
+                    0,
+                    mimdValueBytes.length);
+            return mimdValueBytes;
+        } catch (KlvParseException ex) {
+            throw new IOException(ex.toString());
+        }
+    }
+
+    private static byte[] buildStaticMetadataTrackMIMD() throws IOException {
+        try {
+            MIMD mimd = new MIMD();
+            mimd.setVersion(new MIMD_Version(1));
+            mimd.setCompositeMetadataSecurity(
+                    new MimdIdReference(
+                            SECURITY_ID_SERIAL,
+                            SECURITY_ID_GROUP,
+                            "CompositeMetadataSecurity",
+                            "Security"));
+            System.out.println("Static metadata for Metadata track");
             dumpMimd(mimd);
             byte[] mimdBytes = mimd.frameMessage(false);
             BerField ber = BerDecoder.decode(mimdBytes, UniversalLabel.LENGTH, false);

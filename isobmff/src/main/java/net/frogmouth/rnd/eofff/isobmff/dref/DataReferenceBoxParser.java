@@ -62,7 +62,7 @@ public class DataReferenceBoxParser extends FullBoxParser {
             return parseAsBaseBox(parseContext, initialOffset, boxSize, boxName);
         }
         box.setFlags(parseFlags(parseContext));
-        if (box.isFlagSet(DataEntryBox.MEDIA_DATA_IN_SAME_FILE_FLAG)) {
+        if (!box.isFlagSet(DataEntryBox.MEDIA_DATA_IN_SAME_FILE_FLAG)) {
             if (box instanceof DataEntryUrlBox dataEntryUrlBox) {
                 dataEntryUrlBox.setLocation(parseContext.readNullDelimitedString(boxSize));
             } else if (box instanceof DataEntryUrnBox dataEntryUrnBox) {

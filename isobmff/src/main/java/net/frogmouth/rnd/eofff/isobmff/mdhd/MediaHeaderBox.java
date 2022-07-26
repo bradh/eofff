@@ -78,7 +78,7 @@ public class MediaHeaderBox extends FullBox {
         if (getVersion() == 1) {
             stream.write(longToBytes(this.creationTime));
             stream.write(longToBytes(this.modificationTime));
-            stream.write(longToBytes(this.timescale));
+            stream.write(intToBytes((int) this.timescale));
             stream.write(longToBytes(this.duration));
         } else {
             stream.write(intToBytes((int) this.creationTime));

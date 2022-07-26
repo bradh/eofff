@@ -133,13 +133,13 @@ public class TrackHeaderBox extends FullBox {
         stream.write(intToBytes(0));
         stream.write(shortToBytes((short) layer));
         stream.write(shortToBytes((short) alternateGroup));
-        stream.write(shortToBytes((short) (volume * Math.pow(2, 8))));
+        stream.write(shortToBytes((short) volume));
         stream.write(shortToBytes((short) 0));
         for (int i : matrix) {
-            stream.write(intToBytes((int) (i * Math.pow(2, 16))));
+            stream.write(intToBytes((int) i));
         }
-        stream.write(intToBytes((int) (width * Math.pow(2, 16))));
-        stream.write(intToBytes((int) (height * Math.pow(2, 16))));
+        stream.write(intToBytes((int) width));
+        stream.write(intToBytes((int) height));
     }
 
     @Override

@@ -40,11 +40,12 @@ public class TrackHeaderBoxParser extends FullBoxParser {
             parseContext.readUnsignedInt32();
             box.setDuration(parseContext.readUnsignedInt32());
         }
-        parseContext.readUnsignedInt32();
-        parseContext.readUnsignedInt32();
+        parseContext.readUnsignedInt32(); // reserved[0]
+        parseContext.readUnsignedInt32(); // reserved[1]
         box.setLayer(parseContext.readUnsignedInt16());
         box.setAlternateGroup(parseContext.readUnsignedInt16());
         box.setVolume(parseContext.readUnsignedInt16());
+        parseContext.readUnsignedInt16(); // reserved
         int[] matrix = new int[9];
         for (int i = 0; i < matrix.length; i++) {
             matrix[i] = parseContext.readInt32();

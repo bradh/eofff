@@ -1,7 +1,6 @@
 module net.frogmouth.rnd.eofff.isobmff {
     requires jdk.incubator.foreign;
     requires org.slf4j;
-    requires org.jmisb.core;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
 
@@ -38,6 +37,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.moov.SampleTableBoxParser,
             net.frogmouth.rnd.eofff.isobmff.moov.TrackBoxParser,
             net.frogmouth.rnd.eofff.isobmff.moov.TrackHeaderBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.nmhd.NullMediaHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sbgp.SampleToGroupBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sidx.SegmentIndexBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stco.ChunkOffsetBoxParser,
@@ -68,6 +68,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.meta;
     exports net.frogmouth.rnd.eofff.isobmff.moof;
     exports net.frogmouth.rnd.eofff.isobmff.moov;
+    exports net.frogmouth.rnd.eofff.isobmff.nmhd;
     exports net.frogmouth.rnd.eofff.isobmff.sbgp;
     exports net.frogmouth.rnd.eofff.isobmff.sidx;
     exports net.frogmouth.rnd.eofff.isobmff.stco;

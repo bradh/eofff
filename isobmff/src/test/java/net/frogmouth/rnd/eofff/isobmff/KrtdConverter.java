@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.apache.commons.math3.geometry.euclidean.threed.RotationConvention;
 import org.apache.commons.math3.geometry.euclidean.threed.RotationOrder;
@@ -21,23 +20,23 @@ public class KrtdConverter {
                 BufferedReader br = new BufferedReader(reader)) {
             kMatrix = parseMatrix(br);
             for (double[] row : kMatrix) {
-                System.out.println(Arrays.toString(row));
+                // System.out.println(Arrays.toString(row));
             }
-            System.out.println();
+            // System.out.println();
             br.readLine();
             rMatrix = parseMatrix(br);
             for (double[] row : rMatrix) {
-                System.out.println(Arrays.toString(row));
+                // System.out.println(Arrays.toString(row));
             }
-            System.out.println();
+            // System.out.println();
             br.readLine();
             tVector = parseVector(br);
-            System.out.println(Arrays.toString(tVector));
-            System.out.println();
+            // System.out.println(Arrays.toString(tVector));
+            // System.out.println();
             br.readLine();
             dVector = parseVector(br);
-            System.out.println(Arrays.toString(dVector));
-            System.out.println();
+            // System.out.println(Arrays.toString(dVector));
+            // System.out.println();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
