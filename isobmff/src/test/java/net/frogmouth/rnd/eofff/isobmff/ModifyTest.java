@@ -3,6 +3,7 @@ package net.frogmouth.rnd.eofff.isobmff;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -11,6 +12,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import net.frogmouth.rnd.eofff.isobmff.dinf.DataInformationBox;
 import net.frogmouth.rnd.eofff.isobmff.dinf.DataInformationBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceBox;
@@ -47,9 +49,24 @@ import net.frogmouth.rnd.eofff.isobmff.moov.TrackHeaderBox;
 import net.frogmouth.rnd.eofff.isobmff.moov.TrackHeaderBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.nmhd.NullMediaHeaderBox;
 import net.frogmouth.rnd.eofff.isobmff.nmhd.NullMediaHeaderBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.saio.SampleAuxiliaryInformationOffsetsBox;
+import net.frogmouth.rnd.eofff.isobmff.saio.SampleAuxiliaryInformationOffsetsBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.saiz.SampleAuxiliaryInformationSizesBox;
 import net.frogmouth.rnd.eofff.isobmff.saiz.SampleAuxiliaryInformationSizesBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.stco.ChunkOffsetBox;
+import net.frogmouth.rnd.eofff.isobmff.stsc.SampleToChunkBox;
+import net.frogmouth.rnd.eofff.isobmff.stsc.SampleToChunkEntry;
+import net.frogmouth.rnd.eofff.isobmff.stsd.SampleDescriptionBox;
+import net.frogmouth.rnd.eofff.isobmff.stsd.SampleDescriptionBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.stsd.URIBox;
+import net.frogmouth.rnd.eofff.isobmff.stsd.URIBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.stsd.URIMetaSampleEntry;
+import net.frogmouth.rnd.eofff.isobmff.stsd.URIMetaSampleEntryBuilder;
+import net.frogmouth.rnd.eofff.isobmff.stsz.SampleSizeBox;
+import net.frogmouth.rnd.eofff.isobmff.stsz.SampleSizeBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.stts.TimeToSampleBox;
+import net.frogmouth.rnd.eofff.isobmff.stts.TimeToSampleBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.stts.TimeToSampleEntry;
 import net.frogmouth.rnd.eofff.isobmff.tref.TrackReferenceBox;
 import net.frogmouth.rnd.eofff.isobmff.tref.TrackReferenceBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.tref.TrackReferenceTypeBox;
@@ -58,12 +75,14 @@ import net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupTypeBox;
 import org.jmisb.api.common.KlvParseException;
 import org.jmisb.api.klv.BerDecoder;
+import org.jmisb.api.klv.BerEncoder;
 import org.jmisb.api.klv.BerField;
 import org.jmisb.api.klv.IKlvKey;
 import org.jmisb.api.klv.IKlvValue;
 import org.jmisb.api.klv.IMisbMessage;
 import org.jmisb.api.klv.INestedKlvValue;
 import org.jmisb.api.klv.UniversalLabel;
+import org.jmisb.api.klv.st1204.CoreIdentifier;
 import org.jmisb.core.klv.ArrayUtils;
 import org.jmisb.mimd.st1902.MimdId;
 import org.jmisb.mimd.st1902.MimdIdReference;
@@ -115,14 +134,48 @@ public class ModifyTest {
     private static final int STAGES_ID_GROUP = 2;
     private static final int TRACK_GROUP_ID = 16;
     /** Timescale is in inverse units. */
-    private static final long TIMESCALE_MILLISECONDS = 1000;
+    private static final long TIMESCALE = 15360;
 
-    private static final long DURATION_SECONDS = 5 * 60;
+    private static final long NANOS_PER_SECOND = 1000 * 1000 * 1000;
+
+    private static final int DURATION_SECONDS = 5 * 60;
     private static final int FRAME_RATE = 30;
+    private static final int NUM_FRAMES = DURATION_SECONDS * FRAME_RATE;
     private static final ZonedDateTime BASE_DATE =
             ZonedDateTime.of(1904, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+    private static final ZonedDateTime SAMPLE_START_DATE =
+            ZonedDateTime.of(2018, 3, 7, 16, 55, 00, 0, ZoneOffset.UTC);
+    private static long SAMPLE_START_DATE_AS_NANOS =
+            SAMPLE_START_DATE.toEpochSecond() * NANOS_PER_SECOND;
+    private static final String MIMD_URI = "urn:misb.KLV.ul.060E2B34.02050101.0E010503.00000000";
+    private static final byte[] MIIS_UUID_BYTES =
+            new byte[] {
+                0x43,
+                (byte) 0xbb,
+                0x3a,
+                (byte) 0x8d,
+                0x48,
+                (byte) 0x99,
+                0x4d,
+                (byte) 0xec,
+                (byte) 0x80,
+                (byte) 0x93,
+                (byte) 0xa9,
+                0x09,
+                0x52,
+                0x48,
+                (byte) 0xe5,
+                (byte) 0xe6
+            };
 
-    public ModifyTest() {}
+    private final UUID miisUuid;
+
+    public ModifyTest() {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(MIIS_UUID_BYTES);
+        long high = byteBuffer.getLong();
+        long low = byteBuffer.getLong();
+        miisUuid = new UUID(high, low);
+    }
 
     public List<Box> parseFile() throws IOException {
         File file = new File("/home/bradh/meva/2018-03-07.16-55-00.17-00-00.bus.G340.recoded.mp4");
@@ -209,8 +262,16 @@ public class ModifyTest {
         long freeBoxSize = free.getSize();
         boxes.remove(free);
         stco.shiftChunks(-1 * freeBoxSize);
+        long startOfAuxInfoOffset = findEndOfMdat(stbl);
         MetaBox metaBox = buildPresentationLevelMetaBox();
-        // TODO variable length sizes
+        MediaDataBox mdat = (MediaDataBox) getTopLevelBoxByFourCC(boxes, "mdat");
+        CoreIdentifier miisCoreId = new CoreIdentifier();
+        miisCoreId.setMinorUUID(miisUuid);
+        miisCoreId.setVersion(1);
+        byte[] miisCoreIdAsBytes = miisCoreId.getRawBytesRepresentation();
+        byte[] miisCoreLengthIdAsBytes = BerEncoder.encode(miisCoreIdAsBytes.length);
+        long auxInfoSampleSize =
+                Long.BYTES + miisCoreLengthIdAsBytes.length + miisCoreIdAsBytes.length;
         SampleAuxiliaryInformationSizesBox saiz =
                 new SampleAuxiliaryInformationSizesBoxBuilder()
                         .withVersion(0)
@@ -218,24 +279,99 @@ public class ModifyTest {
                         .withAuxInfoType(new FourCC("misb"))
                         .withAuxInfoTypeParameter(0)
                         .withURI("urn:misb.KLV.ul:060E2B34.02050101.0E010505.00000000")
-                        .withDefaultSampleInfoSize(8)
-                        .withSampleCount(DURATION_SECONDS * FRAME_RATE)
+                        .withDefaultSampleInfoSize(auxInfoSampleSize)
+                        .withSampleCount(NUM_FRAMES)
                         .build();
         stbl.appendNestedBox(saiz);
         minf.adjustSize(saiz.getSize());
         mdia.adjustSize(saiz.getSize());
         motionImageryTrack.adjustSize(saiz.getSize());
-        // TODO: saio
-        // TODO: write time stamps
-        // TODO: additional track data
+        SampleAuxiliaryInformationOffsetsBoxBuilder saioBuilder =
+                new SampleAuxiliaryInformationOffsetsBoxBuilder()
+                        .withVersion(0)
+                        .withFlags(1)
+                        .withAuxInfoType(new FourCC("misb"))
+                        .withAuxInfoTypeParameter(0);
+        ByteArrayOutputStream auxInfoBaos = new ByteArrayOutputStream();
+        for (int i = 0; i < NUM_FRAMES; i++) {
+            long nanos = SAMPLE_START_DATE_AS_NANOS + (1000 * 1000 * 1000 * (long) i / 30);
+            org.jmisb.api.klv.st0603.NanoPrecisionTimeStamp timeStamp =
+                    new org.jmisb.api.klv.st0603.NanoPrecisionTimeStamp(nanos);
+            byte[] nanoTimeStampBytes = timeStamp.getBytes();
+            saioBuilder.addOffset(startOfAuxInfoOffset + i * auxInfoSampleSize);
+            auxInfoBaos.writeBytes(nanoTimeStampBytes);
+            auxInfoBaos.writeBytes(miisCoreLengthIdAsBytes);
+            auxInfoBaos.writeBytes(miisCoreIdAsBytes);
+        }
+        byte[] auxInfoBytes = auxInfoBaos.toByteArray();
+        byte[] mdatBytes = mdat.getData();
+        byte[] originalBytesWithAuxInfo = new byte[mdatBytes.length + auxInfoBytes.length];
+        System.arraycopy(mdatBytes, 0, originalBytesWithAuxInfo, 0, mdatBytes.length);
+        System.arraycopy(
+                auxInfoBytes, 0, originalBytesWithAuxInfo, mdatBytes.length, auxInfoBytes.length);
+        mdat.setData(originalBytesWithAuxInfo);
+        mdat.setSize(originalBytesWithAuxInfo.length + Integer.BYTES + FourCC.BYTES);
+        SampleAuxiliaryInformationOffsetsBox saio = saioBuilder.build();
+        stbl.appendNestedBox(saio);
+        minf.adjustSize(saio.getSize());
+        mdia.adjustSize(saio.getSize());
+        motionImageryTrack.adjustSize(saio.getSize());
+        TrackBox metadataTrack =
+                makeMetadataTrak(motionImageryTrackHeader.getDuration(), saio, saiz);
+        MovieBox moov =
+                new MovieBoxBuilder()
+                        .withNestedBox(mvhd)
+                        .withNestedBox(motionImageryTrack)
+                        .withNestedBox(metadataTrack)
+                        .withNestedBox(metaBox)
+                        .build();
+        boxes.add(moov);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        for (Box box : boxes) {
+            box.writeTo(baos);
+        }
+        File testOut = new File("G340_to_NGA.STND.0076_0.1_MIFF_aux_info.mp4");
+        Files.write(testOut.toPath(), baos.toByteArray(), StandardOpenOption.CREATE);
+    }
+
+    private long findEndOfMdat(SampleTableBox stbl) {
+        ChunkOffsetBox stco = (ChunkOffsetBox) findBox(stbl, "stco");
+        int numberOfChunks = stco.getEntries().size();
+        long lastChunkOffset = stco.getEntries().get(numberOfChunks - 1);
+        SampleToChunkBox stsc = (SampleToChunkBox) findBox(stbl, "stsc");
+        long sampleNumberForStartOfLastChunk = 0;
+        for (int i = 0; i < stsc.getEntries().size() - 1; i++) {
+            SampleToChunkEntry entry = stsc.getEntries().get(i);
+            SampleToChunkEntry nextEntry = stsc.getEntries().get(i + 1);
+            long numChunks = (nextEntry.firstChunk() - entry.firstChunk());
+            sampleNumberForStartOfLastChunk += (numChunks * entry.samplesPerChunk());
+        }
+        SampleSizeBox stsz = (SampleSizeBox) findBox(stbl, "stsz");
+        long bytesInLastChunk = 0;
+        for (int sampleIndex = (int) sampleNumberForStartOfLastChunk;
+                sampleIndex < stsz.getEntries().size();
+                sampleIndex++) {
+            bytesInLastChunk += stsz.getEntries().get(sampleIndex);
+        }
+        long startOfAuxInfoOffset = lastChunkOffset + bytesInLastChunk;
+        return startOfAuxInfoOffset;
+    }
+
+    private TrackBox makeMetadataTrak(
+            long motionImageryTrackHeaderDuration,
+            SampleAuxiliaryInformationOffsetsBox saio,
+            SampleAuxiliaryInformationSizesBox saiz)
+            throws IOException {
+
+        // TODO: make data
         TrackHeaderBox metadataTrackHeader =
                 new TrackHeaderBoxBuilder()
                         .withVersion(0)
                         .withFlags(3)
                         .withTrackID(2)
-                        .withDuration(motionImageryTrackHeader.getDuration())
+                        .withDuration(motionImageryTrackHeaderDuration)
                         .build();
-
         HdlrBox metadataHandlerBox =
                 new HdlrBoxBuilder()
                         .withVersion(0)
@@ -257,8 +393,32 @@ public class ModifyTest {
                 new DataReferenceBoxBuilder().withLocalFileReference().build();
         DataInformationBox metadataDinf =
                 new DataInformationBoxBuilder().withNestedBox(metadataDref).build();
-        // TODO: stbl contents
-        SampleTableBox metadataStbl = new SampleTableBoxBuilder().build();
+        URIBox metadataUriBox =
+                new URIBoxBuilder().withVersion(0).withFlags(0).withURI(MIMD_URI).build();
+        URIMetaSampleEntry metadataTrackUrim =
+                new URIMetaSampleEntryBuilder()
+                        .withDataReferenceIndex(1)
+                        .withNestedBox(metadataUriBox)
+                        .build();
+        SampleDescriptionBox metadataSampleDescriptionBox =
+                new SampleDescriptionBoxBuilder().withNestedBox(metadataTrackUrim).build();
+        TimeToSampleBox stts =
+                new TimeToSampleBoxBuilder()
+                        .withReference(new TimeToSampleEntry(NUM_FRAMES, TIMESCALE / FRAME_RATE))
+                        .build();
+        // TODO: stsc
+        // TODO: actual size for stsz - 99 is placeholder
+        SampleSizeBox stsz =
+                new SampleSizeBoxBuilder().withSampleSize(99).withSampleCount(NUM_FRAMES).build();
+        // TODO: stco
+        SampleTableBox metadataStbl =
+                new SampleTableBoxBuilder()
+                        .withNestedBox(metadataSampleDescriptionBox)
+                        .withNestedBox(stts)
+                        .withNestedBox(stsz)
+                        .withNestedBox(saiz)
+                        .withNestedBox(saio)
+                        .build();
         MediaInformationBox metadataMediaInformation =
                 new MediaInformationBoxBuilder()
                         .withNestedBox(nmhd)
@@ -271,8 +431,8 @@ public class ModifyTest {
                 new MediaHeaderBoxBuilder()
                         .withCreationTime(secondsOffset)
                         .withModificationTime(secondsOffset)
-                        .withTimeScale(TIMESCALE_MILLISECONDS)
-                        .withDuration(DURATION_SECONDS * TIMESCALE_MILLISECONDS)
+                        .withTimeScale(TIMESCALE)
+                        .withDuration(DURATION_SECONDS * TIMESCALE)
                         .withLanguage("eng")
                         .build();
         MediaBox metadataMediaBox =
@@ -289,21 +449,7 @@ public class ModifyTest {
                         .withNestedBox(metadataTrackRefToMotionImagery)
                         .withNestedBox(metadataMediaBox)
                         .build();
-        MovieBox moov =
-                new MovieBoxBuilder()
-                        .withNestedBox(mvhd)
-                        .withNestedBox(motionImageryTrack)
-                        .withNestedBox(metadataTrack)
-                        .withNestedBox(metaBox)
-                        .build();
-        boxes.add(moov);
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        for (Box box : boxes) {
-            box.writeTo(baos);
-        }
-        File testOut = new File("G340_to_NGA.STND.0076_0.1_MIFF_aux_info.mp4");
-        Files.write(testOut.toPath(), baos.toByteArray(), StandardOpenOption.CREATE);
+        return metadataTrack;
     }
 
     private MetaBox buildPresentationLevelMetaBox() throws IOException {
@@ -319,7 +465,7 @@ public class ModifyTest {
                         .withVersion(2)
                         .withItemId(1)
                         .withItemType("uri ")
-                        .withItemUriType("urn:misb.KLV.ul.060E2B34.02050101.0E010503.00000000")
+                        .withItemUriType(MIMD_URI)
                         .build();
         PitmBox pitm =
                 new PrimaryItemBoxBuilder().withVersion(0).withFlags(0).withItemId(1).build();
@@ -353,7 +499,7 @@ public class ModifyTest {
                         .withVersion(2)
                         .withItemId(2)
                         .withItemType("uri ")
-                        .withItemUriType("urn:misb.KLV.ul.060E2B34.02050101.0E010503.00000000")
+                        .withItemUriType(MIMD_URI)
                         .build();
         PitmBox pitm =
                 new PrimaryItemBoxBuilder().withVersion(0).withFlags(0).withItemId(2).build();
@@ -387,7 +533,7 @@ public class ModifyTest {
                         .withVersion(2)
                         .withItemId(3)
                         .withItemType("uri ")
-                        .withItemUriType("urn:misb.KLV.ul.060E2B34.02050101.0E010503.00000000")
+                        .withItemUriType(MIMD_URI)
                         .build();
         PitmBox pitm =
                 new PrimaryItemBoxBuilder().withVersion(0).withFlags(0).withItemId(3).build();

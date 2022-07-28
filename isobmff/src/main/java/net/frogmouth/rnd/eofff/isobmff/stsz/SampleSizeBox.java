@@ -8,13 +8,14 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 
 /**
- * File Type Box.
+ * Sample Size Box.
  *
  * <p>See ISO/IEC 14496-12:2015 Section 8.7.3.
  */
 public class SampleSizeBox extends FullBox {
 
     private long sampleSize;
+    private long sampleCount;
     private List<Long> entries = new ArrayList<>();
 
     public SampleSizeBox(long size, FourCC name) {
@@ -34,6 +35,14 @@ public class SampleSizeBox extends FullBox {
         this.sampleSize = sampleSize;
     }
 
+    public long getSampleCount() {
+        return sampleCount;
+    }
+
+    public void setSampleCount(long sampleCount) {
+        this.sampleCount = sampleCount;
+    }
+
     public List<Long> getEntries() {
         return new ArrayList<>(entries);
     }
@@ -48,9 +57,13 @@ public class SampleSizeBox extends FullBox {
         stream.write(getFourCC().toBytes());
         stream.write(getVersionAndFlagsAsBytes());
         stream.write(intToBytes((int) this.sampleSize));
-        stream.write(intToBytes(this.entries.size()));
-        for (long entry : entries) {
-            stream.write(intToBytes((int) entry));
+        if (sampleSize == 0) {
+            stream.write(intToBytes(this.entries.size()));
+            for (long entry : entries) {
+                stream.write(intToBytes((int) entry));
+            }
+        } else {
+            stream.write(intToBytes((int) this.sampleCount));
         }
     }
 
@@ -66,6 +79,8 @@ public class SampleSizeBox extends FullBox {
             sb.append(" (variable - see entries below)");
         } else {
             sb.append(" (constant for all entries)");
+            sb.append(", sample count: ");
+            sb.append(this.getSampleCount());
         }
         for (Long item : getEntries()) {
             sb.append("\n");

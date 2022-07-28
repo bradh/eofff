@@ -1,26 +1,24 @@
-package net.frogmouth.rnd.eofff.isobmff.saiz;
+package net.frogmouth.rnd.eofff.isobmff.saio;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 
 /**
- * Sample Auxiliary Information Sizes Box.
+ * Sample Auxiliary Information Offsets Box.
  *
- * <p>See ISO/IEC 14496-12:2015 Section 8.7.8.
+ * <p>See ISO/IEC 14496-12:2015 Section 8.7.9.
  */
-public class SampleAuxiliaryInformationSizesBox extends FullBox {
+public class SampleAuxiliaryInformationOffsetsBox extends FullBox {
 
     private FourCC auxInfoType;
     private long auxInfoTypeParameter;
-    private String theURI;
-    private long defaultSampleInfoSize;
-    private long sampleCount;
+    private long entryCount;
+    private long[] offsets;
 
-    public SampleAuxiliaryInformationSizesBox(long size, FourCC name) {
+    public SampleAuxiliaryInformationOffsetsBox(long size, FourCC name) {
         super(size, name);
     }
 
@@ -45,28 +43,20 @@ public class SampleAuxiliaryInformationSizesBox extends FullBox {
         this.auxInfoTypeParameter = auxInfoTypeParameter;
     }
 
-    public String getTheURI() {
-        return theURI;
+    public long getEntryCount() {
+        return entryCount;
     }
 
-    public void setTheURI(String theURI) {
-        this.theURI = theURI;
+    public void setEntryCount(long entryCount) {
+        this.entryCount = entryCount;
     }
 
-    public long getDefaultSampleInfoSize() {
-        return defaultSampleInfoSize;
+    public long[] getOffsets() {
+        return offsets.clone();
     }
 
-    public void setDefaultSampleInfoSize(long defaultSampleInfoSize) {
-        this.defaultSampleInfoSize = defaultSampleInfoSize;
-    }
-
-    public long getSampleCount() {
-        return sampleCount;
-    }
-
-    public void setSampleCount(long sampleCount) {
-        this.sampleCount = sampleCount;
+    public void setOffsets(long[] offsets) {
+        this.offsets = offsets;
     }
 
     @Override
@@ -78,18 +68,15 @@ public class SampleAuxiliaryInformationSizesBox extends FullBox {
             stream.write(auxInfoType.toBytes());
             stream.write(BaseBox.intToBytes((int) auxInfoTypeParameter));
         }
-        if (((getFlags() & 0x01) == 0x01) && (auxInfoType.equals(new FourCC("misb")))) {
-            stream.write(theURI.getBytes(StandardCharsets.UTF_8));
-            stream.write(0); // String null terminator
-            // TODO: larger sizes
-            stream.write((int) defaultSampleInfoSize);
-            stream.write(BaseBox.intToBytes((int) sampleCount));
-            // TODO: sample_info_size array
+        stream.write(intToBytes((int) entryCount));
+        if (this.getVersion() == 0) {
+            for (long l : offsets) {
+                stream.write(intToBytes((int) l));
+            }
         } else {
-            // TODO: larger sizes
-            stream.write((int) defaultSampleInfoSize);
-            stream.write(BaseBox.intToBytes((int) sampleCount));
-            // TODO: sample_info_size array
+            for (long l : offsets) {
+                stream.write(longToBytes(l));
+            }
         }
     }
 
@@ -106,6 +93,7 @@ public class SampleAuxiliaryInformationSizesBox extends FullBox {
             sb.append(", aux_info_type_parameter=");
             sb.append(auxInfoTypeParameter);
         }
+        // TODO: entry_count and offset[]
         return sb.toString();
     }
 }

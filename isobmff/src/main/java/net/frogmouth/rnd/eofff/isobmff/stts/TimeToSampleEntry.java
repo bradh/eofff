@@ -16,6 +16,10 @@ public record TimeToSampleEntry(long sampleCount, long sampleDelta) {
         return sb.toString();
     }
 
+    public int getSize() {
+        return Integer.BYTES + Integer.BYTES;
+    }
+
     void writeTo(OutputStream stream) throws IOException {
         stream.write(BaseBox.intToBytes((int) sampleCount));
         stream.write(BaseBox.intToBytes((int) sampleDelta));
