@@ -23,7 +23,7 @@ public class MetaBoxBuilder {
         return this;
     }
 
-    public MetaBoxBuilder withNesteBox(Box box) {
+    public MetaBoxBuilder withNestedBox(Box box) {
         this.nestedBoxes.add(box);
         return this;
     }

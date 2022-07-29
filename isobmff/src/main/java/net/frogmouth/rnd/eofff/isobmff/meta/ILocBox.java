@@ -1,5 +1,10 @@
 package net.frogmouth.rnd.eofff.isobmff.meta;
 
+import static net.frogmouth.rnd.eofff.isobmff.BaseBox.intToBytes;
+import static net.frogmouth.rnd.eofff.isobmff.BaseBox.shortToBytes;
+
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
@@ -64,6 +69,26 @@ public class ILocBox extends FullBox {
 
     public void addItem(ILocItem item) {
         this.items.add(item);
+    }
+
+    @Override
+    public void writeTo(OutputStream stream) throws IOException {
+        stream.write(this.getSizeAsBytes());
+        stream.write(getFourCC().toBytes());
+        stream.write(getVersionAndFlagsAsBytes());
+        int sizes = (offsetSize << 12) + (lengthSize << 8) + (baseOffsetSize << 4);
+        if ((getVersion() == 1) || (getVersion() == 2)) {
+            sizes |= indexSize;
+        }
+        stream.write(shortToBytes((short) sizes));
+        if (getVersion() < 2) {
+            stream.write(shortToBytes((short) items.size()));
+        } else {
+            stream.write(intToBytes(items.size()));
+        }
+        for (ILocItem item : items) {
+            item.writeTo(stream, getVersion());
+        }
     }
 
     @Override

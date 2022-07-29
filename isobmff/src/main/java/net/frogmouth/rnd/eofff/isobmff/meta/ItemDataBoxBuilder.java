@@ -1,22 +1,24 @@
 package net.frogmouth.rnd.eofff.isobmff.meta;
 
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import org.jmisb.api.klv.ArrayBuilder;
 
 public class ItemDataBoxBuilder {
 
-    private byte[] data;
+    private ArrayBuilder arrayBuilder = new ArrayBuilder();
 
     public ItemDataBoxBuilder() {}
 
-    public ItemDataBoxBuilder withData(byte[] data) {
-        this.data = data.clone();
+    public ItemDataBoxBuilder addData(byte[] data) {
+        arrayBuilder.append(data);
         return this;
     }
 
     public ItemDataBox build() {
-        int size = Integer.BYTES + FourCC.BYTES + data.length;
+        byte[] bytes = arrayBuilder.toBytes();
+        int size = Integer.BYTES + FourCC.BYTES + bytes.length;
         ItemDataBox box = new ItemDataBox(size, new FourCC("idat"));
-        box.setData(data);
+        box.setData(bytes);
         return box;
     }
 }

@@ -40,14 +40,14 @@ public class MetaBoxTest {
                         .build();
         ItemInfoBox iinf =
                 new ItemInfoBoxBuilder().withVersion(0).withFlags(0).withItemInfo(infe0).build();
-        ItemDataBox idat = new ItemDataBoxBuilder().withData(new byte[] {0x31, 0x32, 0x33}).build();
+        ItemDataBox idat = new ItemDataBoxBuilder().addData(new byte[] {0x31, 0x32, 0x33}).build();
         MetaBox box =
                 new MetaBoxBuilder()
                         .withVersion(0)
                         .withFlags(0)
-                        .withNesteBox(hdlr)
-                        .withNesteBox(iinf)
-                        .withNesteBox(idat)
+                        .withNestedBox(hdlr)
+                        .withNestedBox(iinf)
+                        .withNestedBox(idat)
                         .build();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         box.writeTo(baos);

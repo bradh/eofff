@@ -24,4 +24,8 @@ public record SampleToChunkEntry(
         stream.write(BaseBox.intToBytes((int) samplesPerChunk));
         stream.write(BaseBox.intToBytes((int) sampleDescriptionIndex));
     }
+
+    public int getSize() {
+        return 3 * Integer.BYTES;
+    }
 }

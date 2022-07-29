@@ -24,6 +24,10 @@ import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.mdhd.MediaHeaderBox;
 import net.frogmouth.rnd.eofff.isobmff.mdhd.MediaHeaderBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.meta.ILocBox;
+import net.frogmouth.rnd.eofff.isobmff.meta.ILocBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.meta.ILocExtent;
+import net.frogmouth.rnd.eofff.isobmff.meta.ILocItem;
 import net.frogmouth.rnd.eofff.isobmff.meta.ItemDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.ItemDataBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoBox;
@@ -54,7 +58,9 @@ import net.frogmouth.rnd.eofff.isobmff.saio.SampleAuxiliaryInformationOffsetsBox
 import net.frogmouth.rnd.eofff.isobmff.saiz.SampleAuxiliaryInformationSizesBox;
 import net.frogmouth.rnd.eofff.isobmff.saiz.SampleAuxiliaryInformationSizesBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.stco.ChunkOffsetBox;
+import net.frogmouth.rnd.eofff.isobmff.stco.ChunkOffsetBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.stsc.SampleToChunkBox;
+import net.frogmouth.rnd.eofff.isobmff.stsc.SampleToChunkBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.stsc.SampleToChunkEntry;
 import net.frogmouth.rnd.eofff.isobmff.stsd.SampleDescriptionBox;
 import net.frogmouth.rnd.eofff.isobmff.stsd.SampleDescriptionBoxBuilder;
@@ -89,10 +95,15 @@ import org.jmisb.mimd.st1902.MimdIdReference;
 import org.jmisb.mimd.st1903.MIMD;
 import org.jmisb.mimd.st1903.MIMD_Platforms;
 import org.jmisb.mimd.st1903.MIMD_SecurityOptions;
+import org.jmisb.mimd.st1903.MIMD_Timers;
 import org.jmisb.mimd.st1903.MIMD_Version;
+import org.jmisb.mimd.st1903.ReferenceSource;
 import org.jmisb.mimd.st1903.Security;
 import org.jmisb.mimd.st1903.Security_Classification;
 import org.jmisb.mimd.st1903.Security_ClassifyingMethod;
+import org.jmisb.mimd.st1903.TimeTransferMethod;
+import org.jmisb.mimd.st1903.Timer;
+import org.jmisb.mimd.st1903.Timer_UtcLeapSeconds;
 import org.jmisb.mimd.st1905.Platform;
 import org.jmisb.mimd.st1905.PlatformType;
 import org.jmisb.mimd.st1905.Platform_Name;
@@ -132,6 +143,7 @@ public class ModifyTest {
     private static final int SECURITY_ID_GROUP = 1;
     private static final int SECURITY_ID_SERIAL = 2;
     private static final int STAGES_ID_GROUP = 2;
+    private static final int TIMER_ID_GROUP = 3;
     private static final int TRACK_GROUP_ID = 16;
     /** Timescale is in inverse units. */
     private static final long TIMESCALE = 15360;
@@ -139,6 +151,7 @@ public class ModifyTest {
     private static final long NANOS_PER_SECOND = 1000 * 1000 * 1000;
 
     private static final int DURATION_SECONDS = 5 * 60;
+    private static final int NUM_METADATA_CHUNKS = DURATION_SECONDS; // one per second
     private static final int FRAME_RATE = 30;
     private static final int NUM_FRAMES = DURATION_SECONDS * FRAME_RATE;
     private static final ZonedDateTime BASE_DATE =
@@ -148,6 +161,8 @@ public class ModifyTest {
     private static long SAMPLE_START_DATE_AS_NANOS =
             SAMPLE_START_DATE.toEpochSecond() * NANOS_PER_SECOND;
     private static final String MIMD_URI = "urn:misb.KLV.ul.060E2B34.02050101.0E010503.00000000";
+    private static final String CORE_ID_URI =
+            "urn:misb.KLV.ul.060E2B34.01010101.OE.010405.03000000";
     private static final byte[] MIIS_UUID_BYTES =
             new byte[] {
                 0x43,
@@ -265,10 +280,7 @@ public class ModifyTest {
         long startOfAuxInfoOffset = findEndOfMdat(stbl);
         MetaBox metaBox = buildPresentationLevelMetaBox();
         MediaDataBox mdat = (MediaDataBox) getTopLevelBoxByFourCC(boxes, "mdat");
-        CoreIdentifier miisCoreId = new CoreIdentifier();
-        miisCoreId.setMinorUUID(miisUuid);
-        miisCoreId.setVersion(1);
-        byte[] miisCoreIdAsBytes = miisCoreId.getRawBytesRepresentation();
+        byte[] miisCoreIdAsBytes = getMiisCoreIdAsBytes();
         byte[] miisCoreLengthIdAsBytes = BerEncoder.encode(miisCoreIdAsBytes.length);
         long auxInfoSampleSize =
                 Long.BYTES + miisCoreLengthIdAsBytes.length + miisCoreIdAsBytes.length;
@@ -303,6 +315,7 @@ public class ModifyTest {
             auxInfoBaos.writeBytes(miisCoreLengthIdAsBytes);
             auxInfoBaos.writeBytes(miisCoreIdAsBytes);
         }
+        long endOfAuxInfoOffset = startOfAuxInfoOffset + NUM_FRAMES * auxInfoSampleSize;
         byte[] auxInfoBytes = auxInfoBaos.toByteArray();
         byte[] mdatBytes = mdat.getData();
         byte[] originalBytesWithAuxInfo = new byte[mdatBytes.length + auxInfoBytes.length];
@@ -317,7 +330,12 @@ public class ModifyTest {
         mdia.adjustSize(saio.getSize());
         motionImageryTrack.adjustSize(saio.getSize());
         TrackBox metadataTrack =
-                makeMetadataTrak(motionImageryTrackHeader.getDuration(), saio, saiz);
+                makeMetadataTrak(
+                        motionImageryTrackHeader.getDuration(),
+                        saio,
+                        saiz,
+                        endOfAuxInfoOffset,
+                        mdat);
         MovieBox moov =
                 new MovieBoxBuilder()
                         .withNestedBox(mvhd)
@@ -333,6 +351,14 @@ public class ModifyTest {
         }
         File testOut = new File("G340_to_NGA.STND.0076_0.1_MIFF_aux_info.mp4");
         Files.write(testOut.toPath(), baos.toByteArray(), StandardOpenOption.CREATE);
+    }
+
+    private byte[] getMiisCoreIdAsBytes() {
+        CoreIdentifier miisCoreId = new CoreIdentifier();
+        miisCoreId.setMinorUUID(miisUuid);
+        miisCoreId.setVersion(1);
+        byte[] miisCoreIdAsBytes = miisCoreId.getRawBytesRepresentation();
+        return miisCoreIdAsBytes;
     }
 
     private long findEndOfMdat(SampleTableBox stbl) {
@@ -361,10 +387,13 @@ public class ModifyTest {
     private TrackBox makeMetadataTrak(
             long motionImageryTrackHeaderDuration,
             SampleAuxiliaryInformationOffsetsBox saio,
-            SampleAuxiliaryInformationSizesBox saiz)
+            SampleAuxiliaryInformationSizesBox saiz,
+            long endOfAuxInfoOffset,
+            MediaDataBox mdat)
             throws IOException {
 
-        // TODO: make data
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] timeVariableMetadataTrackData = makeTimeVaryingMIMD();
         TrackHeaderBox metadataTrackHeader =
                 new TrackHeaderBoxBuilder()
                         .withVersion(0)
@@ -406,16 +435,30 @@ public class ModifyTest {
                 new TimeToSampleBoxBuilder()
                         .withReference(new TimeToSampleEntry(NUM_FRAMES, TIMESCALE / FRAME_RATE))
                         .build();
-        // TODO: stsc
-        // TODO: actual size for stsz - 99 is placeholder
+        SampleToChunkBox stsc =
+                new SampleToChunkBoxBuilder()
+                        .addEntry(new SampleToChunkEntry(1, FRAME_RATE, 1))
+                        .addEntry(new SampleToChunkEntry(NUM_METADATA_CHUNKS, FRAME_RATE, 1))
+                        .build();
         SampleSizeBox stsz =
-                new SampleSizeBoxBuilder().withSampleSize(99).withSampleCount(NUM_FRAMES).build();
-        // TODO: stco
+                new SampleSizeBoxBuilder()
+                        .withSampleSize(timeVariableMetadataTrackData.length)
+                        .withSampleCount(NUM_FRAMES)
+                        .build();
+        long firstChunkOffset = endOfAuxInfoOffset;
+        ChunkOffsetBoxBuilder stcoBuilder = new ChunkOffsetBoxBuilder();
+        for (int i = 0; i < NUM_METADATA_CHUNKS; i++) {
+            baos.writeBytes(timeVariableMetadataTrackData);
+            stcoBuilder.addOffset(firstChunkOffset + i * timeVariableMetadataTrackData.length);
+        }
+        ChunkOffsetBox stco = stcoBuilder.build();
         SampleTableBox metadataStbl =
                 new SampleTableBoxBuilder()
                         .withNestedBox(metadataSampleDescriptionBox)
                         .withNestedBox(stts)
+                        .withNestedBox(stsc)
                         .withNestedBox(stsz)
+                        .withNestedBox(stco)
                         .withNestedBox(saiz)
                         .withNestedBox(saio)
                         .build();
@@ -449,6 +492,19 @@ public class ModifyTest {
                         .withNestedBox(metadataTrackRefToMotionImagery)
                         .withNestedBox(metadataMediaBox)
                         .build();
+        byte[] mdatBytes = mdat.getData();
+        byte[] timeVaryingMetadata = baos.toByteArray();
+        byte[] mdatBytesWithTimeVaryingMetadata =
+                new byte[mdatBytes.length + timeVaryingMetadata.length];
+        System.arraycopy(mdatBytes, 0, mdatBytesWithTimeVaryingMetadata, 0, mdatBytes.length);
+        System.arraycopy(
+                timeVaryingMetadata,
+                0,
+                mdatBytesWithTimeVaryingMetadata,
+                mdatBytes.length,
+                timeVaryingMetadata.length);
+        mdat.setData(mdatBytesWithTimeVaryingMetadata);
+        mdat.setSize(mdatBytesWithTimeVaryingMetadata.length + Integer.BYTES + FourCC.BYTES);
         return metadataTrack;
     }
 
@@ -472,16 +528,26 @@ public class ModifyTest {
         ItemInfoBox iinf =
                 new ItemInfoBoxBuilder().withVersion(0).withFlags(0).withItemInfo(infe0).build();
         byte[] mimdMessageWithoutKeyAndLength = buildSimpleMIMD();
-        ItemDataBox idat =
-                new ItemDataBoxBuilder().withData(mimdMessageWithoutKeyAndLength).build();
+        ItemDataBox idat = new ItemDataBoxBuilder().addData(mimdMessageWithoutKeyAndLength).build();
+        ILocItem ilocItem = new ILocItem();
+        ilocItem.setItemId(1);
+        ilocItem.setBaseOffset(0);
+        ilocItem.setDataReferenceIndex(0);
+        ilocItem.setConstructionMethod(1);
+        ILocExtent ilocItemExtent = new ILocExtent();
+        ilocItemExtent.setExtentOffset(0);
+        ilocItemExtent.setExtentLength(mimdMessageWithoutKeyAndLength.length);
+        ilocItem.addExtent(ilocItemExtent);
+        ILocBox iloc = new ILocBoxBuilder().withVersion(1).addItem(ilocItem).build();
         MetaBox metaBox =
                 new MetaBoxBuilder()
                         .withVersion(0)
                         .withFlags(0)
-                        .withNesteBox(hdlr)
-                        .withNesteBox(pitm)
-                        .withNesteBox(iinf)
-                        .withNesteBox(idat)
+                        .withNestedBox(hdlr)
+                        .withNestedBox(pitm)
+                        .withNestedBox(iinf)
+                        .withNestedBox(iloc)
+                        .withNestedBox(idat)
                         .build();
         return metaBox;
     }
@@ -494,28 +560,69 @@ public class ModifyTest {
                         .withHandlerType("meta")
                         .withName("Motion Imagery Track Static Metadata")
                         .build();
-        ItemInfoEntry infe =
+        ItemInfoEntry infeMimd =
                 new ItemInfoEntryBuilder()
                         .withVersion(2)
                         .withItemId(2)
                         .withItemType("uri ")
                         .withItemUriType(MIMD_URI)
                         .build();
+        ItemInfoEntry infeCoreId =
+                new ItemInfoEntryBuilder()
+                        .withVersion(2)
+                        .withItemId(17)
+                        .withItemType("uri ")
+                        .withItemUriType(CORE_ID_URI)
+                        .build();
         PitmBox pitm =
                 new PrimaryItemBoxBuilder().withVersion(0).withFlags(0).withItemId(2).build();
         ItemInfoBox iinf =
-                new ItemInfoBoxBuilder().withVersion(0).withFlags(0).withItemInfo(infe).build();
+                new ItemInfoBoxBuilder()
+                        .withVersion(0)
+                        .withFlags(0)
+                        .withItemInfo(infeMimd)
+                        .withItemInfo(infeCoreId)
+                        .build();
+        ILocItem ilocItemMIMD = new ILocItem();
+        ilocItemMIMD.setItemId(2);
+        ilocItemMIMD.setBaseOffset(0);
+        ilocItemMIMD.setDataReferenceIndex(0);
+        ilocItemMIMD.setConstructionMethod(1);
         byte[] mimdMessageWithoutKeyAndLength = buildStaticMotionImageryTrackMIMD();
+        ILocExtent mimdExtent = new ILocExtent();
+        mimdExtent.setExtentOffset(0);
+        mimdExtent.setExtentLength(mimdMessageWithoutKeyAndLength.length);
+        ilocItemMIMD.addExtent(mimdExtent);
+        ILocItem ilocItemCoreId = new ILocItem();
+        ilocItemCoreId.setItemId(17);
+        ilocItemCoreId.setBaseOffset(0);
+        ilocItemCoreId.setDataReferenceIndex(0);
+        ilocItemCoreId.setConstructionMethod(1);
+        byte[] miisCoreIdAsBytes = getMiisCoreIdAsBytes();
+        ILocExtent coreIdExtent = new ILocExtent();
+        coreIdExtent.setExtentOffset(mimdExtent.getExtentLength());
+        coreIdExtent.setExtentLength(miisCoreIdAsBytes.length);
+        ilocItemCoreId.addExtent(coreIdExtent);
+        ILocBox iloc =
+                new ILocBoxBuilder()
+                        .withVersion(1)
+                        .addItem(ilocItemMIMD)
+                        .addItem(ilocItemCoreId)
+                        .build();
         ItemDataBox idat =
-                new ItemDataBoxBuilder().withData(mimdMessageWithoutKeyAndLength).build();
+                new ItemDataBoxBuilder()
+                        .addData(mimdMessageWithoutKeyAndLength)
+                        .addData(miisCoreIdAsBytes)
+                        .build();
         MetaBox metaBox =
                 new MetaBoxBuilder()
                         .withVersion(0)
                         .withFlags(0)
-                        .withNesteBox(hdlr)
-                        .withNesteBox(pitm)
-                        .withNesteBox(iinf)
-                        .withNesteBox(idat)
+                        .withNestedBox(hdlr)
+                        .withNestedBox(pitm)
+                        .withNestedBox(iinf)
+                        .withNestedBox(iloc)
+                        .withNestedBox(idat)
                         .build();
         return metaBox;
     }
@@ -540,16 +647,26 @@ public class ModifyTest {
         ItemInfoBox iinf =
                 new ItemInfoBoxBuilder().withVersion(0).withFlags(0).withItemInfo(infe).build();
         byte[] mimdMessageWithoutKeyAndLength = buildStaticMetadataTrackMIMD();
-        ItemDataBox idat =
-                new ItemDataBoxBuilder().withData(mimdMessageWithoutKeyAndLength).build();
+        ItemDataBox idat = new ItemDataBoxBuilder().addData(mimdMessageWithoutKeyAndLength).build();
+        ILocItem ilocItem = new ILocItem();
+        ilocItem.setItemId(3);
+        ilocItem.setBaseOffset(0);
+        ilocItem.setDataReferenceIndex(0);
+        ilocItem.setConstructionMethod(1);
+        ILocExtent ilocItemExtent = new ILocExtent();
+        ilocItemExtent.setExtentOffset(0);
+        ilocItemExtent.setExtentLength(mimdMessageWithoutKeyAndLength.length);
+        ilocItem.addExtent(ilocItemExtent);
+        ILocBox iloc = new ILocBoxBuilder().withVersion(1).addItem(ilocItem).build();
         MetaBox metaBox =
                 new MetaBoxBuilder()
                         .withVersion(0)
                         .withFlags(0)
-                        .withNesteBox(hdlr)
-                        .withNesteBox(pitm)
-                        .withNesteBox(iinf)
-                        .withNesteBox(idat)
+                        .withNestedBox(hdlr)
+                        .withNestedBox(pitm)
+                        .withNestedBox(iinf)
+                        .withNestedBox(iloc)
+                        .withNestedBox(idat)
                         .build();
         return metaBox;
     }
@@ -597,6 +714,14 @@ public class ModifyTest {
                             SECURITY_ID_GROUP,
                             "CompositeProductSecurity",
                             "Security"));
+            List<Timer> timerList = new ArrayList<>();
+            Timer timer = new Timer();
+            timer.setMimdId(new MimdId(1, TIMER_ID_GROUP));
+            Timer_UtcLeapSeconds timerUtcLeapSeconds = new Timer_UtcLeapSeconds(37);
+            timer.setUtcLeapSeconds(timerUtcLeapSeconds);
+            timerList.add(timer);
+            MIMD_Timers timers = new MIMD_Timers(timerList);
+            mimd.setTimers(timers);
             mimd.setPlatforms(buildPlatforms());
             System.out.println("Static metadata for timed presentation");
             dumpMimd(mimd);
@@ -850,5 +975,39 @@ public class ModifyTest {
             System.out.print("\t");
         }
         System.out.println(value.getDisplayName() + ": " + value.getDisplayableValue());
+    }
+
+    private byte[] makeTimeVaryingMIMD() throws IOException {
+        try {
+            MIMD mimd = new MIMD();
+
+            List<Timer> timerList = new ArrayList<>();
+            Timer timer = new Timer();
+            timer.setMimdId(new MimdId(1, TIMER_ID_GROUP));
+            Timer_UtcLeapSeconds timerUtcLeapSeconds = new Timer_UtcLeapSeconds(37);
+            TimeTransferMethod timeTransferMethod = TimeTransferMethod.Unknown;
+            timer.setTimeTransferMethod(timeTransferMethod);
+            ReferenceSource referenceSource = ReferenceSource.Unknown;
+            timer.setReferenceSource(referenceSource);
+            timerList.add(timer);
+            MIMD_Timers timers = new MIMD_Timers(timerList);
+            mimd.setTimers(timers);
+            mimd.setPlatforms(buildPlatforms());
+            System.out.println("Static metadata for timed presentation");
+            dumpMimd(mimd);
+            byte[] mimdBytes = mimd.frameMessage(false);
+            BerField ber = BerDecoder.decode(mimdBytes, UniversalLabel.LENGTH, false);
+            int lengthOfLength = ber.getLength();
+            byte[] mimdValueBytes = new byte[ber.getValue()];
+            System.arraycopy(
+                    mimdBytes,
+                    UniversalLabel.LENGTH + lengthOfLength,
+                    mimdValueBytes,
+                    0,
+                    mimdValueBytes.length);
+            return mimdValueBytes;
+        } catch (KlvParseException ex) {
+            throw new IOException(ex.toString());
+        }
     }
 }
