@@ -12,7 +12,7 @@ public class TrackFragmentHeaderBox extends FullBox {
     private long defaultSampleFlags;
 
     public TrackFragmentHeaderBox(long size, FourCC name) {
-        super(size, name);
+        super(name);
     }
 
     @Override

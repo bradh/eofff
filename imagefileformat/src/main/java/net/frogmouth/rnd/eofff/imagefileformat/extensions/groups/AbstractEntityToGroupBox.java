@@ -10,8 +10,8 @@ public abstract class AbstractEntityToGroupBox extends FullBox {
     private long groupId;
     private final List<Long> entityIds = new ArrayList<>();
 
-    public AbstractEntityToGroupBox(long size, FourCC name) {
-        super(size, name);
+    public AbstractEntityToGroupBox(FourCC name) {
+        super(name);
     }
 
     public long getGroupId() {

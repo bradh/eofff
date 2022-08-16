@@ -9,8 +9,8 @@ public class ItemPropertyAssociation extends FullBox {
 
     private final List<AssociationEntry> entries = new ArrayList<>();
 
-    public ItemPropertyAssociation(long size, FourCC name) {
-        super(size, name);
+    public ItemPropertyAssociation(FourCC name) {
+        super(name);
     }
 
     @Override

@@ -7,8 +7,8 @@ public class ImageRotation extends ItemProperty {
 
     private int angle;
 
-    public ImageRotation(long size, FourCC name) {
-        super(size, name);
+    public ImageRotation(FourCC name) {
+        super(name);
     }
 
     @Override

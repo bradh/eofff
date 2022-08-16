@@ -1,7 +1,6 @@
 package net.frogmouth.rnd.eofff.isobmff;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,12 +8,30 @@ public abstract class AbstractContainerBox extends BaseBox {
 
     protected final List<Box> nestedBoxes = new ArrayList<>();
 
-    public AbstractContainerBox(long size, FourCC name) {
-        super(size, name);
+    public AbstractContainerBox(FourCC name) {
+        super(name);
     }
 
     @Override
     public abstract String getFullName();
+
+    @Override
+    public long getSize() {
+        long size = Integer.BYTES + FourCC.BYTES;
+        for (Box box : nestedBoxes) {
+            size += box.getSize();
+        }
+        return size;
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = 0;
+        for (Box box : nestedBoxes) {
+            size += box.getSize();
+        }
+        return size;
+    }
 
     public List<Box> getNestedBoxes() {
         return new ArrayList<>(nestedBoxes);
@@ -25,15 +42,11 @@ public abstract class AbstractContainerBox extends BaseBox {
     }
 
     public void appendNestedBox(Box box) {
-        long sizeOfAddedBox = box.getSize();
         nestedBoxes.add(box);
-        adjustSize(sizeOfAddedBox);
     }
 
     public void removeNestedBox(Box box) {
-        long sizeOfRemovedBox = box.getSize();
         nestedBoxes.remove(box);
-        adjustSize(-1 * sizeOfRemovedBox);
     }
 
     @Override
@@ -42,8 +55,8 @@ public abstract class AbstractContainerBox extends BaseBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) this.getSize());
         stream.write(getFourCC().toBytes());
         for (Box box : nestedBoxes) {
             /*

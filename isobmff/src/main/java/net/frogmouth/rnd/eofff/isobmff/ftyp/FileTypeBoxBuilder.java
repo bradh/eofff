@@ -6,13 +6,13 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class FileTypeBoxBuilder {
 
-    private FourCC majorBrand;
+    private Brand majorBrand;
     private int minorVersion;
-    private final List<FourCC> compatibleBrands = new ArrayList<>();
+    private final List<Brand> compatibleBrands = new ArrayList<>();
 
     public FileTypeBoxBuilder() {}
 
-    public FileTypeBoxBuilder withMajorBrand(FourCC fourCC) {
+    public FileTypeBoxBuilder withMajorBrand(Brand fourCC) {
         this.majorBrand = fourCC;
         return this;
     }
@@ -22,22 +22,16 @@ public class FileTypeBoxBuilder {
         return this;
     }
 
-    public FileTypeBoxBuilder addCompatibleBrand(FourCC brand) {
+    public FileTypeBoxBuilder addCompatibleBrand(Brand brand) {
         this.compatibleBrands.add(brand);
         return this;
     }
 
     public FileTypeBox build() {
-        int size =
-                Integer.BYTES
-                        + FourCC.BYTES
-                        + FourCC.BYTES
-                        + Integer.BYTES
-                        + FourCC.BYTES * compatibleBrands.size();
-        FileTypeBox box = new FileTypeBox(size, new FourCC("ftyp"));
+        FileTypeBox box = new FileTypeBox(new FourCC("ftyp"));
         box.setMajorBrand(this.majorBrand);
         box.setMinorVersion(this.minorVersion);
-        for (FourCC brand : this.compatibleBrands) {
+        for (Brand brand : this.compatibleBrands) {
             box.addCompatibleBrand(brand);
         }
         return box;

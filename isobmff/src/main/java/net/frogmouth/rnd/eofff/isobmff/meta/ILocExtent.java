@@ -1,8 +1,7 @@
 package net.frogmouth.rnd.eofff.isobmff.meta;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import net.frogmouth.rnd.eofff.isobmff.BaseBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class ILocExtent {
     private long extentIndex;
@@ -33,13 +32,13 @@ public class ILocExtent {
         this.extentLength = extentLength;
     }
 
-    public void writeTo(OutputStream stream, int version) throws IOException {
+    public void writeTo(OutputStreamWriter stream, int version) throws IOException {
         // TODO: needs more logic to handle variable extentIndex size
         if ((version == 1) || (version == 2)) {
-            stream.write(BaseBox.intToBytes((int) extentIndex));
+            stream.writeInt((int) extentIndex);
         }
-        stream.write(BaseBox.intToBytes((int) extentOffset));
-        stream.write(BaseBox.intToBytes((int) extentLength));
+        stream.writeInt((int) extentOffset);
+        stream.writeInt((int) extentLength);
     }
 
     public int getSize(int version) {

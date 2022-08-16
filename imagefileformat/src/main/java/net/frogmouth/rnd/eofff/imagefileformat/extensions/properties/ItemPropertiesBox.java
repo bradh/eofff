@@ -21,8 +21,8 @@ public class ItemPropertiesBox extends FullBox {
     private ItemPropertyContainerBox itemProperties;
     private final List<ItemPropertyAssociation> propertyAssociations = new ArrayList<>();
 
-    public ItemPropertiesBox(long size, FourCC name) {
-        super(size, name);
+    public ItemPropertiesBox(FourCC name) {
+        super(name);
     }
 
     @Override

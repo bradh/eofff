@@ -41,19 +41,8 @@ public class SampleAuxiliaryInformationOffsetsBoxBuilder {
     }
 
     public SampleAuxiliaryInformationOffsetsBox build() {
-        int size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        if ((flags & 0x01) == 0x01) {
-            size += FourCC.BYTES;
-            size += Integer.BYTES;
-        }
-        size += Integer.BYTES;
-        if (version == 0) {
-            size += (offsets.size() * Integer.BYTES);
-        } else {
-            size += (offsets.size() * Long.BYTES);
-        }
         SampleAuxiliaryInformationOffsetsBox box =
-                new SampleAuxiliaryInformationOffsetsBox(size, new FourCC("saio"));
+                new SampleAuxiliaryInformationOffsetsBox(new FourCC("saio"));
         box.setVersion(version);
         box.setFlags(flags);
         box.setAuxInfoType(auxInfoType);

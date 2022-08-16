@@ -28,10 +28,7 @@ public class ChunkOffsetBoxBuilder {
     }
 
     public ChunkOffsetBox build() {
-        int size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        size += Integer.BYTES;
-        size += (offsets.size() * Integer.BYTES);
-        ChunkOffsetBox box = new ChunkOffsetBox(size, new FourCC("stco"));
+        ChunkOffsetBox box = new ChunkOffsetBox(new FourCC("stco"));
         box.setVersion(version);
         box.setFlags(flags);
         for (Long offset : offsets) {

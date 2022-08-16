@@ -1,12 +1,13 @@
 package net.frogmouth.rnd.eofff.isobmff.hdlr;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class HdlrBox extends FullBox {
+
     private int preDefined;
     private String handlerType;
     private int reserved0;
@@ -14,13 +15,28 @@ public class HdlrBox extends FullBox {
     private int reserved2;
     private String name;
 
-    public HdlrBox(long size, FourCC name) {
-        super(size, name);
+    public HdlrBox(FourCC name) {
+        super(name);
     }
 
     @Override
     public String getFullName() {
         return "HandlerBox";
+    }
+
+    @Override
+    public long getSize() {
+        long size =
+                Integer.BYTES
+                        + FourCC.BYTES
+                        + 1
+                        + 3
+                        + Integer.BYTES
+                        + FourCC.BYTES
+                        + 3 * Integer.BYTES
+                        + name.getBytes(StandardCharsets.US_ASCII).length
+                        + 1;
+        return size;
     }
 
     public int getPreDefined() {
@@ -72,17 +88,16 @@ public class HdlrBox extends FullBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) this.getSize());
+        stream.writeFourCC(getFourCC());
         stream.write(getVersionAndFlagsAsBytes());
-        stream.write(intToBytes(this.preDefined));
+        stream.writeInt(this.preDefined);
         stream.write(this.handlerType.getBytes(StandardCharsets.US_ASCII));
-        stream.write(intToBytes(this.reserved0));
-        stream.write(intToBytes(this.reserved1));
-        stream.write(intToBytes(this.reserved2));
-        stream.write(name.getBytes(StandardCharsets.US_ASCII));
-        stream.write(0); // NULL terminator
+        stream.writeInt(this.reserved0);
+        stream.writeInt(this.reserved1);
+        stream.writeInt(this.reserved2);
+        stream.writeNullTerminatedString(name);
     }
 
     @Override

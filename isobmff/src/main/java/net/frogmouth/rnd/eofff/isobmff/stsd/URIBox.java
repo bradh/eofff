@@ -1,10 +1,10 @@
 package net.frogmouth.rnd.eofff.isobmff.stsd;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
  * URI Box.
@@ -15,8 +15,16 @@ public class URIBox extends FullBox {
 
     private String theURI;
 
-    public URIBox(long size, FourCC name) {
-        super(size, name);
+    public URIBox(FourCC name) {
+        super(name);
+    }
+
+    @Override
+    public long getSize() {
+        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        size += theURI.getBytes(StandardCharsets.UTF_8).length;
+        size += 1;
+        return size;
     }
 
     @Override
@@ -33,12 +41,11 @@ public class URIBox extends FullBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) this.getSize());
+        stream.writeFourCC(getFourCC());
         stream.write(getVersionAndFlagsAsBytes());
-        stream.write(theURI.getBytes(StandardCharsets.UTF_8));
-        stream.write(0); // null terminator
+        stream.writeNullTerminatedString(theURI);
     }
 
     @Override

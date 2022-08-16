@@ -20,7 +20,7 @@ public class DataReferenceBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        DataReferenceBox box = new DataReferenceBox(boxSize, boxName);
+        DataReferenceBox box = new DataReferenceBox(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
@@ -49,9 +49,9 @@ public class DataReferenceBoxParser extends FullBoxParser {
         int version = parseContext.readByte();
         DataEntryBox box;
         if (boxName.toString().equals("url ")) {
-            box = new DataEntryUrlBox(boxSize);
+            box = new DataEntryUrlBox();
         } else if (boxName.toString().equals("urn ")) {
-            box = new DataEntryUrnBox(boxSize);
+            box = new DataEntryUrnBox();
         } else {
             LOG.warn("Got unsupported DataEntryBox {}, parsing as base box.", boxName);
             return parseAsBaseBox(parseContext, initialOffset, boxSize, boxName);

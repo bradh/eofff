@@ -1,9 +1,9 @@
 package net.frogmouth.rnd.eofff.isobmff.vmhd;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
  * Video Media Header Box.
@@ -14,13 +14,21 @@ public class VideoMediaHeaderBox extends FullBox {
     private int graphicsmode = 0;
     private int[] opcolor;
 
-    public VideoMediaHeaderBox(long size, FourCC name) {
-        super(size, name);
+    public VideoMediaHeaderBox(FourCC name) {
+        super(name);
     }
 
     @Override
     public String getFullName() {
         return "VideoMediaHeaderBox";
+    }
+
+    @Override
+    public long getSize() {
+        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        size += Short.BYTES;
+        size += (opcolor.length * Short.BYTES);
+        return size;
     }
 
     public int getGraphicsmode() {
@@ -40,13 +48,13 @@ public class VideoMediaHeaderBox extends FullBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) this.getSize());
+        stream.writeFourCC(getFourCC());
         stream.write(getVersionAndFlagsAsBytes());
-        stream.write(shortToBytes((short) graphicsmode));
+        stream.writeShort((short) graphicsmode);
         for (int i = 0; i < opcolor.length; i++) {
-            stream.write(shortToBytes((short) opcolor[i]));
+            stream.writeShort((short) opcolor[i]);
         }
     }
 

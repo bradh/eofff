@@ -8,8 +8,8 @@ import net.frogmouth.rnd.eofff.isobmff.FullBox;
 public class ItemReferenceBox extends FullBox {
     List<SingleItemReferenceBox> items = new ArrayList<>();
 
-    public ItemReferenceBox(long size, FourCC name) {
-        super(size, name);
+    public ItemReferenceBox(FourCC name) {
+        super(name);
     }
 
     @Override

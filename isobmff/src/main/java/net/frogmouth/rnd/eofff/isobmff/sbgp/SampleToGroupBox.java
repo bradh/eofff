@@ -11,8 +11,8 @@ public class SampleToGroupBox extends FullBox {
     private Long groupingTypeParameter;
     private final List<SampleToGroupBoxEntry> entries = new ArrayList<>();
 
-    public SampleToGroupBox(long size, FourCC name) {
-        super(size, name);
+    public SampleToGroupBox(FourCC name) {
+        super(name);
     }
 
     @Override

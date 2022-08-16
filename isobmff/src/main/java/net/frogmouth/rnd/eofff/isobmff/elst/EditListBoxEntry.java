@@ -1,8 +1,7 @@
 package net.frogmouth.rnd.eofff.isobmff.elst;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import net.frogmouth.rnd.eofff.isobmff.BaseBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public record EditListBoxEntry(
         long segmentDuration, long mediaTime, int mediaRateInteger, int mediaRateFraction) {
@@ -20,15 +19,26 @@ public record EditListBoxEntry(
         return sb.toString();
     }
 
-    void writeTo(OutputStream stream, int version) throws IOException {
+    public long getSize(int version) {
+        long size = 0;
         if (version == 1) {
-            stream.write(BaseBox.longToBytes(segmentDuration));
-            stream.write(BaseBox.longToBytes(mediaTime));
+            size += (2 * Long.BYTES);
         } else {
-            stream.write(BaseBox.intToBytes((int) segmentDuration));
-            stream.write(BaseBox.intToBytes((int) mediaTime));
+            size += (2 * Integer.BYTES);
         }
-        stream.write(BaseBox.shortToBytes((short) mediaRateInteger));
-        stream.write(BaseBox.shortToBytes((short) mediaRateFraction));
+        size += (2 * Short.BYTES);
+        return size;
+    }
+
+    void writeTo(OutputStreamWriter stream, int version) throws IOException {
+        if (version == 1) {
+            stream.writeLong(segmentDuration);
+            stream.writeLong(mediaTime);
+        } else {
+            stream.writeInt((int) segmentDuration);
+            stream.writeInt((int) mediaTime);
+        }
+        stream.writeShort((short) mediaRateInteger);
+        stream.writeShort((short) mediaRateFraction);
     }
 }

@@ -18,8 +18,8 @@ class SegmentIndexBox extends FullBox {
     private long firstOffset;
     private final List<SegmentIndexReference> references = new ArrayList<>();
 
-    public SegmentIndexBox(long size, FourCC name) {
-        super(size, name);
+    public SegmentIndexBox(FourCC name) {
+        super(name);
     }
 
     public long getReferenceId() {

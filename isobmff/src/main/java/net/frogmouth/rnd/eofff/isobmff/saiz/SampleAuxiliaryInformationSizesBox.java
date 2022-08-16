@@ -1,11 +1,10 @@
 package net.frogmouth.rnd.eofff.isobmff.saiz;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
  * Sample Auxiliary Information Sizes Box.
@@ -20,13 +19,31 @@ public class SampleAuxiliaryInformationSizesBox extends FullBox {
     private long defaultSampleInfoSize;
     private long sampleCount;
 
-    public SampleAuxiliaryInformationSizesBox(long size, FourCC name) {
-        super(size, name);
+    public SampleAuxiliaryInformationSizesBox(FourCC name) {
+        super(name);
     }
 
     @Override
     public String getFullName() {
         return "SampleAuxiliaryInformationSizesBox";
+    }
+
+    @Override
+    public long getSize() {
+        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        if ((getFlags() & 0x01) == 0x01) {
+            size += FourCC.BYTES;
+            size += Integer.BYTES;
+        }
+        if (auxInfoType.equals(new FourCC("misb"))) {
+            size += theURI.getBytes(StandardCharsets.UTF_8).length;
+            size += Byte.BYTES; // null terminator
+            // TODO: per parameters
+            size += Byte.BYTES;
+            size += Integer.BYTES;
+            // TODO: sample_info_size array
+        }
+        return size;
     }
 
     public FourCC getAuxInfoType() {
@@ -70,25 +87,24 @@ public class SampleAuxiliaryInformationSizesBox extends FullBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) this.getSize());
+        stream.writeFourCC(getFourCC());
         stream.write(getVersionAndFlagsAsBytes());
         if ((getFlags() & 0x01) == 0x01) {
-            stream.write(auxInfoType.toBytes());
-            stream.write(BaseBox.intToBytes((int) auxInfoTypeParameter));
+            stream.writeFourCC(auxInfoType);
+            stream.writeInt((int) auxInfoTypeParameter);
         }
         if (((getFlags() & 0x01) == 0x01) && (auxInfoType.equals(new FourCC("misb")))) {
-            stream.write(theURI.getBytes(StandardCharsets.UTF_8));
-            stream.write(0); // String null terminator
+            stream.writeNullTerminatedString(theURI);
             // TODO: larger sizes
-            stream.write((int) defaultSampleInfoSize);
-            stream.write(BaseBox.intToBytes((int) sampleCount));
+            stream.writeByte((int) defaultSampleInfoSize);
+            stream.writeInt((int) sampleCount);
             // TODO: sample_info_size array
         } else {
             // TODO: larger sizes
-            stream.write((int) defaultSampleInfoSize);
-            stream.write(BaseBox.intToBytes((int) sampleCount));
+            stream.writeByte((int) defaultSampleInfoSize);
+            stream.writeInt((int) sampleCount);
             // TODO: sample_info_size array
         }
     }

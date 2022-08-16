@@ -16,7 +16,7 @@ public class SegmentTypeBoxParser extends FileTypeLikeBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        SegmentTypeBox box = new SegmentTypeBox(boxSize, boxName);
+        SegmentTypeBox box = new SegmentTypeBox(boxName);
         doParse(box, parseContext, initialOffset, boxSize);
         return box;
     }

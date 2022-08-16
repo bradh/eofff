@@ -5,8 +5,8 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class GroupsListBox extends AbstractContainerBox {
 
-    public GroupsListBox(long size, FourCC name) {
-        super(size, name);
+    public GroupsListBox(FourCC name) {
+        super(name);
     }
 
     @Override

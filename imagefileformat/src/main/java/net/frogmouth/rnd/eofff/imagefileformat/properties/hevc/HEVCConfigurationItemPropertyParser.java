@@ -17,7 +17,7 @@ public class HEVCConfigurationItemPropertyParser extends PropertyParser {
     @Override
     public AbstractItemProperty parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        HEVCConfigurationItemProperty box = new HEVCConfigurationItemProperty(boxSize, boxName);
+        HEVCConfigurationItemProperty box = new HEVCConfigurationItemProperty(boxName);
         box.setConfigurationVersion(parseContext.readByte());
         int temp = parseContext.readByte();
         box.setGeneral_profile_space((temp & 0b11000000) >> 6);

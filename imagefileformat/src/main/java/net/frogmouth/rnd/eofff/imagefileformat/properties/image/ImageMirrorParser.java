@@ -17,7 +17,7 @@ public class ImageMirrorParser extends PropertyParser {
     @Override
     public AbstractItemProperty parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ImageMirror box = new ImageMirror(boxSize, boxName);
+        ImageMirror box = new ImageMirror(boxName);
         int temp = parseContext.readUnsignedInt8();
         box.setAxis(temp & 0x01);
         return box;

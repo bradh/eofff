@@ -7,8 +7,8 @@ public class ImageMirror extends ItemProperty {
 
     private int axis;
 
-    public ImageMirror(long size, FourCC name) {
-        super(size, name);
+    public ImageMirror(FourCC name) {
+        super(name);
     }
 
     @Override

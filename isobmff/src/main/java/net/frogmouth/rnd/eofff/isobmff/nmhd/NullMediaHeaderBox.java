@@ -1,9 +1,9 @@
 package net.frogmouth.rnd.eofff.isobmff.nmhd;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
  * Video Media Header Box.
@@ -12,8 +12,8 @@ import net.frogmouth.rnd.eofff.isobmff.FullBox;
  */
 public class NullMediaHeaderBox extends FullBox {
 
-    public NullMediaHeaderBox(long size, FourCC name) {
-        super(size, name);
+    public NullMediaHeaderBox(FourCC name) {
+        super(name);
     }
 
     @Override
@@ -22,9 +22,14 @@ public class NullMediaHeaderBox extends FullBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public long getSize() {
+        return Integer.BYTES + FourCC.BYTES + 1 + 3;
+    }
+
+    @Override
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) this.getSize());
+        stream.writeFourCC(getFourCC());
         stream.write(getVersionAndFlagsAsBytes());
     }
 

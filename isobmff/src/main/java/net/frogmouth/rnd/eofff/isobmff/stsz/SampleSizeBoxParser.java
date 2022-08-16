@@ -19,7 +19,7 @@ public class SampleSizeBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        SampleSizeBox box = new SampleSizeBox(boxSize, boxName);
+        SampleSizeBox box = new SampleSizeBox(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

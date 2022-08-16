@@ -1,11 +1,11 @@
 package net.frogmouth.rnd.eofff.isobmff.meta;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
  * Item Information Box.
@@ -15,13 +15,27 @@ import net.frogmouth.rnd.eofff.isobmff.FullBox;
 public class ItemInfoBox extends FullBox {
     private final List<ItemInfoEntry> items = new ArrayList<>();
 
-    public ItemInfoBox(long size, FourCC name) {
-        super(size, name);
+    public ItemInfoBox(FourCC name) {
+        super(name);
     }
 
     @Override
     public String getFullName() {
         return "ItemInfoBox";
+    }
+
+    @Override
+    public long getSize() {
+        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        if ((getVersion() == 1) || (items.size() >= (1 << 16))) {
+            size += Integer.BYTES;
+        } else {
+            size += Short.BYTES;
+        }
+        for (ItemInfoEntry entry : items) {
+            size += entry.getSize();
+        }
+        return size;
     }
 
     public List<ItemInfoEntry> getItems() {
@@ -33,17 +47,17 @@ public class ItemInfoBox extends FullBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) this.getSize());
+        stream.writeFourCC(getFourCC());
         if ((getVersion() == 0) && (items.size() >= (1 << 16))) {
             setVersion(1);
         }
         stream.write(getVersionAndFlagsAsBytes());
         if (getVersion() == 0) {
-            stream.write(shortToBytes((short) this.items.size()));
+            stream.writeShort((short) this.items.size());
         } else {
-            stream.write(intToBytes(this.items.size()));
+            stream.writeInt(this.items.size());
         }
         for (ItemInfoEntry itemInfoEntry : this.items) {
             itemInfoEntry.writeTo(stream);

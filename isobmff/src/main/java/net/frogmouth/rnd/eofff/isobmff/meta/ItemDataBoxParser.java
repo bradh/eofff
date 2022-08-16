@@ -19,7 +19,7 @@ public class ItemDataBoxParser extends BoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ItemDataBox box = new ItemDataBox(boxSize, boxName);
+        ItemDataBox box = new ItemDataBox(boxName);
         int dataLen = (int) (initialOffset + boxSize - parseContext.getCursorPosition());
         byte[] data = new byte[dataLen];
         parseContext.readBytes(data);

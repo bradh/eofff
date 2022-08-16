@@ -10,7 +10,7 @@ public class BaseBoxParser extends BoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        BaseBox box = new BaseBox(boxSize, boxName);
+        BaseBox box = new BaseBox(boxName);
         return box;
     }
 }

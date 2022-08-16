@@ -16,19 +16,14 @@ public class DataReferenceBoxBuilder {
     }
 
     public DataReferenceBoxBuilder withLocalFileReference() {
-        DataEntryBox entry = new DataEntryUrlBox(12);
+        DataEntryBox entry = new DataEntryUrlBox();
         entry.setFlags(DataEntryBox.MEDIA_DATA_IN_SAME_FILE_FLAG);
         this.dataEntries.add(entry);
         return this;
     }
 
     public DataReferenceBox build() {
-        int size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        size += Integer.BYTES;
-        for (DataEntryBox entry : dataEntries) {
-            size += entry.getSize();
-        }
-        DataReferenceBox box = new DataReferenceBox(size, new FourCC("dref"));
+        DataReferenceBox box = new DataReferenceBox(new FourCC("dref"));
         for (DataEntryBox entry : dataEntries) {
             box.addDataEntryBox(entry);
         }

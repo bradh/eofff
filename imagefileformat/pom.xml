@@ -6,6 +6,7 @@
         <artifactId>eofff</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
+    <groupId>net.frogmouth.rnd.eofff</groupId>
     <artifactId>imagefileformat</artifactId>
     <packaging>jar</packaging>
     <properties>

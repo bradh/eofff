@@ -1,8 +1,8 @@
 package net.frogmouth.rnd.eofff.isobmff.stsd;
 
+import net.frogmouth.rnd.eofff.isobmff.AbstractContainerBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.moov.AbstractContainerBoxBuilder;
 
 public class URIMetaSampleEntryBuilder extends AbstractContainerBoxBuilder<URIMetaSampleEntry> {
 
@@ -23,7 +23,7 @@ public class URIMetaSampleEntryBuilder extends AbstractContainerBoxBuilder<URIMe
         for (Box box : nestedBoxes) {
             size += box.getSize();
         }
-        URIMetaSampleEntry box = new URIMetaSampleEntry(size, new FourCC("urim"));
+        URIMetaSampleEntry box = new URIMetaSampleEntry(new FourCC("urim"));
         box.setDataReferenceIndex(dataReferenceIndex);
         box.addNestedBoxes(nestedBoxes);
         return box;

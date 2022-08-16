@@ -1,11 +1,11 @@
 package net.frogmouth.rnd.eofff.isobmff.stsz;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
  * Sample Size Box.
@@ -16,10 +16,18 @@ public class SampleSizeBox extends FullBox {
 
     private long sampleSize;
     private long sampleCount;
-    private List<Long> entries = new ArrayList<>();
+    private final List<Long> entries = new ArrayList<>();
 
-    public SampleSizeBox(long size, FourCC name) {
-        super(size, name);
+    public SampleSizeBox(FourCC name) {
+        super(name);
+    }
+
+    @Override
+    public long getSize() {
+        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        size += Integer.BYTES;
+        size += Integer.BYTES;
+        return size;
     }
 
     @Override
@@ -52,18 +60,18 @@ public class SampleSizeBox extends FullBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) this.getSize());
+        stream.writeFourCC(getFourCC());
         stream.write(getVersionAndFlagsAsBytes());
-        stream.write(intToBytes((int) this.sampleSize));
+        stream.writeInt((int) this.sampleSize);
         if (sampleSize == 0) {
-            stream.write(intToBytes(this.entries.size()));
+            stream.writeInt(this.entries.size());
             for (long entry : entries) {
-                stream.write(intToBytes((int) entry));
+                stream.writeInt((int) entry);
             }
         } else {
-            stream.write(intToBytes((int) this.sampleCount));
+            stream.writeInt((int) this.sampleCount);
         }
     }
 

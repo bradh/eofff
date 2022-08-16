@@ -8,8 +8,8 @@ public class ImageSpatialExtentsProperty extends ItemFullProperty {
     private long imageWidth;
     private long imageHeight;
 
-    public ImageSpatialExtentsProperty(long size, FourCC name) {
-        super(size, name);
+    public ImageSpatialExtentsProperty(FourCC name) {
+        super(name);
     }
 
     @Override

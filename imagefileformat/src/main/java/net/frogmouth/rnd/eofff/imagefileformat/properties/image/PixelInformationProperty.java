@@ -9,8 +9,8 @@ public class PixelInformationProperty extends ItemFullProperty {
 
     private final List<Integer> channels = new ArrayList<>();
 
-    public PixelInformationProperty(long size, FourCC name) {
-        super(size, name);
+    public PixelInformationProperty(FourCC name) {
+        super(name);
     }
 
     @Override

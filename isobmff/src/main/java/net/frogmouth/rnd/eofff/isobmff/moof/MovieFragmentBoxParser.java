@@ -15,7 +15,7 @@ public class MovieFragmentBoxParser extends BaseBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        MovieFragmentBox box = new MovieFragmentBox(boxSize, boxName);
+        MovieFragmentBox box = new MovieFragmentBox(boxName);
         box.addNestedBoxes(parseContext.parseNestedBoxes(initialOffset + boxSize));
         return box;
     }

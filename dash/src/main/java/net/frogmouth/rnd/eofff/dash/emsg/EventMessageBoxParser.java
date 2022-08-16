@@ -19,7 +19,7 @@ public class EventMessageBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        EventMessageBox box = new EventMessageBox(boxSize, boxName);
+        EventMessageBox box = new EventMessageBox(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

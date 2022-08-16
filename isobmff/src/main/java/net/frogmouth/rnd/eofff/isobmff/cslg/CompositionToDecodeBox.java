@@ -16,8 +16,8 @@ public class CompositionToDecodeBox extends FullBox {
     private long compositionStartTime;
     private long compositionEndTime;
 
-    public CompositionToDecodeBox(long size, FourCC name) {
-        super(size, name);
+    public CompositionToDecodeBox(FourCC name) {
+        super(name);
     }
 
     @Override

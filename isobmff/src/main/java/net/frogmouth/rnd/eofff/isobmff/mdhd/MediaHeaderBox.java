@@ -1,13 +1,10 @@
 package net.frogmouth.rnd.eofff.isobmff.mdhd;
 
-import static net.frogmouth.rnd.eofff.isobmff.BaseBox.intToBytes;
-import static net.frogmouth.rnd.eofff.isobmff.BaseBox.shortToBytes;
-
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
  * Media Header Box.
@@ -21,8 +18,21 @@ public class MediaHeaderBox extends FullBox {
     private long duration;
     private String language;
 
-    public MediaHeaderBox(long size, FourCC name) {
-        super(size, name);
+    public MediaHeaderBox(FourCC name) {
+        super(name);
+    }
+
+    @Override
+    public long getSize() {
+        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        if (getVersion() == 1) {
+            size += 28;
+        } else {
+            size += 16;
+        }
+        size += 2; // language plus 1 bit pad
+        size += 2; // predefined
+        return size;
     }
 
     @Override
@@ -71,27 +81,27 @@ public class MediaHeaderBox extends FullBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) this.getSize());
+        stream.writeFourCC(getFourCC());
         stream.write(getVersionAndFlagsAsBytes());
         if (getVersion() == 1) {
-            stream.write(longToBytes(this.creationTime));
-            stream.write(longToBytes(this.modificationTime));
-            stream.write(intToBytes((int) this.timescale));
-            stream.write(longToBytes(this.duration));
+            stream.writeLong(this.creationTime);
+            stream.writeLong(this.modificationTime);
+            stream.writeInt((int) this.timescale);
+            stream.writeLong(this.duration);
         } else {
-            stream.write(intToBytes((int) this.creationTime));
-            stream.write(intToBytes((int) this.modificationTime));
-            stream.write(intToBytes((int) this.timescale));
-            stream.write(intToBytes((int) this.duration));
+            stream.writeInt((int) this.creationTime);
+            stream.writeInt((int) this.modificationTime);
+            stream.writeInt((int) this.timescale);
+            stream.writeInt((int) this.duration);
         }
         byte[] languageBytes = language.getBytes(StandardCharsets.US_ASCII);
         short packedLanguage = (short) (languageBytes[2] - 0x60);
         packedLanguage |= (short) (languageBytes[1] - 0x60) << 5;
         packedLanguage |= (short) (languageBytes[0] - 0x60) << 10;
-        stream.write(shortToBytes(packedLanguage));
-        stream.write(shortToBytes((short) 0));
+        stream.writeShort(packedLanguage);
+        stream.writeShort((short) 0);
     }
 
     @Override

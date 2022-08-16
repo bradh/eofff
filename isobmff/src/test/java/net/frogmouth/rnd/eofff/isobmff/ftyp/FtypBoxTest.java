@@ -8,12 +8,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import org.testng.annotations.Test;
 
 public class FtypBoxTest {
     @Test
     public void checkFullName() {
-        FileTypeBox box = new FileTypeBox(28, new FourCC("ftyp"));
+        FileTypeBox box = new FileTypeBox(new FourCC("ftyp"));
         assertEquals(box.getFullName(), "File Type Box");
     }
 
@@ -21,12 +22,13 @@ public class FtypBoxTest {
     public void checkWrite() throws IOException {
         FileTypeBox box =
                 new FileTypeBoxBuilder()
-                        .withMajorBrand(new FourCC("iso6"))
+                        .withMajorBrand(Brand.ISO6)
                         .withMinorVersion(0)
-                        .addCompatibleBrand(new FourCC("misb"))
+                        .addCompatibleBrand(new Brand("misb"))
                         .build();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        box.writeTo(baos);
+        OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
+        box.writeTo(streamWriter);
         byte[] bytes = baos.toByteArray();
         assertEquals(
                 bytes,

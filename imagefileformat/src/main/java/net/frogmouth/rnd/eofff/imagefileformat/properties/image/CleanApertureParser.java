@@ -17,7 +17,7 @@ public class CleanApertureParser extends PropertyParser {
     @Override
     public AbstractItemProperty parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        CleanAperture box = new CleanAperture(boxSize, boxName);
+        CleanAperture box = new CleanAperture(boxName);
         box.setCleanApertureWidthN(parseContext.readUnsignedInt32());
         box.setCleanApertureWidthD(parseContext.readUnsignedInt32());
         box.setCleanApertureHeightN(parseContext.readUnsignedInt32());

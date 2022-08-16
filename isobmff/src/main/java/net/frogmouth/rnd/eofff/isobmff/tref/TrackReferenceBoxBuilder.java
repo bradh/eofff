@@ -2,7 +2,6 @@ package net.frogmouth.rnd.eofff.isobmff.tref;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class TrackReferenceBoxBuilder {
 
@@ -16,11 +15,8 @@ public class TrackReferenceBoxBuilder {
     }
 
     public TrackReferenceBox build() {
-        int size = Integer.BYTES + FourCC.BYTES;
-        for (TrackReferenceTypeBox reference : references) {
-            size += reference.getSize();
-        }
-        TrackReferenceBox box = new TrackReferenceBox(size, new FourCC("tref"));
+
+        TrackReferenceBox box = new TrackReferenceBox();
         for (TrackReferenceTypeBox reference : references) {
             box.addEntry(reference);
         }

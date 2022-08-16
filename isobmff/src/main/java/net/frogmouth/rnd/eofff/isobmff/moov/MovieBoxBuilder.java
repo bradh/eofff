@@ -1,6 +1,6 @@
 package net.frogmouth.rnd.eofff.isobmff.moov;
 
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.AbstractContainerBoxBuilder;
 
 public class MovieBoxBuilder extends AbstractContainerBoxBuilder<MovieBox> {
 
@@ -8,8 +8,7 @@ public class MovieBoxBuilder extends AbstractContainerBoxBuilder<MovieBox> {
 
     @Override
     public MovieBox build() {
-        int size = getBoxSize();
-        MovieBox box = new MovieBox(size, new FourCC("moov"));
+        MovieBox box = new MovieBox();
         box.addNestedBoxes(nestedBoxes);
         return box;
     }

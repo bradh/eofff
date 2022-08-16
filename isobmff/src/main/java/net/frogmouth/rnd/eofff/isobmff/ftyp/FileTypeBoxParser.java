@@ -15,7 +15,7 @@ public class FileTypeBoxParser extends FileTypeLikeBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        FileTypeBox box = new FileTypeBox(boxSize, boxName);
+        FileTypeBox box = new FileTypeBox(boxName);
         doParse(box, parseContext, initialOffset, boxSize);
         return box;
     }

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import net.frogmouth.rnd.eofff.imagefileformat.brands.ImageFileFormatBrand;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FileParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
@@ -54,11 +55,11 @@ public class ConformanceC005Test {
         assertTrue(box0 instanceof FileTypeBox);
         FileTypeBox ftyp = (FileTypeBox) box0;
         assertEquals(ftyp.getFourCC(), new FourCC("ftyp"));
-        assertEquals(ftyp.getMajorBrand(), new FourCC("mif1"));
+        assertEquals(ftyp.getMajorBrand(), ImageFileFormatBrand.MIF1);
         assertEquals(ftyp.getMinorVersion(), 0);
         assertEquals(ftyp.getCompatibleBrands().size(), 2);
-        assertEquals(ftyp.getCompatibleBrands().get(0), new FourCC("heic"));
-        assertEquals(ftyp.getCompatibleBrands().get(1), new FourCC("mif1"));
+        assertEquals(ftyp.getCompatibleBrands().get(0), ImageFileFormatBrand.HEIC);
+        assertEquals(ftyp.getCompatibleBrands().get(1), ImageFileFormatBrand.MIF1);
     }
 
     @Test

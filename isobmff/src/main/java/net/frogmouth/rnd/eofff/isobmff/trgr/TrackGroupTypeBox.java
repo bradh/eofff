@@ -1,11 +1,14 @@
 package net.frogmouth.rnd.eofff.isobmff.trgr;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
-public record TrackGroupTypeBox(FourCC groupType, long groupID) {
+public record TrackGroupTypeBox(TrackGroupType groupType, long groupID, int version, int flags) {
+
+    public TrackGroupTypeBox(TrackGroupType groupType, long groupID) {
+        this(groupType, groupID, 0, 0);
+    }
 
     public long getSize() {
         return Integer.BYTES + FourCC.BYTES + 1 + 3 + Integer.BYTES;
@@ -21,10 +24,10 @@ public record TrackGroupTypeBox(FourCC groupType, long groupID) {
         return sb.toString();
     }
 
-    void writeTo(OutputStream stream) throws IOException {
-        stream.write(BaseBox.intToBytes((int) getSize()));
-        stream.write(groupType.toBytes());
-        stream.write(BaseBox.intToBytes(0)); // version and flags
-        stream.write(BaseBox.intToBytes((int) groupID));
+    void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) getSize());
+        stream.writeFourCC(groupType);
+        stream.writeInt(0); // version and flags
+        stream.writeInt((int) groupID);
     }
 }

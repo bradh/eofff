@@ -5,8 +5,8 @@ public class FullBox extends BaseBox {
     private int version;
     private int flags;
 
-    public FullBox(long size, FourCC name) {
-        super(size, name);
+    public FullBox(FourCC name) {
+        super(name);
     }
 
     public int getVersion() {

@@ -17,7 +17,7 @@ public class ImageRotationParser extends PropertyParser {
     @Override
     public AbstractItemProperty parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ImageRotation box = new ImageRotation(boxSize, boxName);
+        ImageRotation box = new ImageRotation(boxName);
         int temp = parseContext.readUnsignedInt8();
         box.setAngle(temp & 0x03);
         return box;

@@ -4,8 +4,8 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class AlternativesBox extends AbstractEntityToGroupBox {
 
-    public AlternativesBox(long size, FourCC name) {
-        super(size, name);
+    public AlternativesBox(FourCC name) {
+        super(name);
     }
 
     @Override

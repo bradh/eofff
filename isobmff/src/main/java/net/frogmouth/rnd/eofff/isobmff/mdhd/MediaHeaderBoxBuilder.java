@@ -50,15 +50,8 @@ public class MediaHeaderBoxBuilder {
     }
 
     public MediaHeaderBox build() {
-        int size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        if (version == 1) {
-            size += 28;
-        } else {
-            size += 16;
-        }
-        size += 2; // language plus 1 bit pad
-        size += 2; // predefined
-        MediaHeaderBox box = new MediaHeaderBox(size, new FourCC("mdhd"));
+
+        MediaHeaderBox box = new MediaHeaderBox(new FourCC("mdhd"));
         box.setVersion(version);
         box.setFlags(flags);
         box.setCreationTime(creationTime);

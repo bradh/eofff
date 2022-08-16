@@ -24,4 +24,9 @@ module net.frogmouth.rnd.eofff.imagefileformat {
             net.frogmouth.rnd.eofff.imagefileformat.properties.image
                     .ImageSpatialExtentsPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.image.PixelInformationPropertyParser;
+
+    exports net.frogmouth.rnd.eofff.imagefileformat.brands;
+    exports net.frogmouth.rnd.eofff.imagefileformat.extensions.groups;
+    exports net.frogmouth.rnd.eofff.imagefileformat.extensions.properties;
+    exports net.frogmouth.rnd.eofff.imagefileformat.properties.image;
 }

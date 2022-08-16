@@ -11,8 +11,8 @@ public class TrackRunBox extends FullBox {
     private long firstSampleFlags;
     private final List<TrackRunSample> samples = new ArrayList<>();
 
-    public TrackRunBox(long size, FourCC name) {
-        super(size, name);
+    public TrackRunBox(FourCC name) {
+        super(name);
     }
 
     @Override

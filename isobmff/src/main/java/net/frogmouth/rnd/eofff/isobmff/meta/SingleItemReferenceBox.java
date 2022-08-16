@@ -9,8 +9,8 @@ public class SingleItemReferenceBox extends BaseBox {
     private long fromItemId;
     private final List<Long> references = new ArrayList<>();
 
-    public SingleItemReferenceBox(long size, FourCC name) {
-        super(size, name);
+    public SingleItemReferenceBox(FourCC name) {
+        super(name);
     }
 
     public long getFromItemId() {

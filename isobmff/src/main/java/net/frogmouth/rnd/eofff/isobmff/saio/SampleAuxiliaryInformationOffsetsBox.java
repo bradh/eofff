@@ -1,10 +1,9 @@
 package net.frogmouth.rnd.eofff.isobmff.saio;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
  * Sample Auxiliary Information Offsets Box.
@@ -18,13 +17,29 @@ public class SampleAuxiliaryInformationOffsetsBox extends FullBox {
     private long entryCount;
     private long[] offsets;
 
-    public SampleAuxiliaryInformationOffsetsBox(long size, FourCC name) {
-        super(size, name);
+    public SampleAuxiliaryInformationOffsetsBox(FourCC name) {
+        super(name);
     }
 
     @Override
     public String getFullName() {
         return "SampleAuxiliaryInformationSizesBox";
+    }
+
+    @Override
+    public long getSize() {
+        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        if ((getFlags() & 0x01) == 0x01) {
+            size += FourCC.BYTES;
+            size += Integer.BYTES;
+        }
+        size += Integer.BYTES;
+        if (getVersion() == 0) {
+            size += (offsets.length * Integer.BYTES);
+        } else {
+            size += (offsets.length * Long.BYTES);
+        }
+        return size;
     }
 
     public FourCC getAuxInfoType() {
@@ -60,22 +75,22 @@ public class SampleAuxiliaryInformationOffsetsBox extends FullBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) this.getSize());
+        stream.writeFourCC(getFourCC());
         stream.write(getVersionAndFlagsAsBytes());
         if ((getFlags() & 0x01) == 0x01) {
-            stream.write(auxInfoType.toBytes());
-            stream.write(BaseBox.intToBytes((int) auxInfoTypeParameter));
+            stream.writeFourCC(auxInfoType);
+            stream.writeInt((int) auxInfoTypeParameter);
         }
-        stream.write(intToBytes((int) entryCount));
+        stream.writeInt((int) entryCount);
         if (this.getVersion() == 0) {
             for (long l : offsets) {
-                stream.write(intToBytes((int) l));
+                stream.writeInt((int) l);
             }
         } else {
             for (long l : offsets) {
-                stream.write(longToBytes(l));
+                stream.writeLong(l);
             }
         }
     }

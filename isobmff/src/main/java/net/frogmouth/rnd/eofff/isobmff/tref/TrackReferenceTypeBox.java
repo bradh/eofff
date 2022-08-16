@@ -1,12 +1,16 @@
 package net.frogmouth.rnd.eofff.isobmff.tref;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Arrays;
-import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
-public record TrackReferenceTypeBox(FourCC referenceType, long[] trackIDs) {
+/**
+ * Track Reference Type Box.
+ *
+ * <p>See ISO/IEC 14496-12:2015 Section 8.3.3.
+ */
+public record TrackReferenceTypeBox(TrackReference referenceType, long[] trackIDs) {
 
     public long getSize() {
         return Integer.BYTES + FourCC.BYTES + trackIDs.length * Integer.BYTES;
@@ -22,11 +26,11 @@ public record TrackReferenceTypeBox(FourCC referenceType, long[] trackIDs) {
         return sb.toString();
     }
 
-    void writeTo(OutputStream stream) throws IOException {
-        stream.write(BaseBox.intToBytes((int) getSize()));
-        stream.write(referenceType.toBytes());
+    void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeUnsignedInt32((int) this.getSize());
+        stream.writeFourCC(referenceType);
         for (long id : trackIDs) {
-            stream.write(BaseBox.intToBytes((int) id));
+            stream.writeUnsignedInt32((int) id);
         }
     }
 }

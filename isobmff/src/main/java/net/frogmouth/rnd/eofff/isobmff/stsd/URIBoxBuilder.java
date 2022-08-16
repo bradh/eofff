@@ -1,6 +1,5 @@
 package net.frogmouth.rnd.eofff.isobmff.stsd;
 
-import java.nio.charset.StandardCharsets;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class URIBoxBuilder {
@@ -27,11 +26,7 @@ public class URIBoxBuilder {
     }
 
     public URIBox build() {
-        int size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        size += theURI.getBytes(StandardCharsets.UTF_8).length;
-        size += 1;
-
-        URIBox box = new URIBox(size, new FourCC("uri "));
+        URIBox box = new URIBox(new FourCC("uri "));
         box.setVersion(version);
         box.setFlags(flags);
         box.setTheURI(theURI);

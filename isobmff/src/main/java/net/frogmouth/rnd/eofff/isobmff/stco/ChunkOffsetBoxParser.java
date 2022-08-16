@@ -19,7 +19,7 @@ public class ChunkOffsetBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ChunkOffsetBox box = new ChunkOffsetBox(boxSize, boxName);
+        ChunkOffsetBox box = new ChunkOffsetBox(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

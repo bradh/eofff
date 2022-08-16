@@ -5,8 +5,8 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class TrackFragmentBox extends AbstractContainerBox {
 
-    public TrackFragmentBox(long size, FourCC name) {
-        super(size, name);
+    public TrackFragmentBox(FourCC name) {
+        super(name);
     }
 
     @Override

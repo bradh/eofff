@@ -5,8 +5,8 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class MovieFragmentBox extends AbstractContainerBox {
 
-    public MovieFragmentBox(long size, FourCC name) {
-        super(size, name);
+    public MovieFragmentBox(FourCC name) {
+        super(name);
     }
 
     @Override

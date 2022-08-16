@@ -15,7 +15,7 @@ public class DataInformationBoxParser extends BaseBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        DataInformationBox box = new DataInformationBox(boxSize, boxName);
+        DataInformationBox box = new DataInformationBox(boxName);
         box.addNestedBoxes(parseContext.parseNestedBoxes(initialOffset + boxSize));
         return box;
     }

@@ -5,8 +5,10 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class MovieBox extends AbstractContainerBox {
 
-    public MovieBox(long size, FourCC name) {
-        super(size, name);
+    public static final FourCC MOOV_ATOM = new FourCC("moov");
+
+    public MovieBox() {
+        super(MOOV_ATOM);
     }
 
     @Override

@@ -10,8 +10,8 @@ import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeLikeBox;
  */
 public class SegmentTypeBox extends FileTypeLikeBox {
 
-    public SegmentTypeBox(long size, FourCC name) {
-        super(size, name);
+    public SegmentTypeBox(FourCC name) {
+        super(name);
     }
 
     @Override

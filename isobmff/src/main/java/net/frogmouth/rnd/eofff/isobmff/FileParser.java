@@ -4,14 +4,12 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
 
-public class FileParser {
+public class FileParser extends AbstractParser {
     public List<Box> parse(Path testFile) throws IOException {
-        List<Box> boxes = new ArrayList<>();
         MemorySegment segment =
                 MemorySegment.mapFile(
                         testFile,
@@ -19,21 +17,6 @@ public class FileParser {
                         Files.size(testFile),
                         FileChannel.MapMode.READ_ONLY,
                         ResourceScope.newImplicitScope());
-        ParseContext parseContext = new ParseContext(segment);
-        while (parseContext.hasRemaining()) {
-            long offset = parseContext.getCursorPosition();
-            long boxSize = parseContext.readUnsignedInt32();
-            FourCC boxName = parseContext.readFourCC();
-            if (boxSize == 1) {
-                boxSize = parseContext.readUnsignedInt64();
-            } else if (boxSize == 0) {
-                throw new UnsupportedOperationException("We don't do that yet");
-            }
-            BoxParser parser = BoxFactoryManager.getParser(boxName);
-            Box box = parser.parse(parseContext, offset, boxSize, boxName);
-            parseContext.setCursorPosition(offset + boxSize);
-            boxes.add(box);
-        }
-        return boxes;
+        return parseMemorySegment(segment);
     }
 }

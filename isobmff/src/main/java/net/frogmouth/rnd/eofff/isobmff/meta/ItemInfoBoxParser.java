@@ -19,7 +19,7 @@ public class ItemInfoBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ItemInfoBox box = new ItemInfoBox(boxSize, boxName);
+        ItemInfoBox box = new ItemInfoBox(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

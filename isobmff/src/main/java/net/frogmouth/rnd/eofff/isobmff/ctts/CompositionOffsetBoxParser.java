@@ -19,7 +19,7 @@ public class CompositionOffsetBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        CompositionOffsetBox box = new CompositionOffsetBox(boxSize, boxName);
+        CompositionOffsetBox box = new CompositionOffsetBox(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

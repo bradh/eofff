@@ -16,7 +16,7 @@ public class IlistBoxParser extends BaseBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        IlstBox box = new IlstBox(boxSize, boxName);
+        IlstBox box = new IlstBox(boxName);
         byte[] data = parseContext.getBytes(boxSize - (Integer.BYTES + FourCC.BYTES));
         box.setData(data);
         return box;

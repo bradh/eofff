@@ -25,7 +25,7 @@ public class TrackRunBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        TrackRunBox box = new TrackRunBox(boxSize, boxName);
+        TrackRunBox box = new TrackRunBox(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

@@ -1,36 +1,32 @@
 package net.frogmouth.rnd.eofff.isobmff;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
+import net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupBox;
 
 public class BaseBox implements Box {
 
-    private long size;
+    protected static final long BYTES_IN_BOX_HEADER = Integer.BYTES + FourCC.BYTES;
+    protected static final long BYTES_IN_LARGE_BOX_HEADER =
+            Integer.BYTES + FourCC.BYTES + Long.BYTES;
+    protected static final int LARGE_SIZE_FLAG = 1;
+
+    // private long size;
     private FourCC boxName;
 
-    public BaseBox(long size, FourCC name) {
+    public BaseBox(FourCC name) {
         setBoxName(name);
-        setSize(size);
     }
 
     @Override
     public long getSize() {
-        return size;
-    }
-
-    public void adjustSize(long adjustment) {
-        size += adjustment;
+        throw new UnsupportedOperationException(
+                "can't get size of unimplemented box : " + boxName.toString());
     }
 
     @Override
-    public byte[] getSizeAsBytes() {
-        // TODO: handle largebox case
-        return intToBytes((int) size);
-    }
-
-    public final void setSize(long size) {
-        this.size = size;
+    public long getBodySize() {
+        // Temporary hack
+        return getSize() - 8;
     }
 
     @Override
@@ -53,28 +49,25 @@ public class BaseBox implements Box {
     }
 
     @Override
-    public void writeTo(OutputStream writer) throws IOException {
+    public void writeTo(OutputStreamWriter writer) throws IOException {
         System.out.println("need writeTo() implementation for " + boxName.toString());
     }
 
-    public static byte[] intToBytes(int i) {
-        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
-        buffer.putInt(i);
-        buffer.rewind();
-        return buffer.array();
+    protected boolean needLargeSize(long bodySize) {
+        return 0xFFFFFFFFL < bodySize + TrackGroupBox.BYTES_IN_BOX_HEADER;
     }
 
-    public static byte[] shortToBytes(short i) {
-        ByteBuffer buffer = ByteBuffer.allocate(Short.BYTES);
-        buffer.putShort(i);
-        buffer.rewind();
-        return buffer.array();
-    }
-
-    public static byte[] longToBytes(long i) {
-        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-        buffer.putLong(i);
-        buffer.rewind();
-        return buffer.array();
+    protected void writeBoxHeader(OutputStreamWriter stream) throws IOException {
+        long bodySize = getBodySize();
+        if (needLargeSize(bodySize)) {
+            long boxSize = TrackGroupBox.BYTES_IN_LARGE_BOX_HEADER + bodySize;
+            stream.writeUnsignedInt32(TrackGroupBox.LARGE_SIZE_FLAG);
+            stream.writeFourCC(this.getFourCC());
+            stream.writeLong(boxSize);
+        } else {
+            long boxSize = TrackGroupBox.BYTES_IN_BOX_HEADER + bodySize;
+            stream.writeUnsignedInt32(boxSize);
+            stream.writeFourCC(this.getFourCC());
+        }
     }
 }

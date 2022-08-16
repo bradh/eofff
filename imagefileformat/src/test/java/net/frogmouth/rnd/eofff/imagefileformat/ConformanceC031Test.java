@@ -6,9 +6,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import net.frogmouth.rnd.eofff.imagefileformat.brands.ImageFileFormatBrand;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FileParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.ftyp.Brand;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,12 +54,12 @@ public class ConformanceC031Test {
         assertTrue(box0 instanceof FileTypeBox);
         FileTypeBox ftyp = (FileTypeBox) box0;
         assertEquals(ftyp.getFourCC(), new FourCC("ftyp"));
-        assertEquals(ftyp.getMajorBrand(), new FourCC("msf1"));
+        assertEquals(ftyp.getMajorBrand(), ImageFileFormatBrand.MSF1);
         assertEquals(ftyp.getMinorVersion(), 0);
         assertEquals(ftyp.getCompatibleBrands().size(), 4);
-        assertEquals(ftyp.getCompatibleBrands().get(0), new FourCC("msf1"));
-        assertEquals(ftyp.getCompatibleBrands().get(1), new FourCC("hevc"));
-        assertEquals(ftyp.getCompatibleBrands().get(2), new FourCC("iso8"));
-        assertEquals(ftyp.getCompatibleBrands().get(3), new FourCC("mp41"));
+        assertEquals(ftyp.getCompatibleBrands().get(0), ImageFileFormatBrand.MSF1);
+        assertEquals(ftyp.getCompatibleBrands().get(1), ImageFileFormatBrand.HEVC);
+        assertEquals(ftyp.getCompatibleBrands().get(2), Brand.ISO8);
+        assertEquals(ftyp.getCompatibleBrands().get(3), new Brand("mp41"));
     }
 }

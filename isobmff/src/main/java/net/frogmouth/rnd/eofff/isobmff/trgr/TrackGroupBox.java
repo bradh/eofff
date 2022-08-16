@@ -1,11 +1,11 @@
 package net.frogmouth.rnd.eofff.isobmff.trgr;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
  * Track Group Box.
@@ -14,10 +14,29 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
  */
 public class TrackGroupBox extends BaseBox {
 
+    public static final FourCC TRGR_ATOM = new FourCC("trgr");
     private final List<TrackGroupTypeBox> entries = new ArrayList<>();
 
-    public TrackGroupBox(long size, FourCC name) {
-        super(size, name);
+    public TrackGroupBox() {
+        super(TRGR_ATOM);
+    }
+
+    @Override
+    public long getSize() {
+        long size = Integer.BYTES + FourCC.BYTES;
+        for (TrackGroupTypeBox group : entries) {
+            size += group.getSize();
+        }
+        return size;
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = 0;
+        for (TrackGroupTypeBox group : entries) {
+            size += group.getSize();
+        }
+        return size;
     }
 
     @Override
@@ -34,9 +53,8 @@ public class TrackGroupBox extends BaseBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        writeBoxHeader(stream);
         for (TrackGroupTypeBox entry : entries) {
             entry.writeTo(stream);
         }

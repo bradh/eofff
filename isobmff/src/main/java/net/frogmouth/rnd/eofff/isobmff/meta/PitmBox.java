@@ -1,12 +1,9 @@
 package net.frogmouth.rnd.eofff.isobmff.meta;
 
-import static net.frogmouth.rnd.eofff.isobmff.BaseBox.intToBytes;
-import static net.frogmouth.rnd.eofff.isobmff.BaseBox.shortToBytes;
-
 import java.io.IOException;
-import java.io.OutputStream;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
  * Primary Item Box.
@@ -16,13 +13,24 @@ import net.frogmouth.rnd.eofff.isobmff.FullBox;
 public class PitmBox extends FullBox {
     private long itemID;
 
-    public PitmBox(long size, FourCC name) {
-        super(size, name);
+    public PitmBox(FourCC name) {
+        super(name);
     }
 
     @Override
     public String getFullName() {
         return "PrimaryItemBox";
+    }
+
+    @Override
+    public long getSize() {
+        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        if (getVersion() == 0) {
+            size += Short.BYTES;
+        } else {
+            size += Integer.BYTES;
+        }
+        return size;
     }
 
     public long getItemID() {
@@ -34,17 +42,17 @@ public class PitmBox extends FullBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) this.getSize());
+        stream.writeFourCC(getFourCC());
         if ((getVersion() == 0) && (itemID >= (1 << 16))) {
             setVersion(1);
         }
         stream.write(getVersionAndFlagsAsBytes());
         if (getVersion() == 0) {
-            stream.write(shortToBytes((short) itemID));
+            stream.writeShort((short) itemID);
         } else {
-            stream.write(intToBytes((int) itemID));
+            stream.writeInt((int) itemID);
         }
     }
 

@@ -16,12 +16,7 @@ public class TimeToSampleBoxBuilder {
     }
 
     public TimeToSampleBox build() {
-        int size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        size += Integer.BYTES;
-        for (TimeToSampleEntry entry : entries) {
-            size += entry.getSize();
-        }
-        TimeToSampleBox box = new TimeToSampleBox(size, new FourCC("stts"));
+        TimeToSampleBox box = new TimeToSampleBox(new FourCC("stts"));
         for (TimeToSampleEntry entry : entries) {
             box.addEntry(entry);
         }

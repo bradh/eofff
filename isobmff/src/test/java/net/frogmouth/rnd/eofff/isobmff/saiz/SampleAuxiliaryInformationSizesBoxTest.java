@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import org.testng.annotations.Test;
 
 /** Unit test for saiz. */
@@ -24,7 +25,8 @@ public class SampleAuxiliaryInformationSizesBoxTest {
                         .withSampleCount(5 * 60 * 30)
                         .build();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        box.writeTo(baos);
+        OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
+        box.writeTo(streamWriter);
         byte[] bytes = baos.toByteArray();
         assertEquals(
                 bytes,
@@ -49,7 +51,8 @@ public class SampleAuxiliaryInformationSizesBoxTest {
                         .withSampleCount(5 * 60 * 30)
                         .build();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        box.writeTo(baos);
+        OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
+        box.writeTo(streamWriter);
         byte[] bytes = baos.toByteArray();
         assertEquals(
                 bytes,

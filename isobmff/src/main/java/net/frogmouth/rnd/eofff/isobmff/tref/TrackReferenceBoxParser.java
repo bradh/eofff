@@ -4,7 +4,6 @@ import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
-import net.frogmouth.rnd.eofff.isobmff.stts.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,15 +14,15 @@ public class TrackReferenceBoxParser extends FullBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("tref");
+        return TrackReferenceBox.TREF_FOURCC;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        TrackReferenceBox box = new TrackReferenceBox(boxSize, boxName);
+        TrackReferenceBox box = new TrackReferenceBox();
         while (parseContext.hasRemainingUntil(initialOffset + boxSize)) {
             long refBoxSize = parseContext.readUnsignedInt32();
-            FourCC refBoxName = parseContext.readFourCC();
+            TrackReference refBoxName = parseContext.readTrackReference();
             int numTrackIds = (int) ((refBoxSize - (Integer.BYTES + FourCC.BYTES)) / Integer.BYTES);
             long[] trackIds = new long[numTrackIds];
             for (int i = 0; i < numTrackIds; i++) {

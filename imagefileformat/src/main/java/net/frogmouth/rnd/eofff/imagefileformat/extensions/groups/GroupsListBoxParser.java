@@ -15,7 +15,7 @@ public class GroupsListBoxParser extends BaseBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        GroupsListBox box = new GroupsListBox(boxSize, boxName);
+        GroupsListBox box = new GroupsListBox(boxName);
         box.addNestedBoxes(parseContext.parseNestedBoxes(initialOffset + boxSize));
         return box;
     }

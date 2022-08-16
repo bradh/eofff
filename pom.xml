@@ -10,6 +10,8 @@
         <module>imagefileformat</module>
         <module>visualiser</module>
         <module>dash</module>
+        <module>nalvideo</module>
+        <module>tools</module>
     </modules>
     <properties>
         <googleformatter.maven.plugin.version>1.7.5</googleformatter.maven.plugin.version>

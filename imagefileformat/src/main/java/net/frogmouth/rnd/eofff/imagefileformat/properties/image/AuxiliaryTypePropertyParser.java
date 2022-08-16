@@ -20,7 +20,7 @@ public class AuxiliaryTypePropertyParser extends ItemFullPropertyParser {
     @Override
     public AbstractItemProperty parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        AuxiliaryTypeProperty box = new AuxiliaryTypeProperty(boxSize, boxName);
+        AuxiliaryTypeProperty box = new AuxiliaryTypeProperty(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

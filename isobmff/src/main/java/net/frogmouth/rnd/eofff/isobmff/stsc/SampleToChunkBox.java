@@ -1,13 +1,11 @@
 package net.frogmouth.rnd.eofff.isobmff.stsc;
 
-import static net.frogmouth.rnd.eofff.isobmff.BaseBox.intToBytes;
-
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
  * Sample to Chunk Box.
@@ -18,13 +16,23 @@ public class SampleToChunkBox extends FullBox {
 
     private final List<SampleToChunkEntry> entries = new ArrayList<>();
 
-    public SampleToChunkBox(long size, FourCC name) {
-        super(size, name);
+    public SampleToChunkBox(FourCC name) {
+        super(name);
     }
 
     @Override
     public String getFullName() {
         return "SampleToChunkBox";
+    }
+
+    @Override
+    public long getSize() {
+        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        size += Integer.BYTES;
+        for (SampleToChunkEntry entry : entries) {
+            size += entry.getSize();
+        }
+        return size;
     }
 
     public List<SampleToChunkEntry> getEntries() {
@@ -36,11 +44,11 @@ public class SampleToChunkBox extends FullBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) this.getSize());
+        stream.writeFourCC(getFourCC());
         stream.write(getVersionAndFlagsAsBytes());
-        stream.write(intToBytes(entries.size()));
+        stream.writeInt(entries.size());
         for (SampleToChunkEntry entry : entries) {
             entry.writeTo(stream);
         }

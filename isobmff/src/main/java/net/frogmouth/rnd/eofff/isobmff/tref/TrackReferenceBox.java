@@ -1,11 +1,11 @@
 package net.frogmouth.rnd.eofff.isobmff.tref;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
  * Track Reference Box.
@@ -13,16 +13,34 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
  * <p>See ISO/IEC 14496-12:2015 Section 8.3.3.
  */
 public class TrackReferenceBox extends BaseBox {
-
+    public static final FourCC TREF_FOURCC = new FourCC("tref");
     private final List<TrackReferenceTypeBox> entries = new ArrayList<>();
 
-    public TrackReferenceBox(long size, FourCC name) {
-        super(size, name);
+    public TrackReferenceBox() {
+        super(TREF_FOURCC);
     }
 
     @Override
     public String getFullName() {
         return "TrackReferenceBox";
+    }
+
+    @Override
+    public long getSize() {
+        long size = Integer.BYTES + FourCC.BYTES;
+        for (TrackReferenceTypeBox reference : entries) {
+            size += reference.getSize();
+        }
+        return size;
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = 0;
+        for (TrackReferenceTypeBox reference : entries) {
+            size += reference.getSize();
+        }
+        return size;
     }
 
     public List<TrackReferenceTypeBox> getEntries() {
@@ -34,9 +52,8 @@ public class TrackReferenceBox extends BaseBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        this.writeBoxHeader(stream);
         for (TrackReferenceTypeBox entry : entries) {
             entry.writeTo(stream);
         }

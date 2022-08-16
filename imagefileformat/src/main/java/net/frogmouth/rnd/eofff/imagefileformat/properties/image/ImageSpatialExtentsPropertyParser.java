@@ -21,7 +21,7 @@ public class ImageSpatialExtentsPropertyParser extends ItemFullPropertyParser {
     @Override
     public AbstractItemProperty parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ImageSpatialExtentsProperty box = new ImageSpatialExtentsProperty(boxSize, boxName);
+        ImageSpatialExtentsProperty box = new ImageSpatialExtentsProperty(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

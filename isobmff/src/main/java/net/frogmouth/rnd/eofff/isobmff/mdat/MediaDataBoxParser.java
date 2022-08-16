@@ -16,10 +16,12 @@ public class MediaDataBoxParser extends BoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        MediaDataBox box = new MediaDataBox(boxSize, boxName);
+        MediaDataBox box = new MediaDataBox(boxName);
         // box.setDataOffset(parseContext.getCursorPosition());
         //  box.setDataLength(initialOffset + boxSize - parseContext.getCursorPosition());
-        byte[] data = parseContext.getBytes(boxSize - (Integer.BYTES + FourCC.BYTES));
+        byte[] data =
+                parseContext.getBytes(boxSize - (parseContext.getCursorPosition() - initialOffset));
+        // byte[] data = parseContext.getBytes(boxSize - (Integer.BYTES + FourCC.BYTES));
         box.setData(data);
         /*
         if (box.getDataLength() > 1000) {

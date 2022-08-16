@@ -29,12 +29,7 @@ public class SampleDescriptionBoxBuilder {
     }
 
     public SampleDescriptionBox build() {
-        int size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        size += Integer.BYTES;
-        for (Box box : nestedBoxes) {
-            size += box.getSize();
-        }
-        SampleDescriptionBox box = new SampleDescriptionBox(size, new FourCC("stsd"));
+        SampleDescriptionBox box = new SampleDescriptionBox(new FourCC("stsd"));
         box.setVersion(version);
         box.setFlags(flags);
         box.addNestedBoxes(nestedBoxes);

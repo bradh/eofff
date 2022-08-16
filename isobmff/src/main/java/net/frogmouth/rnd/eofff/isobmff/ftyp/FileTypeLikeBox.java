@@ -1,27 +1,44 @@
 package net.frogmouth.rnd.eofff.isobmff.ftyp;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class FileTypeLikeBox extends BaseBox {
 
-    protected FourCC majorBrand;
+    protected Brand majorBrand;
     protected int minorVersion;
-    protected final List<FourCC> compatibleBrands = new ArrayList<>();
+    protected final List<Brand> compatibleBrands = new ArrayList<>();
 
-    public FileTypeLikeBox(long size, FourCC name) {
-        super(size, name);
+    public FileTypeLikeBox(FourCC name) {
+        super(name);
+    }
+
+    @Override
+    public long getSize() {
+        long size =
+                Integer.BYTES
+                        + FourCC.BYTES
+                        + FourCC.BYTES
+                        + Integer.BYTES
+                        + FourCC.BYTES * compatibleBrands.size();
+        return size;
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = FourCC.BYTES + Integer.BYTES + FourCC.BYTES * compatibleBrands.size();
+        return size;
     }
 
     public FourCC getMajorBrand() {
         return majorBrand;
     }
 
-    public void setMajorBrand(FourCC majorBrand) {
+    public void setMajorBrand(Brand majorBrand) {
         this.majorBrand = majorBrand;
     }
 
@@ -33,32 +50,29 @@ public class FileTypeLikeBox extends BaseBox {
         this.minorVersion = minorVersion;
     }
 
-    public List<FourCC> getCompatibleBrands() {
+    public List<Brand> getCompatibleBrands() {
         return new ArrayList<>(compatibleBrands);
     }
 
-    public void addCompatibleBrand(FourCC compatibleBrand) {
+    public void addCompatibleBrand(Brand compatibleBrand) {
         this.compatibleBrands.add(compatibleBrand);
     }
 
-    public void removeCompatibleBrand(FourCC fourCC) {
-        this.compatibleBrands.remove(fourCC);
-        adjustSize(-1 * FourCC.BYTES);
+    public void removeCompatibleBrand(Brand brand) {
+        this.compatibleBrands.remove(brand);
     }
 
-    public void appendCompatibleBrand(FourCC fourCC) {
-        addCompatibleBrand(fourCC);
-        adjustSize(FourCC.BYTES);
+    public void appendCompatibleBrand(Brand brand) {
+        addCompatibleBrand(brand);
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
-        stream.write(this.majorBrand.toBytes());
-        stream.write(intToBytes(minorVersion));
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        this.writeBoxHeader(stream);
+        stream.writeFourCC(this.majorBrand);
+        stream.writeInt(minorVersion);
         for (FourCC brand : this.compatibleBrands) {
-            stream.write(brand.toBytes());
+            stream.writeFourCC(brand);
         }
     }
 

@@ -1,11 +1,11 @@
 package net.frogmouth.rnd.eofff.isobmff.elst;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
  * Edit List Box.
@@ -15,13 +15,23 @@ import net.frogmouth.rnd.eofff.isobmff.FullBox;
 public class EditListBox extends FullBox {
     private final List<EditListBoxEntry> entries = new ArrayList<>();
 
-    public EditListBox(long size, FourCC name) {
-        super(size, name);
+    public EditListBox(FourCC name) {
+        super(name);
     }
 
     @Override
     public String getFullName() {
         return "EditListBox";
+    }
+
+    @Override
+    public long getSize() {
+        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        size += Integer.BYTES;
+        for (EditListBoxEntry entry : entries) {
+            size += entry.getSize(getVersion());
+        }
+        return size;
     }
 
     public List<EditListBoxEntry> getEntries() {
@@ -33,11 +43,11 @@ public class EditListBox extends FullBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) this.getSize());
+        stream.writeFourCC(getFourCC());
         stream.write(getVersionAndFlagsAsBytes());
-        stream.write(intToBytes(entries.size()));
+        stream.writeInt(entries.size());
         for (EditListBoxEntry entry : entries) {
             entry.writeTo(stream, this.getVersion());
         }

@@ -19,7 +19,7 @@ public class PitmBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        PitmBox box = new PitmBox(boxSize, boxName);
+        PitmBox box = new PitmBox(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

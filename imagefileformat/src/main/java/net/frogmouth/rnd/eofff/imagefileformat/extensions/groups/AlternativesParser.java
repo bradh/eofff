@@ -19,7 +19,7 @@ public class AlternativesParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        AlternativesBox box = new AlternativesBox(boxSize, boxName);
+        AlternativesBox box = new AlternativesBox(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

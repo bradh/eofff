@@ -1,8 +1,7 @@
 package net.frogmouth.rnd.eofff.isobmff.ctts;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import net.frogmouth.rnd.eofff.isobmff.BaseBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public record CompositionOffsetBoxEntry(long sampleCount, long sampleOffset) {
     @Override
@@ -15,13 +14,21 @@ public record CompositionOffsetBoxEntry(long sampleCount, long sampleOffset) {
         return sb.toString();
     }
 
-    void writeTo(OutputStream stream, int version) throws IOException {
+    public long getSize(int version) {
         if (version == 0) {
-            stream.write(BaseBox.intToBytes((int) sampleCount));
-            stream.write(BaseBox.intToBytes((int) sampleOffset));
+            return 2 * Integer.BYTES;
+        } else {
+            return 2 * Integer.BYTES;
+        }
+    }
+
+    void writeTo(OutputStreamWriter stream, int version) throws IOException {
+        if (version == 0) {
+            stream.writeInt((int) sampleCount);
+            stream.writeInt((int) sampleOffset);
         } else if (version == 1) {
-            stream.write(BaseBox.intToBytes((int) sampleCount));
-            stream.write(BaseBox.intToBytes((int) sampleOffset));
+            stream.writeInt((int) sampleCount);
+            stream.writeInt((int) sampleOffset);
         }
     }
 }

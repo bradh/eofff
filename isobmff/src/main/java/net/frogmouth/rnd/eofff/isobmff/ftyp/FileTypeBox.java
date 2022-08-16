@@ -9,8 +9,8 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
  */
 public class FileTypeBox extends FileTypeLikeBox {
 
-    public FileTypeBox(long size, FourCC name) {
-        super(size, name);
+    public FileTypeBox(FourCC name) {
+        super(name);
     }
 
     @Override

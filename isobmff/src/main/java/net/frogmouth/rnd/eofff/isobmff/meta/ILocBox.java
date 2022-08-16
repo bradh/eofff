@@ -1,14 +1,11 @@
 package net.frogmouth.rnd.eofff.isobmff.meta;
 
-import static net.frogmouth.rnd.eofff.isobmff.BaseBox.intToBytes;
-import static net.frogmouth.rnd.eofff.isobmff.BaseBox.shortToBytes;
-
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
  * Item Location Box.
@@ -22,8 +19,23 @@ public class ILocBox extends FullBox {
     private int indexSize;
     private final List<ILocItem> items = new ArrayList<>();
 
-    public ILocBox(long size, FourCC name) {
-        super(size, name);
+    public ILocBox(FourCC name) {
+        super(name);
+    }
+
+    @Override
+    public long getSize() {
+        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        size += 2; // sizes (or sizes + reserved)
+        if (getVersion() < 2) {
+            size += Short.BYTES;
+        } else {
+            size += Integer.BYTES;
+        }
+        for (ILocItem item : this.items) {
+            size += item.getSize(getVersion());
+        }
+        return size;
     }
 
     @Override
@@ -72,19 +84,19 @@ public class ILocBox extends FullBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) this.getSize());
+        stream.writeFourCC(getFourCC());
         stream.write(getVersionAndFlagsAsBytes());
         int sizes = (offsetSize << 12) + (lengthSize << 8) + (baseOffsetSize << 4);
         if ((getVersion() == 1) || (getVersion() == 2)) {
             sizes |= indexSize;
         }
-        stream.write(shortToBytes((short) sizes));
+        stream.writeShort((short) sizes);
         if (getVersion() < 2) {
-            stream.write(shortToBytes((short) items.size()));
+            stream.writeShort((short) items.size());
         } else {
-            stream.write(intToBytes(items.size()));
+            stream.writeInt(items.size());
         }
         for (ILocItem item : items) {
             item.writeTo(stream, getVersion());

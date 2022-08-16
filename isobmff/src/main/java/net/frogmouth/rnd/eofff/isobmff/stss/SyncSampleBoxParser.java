@@ -19,7 +19,7 @@ public class SyncSampleBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        SyncSampleBox box = new SyncSampleBox(boxSize, boxName);
+        SyncSampleBox box = new SyncSampleBox(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

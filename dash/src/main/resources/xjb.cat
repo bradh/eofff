@@ -1,0 +1,2 @@
+REWRITE_SYSTEM "http://www.w3.org/XML/2008/06" "../xsd"
+REWRITE_SYSTEM "http://www.w3.org/2001" "../xsd"

@@ -1,13 +1,11 @@
 package net.frogmouth.rnd.eofff.isobmff.ctts;
 
-import static net.frogmouth.rnd.eofff.isobmff.BaseBox.intToBytes;
-
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
  * Composition Time to Sample Box.
@@ -17,13 +15,23 @@ import net.frogmouth.rnd.eofff.isobmff.FullBox;
 public class CompositionOffsetBox extends FullBox {
     private final List<CompositionOffsetBoxEntry> entries = new ArrayList<>();
 
-    public CompositionOffsetBox(long size, FourCC name) {
-        super(size, name);
+    public CompositionOffsetBox(FourCC name) {
+        super(name);
     }
 
     @Override
     public String getFullName() {
         return "CompositionOffsetBox";
+    }
+
+    @Override
+    public long getSize() {
+        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        size += Integer.BYTES;
+        for (CompositionOffsetBoxEntry entry : entries) {
+            size += entry.getSize(getVersion());
+        }
+        return size;
     }
 
     public List<CompositionOffsetBoxEntry> getEntries() {
@@ -35,11 +43,11 @@ public class CompositionOffsetBox extends FullBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) this.getSize());
+        stream.writeFourCC(getFourCC());
         stream.write(getVersionAndFlagsAsBytes());
-        stream.write(intToBytes(entries.size()));
+        stream.writeInt(entries.size());
         for (CompositionOffsetBoxEntry entry : entries) {
             entry.writeTo(stream, getVersion());
         }

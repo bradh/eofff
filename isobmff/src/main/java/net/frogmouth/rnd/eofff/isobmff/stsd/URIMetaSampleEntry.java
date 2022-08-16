@@ -1,10 +1,10 @@
 package net.frogmouth.rnd.eofff.isobmff.stsd;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import net.frogmouth.rnd.eofff.isobmff.AbstractContainerBox;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /*
  * TODO: This need to have the MetadataSampleEntry and SampleEntry stuff factored out
@@ -13,8 +13,8 @@ public class URIMetaSampleEntry extends AbstractContainerBox {
 
     private int dataReferenceIndex;
 
-    public URIMetaSampleEntry(long size, FourCC name) {
-        super(size, name);
+    public URIMetaSampleEntry(FourCC name) {
+        super(name);
     }
 
     @Override
@@ -31,13 +31,13 @@ public class URIMetaSampleEntry extends AbstractContainerBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) this.getSize());
+        stream.writeFourCC(getFourCC());
         for (int i = 0; i < 6; i++) {
-            stream.write(0);
+            stream.writeByte(0);
         }
-        stream.write(shortToBytes((short) dataReferenceIndex));
+        stream.writeShort((short) dataReferenceIndex);
         for (Box box : nestedBoxes) {
             box.writeTo(stream);
         }

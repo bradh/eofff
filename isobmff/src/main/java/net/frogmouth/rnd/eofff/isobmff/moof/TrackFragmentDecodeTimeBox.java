@@ -6,8 +6,8 @@ import net.frogmouth.rnd.eofff.isobmff.FullBox;
 public class TrackFragmentDecodeTimeBox extends FullBox {
     private long baseMediaDecodeTime;
 
-    public TrackFragmentDecodeTimeBox(long size, FourCC name) {
-        super(size, name);
+    public TrackFragmentDecodeTimeBox(FourCC name) {
+        super(name);
     }
 
     @Override

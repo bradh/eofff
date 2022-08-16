@@ -1,10 +1,9 @@
 package net.frogmouth.rnd.eofff.isobmff.meta;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import net.frogmouth.rnd.eofff.isobmff.BaseBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class ILocItem {
     private long itemId;
@@ -53,20 +52,20 @@ public class ILocItem {
         this.extents.add(extent);
     }
 
-    void writeTo(OutputStream stream, final int version) throws IOException {
+    void writeTo(OutputStreamWriter stream, final int version) throws IOException {
         if (version < 2) {
-            stream.write(BaseBox.shortToBytes((short) itemId));
+            stream.writeShort((short) itemId);
         } else {
-            stream.write(BaseBox.intToBytes((int) itemId));
+            stream.writeInt((int) itemId);
         }
         if ((version == 1) || (version == 2)) {
-            stream.write(BaseBox.shortToBytes((short) constructionMethod));
+            stream.writeShort((short) constructionMethod);
         }
-        stream.write(BaseBox.shortToBytes((short) dataReferenceIndex));
+        stream.writeShort((short) dataReferenceIndex);
         // TODO: handle variable base Offset size - this only handles the case where it can be 4,
         // not 0 or 8
-        stream.write(BaseBox.intToBytes((int) baseOffset));
-        stream.write(BaseBox.shortToBytes((short) extents.size()));
+        stream.writeInt((int) baseOffset);
+        stream.writeShort((short) extents.size());
         for (ILocExtent extent : extents) {
             extent.writeTo(stream, version);
         }

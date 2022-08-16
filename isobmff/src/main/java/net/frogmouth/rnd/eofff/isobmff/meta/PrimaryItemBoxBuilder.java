@@ -32,7 +32,7 @@ public class PrimaryItemBoxBuilder {
         } else {
             size += Short.BYTES;
         }
-        PitmBox box = new PitmBox(size, new FourCC("pitm"));
+        PitmBox box = new PitmBox(new FourCC("pitm"));
         box.setVersion(version);
         box.setFlags(flags);
         box.setItemID(itemId);

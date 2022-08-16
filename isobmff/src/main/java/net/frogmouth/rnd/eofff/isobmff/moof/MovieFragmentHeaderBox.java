@@ -6,8 +6,8 @@ import net.frogmouth.rnd.eofff.isobmff.FullBox;
 public class MovieFragmentHeaderBox extends FullBox {
     private long sequenceNumber;
 
-    public MovieFragmentHeaderBox(long size, FourCC name) {
-        super(size, name);
+    public MovieFragmentHeaderBox(FourCC name) {
+        super(name);
     }
 
     @Override

@@ -13,8 +13,8 @@ public class EventMessageBox extends FullBox {
     private String value;
     private byte[] messageData;
 
-    public EventMessageBox(long size, FourCC name) {
-        super(size, name);
+    public EventMessageBox(FourCC name) {
+        super(name);
     }
 
     @Override

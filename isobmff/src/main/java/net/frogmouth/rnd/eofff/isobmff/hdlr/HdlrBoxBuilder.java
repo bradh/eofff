@@ -1,6 +1,5 @@
 package net.frogmouth.rnd.eofff.isobmff.hdlr;
 
-import java.nio.charset.StandardCharsets;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class HdlrBoxBuilder {
@@ -33,18 +32,7 @@ public class HdlrBoxBuilder {
     }
 
     public HdlrBox build() {
-        int size =
-                Integer.BYTES
-                        + FourCC.BYTES
-                        + 1
-                        + 3
-                        + Integer.BYTES
-                        + FourCC.BYTES
-                        + 3 * Integer.BYTES
-                        + name.getBytes(StandardCharsets.US_ASCII).length
-                        + 1;
-
-        HdlrBox box = new HdlrBox(size, new FourCC("hdlr"));
+        HdlrBox box = new HdlrBox(new FourCC("hdlr"));
         box.setVersion(version);
         box.setFlags(flags);
         box.setPreDefined(0);

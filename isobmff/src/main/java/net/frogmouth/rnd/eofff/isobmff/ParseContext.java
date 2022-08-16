@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemorySegment;
+import net.frogmouth.rnd.eofff.isobmff.ftyp.Brand;
+import net.frogmouth.rnd.eofff.isobmff.tref.TrackReference;
+import net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,6 +84,21 @@ public class ParseContext {
         }
         throw new IllegalArgumentException(
                 String.format("Only reading of 32 and 64 bits is supported, not %d", numBits));
+    }
+
+    public Brand readBrand() {
+        int i = readInt32();
+        return new Brand(i);
+    }
+
+    public TrackReference readTrackReference() {
+        int i = readInt32();
+        return new TrackReference(i);
+    }
+
+    public TrackGroupType readTrackGroupType() {
+        int i = readInt32();
+        return new TrackGroupType(i);
     }
 
     public FourCC readFourCC() {

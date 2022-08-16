@@ -28,12 +28,7 @@ public class SampleToChunkBoxBuilder {
     }
 
     public SampleToChunkBox build() {
-        int size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        size += Integer.BYTES;
-        for (SampleToChunkEntry entry : entries) {
-            size += entry.getSize();
-        }
-        SampleToChunkBox box = new SampleToChunkBox(size, new FourCC("stsc"));
+        SampleToChunkBox box = new SampleToChunkBox(new FourCC("stsc"));
         box.setVersion(version);
         box.setFlags(flags);
         for (SampleToChunkEntry entry : entries) {

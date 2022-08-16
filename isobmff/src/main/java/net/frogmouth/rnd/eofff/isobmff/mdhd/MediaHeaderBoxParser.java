@@ -21,7 +21,7 @@ public class MediaHeaderBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        MediaHeaderBox box = new MediaHeaderBox(boxSize, boxName);
+        MediaHeaderBox box = new MediaHeaderBox(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

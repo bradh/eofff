@@ -20,9 +20,7 @@ public class NullMediaHeaderBoxBuilder {
     }
 
     public NullMediaHeaderBox build() {
-        int size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-
-        NullMediaHeaderBox box = new NullMediaHeaderBox(size, new FourCC("nmhd"));
+        NullMediaHeaderBox box = new NullMediaHeaderBox(new FourCC("nmhd"));
         box.setVersion(version);
         box.setFlags(flags);
         return box;

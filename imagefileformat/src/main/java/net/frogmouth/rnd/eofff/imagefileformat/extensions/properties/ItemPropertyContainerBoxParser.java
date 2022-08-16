@@ -19,7 +19,7 @@ public class ItemPropertyContainerBoxParser extends BoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ItemPropertyContainerBox box = new ItemPropertyContainerBox(boxSize, boxName);
+        ItemPropertyContainerBox box = new ItemPropertyContainerBox(boxName);
         while (parseContext.hasRemainingUntil(initialOffset + boxSize)) {
             long initialPropertyPosition = parseContext.getCursorPosition();
             long propertyBoxSize = parseContext.readUnsignedInt32();

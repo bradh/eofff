@@ -32,10 +32,8 @@ public class SampleSizeBoxBuilder {
     }
 
     public SampleSizeBox build() {
-        int size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        size += Integer.BYTES;
-        size += Integer.BYTES;
-        SampleSizeBox box = new SampleSizeBox(size, new FourCC("stsz"));
+
+        SampleSizeBox box = new SampleSizeBox(new FourCC("stsz"));
         box.setVersion(version);
         box.setFlags(flags);
         box.setSampleSize(sampleSize);

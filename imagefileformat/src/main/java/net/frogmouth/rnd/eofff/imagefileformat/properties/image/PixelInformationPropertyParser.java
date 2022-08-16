@@ -20,7 +20,7 @@ public class PixelInformationPropertyParser extends ItemFullPropertyParser {
     @Override
     public AbstractItemProperty parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        PixelInformationProperty box = new PixelInformationProperty(boxSize, boxName);
+        PixelInformationProperty box = new PixelInformationProperty(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

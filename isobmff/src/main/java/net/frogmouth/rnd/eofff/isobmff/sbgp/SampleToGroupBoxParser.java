@@ -20,7 +20,7 @@ public class SampleToGroupBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        SampleToGroupBox box = new SampleToGroupBox(boxSize, boxName);
+        SampleToGroupBox box = new SampleToGroupBox(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

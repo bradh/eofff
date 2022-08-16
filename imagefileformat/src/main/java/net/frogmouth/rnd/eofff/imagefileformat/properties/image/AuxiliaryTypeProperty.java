@@ -8,8 +8,8 @@ public class AuxiliaryTypeProperty extends ItemFullProperty {
     private String auxType;
     private byte[] auxSubtype;
 
-    public AuxiliaryTypeProperty(long size, FourCC name) {
-        super(size, name);
+    public AuxiliaryTypeProperty(FourCC name) {
+        super(name);
     }
 
     @Override

@@ -19,7 +19,7 @@ public class ItemReferenceBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ItemReferenceBox box = new ItemReferenceBox(boxSize, boxName);
+        ItemReferenceBox box = new ItemReferenceBox(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
@@ -30,7 +30,7 @@ public class ItemReferenceBoxParser extends FullBoxParser {
         while (parseContext.hasRemainingUntil(initialOffset + boxSize)) {
             long refBoxSize = parseContext.readUnsignedInt32();
             FourCC refBoxName = parseContext.readFourCC();
-            SingleItemReferenceBox refBox = new SingleItemReferenceBox(refBoxSize, refBoxName);
+            SingleItemReferenceBox refBox = new SingleItemReferenceBox(refBoxName);
             if (version == 0x00) {
                 refBox.setFromItemId(parseContext.readUnsignedInt16());
                 int refCount = parseContext.readUnsignedInt16();

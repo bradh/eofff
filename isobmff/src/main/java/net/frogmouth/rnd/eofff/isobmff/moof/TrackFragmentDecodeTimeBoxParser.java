@@ -20,7 +20,7 @@ public class TrackFragmentDecodeTimeBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        TrackFragmentDecodeTimeBox box = new TrackFragmentDecodeTimeBox(boxSize, boxName);
+        TrackFragmentDecodeTimeBox box = new TrackFragmentDecodeTimeBox(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

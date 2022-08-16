@@ -15,7 +15,7 @@ public class EditBoxParser extends BaseBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        EditBox box = new EditBox(boxSize, boxName);
+        EditBox box = new EditBox(boxName);
         box.addNestedBoxes(parseContext.parseNestedBoxes(initialOffset + boxSize));
         return box;
     }

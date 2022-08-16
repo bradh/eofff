@@ -9,8 +9,8 @@ public class ItemPropertyContainerBox extends BaseBox {
 
     private List<AbstractItemProperty> properties = new ArrayList<>();
 
-    public ItemPropertyContainerBox(long size, FourCC name) {
-        super(size, name);
+    public ItemPropertyContainerBox(FourCC name) {
+        super(name);
     }
 
     @Override

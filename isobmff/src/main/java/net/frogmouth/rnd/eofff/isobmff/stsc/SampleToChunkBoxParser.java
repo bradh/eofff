@@ -19,7 +19,7 @@ public class SampleToChunkBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        SampleToChunkBox box = new SampleToChunkBox(boxSize, boxName);
+        SampleToChunkBox box = new SampleToChunkBox(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

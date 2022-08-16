@@ -4,8 +4,8 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class DataEntryUrnBox extends DataEntryBox {
 
-    public DataEntryUrnBox(long size) {
-        super(size, new FourCC("urn "));
+    public DataEntryUrnBox() {
+        super(new FourCC("urn "));
     }
 
     @Override

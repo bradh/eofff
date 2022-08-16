@@ -34,8 +34,8 @@ public class HEVCConfigurationItemProperty extends ItemProperty {
     	}
     }
        */
-    public HEVCConfigurationItemProperty(long size, FourCC property) {
-        super(size, property);
+    public HEVCConfigurationItemProperty(FourCC property) {
+        super(property);
     }
 
     public int getConfigurationVersion() {

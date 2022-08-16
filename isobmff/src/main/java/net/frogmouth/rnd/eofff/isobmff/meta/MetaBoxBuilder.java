@@ -29,11 +29,7 @@ public class MetaBoxBuilder {
     }
 
     public MetaBox build() {
-        int size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        for (Box box : nestedBoxes) {
-            size += box.getSize();
-        }
-        MetaBox box = new MetaBox(size, new FourCC("meta"));
+        MetaBox box = new MetaBox(new FourCC("meta"));
         box.setVersion(version);
         box.setFlags(flags);
         box.addNestedBoxes(nestedBoxes);

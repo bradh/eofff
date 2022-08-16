@@ -19,7 +19,7 @@ public class ILocBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ILocBox box = new ILocBox(boxSize, boxName);
+        ILocBox box = new ILocBox(boxName);
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

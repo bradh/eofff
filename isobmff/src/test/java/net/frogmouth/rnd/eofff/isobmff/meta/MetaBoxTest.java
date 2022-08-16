@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBoxBuilder;
 import org.testng.annotations.Test;
@@ -17,7 +19,8 @@ public class MetaBoxTest {
     public void checkWriteNoNested() throws IOException {
         MetaBox box = new MetaBoxBuilder().withVersion(0).withFlags(0).build();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        box.writeTo(baos);
+        OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
+        box.writeTo(streamWriter);
         byte[] bytes = baos.toByteArray();
         assertEquals(
                 bytes,
@@ -40,7 +43,9 @@ public class MetaBoxTest {
                         .build();
         ItemInfoBox iinf =
                 new ItemInfoBoxBuilder().withVersion(0).withFlags(0).withItemInfo(infe0).build();
-        ItemDataBox idat = new ItemDataBoxBuilder().addData(new byte[] {0x31, 0x32, 0x33}).build();
+
+        ItemDataBox idat = new ItemDataBox(new FourCC("idat"));
+        idat.setData(new byte[] {0x31, 0x32, 0x33});
         MetaBox box =
                 new MetaBoxBuilder()
                         .withVersion(0)
@@ -50,7 +55,8 @@ public class MetaBoxTest {
                         .withNestedBox(idat)
                         .build();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        box.writeTo(baos);
+        OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
+        box.writeTo(streamWriter);
         byte[] bytes = baos.toByteArray();
         /*assertEquals(
                         bytes,

@@ -1,11 +1,11 @@
 package net.frogmouth.rnd.eofff.isobmff.meta;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class ItemInfoEntry extends FullBox {
 
@@ -21,8 +21,30 @@ public class ItemInfoEntry extends FullBox {
     private long extensionType;
     private ItemInfoExtension extension;
 
-    public ItemInfoEntry(long size, FourCC name) {
-        super(size, name);
+    public ItemInfoEntry(FourCC name) {
+        super(name);
+    }
+
+    @Override
+    public long getSize() {
+        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        if ((getVersion() == 2) && (itemID < (1 << 16))) {
+            size += Short.BYTES;
+        } else {
+            size += Integer.BYTES;
+        }
+        size += Short.BYTES + Integer.BYTES;
+        if (itemName != null) {
+            size += itemName.getBytes(StandardCharsets.US_ASCII).length;
+        }
+        size += Byte.BYTES;
+        if (this.itemType == new FourCC("mime").hashCode()) {
+            // TODO
+        } else if (this.itemType == new FourCC("uri ").hashCode()) {
+            size += itemUriType.getBytes(StandardCharsets.US_ASCII).length;
+            size += Byte.BYTES;
+        }
+        return size;
     }
 
     public long getItemID() {
@@ -104,30 +126,30 @@ public class ItemInfoEntry extends FullBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        stream.writeInt((int) this.getSize());
+        stream.writeFourCC(getFourCC());
         // TODO: handle version 0 and 1
         if ((getVersion() == 2) && (itemID >= (1 << 16))) {
             setVersion(3);
         }
         stream.write(getVersionAndFlagsAsBytes());
         if (getVersion() == 2) {
-            stream.write(shortToBytes((short) this.itemID));
+            stream.writeShort((short) this.itemID);
         } else {
-            stream.write(intToBytes((int) this.itemID));
+            stream.writeInt((int) this.itemID);
         }
-        stream.write(shortToBytes((short) itemProtectionIndex));
-        stream.write(intToBytes((int) this.itemType));
+        stream.writeShort((short) itemProtectionIndex);
+        stream.writeInt((int) this.itemType);
         if (itemName != null) {
             stream.write(itemName.getBytes(StandardCharsets.US_ASCII));
         }
-        stream.write(0); // Null terminator for string.
+        stream.writeByte(0); // Null terminator for string.
         if (this.getItemTypeAsText().equals("mime")) {
             // TODO
         } else if (this.getItemTypeAsText().equals("uri ")) {
             stream.write(itemUriType.getBytes(StandardCharsets.US_ASCII));
-            stream.write(0); // Null terminator for string.
+            stream.writeByte(0); // Null terminator for string.
         }
     }
 

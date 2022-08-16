@@ -57,17 +57,7 @@ public class ILocBoxBuilder {
     }
 
     public ILocBox build() {
-        int size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        size += 2; // sizes (or sizes + reserved)
-        if (version < 2) {
-            size += Short.BYTES;
-        } else {
-            size += Integer.BYTES;
-        }
-        for (ILocItem item : this.items) {
-            size += item.getSize(version);
-        }
-        ILocBox box = new ILocBox(size, new FourCC("iloc"));
+        ILocBox box = new ILocBox(new FourCC("iloc"));
         box.setVersion(version);
         box.setFlags(flags);
         box.setOffsetSize(offsetSize);

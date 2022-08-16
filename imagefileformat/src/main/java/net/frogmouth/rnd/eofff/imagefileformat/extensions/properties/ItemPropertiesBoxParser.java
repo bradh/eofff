@@ -19,7 +19,7 @@ public class ItemPropertiesBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ItemPropertiesBox box = new ItemPropertiesBox(boxSize, boxName);
+        ItemPropertiesBox box = new ItemPropertiesBox(boxName);
         Box propertiesBox = parseContext.parseBox();
         if (!(propertiesBox instanceof ItemPropertyContainerBox)) {
             LOG.error(

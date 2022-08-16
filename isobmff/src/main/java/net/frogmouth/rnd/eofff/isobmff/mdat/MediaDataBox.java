@@ -1,18 +1,16 @@
 package net.frogmouth.rnd.eofff.isobmff.mdat;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class MediaDataBox extends BaseBox {
 
-    // private long dataOffset;
-    // private long dataLength;
     private byte[] data;
 
-    public MediaDataBox(long size, FourCC name) {
-        super(size, name);
+    public MediaDataBox(FourCC name) {
+        super(name);
     }
 
     @Override
@@ -20,23 +18,16 @@ public class MediaDataBox extends BaseBox {
         return "MediaDataBox";
     }
 
-    /*
-    public long getDataOffset() {
-        return dataOffset;
+    @Override
+    public long getSize() {
+        // TODO: the size might not be Integer.
+        return Integer.SIZE + FourCC.BYTES + data.length;
     }
 
-    public void setDataOffset(long offset) {
-        dataOffset = offset;
+    @Override
+    public long getBodySize() {
+        return data.length;
     }
-
-    public long getDataLength() {
-        return dataLength;
-    }
-
-    public void setDataLength(long dataLength) {
-        this.dataLength = dataLength;
-    }
-    */
 
     public byte[] getData() {
         return data.clone();
@@ -47,9 +38,8 @@ public class MediaDataBox extends BaseBox {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.getSizeAsBytes());
-        stream.write(getFourCC().toBytes());
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        this.writeBoxHeader(stream);
         stream.write(data);
     }
 

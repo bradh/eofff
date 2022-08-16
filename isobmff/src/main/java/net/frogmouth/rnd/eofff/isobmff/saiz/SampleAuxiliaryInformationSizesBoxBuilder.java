@@ -1,6 +1,5 @@
 package net.frogmouth.rnd.eofff.isobmff.saiz;
 
-import java.nio.charset.StandardCharsets;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class SampleAuxiliaryInformationSizesBoxBuilder {
@@ -51,21 +50,8 @@ public class SampleAuxiliaryInformationSizesBoxBuilder {
     }
 
     public SampleAuxiliaryInformationSizesBox build() {
-        int size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        if ((flags & 0x01) == 0x01) {
-            size += FourCC.BYTES;
-            size += Integer.BYTES;
-        }
-        if (auxInfoType.equals(new FourCC("misb"))) {
-            size += theURI.getBytes(StandardCharsets.UTF_8).length;
-            size += Byte.BYTES; // null terminator
-            // TODO: per parameters
-            size += Byte.BYTES;
-            size += Integer.BYTES;
-            // TODO: sample_info_size array
-        }
         SampleAuxiliaryInformationSizesBox box =
-                new SampleAuxiliaryInformationSizesBox(size, new FourCC("saiz"));
+                new SampleAuxiliaryInformationSizesBox(new FourCC("saiz"));
         box.setVersion(version);
         box.setFlags(flags);
         box.setAuxInfoType(auxInfoType);

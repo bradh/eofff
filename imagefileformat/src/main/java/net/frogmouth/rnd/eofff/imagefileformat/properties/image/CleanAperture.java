@@ -14,8 +14,8 @@ public class CleanAperture extends ItemProperty {
     private long vertOffN;
     private long vertOffD;
 
-    public CleanAperture(long size, FourCC name) {
-        super(size, name);
+    public CleanAperture(FourCC name) {
+        super(name);
     }
 
     @Override

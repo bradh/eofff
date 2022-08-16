@@ -5,8 +5,8 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class DataInformationBox extends AbstractContainerBox {
 
-    public DataInformationBox(long size, FourCC name) {
-        super(size, name);
+    public DataInformationBox(FourCC name) {
+        super(name);
     }
 
     @Override
