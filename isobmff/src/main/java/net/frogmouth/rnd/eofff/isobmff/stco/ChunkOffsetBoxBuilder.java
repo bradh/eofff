@@ -2,7 +2,6 @@ package net.frogmouth.rnd.eofff.isobmff.stco;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class ChunkOffsetBoxBuilder {
 
@@ -28,7 +27,7 @@ public class ChunkOffsetBoxBuilder {
     }
 
     public ChunkOffsetBox build() {
-        ChunkOffsetBox box = new ChunkOffsetBox(new FourCC("stco"));
+        ChunkOffsetBox box = new ChunkOffsetBox();
         box.setVersion(version);
         box.setFlags(flags);
         for (Long offset : offsets) {

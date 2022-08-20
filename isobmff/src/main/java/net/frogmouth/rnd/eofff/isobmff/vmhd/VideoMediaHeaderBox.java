@@ -11,11 +11,12 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  * <p>See ISO/IEC 14496-12:2015 Section 12.1.2.
  */
 public class VideoMediaHeaderBox extends FullBox {
+    public static final FourCC VMHD_ATOM = new FourCC("vmhd");
     private int graphicsmode = 0;
     private int[] opcolor;
 
-    public VideoMediaHeaderBox(FourCC name) {
-        super(name);
+    public VideoMediaHeaderBox() {
+        super(VMHD_ATOM);
     }
 
     @Override
@@ -26,6 +27,14 @@ public class VideoMediaHeaderBox extends FullBox {
     @Override
     public long getSize() {
         long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        size += Short.BYTES;
+        size += (opcolor.length * Short.BYTES);
+        return size;
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = 0;
         size += Short.BYTES;
         size += (opcolor.length * Short.BYTES);
         return size;
@@ -49,9 +58,7 @@ public class VideoMediaHeaderBox extends FullBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         stream.writeShort((short) graphicsmode);
         for (int i = 0; i < opcolor.length; i++) {
             stream.writeShort((short) opcolor[i]);

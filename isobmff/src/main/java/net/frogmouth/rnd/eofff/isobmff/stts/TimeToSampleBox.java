@@ -8,10 +8,11 @@ import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class TimeToSampleBox extends FullBox {
+    public static final FourCC STTS_ATOM = new FourCC("stts");
     private final List<TimeToSampleEntry> entries = new ArrayList<>();
 
-    public TimeToSampleBox(FourCC name) {
-        super(name);
+    public TimeToSampleBox() {
+        super(STTS_ATOM);
     }
 
     @Override
@@ -29,6 +30,16 @@ public class TimeToSampleBox extends FullBox {
         return size;
     }
 
+    @Override
+    public long getBodySize() {
+        long size = 0;
+        size += Integer.BYTES;
+        for (TimeToSampleEntry entry : entries) {
+            size += entry.getSize();
+        }
+        return size;
+    }
+
     public List<TimeToSampleEntry> getEntries() {
         return new ArrayList<>(this.entries);
     }
@@ -39,9 +50,7 @@ public class TimeToSampleBox extends FullBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         stream.writeInt(entries.size());
         for (TimeToSampleEntry entry : entries) {
             entry.writeTo(stream);

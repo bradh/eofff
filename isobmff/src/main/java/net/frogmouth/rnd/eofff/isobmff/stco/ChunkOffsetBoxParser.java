@@ -14,12 +14,12 @@ public class ChunkOffsetBoxParser extends FullBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("stco");
+        return ChunkOffsetBox.STCO_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ChunkOffsetBox box = new ChunkOffsetBox(boxName);
+        ChunkOffsetBox box = new ChunkOffsetBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

@@ -16,16 +16,26 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  * <p>See ISO/IEC 14496-12 Section 8.7.2.
  */
 public class DataReferenceBox extends FullBox {
+    public static final FourCC DREF_ATOM = new FourCC("dref");
+    private final List<DataEntryBox> entries = new ArrayList<>();
 
-    public List<DataEntryBox> entries = new ArrayList<>();
-
-    public DataReferenceBox(FourCC name) {
-        super(name);
+    public DataReferenceBox() {
+        super(DREF_ATOM);
     }
 
     @Override
     public long getSize() {
         long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        size += Integer.BYTES;
+        for (DataEntryBox entry : entries) {
+            size += entry.getSize();
+        }
+        return size;
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = 0;
         size += Integer.BYTES;
         for (DataEntryBox entry : entries) {
             size += entry.getSize();
@@ -48,9 +58,7 @@ public class DataReferenceBox extends FullBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         stream.writeInt(entries.size());
         for (DataEntryBox box : entries) {
             box.writeTo(stream);

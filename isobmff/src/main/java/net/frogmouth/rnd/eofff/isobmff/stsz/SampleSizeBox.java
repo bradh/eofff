@@ -14,17 +14,27 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  */
 public class SampleSizeBox extends FullBox {
 
+    public static final FourCC STSZ_ATOM = new FourCC("stsz");
+
     private long sampleSize;
     private long sampleCount;
     private final List<Long> entries = new ArrayList<>();
 
-    public SampleSizeBox(FourCC name) {
-        super(name);
+    public SampleSizeBox() {
+        super(STSZ_ATOM);
     }
 
     @Override
     public long getSize() {
         long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        size += Integer.BYTES;
+        size += Integer.BYTES;
+        return size;
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = 0;
         size += Integer.BYTES;
         size += Integer.BYTES;
         return size;
@@ -61,9 +71,7 @@ public class SampleSizeBox extends FullBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         stream.writeInt((int) this.sampleSize);
         if (sampleSize == 0) {
             stream.writeInt(this.entries.size());

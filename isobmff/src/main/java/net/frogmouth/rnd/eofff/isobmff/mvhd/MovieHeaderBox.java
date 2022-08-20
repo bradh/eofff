@@ -34,11 +34,11 @@ public class MovieHeaderBox extends FullBox {
 
     @Override
     public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES;
+        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
         if (getVersion() == 1) {
             size += (3 * Long.BYTES + Integer.BYTES);
         } else {
-            size += (4 * Long.BYTES);
+            size += (4 * Integer.BYTES);
         }
         size += Integer.BYTES;
         size += Short.BYTES;
@@ -59,7 +59,7 @@ public class MovieHeaderBox extends FullBox {
         if (getVersion() == 1) {
             size += (3 * Long.BYTES + Integer.BYTES);
         } else {
-            size += (4 * Long.BYTES);
+            size += (4 * Integer.BYTES);
         }
         size += Integer.BYTES;
         size += Short.BYTES;
@@ -141,7 +141,6 @@ public class MovieHeaderBox extends FullBox {
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
         this.writeBoxHeader(stream);
-        stream.write(getVersionAndFlagsAsBytes());
         writeBodyTo(stream);
     }
 

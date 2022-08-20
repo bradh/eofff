@@ -10,12 +10,12 @@ public class UserDataBoxParser extends BaseBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("udta");
+        return UserDataBox.UDTA_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        UserDataBox box = new UserDataBox(boxName);
+        UserDataBox box = new UserDataBox();
         box.addNestedBoxes(parseContext.parseNestedBoxes(initialOffset + boxSize));
         return box;
     }

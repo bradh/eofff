@@ -3,7 +3,6 @@ package net.frogmouth.rnd.eofff.isobmff.stsd;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.Box;
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class SampleDescriptionBoxBuilder {
 
@@ -29,7 +28,7 @@ public class SampleDescriptionBoxBuilder {
     }
 
     public SampleDescriptionBox build() {
-        SampleDescriptionBox box = new SampleDescriptionBox(new FourCC("stsd"));
+        SampleDescriptionBox box = new SampleDescriptionBox();
         box.setVersion(version);
         box.setFlags(flags);
         box.addNestedBoxes(nestedBoxes);

@@ -2,7 +2,6 @@ package net.frogmouth.rnd.eofff.isobmff.stts;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class TimeToSampleBoxBuilder {
 
@@ -16,7 +15,7 @@ public class TimeToSampleBoxBuilder {
     }
 
     public TimeToSampleBox build() {
-        TimeToSampleBox box = new TimeToSampleBox(new FourCC("stts"));
+        TimeToSampleBox box = new TimeToSampleBox();
         for (TimeToSampleEntry entry : entries) {
             box.addEntry(entry);
         }

@@ -4,9 +4,10 @@ import net.frogmouth.rnd.eofff.isobmff.AbstractContainerBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class UserDataBox extends AbstractContainerBox {
+    public static final FourCC UDTA_ATOM = new FourCC("udta");
 
-    public UserDataBox(FourCC name) {
-        super(name);
+    public UserDataBox() {
+        super(UDTA_ATOM);
     }
 
     @Override

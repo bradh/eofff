@@ -2,7 +2,6 @@ package net.frogmouth.rnd.eofff.isobmff.stsc;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class SampleToChunkBoxBuilder {
 
@@ -28,7 +27,7 @@ public class SampleToChunkBoxBuilder {
     }
 
     public SampleToChunkBox build() {
-        SampleToChunkBox box = new SampleToChunkBox(new FourCC("stsc"));
+        SampleToChunkBox box = new SampleToChunkBox();
         box.setVersion(version);
         box.setFlags(flags);
         for (SampleToChunkEntry entry : entries) {

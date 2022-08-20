@@ -2,7 +2,6 @@ package net.frogmouth.rnd.eofff.isobmff.dref;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class DataReferenceBoxBuilder {
 
@@ -23,7 +22,7 @@ public class DataReferenceBoxBuilder {
     }
 
     public DataReferenceBox build() {
-        DataReferenceBox box = new DataReferenceBox(new FourCC("dref"));
+        DataReferenceBox box = new DataReferenceBox();
         for (DataEntryBox entry : dataEntries) {
             box.addDataEntryBox(entry);
         }

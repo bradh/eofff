@@ -13,10 +13,13 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  * <p>See ISO/IEC 14496-12:2015 Section 8.6.6.
  */
 public class EditListBox extends FullBox {
+
+    public static final FourCC ELST_ATOM = new FourCC("elst");
+
     private final List<EditListBoxEntry> entries = new ArrayList<>();
 
-    public EditListBox(FourCC name) {
-        super(name);
+    public EditListBox() {
+        super(ELST_ATOM);
     }
 
     @Override
@@ -34,6 +37,16 @@ public class EditListBox extends FullBox {
         return size;
     }
 
+    @Override
+    public long getBodySize() {
+        long size = 0;
+        size += Integer.BYTES;
+        for (EditListBoxEntry entry : entries) {
+            size += entry.getSize(getVersion());
+        }
+        return size;
+    }
+
     public List<EditListBoxEntry> getEntries() {
         return new ArrayList<>(this.entries);
     }
@@ -44,9 +57,7 @@ public class EditListBox extends FullBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         stream.writeInt(entries.size());
         for (EditListBoxEntry entry : entries) {
             entry.writeTo(stream, this.getVersion());

@@ -77,6 +77,13 @@ public class MPEG4BitRateBox extends BaseBox {
     }
 
     @Override
+    public long getBodySize() {
+        long size = 0;
+        size += (3 * Integer.BYTES);
+        return size;
+    }
+
+    @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
         stream.writeInt((int) this.getSize());
         stream.writeFourCC(getFourCC());

@@ -3,13 +3,12 @@ package net.frogmouth.rnd.eofff.isobmff.meta;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.Box;
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class MetaBoxBuilder {
 
     private int version;
     private int flags;
-    private List<Box> nestedBoxes = new ArrayList<>();
+    private final List<Box> nestedBoxes = new ArrayList<>();
 
     public MetaBoxBuilder() {}
 
@@ -29,7 +28,7 @@ public class MetaBoxBuilder {
     }
 
     public MetaBox build() {
-        MetaBox box = new MetaBox(new FourCC("meta"));
+        MetaBox box = new MetaBox();
         box.setVersion(version);
         box.setFlags(flags);
         box.addNestedBoxes(nestedBoxes);

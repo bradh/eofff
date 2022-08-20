@@ -36,10 +36,17 @@ public class DataEntryUrlBox extends DataEntryBox {
     }
 
     @Override
+    public long getBodySize() {
+        long size = 0;
+        if (!this.isFlagSet(DataEntryBox.MEDIA_DATA_IN_SAME_FILE_FLAG)) {
+            size += (location.getBytes(StandardCharsets.US_ASCII).length);
+        }
+        return size;
+    }
+
+    @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         if (!this.isFlagSet(DataEntryBox.MEDIA_DATA_IN_SAME_FILE_FLAG)) {
             stream.write(location.getBytes(StandardCharsets.US_ASCII));
         }

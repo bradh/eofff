@@ -14,12 +14,12 @@ public class CompositionOffsetBoxParser extends FullBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("ctts");
+        return CompositionOffsetBox.CTTS_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        CompositionOffsetBox box = new CompositionOffsetBox(boxName);
+        CompositionOffsetBox box = new CompositionOffsetBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

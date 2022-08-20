@@ -14,12 +14,12 @@ public class CompositionToDecodeBoxParser extends FullBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("cslg");
+        return CompositionToDecodeBox.CSLG_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        CompositionToDecodeBox box = new CompositionToDecodeBox(boxName);
+        CompositionToDecodeBox box = new CompositionToDecodeBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

@@ -10,12 +10,12 @@ public class EditBoxParser extends BaseBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("edts");
+        return EditBox.EDTS_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        EditBox box = new EditBox(boxName);
+        EditBox box = new EditBox();
         box.addNestedBoxes(parseContext.parseNestedBoxes(initialOffset + boxSize));
         return box;
     }

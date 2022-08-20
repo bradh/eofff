@@ -19,7 +19,7 @@ public class EditListBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        EditListBox box = new EditListBox(boxName);
+        EditListBox box = new EditListBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

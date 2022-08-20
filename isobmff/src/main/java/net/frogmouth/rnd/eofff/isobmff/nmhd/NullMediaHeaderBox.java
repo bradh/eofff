@@ -6,14 +6,16 @@ import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
- * Video Media Header Box.
+ * Null Media Header Box.
  *
  * <p>See ISO/IEC 14496-12:2015 Section 8.4.5.2.
  */
 public class NullMediaHeaderBox extends FullBox {
 
-    public NullMediaHeaderBox(FourCC name) {
-        super(name);
+    public static final FourCC NMHD_ATOM = new FourCC("nmhd");
+
+    public NullMediaHeaderBox() {
+        super(NMHD_ATOM);
     }
 
     @Override
@@ -27,10 +29,13 @@ public class NullMediaHeaderBox extends FullBox {
     }
 
     @Override
+    public long getBodySize() {
+        return 0;
+    }
+
+    @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
     }
 
     @Override

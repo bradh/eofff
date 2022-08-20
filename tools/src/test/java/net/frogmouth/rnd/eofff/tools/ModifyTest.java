@@ -28,24 +28,22 @@ import net.frogmouth.rnd.eofff.isobmff.ftyp.Brand;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.idat.ItemDataBox;
+import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoBox;
+import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoEntry;
+import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoEntryBuilder;
+import net.frogmouth.rnd.eofff.isobmff.iloc.ILocItem;
+import net.frogmouth.rnd.eofff.isobmff.iloc.ItemLocationBox;
+import net.frogmouth.rnd.eofff.isobmff.iloc.ItemLocationBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.mdhd.MediaHeaderBox;
 import net.frogmouth.rnd.eofff.isobmff.mdhd.MediaHeaderBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.mdia.MediaBox;
 import net.frogmouth.rnd.eofff.isobmff.mdia.MediaBoxBuilder;
-import net.frogmouth.rnd.eofff.isobmff.meta.ILocBox;
-import net.frogmouth.rnd.eofff.isobmff.meta.ILocBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.meta.ILocExtent;
-import net.frogmouth.rnd.eofff.isobmff.meta.ILocItem;
-import net.frogmouth.rnd.eofff.isobmff.meta.ItemDataBox;
-import net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoBox;
-import net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoBoxBuilder;
-import net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoEntry;
-import net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoEntryBuilder;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBoxBuilder;
-import net.frogmouth.rnd.eofff.isobmff.meta.PitmBox;
-import net.frogmouth.rnd.eofff.isobmff.meta.PrimaryItemBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.minf.MediaInformationBox;
 import net.frogmouth.rnd.eofff.isobmff.minf.MediaInformationBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.moov.MovieBox;
@@ -53,6 +51,8 @@ import net.frogmouth.rnd.eofff.isobmff.moov.MovieBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.mvhd.MovieHeaderBox;
 import net.frogmouth.rnd.eofff.isobmff.nmhd.NullMediaHeaderBox;
 import net.frogmouth.rnd.eofff.isobmff.nmhd.NullMediaHeaderBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
+import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.saio.SampleAuxiliaryInformationOffsetsBox;
 import net.frogmouth.rnd.eofff.isobmff.saio.SampleAuxiliaryInformationOffsetsBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.saiz.SampleAuxiliaryInformationSizesBox;
@@ -513,7 +513,7 @@ public class ModifyTest {
                         .withItemType("uri ")
                         .withItemUriType(MIMD_URI)
                         .build();
-        PitmBox pitm =
+        PrimaryItemBox pitm =
                 new PrimaryItemBoxBuilder().withVersion(0).withFlags(0).withItemId(1).build();
         ItemInfoBox iinf =
                 new ItemInfoBoxBuilder().withVersion(0).withFlags(0).withItemInfo(infe0).build();
@@ -528,7 +528,8 @@ public class ModifyTest {
         ilocItemExtent.setExtentOffset(0);
         ilocItemExtent.setExtentLength(mimdMessageWithoutKeyAndLength.length);
         ilocItem.addExtent(ilocItemExtent);
-        ILocBox iloc = new ILocBoxBuilder().withVersion(1).addItem(ilocItem).build();
+        ItemLocationBox iloc =
+                new ItemLocationBoxBuilder().withVersion(1).addItem(ilocItem).build();
         MetaBox metaBox =
                 new MetaBoxBuilder()
                         .withVersion(0)
@@ -564,7 +565,7 @@ public class ModifyTest {
                         .withItemType("uri ")
                         .withItemUriType(CORE_ID_URI)
                         .build();
-        PitmBox pitm =
+        PrimaryItemBox pitm =
                 new PrimaryItemBoxBuilder().withVersion(0).withFlags(0).withItemId(2).build();
         ItemInfoBox iinf =
                 new ItemInfoBoxBuilder()
@@ -593,8 +594,8 @@ public class ModifyTest {
         coreIdExtent.setExtentOffset(mimdExtent.getExtentLength());
         coreIdExtent.setExtentLength(miisCoreIdAsBytes.length);
         ilocItemCoreId.addExtent(coreIdExtent);
-        ILocBox iloc =
-                new ILocBoxBuilder()
+        ItemLocationBox iloc =
+                new ItemLocationBoxBuilder()
                         .withVersion(1)
                         .addItem(ilocItemMIMD)
                         .addItem(ilocItemCoreId)
@@ -632,7 +633,7 @@ public class ModifyTest {
                         .withItemType("uri ")
                         .withItemUriType(MIMD_URI)
                         .build();
-        PitmBox pitm =
+        PrimaryItemBox pitm =
                 new PrimaryItemBoxBuilder().withVersion(0).withFlags(0).withItemId(3).build();
         ItemInfoBox iinf =
                 new ItemInfoBoxBuilder().withVersion(0).withFlags(0).withItemInfo(infe).build();
@@ -647,7 +648,8 @@ public class ModifyTest {
         ilocItemExtent.setExtentOffset(0);
         ilocItemExtent.setExtentLength(mimdMessageWithoutKeyAndLength.length);
         ilocItem.addExtent(ilocItemExtent);
-        ILocBox iloc = new ILocBoxBuilder().withVersion(1).addItem(ilocItem).build();
+        ItemLocationBox iloc =
+                new ItemLocationBoxBuilder().withVersion(1).addItem(ilocItem).build();
         MetaBox metaBox =
                 new MetaBoxBuilder()
                         .withVersion(0)

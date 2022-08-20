@@ -14,12 +14,12 @@ public class PixelAspectRatioBoxParser extends BoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("pasp");
+        return PixelAspectRatioBox.PASP_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        PixelAspectRatioBox box = new PixelAspectRatioBox(boxName);
+        PixelAspectRatioBox box = new PixelAspectRatioBox();
         box.setHorizontalSpacing(parseContext.readUnsignedInt32());
         box.setVerticalSpacing(parseContext.readUnsignedInt32());
         return box;

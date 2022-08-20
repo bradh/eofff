@@ -13,10 +13,13 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  * <p>See ISO/IEC 14496-12:2015 Section 8.6.2.
  */
 public class SyncSampleBox extends FullBox {
+
+    public static final FourCC STSS_ATOM = new FourCC("stss");
+
     private final List<Long> entries = new ArrayList<>();
 
-    public SyncSampleBox(FourCC name) {
-        super(name);
+    public SyncSampleBox() {
+        super(STSS_ATOM);
     }
 
     @Override
@@ -25,6 +28,11 @@ public class SyncSampleBox extends FullBox {
         size += Integer.BYTES;
         size += Integer.BYTES * entries.size();
         return size;
+    }
+
+    @Override
+    public long getBodySize() {
+        return Integer.BYTES + (Integer.BYTES * entries.size());
     }
 
     @Override
@@ -42,9 +50,7 @@ public class SyncSampleBox extends FullBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         stream.writeInt(entries.size());
         for (long entry : entries) {
             stream.writeInt((int) entry);

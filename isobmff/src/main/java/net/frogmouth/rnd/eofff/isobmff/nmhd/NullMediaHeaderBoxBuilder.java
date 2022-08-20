@@ -1,7 +1,5 @@
 package net.frogmouth.rnd.eofff.isobmff.nmhd;
 
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
-
 public class NullMediaHeaderBoxBuilder {
 
     private int version;
@@ -20,7 +18,7 @@ public class NullMediaHeaderBoxBuilder {
     }
 
     public NullMediaHeaderBox build() {
-        NullMediaHeaderBox box = new NullMediaHeaderBox(new FourCC("nmhd"));
+        NullMediaHeaderBox box = new NullMediaHeaderBox();
         box.setVersion(version);
         box.setFlags(flags);
         return box;

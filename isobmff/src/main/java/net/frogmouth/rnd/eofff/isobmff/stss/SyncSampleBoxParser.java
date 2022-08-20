@@ -14,12 +14,12 @@ public class SyncSampleBoxParser extends FullBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("stss");
+        return SyncSampleBox.STSS_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        SyncSampleBox box = new SyncSampleBox(boxName);
+        SyncSampleBox box = new SyncSampleBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

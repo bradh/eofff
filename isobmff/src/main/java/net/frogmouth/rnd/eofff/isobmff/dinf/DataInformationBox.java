@@ -5,8 +5,10 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class DataInformationBox extends AbstractContainerBox {
 
-    public DataInformationBox(FourCC name) {
-        super(name);
+    public static final FourCC DINF_ATOM = new FourCC("dinf");
+
+    public DataInformationBox() {
+        super(DINF_ATOM);
     }
 
     @Override

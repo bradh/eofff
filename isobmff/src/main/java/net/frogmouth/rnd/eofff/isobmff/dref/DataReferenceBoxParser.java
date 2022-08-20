@@ -20,7 +20,7 @@ public class DataReferenceBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        DataReferenceBox box = new DataReferenceBox(boxName);
+        DataReferenceBox box = new DataReferenceBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

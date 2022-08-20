@@ -4,7 +4,6 @@ import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
-import net.frogmouth.rnd.eofff.isobmff.stsc.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,12 +14,12 @@ public class SampleToGroupBoxParser extends FullBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("sbgp");
+        return SampleToGroupBox.SBGP_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        SampleToGroupBox box = new SampleToGroupBox(boxName);
+        SampleToGroupBox box = new SampleToGroupBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

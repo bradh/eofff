@@ -11,15 +11,15 @@ import net.frogmouth.rnd.eofff.isobmff.FullBox;
  * <p>See ISO/IEC 14496-12:2015 Section 8.16.3.
  */
 class SegmentIndexBox extends FullBox {
-
+    public static final FourCC SIDX_ATOM = new FourCC("sidx");
     private long referenceId;
     private long timescale;
     private long earliestPresentationTime;
     private long firstOffset;
     private final List<SegmentIndexReference> references = new ArrayList<>();
 
-    public SegmentIndexBox(FourCC name) {
-        super(name);
+    public SegmentIndexBox() {
+        super(SIDX_ATOM);
     }
 
     public long getReferenceId() {
@@ -66,6 +66,8 @@ class SegmentIndexBox extends FullBox {
     public String getFullName() {
         return "Segment Index Box";
     }
+
+    // TODO: write
 
     @Override
     public String toString() {

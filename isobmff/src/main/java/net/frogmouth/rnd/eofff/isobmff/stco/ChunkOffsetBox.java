@@ -13,11 +13,12 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  * <p>See ISO/IEC 14496-12:2015 Section 8.7.5
  */
 public class ChunkOffsetBox extends FullBox {
+    public static final FourCC STCO_ATOM = new FourCC("stco");
 
     private final List<Long> entries = new ArrayList<>();
 
-    public ChunkOffsetBox(FourCC name) {
-        super(name);
+    public ChunkOffsetBox() {
+        super(STCO_ATOM);
     }
 
     @Override
@@ -28,6 +29,14 @@ public class ChunkOffsetBox extends FullBox {
     @Override
     public long getSize() {
         long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        size += Integer.BYTES;
+        size += (entries.size() * Integer.BYTES);
+        return size;
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = 0;
         size += Integer.BYTES;
         size += (entries.size() * Integer.BYTES);
         return size;
@@ -51,9 +60,7 @@ public class ChunkOffsetBox extends FullBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         stream.writeInt(entries.size());
         for (long entry : entries) {
             stream.writeInt((int) entry);

@@ -28,6 +28,14 @@ public class URIBox extends FullBox {
     }
 
     @Override
+    public long getBodySize() {
+        long size = 0;
+        size += theURI.getBytes(StandardCharsets.UTF_8).length;
+        size += 1;
+        return size;
+    }
+
+    @Override
     public String getFullName() {
         return "SampleSizeBox";
     }

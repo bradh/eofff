@@ -14,12 +14,12 @@ public class SampleSizeBoxParser extends FullBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("stsz");
+        return SampleSizeBox.STSZ_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        SampleSizeBox box = new SampleSizeBox(boxName);
+        SampleSizeBox box = new SampleSizeBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

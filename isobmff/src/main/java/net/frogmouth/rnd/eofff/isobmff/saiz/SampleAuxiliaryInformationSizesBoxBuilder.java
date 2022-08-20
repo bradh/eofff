@@ -50,8 +50,7 @@ public class SampleAuxiliaryInformationSizesBoxBuilder {
     }
 
     public SampleAuxiliaryInformationSizesBox build() {
-        SampleAuxiliaryInformationSizesBox box =
-                new SampleAuxiliaryInformationSizesBox(new FourCC("saiz"));
+        SampleAuxiliaryInformationSizesBox box = new SampleAuxiliaryInformationSizesBox();
         box.setVersion(version);
         box.setFlags(flags);
         box.setAuxInfoType(auxInfoType);

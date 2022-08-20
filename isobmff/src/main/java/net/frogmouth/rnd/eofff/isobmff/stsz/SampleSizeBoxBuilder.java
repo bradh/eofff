@@ -1,7 +1,5 @@
 package net.frogmouth.rnd.eofff.isobmff.stsz;
 
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
-
 public class SampleSizeBoxBuilder {
 
     private int version;
@@ -33,7 +31,7 @@ public class SampleSizeBoxBuilder {
 
     public SampleSizeBox build() {
 
-        SampleSizeBox box = new SampleSizeBox(new FourCC("stsz"));
+        SampleSizeBox box = new SampleSizeBox();
         box.setVersion(version);
         box.setFlags(flags);
         box.setSampleSize(sampleSize);

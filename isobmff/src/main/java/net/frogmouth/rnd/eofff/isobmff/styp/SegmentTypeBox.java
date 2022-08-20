@@ -9,9 +9,10 @@ import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeLikeBox;
  * <p>See ISO/IEC 14496-12:2015 Section 8.16.2.
  */
 public class SegmentTypeBox extends FileTypeLikeBox {
+    public static final FourCC STYP_ATOM = new FourCC("styp");
 
-    public SegmentTypeBox(FourCC name) {
-        super(name);
+    public SegmentTypeBox() {
+        super(STYP_ATOM);
     }
 
     @Override

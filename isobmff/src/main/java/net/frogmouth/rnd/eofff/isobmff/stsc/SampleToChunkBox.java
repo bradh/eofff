@@ -13,11 +13,12 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  * <p>See ISO/IEC 14496-12:2015 Section 8.7.4
  */
 public class SampleToChunkBox extends FullBox {
+    public static final FourCC STSC_ATOM = new FourCC("stsc");
 
     private final List<SampleToChunkEntry> entries = new ArrayList<>();
 
-    public SampleToChunkBox(FourCC name) {
-        super(name);
+    public SampleToChunkBox() {
+        super(STSC_ATOM);
     }
 
     @Override
@@ -35,6 +36,16 @@ public class SampleToChunkBox extends FullBox {
         return size;
     }
 
+    @Override
+    public long getBodySize() {
+        long size = 0;
+        size += Integer.BYTES;
+        for (SampleToChunkEntry entry : entries) {
+            size += entry.getSize();
+        }
+        return size;
+    }
+
     public List<SampleToChunkEntry> getEntries() {
         return new ArrayList<>(entries);
     }
@@ -45,9 +56,7 @@ public class SampleToChunkBox extends FullBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         stream.writeInt(entries.size());
         for (SampleToChunkEntry entry : entries) {
             entry.writeTo(stream);

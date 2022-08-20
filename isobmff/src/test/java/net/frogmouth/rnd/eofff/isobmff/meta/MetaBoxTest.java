@@ -7,10 +7,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.idat.ItemDataBox;
+import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoBox;
+import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoEntry;
+import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoEntryBuilder;
 import org.testng.annotations.Test;
 
 /** Unit test for MetaBox. */
@@ -44,7 +48,7 @@ public class MetaBoxTest {
         ItemInfoBox iinf =
                 new ItemInfoBoxBuilder().withVersion(0).withFlags(0).withItemInfo(infe0).build();
 
-        ItemDataBox idat = new ItemDataBox(new FourCC("idat"));
+        ItemDataBox idat = new ItemDataBox();
         idat.setData(new byte[] {0x31, 0x32, 0x33});
         MetaBox box =
                 new MetaBoxBuilder()

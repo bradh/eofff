@@ -19,7 +19,7 @@ public class MetaBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        MetaBox box = new MetaBox(boxName);
+        MetaBox box = new MetaBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

@@ -20,7 +20,7 @@ public class SampleDescriptionBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        SampleDescriptionBox box = new SampleDescriptionBox(boxName);
+        SampleDescriptionBox box = new SampleDescriptionBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

@@ -11,12 +11,12 @@ public class SegmentTypeBoxParser extends FileTypeLikeBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("styp");
+        return SegmentTypeBox.STYP_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        SegmentTypeBox box = new SegmentTypeBox(boxName);
+        SegmentTypeBox box = new SegmentTypeBox();
         doParse(box, parseContext, initialOffset, boxSize);
         return box;
     }

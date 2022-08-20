@@ -10,12 +10,12 @@ public class DataInformationBoxParser extends BaseBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("dinf");
+        return DataInformationBox.DINF_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        DataInformationBox box = new DataInformationBox(boxName);
+        DataInformationBox box = new DataInformationBox();
         box.addNestedBoxes(parseContext.parseNestedBoxes(initialOffset + boxSize));
         return box;
     }

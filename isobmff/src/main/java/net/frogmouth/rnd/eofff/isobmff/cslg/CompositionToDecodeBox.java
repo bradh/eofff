@@ -10,14 +10,16 @@ import net.frogmouth.rnd.eofff.isobmff.FullBox;
  */
 public class CompositionToDecodeBox extends FullBox {
 
+    public static final FourCC CSLG_ATOM = new FourCC("cslg");
+
     private long compositionToDTSShift;
     private long leastDecodeToDisplayDelta;
     private long greatestDecodeToDisplayDelta;
     private long compositionStartTime;
     private long compositionEndTime;
 
-    public CompositionToDecodeBox(FourCC name) {
-        super(name);
+    public CompositionToDecodeBox() {
+        super(CSLG_ATOM);
     }
 
     @Override
@@ -64,6 +66,8 @@ public class CompositionToDecodeBox extends FullBox {
     public void setCompositionEndTime(long compositionEndTIme) {
         this.compositionEndTime = compositionEndTIme;
     }
+
+    // TODO: write
 
     @Override
     public String toString() {

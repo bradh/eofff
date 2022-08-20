@@ -14,12 +14,12 @@ public class SampleToChunkBoxParser extends FullBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("stsc");
+        return SampleToChunkBox.STSC_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        SampleToChunkBox box = new SampleToChunkBox(boxName);
+        SampleToChunkBox box = new SampleToChunkBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

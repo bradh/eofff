@@ -17,20 +17,20 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mdhd.MediaHeaderBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.meta.ItemDataBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.meta.ItemInfoEntryParser,
-            net.frogmouth.rnd.eofff.isobmff.meta.ItemReferenceBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.meta.ILocBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.idat.ItemDataBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoEntryParser,
+            net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.iloc.ItemLocationBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.IlistBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.MetaBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.meta.PitmBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.mfhd.MovieFragmentHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.moof.MovieFragmentBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.moof.MovieFragmentHeaderBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.moof.TrackFragmentBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.moof.TrackFragmentDecodeTimeBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.moof.TrackFragmentHeaderBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.moof.TrackRunBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.traf.TrackFragmentBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.tfdt.TrackFragmentDecodeTimeBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.tfhd.TrackFragmentHeaderBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.trun.TrackRunBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mdia.MediaBoxParser,
             net.frogmouth.rnd.eofff.isobmff.minf.MediaInformationBoxParser,
             net.frogmouth.rnd.eofff.isobmff.moov.MovieBoxParser,
@@ -64,6 +64,10 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.free;
     exports net.frogmouth.rnd.eofff.isobmff.ftyp;
     exports net.frogmouth.rnd.eofff.isobmff.hdlr;
+    exports net.frogmouth.rnd.eofff.isobmff.idat;
+    exports net.frogmouth.rnd.eofff.isobmff.iinf;
+    exports net.frogmouth.rnd.eofff.isobmff.iloc;
+    exports net.frogmouth.rnd.eofff.isobmff.iref;
     exports net.frogmouth.rnd.eofff.isobmff.mdat;
     exports net.frogmouth.rnd.eofff.isobmff.mdhd;
     exports net.frogmouth.rnd.eofff.isobmff.mdia;
@@ -74,6 +78,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.mvhd;
     exports net.frogmouth.rnd.eofff.isobmff.nmhd;
     exports net.frogmouth.rnd.eofff.isobmff.pasp;
+    exports net.frogmouth.rnd.eofff.isobmff.pitm;
     exports net.frogmouth.rnd.eofff.isobmff.saio;
     exports net.frogmouth.rnd.eofff.isobmff.saiz;
     exports net.frogmouth.rnd.eofff.isobmff.sbgp;

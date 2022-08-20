@@ -13,14 +13,16 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  */
 public class SampleAuxiliaryInformationSizesBox extends FullBox {
 
+    public static final FourCC SAIZ_ATOM = new FourCC("saiz");
+
     private FourCC auxInfoType;
     private long auxInfoTypeParameter;
     private String theURI;
     private long defaultSampleInfoSize;
     private long sampleCount;
 
-    public SampleAuxiliaryInformationSizesBox(FourCC name) {
-        super(name);
+    public SampleAuxiliaryInformationSizesBox() {
+        super(SAIZ_ATOM);
     }
 
     @Override
@@ -42,6 +44,26 @@ public class SampleAuxiliaryInformationSizesBox extends FullBox {
             size += Byte.BYTES;
             size += Integer.BYTES;
             // TODO: sample_info_size array
+        }
+        return size;
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = 0;
+        if ((getFlags() & 0x01) == 0x01) {
+            size += FourCC.BYTES;
+            size += Integer.BYTES;
+        }
+        if (auxInfoType.equals(new FourCC("misb"))) {
+            size += theURI.getBytes(StandardCharsets.UTF_8).length;
+            size += Byte.BYTES; // null terminator
+            // TODO: per parameters
+            size += Byte.BYTES;
+            size += Integer.BYTES;
+            // TODO: sample_info_size array
+        } else {
+            // TODO
         }
         return size;
     }
@@ -88,9 +110,7 @@ public class SampleAuxiliaryInformationSizesBox extends FullBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         if ((getFlags() & 0x01) == 0x01) {
             stream.writeFourCC(auxInfoType);
             stream.writeInt((int) auxInfoTypeParameter);

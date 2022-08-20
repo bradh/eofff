@@ -15,10 +15,12 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  */
 public class SampleDescriptionBox extends FullBox {
 
+    public static final FourCC STSD_ATOM = new FourCC("stsd");
+
     private final List<Box> nestedBoxes = new ArrayList<>();
 
-    public SampleDescriptionBox(FourCC name) {
-        super(name);
+    public SampleDescriptionBox() {
+        super(STSD_ATOM);
     }
 
     @Override
@@ -29,6 +31,16 @@ public class SampleDescriptionBox extends FullBox {
     @Override
     public long getSize() {
         long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        size += Integer.BYTES;
+        for (Box box : nestedBoxes) {
+            size += box.getSize();
+        }
+        return size;
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = 0;
         size += Integer.BYTES;
         for (Box box : nestedBoxes) {
             size += box.getSize();

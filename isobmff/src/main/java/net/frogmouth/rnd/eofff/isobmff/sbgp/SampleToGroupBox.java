@@ -6,13 +6,14 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 
 public class SampleToGroupBox extends FullBox {
+    public static final FourCC SBGP_ATOM = new FourCC("sbgp");
 
     private long groupingType;
     private Long groupingTypeParameter;
     private final List<SampleToGroupBoxEntry> entries = new ArrayList<>();
 
-    public SampleToGroupBox(FourCC name) {
-        super(name);
+    public SampleToGroupBox() {
+        super(SBGP_ATOM);
     }
 
     @Override
@@ -43,6 +44,8 @@ public class SampleToGroupBox extends FullBox {
     public void addEntry(SampleToGroupBoxEntry entry) {
         this.entries.add(entry);
     }
+
+    // TODO: write
 
     @Override
     public String toString() {

@@ -10,12 +10,12 @@ public class SampleTableBoxParser extends BaseBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("stbl");
+        return SampleTableBox.STBL_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        SampleTableBox box = new SampleTableBox(boxName);
+        SampleTableBox box = new SampleTableBox();
         box.addNestedBoxes(parseContext.parseNestedBoxes(initialOffset + boxSize));
         return box;
     }

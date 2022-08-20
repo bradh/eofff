@@ -1,7 +1,6 @@
 package net.frogmouth.rnd.eofff.tools;
 
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.meta.ItemDataBox;
+import net.frogmouth.rnd.eofff.isobmff.idat.ItemDataBox;
 import org.jmisb.api.klv.ArrayBuilder;
 
 public class ItemDataBoxBuilder {
@@ -18,7 +17,7 @@ public class ItemDataBoxBuilder {
     public ItemDataBox build() {
         byte[] bytes = arrayBuilder.toBytes();
 
-        ItemDataBox box = new ItemDataBox(new FourCC("idat"));
+        ItemDataBox box = new ItemDataBox();
         box.setData(bytes);
         return box;
     }

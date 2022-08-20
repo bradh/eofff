@@ -1,5 +1,6 @@
 package net.frogmouth.rnd.eofff.isobmff.sidx;
 
+// TODO: record?
 public class SegmentIndexReference {
     private int referenceType;
     private int referencedSize;

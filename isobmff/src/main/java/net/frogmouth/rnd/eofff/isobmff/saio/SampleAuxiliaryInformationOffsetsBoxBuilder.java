@@ -41,8 +41,7 @@ public class SampleAuxiliaryInformationOffsetsBoxBuilder {
     }
 
     public SampleAuxiliaryInformationOffsetsBox build() {
-        SampleAuxiliaryInformationOffsetsBox box =
-                new SampleAuxiliaryInformationOffsetsBox(new FourCC("saio"));
+        SampleAuxiliaryInformationOffsetsBox box = new SampleAuxiliaryInformationOffsetsBox();
         box.setVersion(version);
         box.setFlags(flags);
         box.setAuxInfoType(auxInfoType);

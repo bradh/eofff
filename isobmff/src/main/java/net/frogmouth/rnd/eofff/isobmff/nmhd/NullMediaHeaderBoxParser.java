@@ -4,7 +4,6 @@ import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
-import net.frogmouth.rnd.eofff.isobmff.vmhd.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,12 +14,12 @@ public class NullMediaHeaderBoxParser extends FullBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("nmhd");
+        return NullMediaHeaderBox.NMHD_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        VideoMediaHeaderBox box = new VideoMediaHeaderBox(boxName);
+        NullMediaHeaderBox box = new NullMediaHeaderBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

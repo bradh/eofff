@@ -1,7 +1,6 @@
 package net.frogmouth.rnd.eofff.isobmff.stbl;
 
 import net.frogmouth.rnd.eofff.isobmff.AbstractContainerBoxBuilder;
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class SampleTableBoxBuilder extends AbstractContainerBoxBuilder<SampleTableBox> {
 
@@ -9,8 +8,7 @@ public class SampleTableBoxBuilder extends AbstractContainerBoxBuilder<SampleTab
 
     @Override
     public SampleTableBox build() {
-        int size = getBoxSize();
-        SampleTableBox box = new SampleTableBox(new FourCC("stbl"));
+        SampleTableBox box = new SampleTableBox();
         box.addNestedBoxes(nestedBoxes);
         return box;
     }

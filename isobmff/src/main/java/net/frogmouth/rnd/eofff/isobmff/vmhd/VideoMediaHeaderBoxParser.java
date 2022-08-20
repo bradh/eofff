@@ -14,12 +14,12 @@ public class VideoMediaHeaderBoxParser extends FullBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("vmhd");
+        return VideoMediaHeaderBox.VMHD_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        VideoMediaHeaderBox box = new VideoMediaHeaderBox(boxName);
+        VideoMediaHeaderBox box = new VideoMediaHeaderBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

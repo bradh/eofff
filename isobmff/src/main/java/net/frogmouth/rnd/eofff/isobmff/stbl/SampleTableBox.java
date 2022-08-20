@@ -5,8 +5,10 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class SampleTableBox extends AbstractContainerBox {
 
-    public SampleTableBox(FourCC name) {
-        super(name);
+    public static final FourCC STBL_ATOM = new FourCC("stbl");
+
+    public SampleTableBox() {
+        super(STBL_ATOM);
     }
 
     @Override

@@ -11,14 +11,15 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  * <p>See ISO/IEC 14496-12:2015 Section 8.7.9.
  */
 public class SampleAuxiliaryInformationOffsetsBox extends FullBox {
+    public static final FourCC SAIO_ATOM = new FourCC("saio");
 
     private FourCC auxInfoType;
     private long auxInfoTypeParameter;
     private long entryCount;
     private long[] offsets;
 
-    public SampleAuxiliaryInformationOffsetsBox(FourCC name) {
-        super(name);
+    public SampleAuxiliaryInformationOffsetsBox() {
+        super(SAIO_ATOM);
     }
 
     @Override
@@ -29,6 +30,22 @@ public class SampleAuxiliaryInformationOffsetsBox extends FullBox {
     @Override
     public long getSize() {
         long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        if ((getFlags() & 0x01) == 0x01) {
+            size += FourCC.BYTES;
+            size += Integer.BYTES;
+        }
+        size += Integer.BYTES;
+        if (getVersion() == 0) {
+            size += (offsets.length * Integer.BYTES);
+        } else {
+            size += (offsets.length * Long.BYTES);
+        }
+        return size;
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = 0;
         if ((getFlags() & 0x01) == 0x01) {
             size += FourCC.BYTES;
             size += Integer.BYTES;
@@ -76,9 +93,7 @@ public class SampleAuxiliaryInformationOffsetsBox extends FullBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         if ((getFlags() & 0x01) == 0x01) {
             stream.writeFourCC(auxInfoType);
             stream.writeInt((int) auxInfoTypeParameter);

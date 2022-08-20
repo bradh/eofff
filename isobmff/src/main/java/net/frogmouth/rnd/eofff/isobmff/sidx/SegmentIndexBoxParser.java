@@ -21,12 +21,12 @@ public class SegmentIndexBoxParser extends FullBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("sidx");
+        return SegmentIndexBox.SIDX_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        SegmentIndexBox box = new SegmentIndexBox(boxName);
+        SegmentIndexBox box = new SegmentIndexBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

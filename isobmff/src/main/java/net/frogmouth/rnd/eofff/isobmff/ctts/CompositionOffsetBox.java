@@ -13,10 +13,12 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  * <p>See ISO/IEC 14496-12:2015 Section 8.6.1.3.
  */
 public class CompositionOffsetBox extends FullBox {
+    public static final FourCC CTTS_ATOM = new FourCC("ctts");
+
     private final List<CompositionOffsetBoxEntry> entries = new ArrayList<>();
 
-    public CompositionOffsetBox(FourCC name) {
-        super(name);
+    public CompositionOffsetBox() {
+        super(CTTS_ATOM);
     }
 
     @Override
@@ -34,6 +36,16 @@ public class CompositionOffsetBox extends FullBox {
         return size;
     }
 
+    @Override
+    public long getBodySize() {
+        long size = 0;
+        size += Integer.BYTES;
+        for (CompositionOffsetBoxEntry entry : entries) {
+            size += entry.getSize(getVersion());
+        }
+        return size;
+    }
+
     public List<CompositionOffsetBoxEntry> getEntries() {
         return new ArrayList<>(this.entries);
     }
@@ -44,9 +56,7 @@ public class CompositionOffsetBox extends FullBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         stream.writeInt(entries.size());
         for (CompositionOffsetBoxEntry entry : entries) {
             entry.writeTo(stream, getVersion());

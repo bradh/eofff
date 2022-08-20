@@ -8,15 +8,15 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 /**
  * Pixel Aspect Ratio Box.
  *
- * <p>See ISO/IEC 14496-12:2015 Section 12.x.x.x.
+ * <p>See ISO/IEC 14496-12:2015 Section 12.1.4.
  */
 public class PixelAspectRatioBox extends BaseBox {
-
+    public static final FourCC PASP_ATOM = new FourCC("pasp");
     private long hSpacing;
     private long vSpacing;
 
-    public PixelAspectRatioBox(FourCC name) {
-        super(name);
+    public PixelAspectRatioBox() {
+        super(PASP_ATOM);
     }
 
     @Override
@@ -47,8 +47,7 @@ public class PixelAspectRatioBox extends BaseBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
+        this.writeBoxHeader(stream);
         stream.writeUnsignedInt32((int) hSpacing);
         stream.writeUnsignedInt32((int) vSpacing);
     }

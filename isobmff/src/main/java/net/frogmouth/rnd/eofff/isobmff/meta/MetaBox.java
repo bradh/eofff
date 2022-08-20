@@ -9,10 +9,12 @@ import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class MetaBox extends FullBox {
+    public static final FourCC META_ATOM = new FourCC("meta");
+
     private final List<Box> nestedBoxes = new ArrayList<>();
 
-    public MetaBox(FourCC name) {
-        super(name);
+    public MetaBox() {
+        super(META_ATOM);
     }
 
     @Override
@@ -29,6 +31,15 @@ public class MetaBox extends FullBox {
         return size;
     }
 
+    @Override
+    public long getBodySize() {
+        long size = 0;
+        for (Box box : nestedBoxes) {
+            size += box.getSize();
+        }
+        return size;
+    }
+
     public List<Box> getNestedBoxes() {
         return new ArrayList<>(nestedBoxes);
     }
@@ -39,9 +50,7 @@ public class MetaBox extends FullBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         for (Box box : nestedBoxes) {
             box.writeTo(stream);
         }
