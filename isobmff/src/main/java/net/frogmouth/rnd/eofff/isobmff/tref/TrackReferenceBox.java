@@ -26,15 +26,6 @@ public class TrackReferenceBox extends BaseBox {
     }
 
     @Override
-    public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES;
-        for (TrackReferenceTypeBox reference : entries) {
-            size += reference.getSize();
-        }
-        return size;
-    }
-
-    @Override
     public long getBodySize() {
         long size = 0;
         for (TrackReferenceTypeBox reference : entries) {

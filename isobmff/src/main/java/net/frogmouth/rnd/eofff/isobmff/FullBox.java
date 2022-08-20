@@ -35,6 +35,16 @@ public class FullBox extends BaseBox {
         return ((this.flags & bitmask) == bitmask);
     }
 
+    @Override
+    public long getSize() {
+        long bodySize = getBodySize();
+        if (needLargeSize(bodySize)) {
+            return bodySize + BYTES_IN_LARGE_FULL_BOX_HEADER;
+        } else {
+            return bodySize + BYTES_IN_FULL_BOX_HEADER;
+        }
+    }
+
     private boolean needLargeSize(long bodySize) {
         return 0xFFFFFFFFL < bodySize + BYTES_IN_FULL_BOX_HEADER;
     }

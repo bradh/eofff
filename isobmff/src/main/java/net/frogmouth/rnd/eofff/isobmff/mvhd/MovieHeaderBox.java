@@ -33,27 +33,6 @@ public class MovieHeaderBox extends FullBox {
     }
 
     @Override
-    public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        if (getVersion() == 1) {
-            size += (3 * Long.BYTES + Integer.BYTES);
-        } else {
-            size += (4 * Integer.BYTES);
-        }
-        size += Integer.BYTES;
-        size += Short.BYTES;
-        size += Short.BYTES;
-        size += Integer.BYTES;
-        size += Integer.BYTES;
-        size += (Integer.BYTES * matrix.length);
-        for (int i = 0; i < 6; i++) {
-            size += Integer.BYTES;
-        }
-        size += Integer.BYTES;
-        return size;
-    }
-
-    @Override
     public long getBodySize() {
         long size = 0;
         if (getVersion() == 1) {

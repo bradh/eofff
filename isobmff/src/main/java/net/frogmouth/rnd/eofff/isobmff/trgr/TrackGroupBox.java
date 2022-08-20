@@ -22,15 +22,6 @@ public class TrackGroupBox extends BaseBox {
     }
 
     @Override
-    public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES;
-        for (TrackGroupTypeBox group : entries) {
-            size += group.getSize();
-        }
-        return size;
-    }
-
-    @Override
     public long getBodySize() {
         long size = 0;
         for (TrackGroupTypeBox group : entries) {

@@ -15,7 +15,7 @@ public abstract class AbstractContainerBox extends BaseBox {
     @Override
     public abstract String getFullName();
 
-    @Override
+    // @Override
     public long getSize() {
         long size = Integer.BYTES + FourCC.BYTES;
         for (Box box : nestedBoxes) {

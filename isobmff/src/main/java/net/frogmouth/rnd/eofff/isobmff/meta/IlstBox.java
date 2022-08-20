@@ -19,8 +19,8 @@ public class IlstBox extends BaseBox {
     }
 
     @Override
-    public long getSize() {
-        return Integer.BYTES + FourCC.BYTES + data.length;
+    public long getBodySize() {
+        return data.length;
     }
 
     public byte[] getData() {

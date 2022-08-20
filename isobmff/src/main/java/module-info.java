@@ -19,7 +19,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.mdhd.MediaHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.idat.ItemDataBoxParser,
             net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoEntryParser,
+            net.frogmouth.rnd.eofff.isobmff.infe.ItemInfoEntryParser,
             net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceBoxParser,
             net.frogmouth.rnd.eofff.isobmff.iloc.ItemLocationBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.IlistBoxParser,
@@ -67,6 +67,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.idat;
     exports net.frogmouth.rnd.eofff.isobmff.iinf;
     exports net.frogmouth.rnd.eofff.isobmff.iloc;
+    exports net.frogmouth.rnd.eofff.isobmff.infe;
     exports net.frogmouth.rnd.eofff.isobmff.iref;
     exports net.frogmouth.rnd.eofff.isobmff.mdat;
     exports net.frogmouth.rnd.eofff.isobmff.mdhd;

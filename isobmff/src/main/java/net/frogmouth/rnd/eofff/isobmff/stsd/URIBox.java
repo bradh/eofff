@@ -20,14 +20,6 @@ public class URIBox extends FullBox {
     }
 
     @Override
-    public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        size += theURI.getBytes(StandardCharsets.UTF_8).length;
-        size += 1;
-        return size;
-    }
-
-    @Override
     public long getBodySize() {
         long size = 0;
         size += theURI.getBytes(StandardCharsets.UTF_8).length;

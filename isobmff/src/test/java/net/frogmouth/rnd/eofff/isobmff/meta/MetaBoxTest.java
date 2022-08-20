@@ -13,8 +13,8 @@ import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.idat.ItemDataBox;
 import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoBox;
 import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoBoxBuilder;
-import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoEntry;
-import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoEntryBuilder;
+import net.frogmouth.rnd.eofff.isobmff.infe.ItemInfoEntry;
+import net.frogmouth.rnd.eofff.isobmff.infe.ItemInfoEntryBuilder;
 import org.testng.annotations.Test;
 
 /** Unit test for MetaBox. */

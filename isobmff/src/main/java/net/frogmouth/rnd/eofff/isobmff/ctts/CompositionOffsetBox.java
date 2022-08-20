@@ -26,7 +26,7 @@ public class CompositionOffsetBox extends FullBox {
         return "CompositionOffsetBox";
     }
 
-    @Override
+    // @Override
     public long getSize() {
         long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
         size += Integer.BYTES;

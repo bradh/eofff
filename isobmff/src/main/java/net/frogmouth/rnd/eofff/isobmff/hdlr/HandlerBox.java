@@ -26,7 +26,7 @@ public class HandlerBox extends FullBox {
         return "HandlerBox";
     }
 
-    @Override
+    // @Override
     public long getSize() {
         long size =
                 Integer.BYTES

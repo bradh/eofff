@@ -29,33 +29,6 @@ public class TrackHeaderBox extends FullBox {
     }
 
     @Override
-    public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        if (getVersion() == 1) {
-            size += Long.BYTES;
-            size += Long.BYTES;
-            size += Integer.BYTES;
-            size += Integer.BYTES;
-            size += Long.BYTES;
-        } else {
-            size += Integer.BYTES;
-            size += Integer.BYTES;
-            size += Integer.BYTES;
-            size += Integer.BYTES;
-            size += Integer.BYTES;
-        }
-        size += 2 * Integer.BYTES;
-        size += Short.BYTES;
-        size += Short.BYTES;
-        size += Short.BYTES;
-        size += Short.BYTES;
-        size += 9 * Integer.BYTES;
-        size += Integer.BYTES;
-        size += Integer.BYTES;
-        return size;
-    }
-
-    @Override
     public long getBodySize() {
         long size = 0;
         if (getVersion() == 1) {

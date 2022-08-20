@@ -25,14 +25,6 @@ public class VideoMediaHeaderBox extends FullBox {
     }
 
     @Override
-    public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        size += Short.BYTES;
-        size += (opcolor.length * Short.BYTES);
-        return size;
-    }
-
-    @Override
     public long getBodySize() {
         long size = 0;
         size += Short.BYTES;

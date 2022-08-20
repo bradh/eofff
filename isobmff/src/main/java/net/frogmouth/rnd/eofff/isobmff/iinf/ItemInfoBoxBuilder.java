@@ -2,6 +2,7 @@ package net.frogmouth.rnd.eofff.isobmff.iinf;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.frogmouth.rnd.eofff.isobmff.infe.ItemInfoEntry;
 
 public class ItemInfoBoxBuilder {
 

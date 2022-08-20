@@ -19,12 +19,6 @@ public class ItemDataBox extends BaseBox {
     }
 
     @Override
-    public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES + data.length;
-        return size;
-    }
-
-    @Override
     public long getBodySize() {
         return data.length;
     }

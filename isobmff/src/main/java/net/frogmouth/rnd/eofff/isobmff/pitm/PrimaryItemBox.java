@@ -24,17 +24,6 @@ public class PrimaryItemBox extends FullBox {
     }
 
     @Override
-    public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        if (getVersion() == 0) {
-            size += Short.BYTES;
-        } else {
-            size += Integer.BYTES;
-        }
-        return size;
-    }
-
-    @Override
     public long getBodySize() {
         long size = 0;
         if (getVersion() == 0) {

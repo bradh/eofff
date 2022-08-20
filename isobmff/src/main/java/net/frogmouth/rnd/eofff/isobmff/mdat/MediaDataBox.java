@@ -19,12 +19,6 @@ public class MediaDataBox extends BaseBox {
     }
 
     @Override
-    public long getSize() {
-        // TODO: the size might not be Integer.
-        return Integer.SIZE + FourCC.BYTES + data.length;
-    }
-
-    @Override
     public long getBodySize() {
         return data.length;
     }

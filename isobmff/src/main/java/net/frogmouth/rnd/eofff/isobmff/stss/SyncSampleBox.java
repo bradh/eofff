@@ -23,14 +23,6 @@ public class SyncSampleBox extends FullBox {
     }
 
     @Override
-    public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        size += Integer.BYTES;
-        size += Integer.BYTES * entries.size();
-        return size;
-    }
-
-    @Override
     public long getBodySize() {
         return Integer.BYTES + (Integer.BYTES * entries.size());
     }

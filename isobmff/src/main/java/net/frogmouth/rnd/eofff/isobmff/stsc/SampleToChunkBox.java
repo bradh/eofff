@@ -27,16 +27,6 @@ public class SampleToChunkBox extends FullBox {
     }
 
     @Override
-    public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        size += Integer.BYTES;
-        for (SampleToChunkEntry entry : entries) {
-            size += entry.getSize();
-        }
-        return size;
-    }
-
-    @Override
     public long getBodySize() {
         long size = 0;
         size += Integer.BYTES;

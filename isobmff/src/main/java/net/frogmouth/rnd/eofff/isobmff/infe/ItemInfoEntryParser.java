@@ -1,7 +1,7 @@
-package net.frogmouth.rnd.eofff.isobmff.iinf;
+package net.frogmouth.rnd.eofff.isobmff.infe;
 
-import static net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoEntry.MIME;
-import static net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoEntry.URI;
+import static net.frogmouth.rnd.eofff.isobmff.infe.ItemInfoEntry.MIME;
+import static net.frogmouth.rnd.eofff.isobmff.infe.ItemInfoEntry.URI;
 
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
@@ -17,12 +17,12 @@ public class ItemInfoEntryParser extends FullBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("infe");
+        return ItemInfoEntry.INFE_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ItemInfoEntry box = new ItemInfoEntry(boxName);
+        ItemInfoEntry box = new ItemInfoEntry();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

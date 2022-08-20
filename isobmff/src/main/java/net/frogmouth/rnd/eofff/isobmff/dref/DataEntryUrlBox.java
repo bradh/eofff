@@ -26,7 +26,7 @@ public class DataEntryUrlBox extends DataEntryBox {
         return location;
     }
 
-    @Override
+    // @Override
     public long getSize() {
         long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
         if (!this.isFlagSet(DataEntryBox.MEDIA_DATA_IN_SAME_FILE_FLAG)) {

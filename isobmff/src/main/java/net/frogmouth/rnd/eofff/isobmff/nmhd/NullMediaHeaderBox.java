@@ -24,11 +24,6 @@ public class NullMediaHeaderBox extends FullBox {
     }
 
     @Override
-    public long getSize() {
-        return Integer.BYTES + FourCC.BYTES + 1 + 3;
-    }
-
-    @Override
     public long getBodySize() {
         return 0;
     }

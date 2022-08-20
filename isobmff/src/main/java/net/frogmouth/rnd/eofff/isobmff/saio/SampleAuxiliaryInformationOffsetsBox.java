@@ -28,22 +28,6 @@ public class SampleAuxiliaryInformationOffsetsBox extends FullBox {
     }
 
     @Override
-    public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        if ((getFlags() & 0x01) == 0x01) {
-            size += FourCC.BYTES;
-            size += Integer.BYTES;
-        }
-        size += Integer.BYTES;
-        if (getVersion() == 0) {
-            size += (offsets.length * Integer.BYTES);
-        } else {
-            size += (offsets.length * Long.BYTES);
-        }
-        return size;
-    }
-
-    @Override
     public long getBodySize() {
         long size = 0;
         if ((getFlags() & 0x01) == 0x01) {

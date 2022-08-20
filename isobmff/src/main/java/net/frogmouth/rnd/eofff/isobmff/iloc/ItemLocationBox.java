@@ -25,21 +25,6 @@ public class ItemLocationBox extends FullBox {
     }
 
     @Override
-    public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        size += 2; // sizes (or sizes + reserved)
-        if (getVersion() < 2) {
-            size += Short.BYTES;
-        } else {
-            size += Integer.BYTES;
-        }
-        for (ILocItem item : this.items) {
-            size += item.getSize(getVersion());
-        }
-        return size;
-    }
-
-    @Override
     public long getBodySize() {
         long size = 0;
         size += 2; // sizes (or sizes + reserved)

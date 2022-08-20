@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.isobmff.iinf;
+package net.frogmouth.rnd.eofff.isobmff.infe;
 
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
@@ -50,7 +50,7 @@ public class ItemInfoEntryBuilder {
     }
 
     public ItemInfoEntry build() {
-        ItemInfoEntry box = new ItemInfoEntry(new FourCC("infe"));
+        ItemInfoEntry box = new ItemInfoEntry();
         box.setVersion(version);
         // TODO: handle version 0 and 1
         box.setFlags(flags);

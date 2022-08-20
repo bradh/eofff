@@ -26,19 +26,6 @@ public class MediaHeaderBox extends FullBox {
     }
 
     @Override
-    public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        if (getVersion() == 1) {
-            size += 28;
-        } else {
-            size += 16;
-        }
-        size += 2; // language plus 1 bit pad
-        size += 2; // predefined
-        return size;
-    }
-
-    @Override
     public long getBodySize() {
         long size = 0;
         if (getVersion() == 1) {

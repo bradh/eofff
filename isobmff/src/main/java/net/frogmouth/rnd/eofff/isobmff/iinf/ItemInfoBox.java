@@ -6,6 +6,7 @@ import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.infe.ItemInfoEntry;
 
 /**
  * Item Information Box.
@@ -23,20 +24,6 @@ public class ItemInfoBox extends FullBox {
     @Override
     public String getFullName() {
         return "ItemInfoBox";
-    }
-
-    @Override
-    public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        if ((getVersion() == 1) || (items.size() >= (1 << 16))) {
-            size += Integer.BYTES;
-        } else {
-            size += Short.BYTES;
-        }
-        for (ItemInfoEntry entry : items) {
-            size += entry.getSize();
-        }
-        return size;
     }
 
     @Override

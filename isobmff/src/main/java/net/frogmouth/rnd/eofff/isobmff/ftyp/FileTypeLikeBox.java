@@ -17,7 +17,7 @@ public class FileTypeLikeBox extends BaseBox {
         super(name);
     }
 
-    @Override
+    // @Override
     public long getSize() {
         long size =
                 Integer.BYTES

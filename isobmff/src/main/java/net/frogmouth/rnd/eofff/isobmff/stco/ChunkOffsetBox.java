@@ -27,14 +27,6 @@ public class ChunkOffsetBox extends FullBox {
     }
 
     @Override
-    public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        size += Integer.BYTES;
-        size += (entries.size() * Integer.BYTES);
-        return size;
-    }
-
-    @Override
     public long getBodySize() {
         long size = 0;
         size += Integer.BYTES;

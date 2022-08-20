@@ -18,14 +18,18 @@ public class BaseBox implements Box {
 
     @Override
     public long getSize() {
-        throw new UnsupportedOperationException(
-                "can't get size of unimplemented box : " + boxName.toString());
+        long bodySize = getBodySize();
+        if (needLargeSize(bodySize)) {
+            return bodySize + BYTES_IN_LARGE_BOX_HEADER;
+        } else {
+            return bodySize + BYTES_IN_BOX_HEADER;
+        }
     }
 
     @Override
     public long getBodySize() {
-        // Temporary hack
-        return getSize() - 8;
+        throw new UnsupportedOperationException(
+                "can't get size of unimplemented box : " + boxName.toString());
     }
 
     @Override

@@ -27,7 +27,7 @@ public class EditListBox extends FullBox {
         return "EditListBox";
     }
 
-    @Override
+    // @Override
     public long getSize() {
         long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
         size += Integer.BYTES;

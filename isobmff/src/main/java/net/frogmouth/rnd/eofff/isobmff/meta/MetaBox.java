@@ -23,15 +23,6 @@ public class MetaBox extends FullBox {
     }
 
     @Override
-    public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        for (Box box : nestedBoxes) {
-            size += box.getSize();
-        }
-        return size;
-    }
-
-    @Override
     public long getBodySize() {
         long size = 0;
         for (Box box : nestedBoxes) {

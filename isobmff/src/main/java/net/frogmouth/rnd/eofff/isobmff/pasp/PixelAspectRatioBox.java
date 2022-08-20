@@ -24,11 +24,6 @@ public class PixelAspectRatioBox extends BaseBox {
         return "PixelAspectRatioBox";
     }
 
-    @Override
-    public long getSize() {
-        return Integer.BYTES + FourCC.BYTES + 2 * Integer.BYTES;
-    }
-
     public long getHorizontalSpacing() {
         return hSpacing;
     }
@@ -43,6 +38,11 @@ public class PixelAspectRatioBox extends BaseBox {
 
     public void setVerticalSpacing(long vSpacing) {
         this.vSpacing = vSpacing;
+    }
+
+    @Override
+    public long getBodySize() {
+        return 2 * Integer.BYTES;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.isobmff.iinf;
+package net.frogmouth.rnd.eofff.isobmff.infe;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -6,9 +6,10 @@ import java.nio.charset.StandardCharsets;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoExtension;
 
 public class ItemInfoEntry extends FullBox {
-
+    public static final FourCC INFE_ATOM = new FourCC("infe");
     public static final int MIME = 0x6d696d65;
     public static final int URI = 0x75726920;
     private long itemID;
@@ -21,30 +22,8 @@ public class ItemInfoEntry extends FullBox {
     private long extensionType;
     private ItemInfoExtension extension;
 
-    public ItemInfoEntry(FourCC name) {
-        super(name);
-    }
-
-    @Override
-    public long getSize() {
-        long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
-        if ((getVersion() == 2) && (itemID < (1 << 16))) {
-            size += Short.BYTES;
-        } else {
-            size += Integer.BYTES;
-        }
-        size += Short.BYTES + Integer.BYTES;
-        if (itemName != null) {
-            size += itemName.getBytes(StandardCharsets.US_ASCII).length;
-        }
-        size += Byte.BYTES;
-        if (this.itemType == new FourCC("mime").hashCode()) {
-            // TODO
-        } else if (this.itemType == new FourCC("uri ").hashCode()) {
-            size += itemUriType.getBytes(StandardCharsets.US_ASCII).length;
-            size += Byte.BYTES;
-        }
-        return size;
+    public ItemInfoEntry() {
+        super(INFE_ATOM);
     }
 
     public long getItemID() {
@@ -126,14 +105,35 @@ public class ItemInfoEntry extends FullBox {
     }
 
     @Override
+    public long getBodySize() {
+        long size = 0;
+        if (getVersion() == 2) {
+            size += Short.BYTES;
+        } else {
+            size += Integer.BYTES;
+        }
+        size += Short.BYTES;
+        size += Integer.BYTES;
+        if (itemName != null) {
+            size += itemName.getBytes(StandardCharsets.US_ASCII).length;
+        }
+        size += Byte.BYTES;
+        if (this.getItemTypeAsText().equals("mime")) {
+            // TODO
+        } else if (this.getItemTypeAsText().equals("uri ")) {
+            size += itemUriType.getBytes(StandardCharsets.US_ASCII).length;
+            size += Byte.BYTES;
+        }
+        return size;
+    }
+
+    @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
         // TODO: handle version 0 and 1
         if ((getVersion() == 2) && (itemID >= (1 << 16))) {
             setVersion(3);
         }
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         if (getVersion() == 2) {
             stream.writeShort((short) this.itemID);
         } else {
