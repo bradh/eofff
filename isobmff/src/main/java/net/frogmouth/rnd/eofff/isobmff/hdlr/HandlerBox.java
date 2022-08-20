@@ -6,7 +6,9 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
-public class HdlrBox extends FullBox {
+public class HandlerBox extends FullBox {
+
+    public static final FourCC HDLR_ATOM = new FourCC("hdlr");
 
     private int preDefined;
     private String handlerType;
@@ -15,8 +17,8 @@ public class HdlrBox extends FullBox {
     private int reserved2;
     private String name;
 
-    public HdlrBox(FourCC name) {
-        super(name);
+    public HandlerBox() {
+        super(HDLR_ATOM);
     }
 
     @Override
@@ -32,6 +34,17 @@ public class HdlrBox extends FullBox {
                         + 1
                         + 3
                         + Integer.BYTES
+                        + FourCC.BYTES
+                        + 3 * Integer.BYTES
+                        + name.getBytes(StandardCharsets.US_ASCII).length
+                        + 1;
+        return size;
+    }
+
+    @Override
+    public long getBodySize() {
+        long size =
+                Integer.BYTES
                         + FourCC.BYTES
                         + 3 * Integer.BYTES
                         + name.getBytes(StandardCharsets.US_ASCII).length
@@ -89,9 +102,7 @@ public class HdlrBox extends FullBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         stream.writeInt(this.preDefined);
         stream.write(this.handlerType.getBytes(StandardCharsets.US_ASCII));
         stream.writeInt(this.reserved0);

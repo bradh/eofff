@@ -14,8 +14,8 @@ import org.testng.annotations.Test;
 public class HdlrBoxTest {
     @Test
     public void checkWrite() throws IOException {
-        HdlrBox box =
-                new HdlrBoxBuilder().withVersion(0).withFlags(0).withHandlerType("meta").build();
+        HandlerBox box =
+                new HandlerBoxBuilder().withVersion(0).withFlags(0).withHandlerType("meta").build();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
         box.writeTo(streamWriter);

@@ -12,19 +12,35 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  * <p>See ISO/IEC 14496-12:2015 Section 8.4.2.
  */
 public class MediaHeaderBox extends FullBox {
+
+    public static final FourCC MDHD_ATOM = new FourCC("mdhd");
+
     private long creationTime;
     private long modificationTime;
     private long timescale;
     private long duration;
     private String language;
 
-    public MediaHeaderBox(FourCC name) {
-        super(name);
+    public MediaHeaderBox() {
+        super(MDHD_ATOM);
     }
 
     @Override
     public long getSize() {
         long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        if (getVersion() == 1) {
+            size += 28;
+        } else {
+            size += 16;
+        }
+        size += 2; // language plus 1 bit pad
+        size += 2; // predefined
+        return size;
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = 0;
         if (getVersion() == 1) {
             size += 28;
         } else {
@@ -82,9 +98,7 @@ public class MediaHeaderBox extends FullBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         if (getVersion() == 1) {
             stream.writeLong(this.creationTime);
             stream.writeLong(this.modificationTime);

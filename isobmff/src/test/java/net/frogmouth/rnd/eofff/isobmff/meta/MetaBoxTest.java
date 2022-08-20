@@ -9,8 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
-import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBox;
-import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBox;
+import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBoxBuilder;
 import org.testng.annotations.Test;
 
 /** Unit test for MetaBox. */
@@ -33,8 +33,8 @@ public class MetaBoxTest {
 
     @Test
     public void checkWrite() throws IOException {
-        HdlrBox hdlr =
-                new HdlrBoxBuilder().withVersion(0).withFlags(0).withHandlerType("meta").build();
+        HandlerBox hdlr =
+                new HandlerBoxBuilder().withVersion(0).withFlags(0).withHandlerType("meta").build();
         ItemInfoEntry infe0 =
                 new ItemInfoEntryBuilder()
                         .withVersion(2)

@@ -1,38 +1,36 @@
 package net.frogmouth.rnd.eofff.isobmff.hdlr;
 
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
-
-public class HdlrBoxBuilder {
+public class HandlerBoxBuilder {
 
     private int version;
     private int flags;
     private String handlerType;
     private String name = "";
 
-    public HdlrBoxBuilder() {}
+    public HandlerBoxBuilder() {}
 
-    public HdlrBoxBuilder withVersion(int version) {
+    public HandlerBoxBuilder withVersion(int version) {
         this.version = version;
         return this;
     }
 
-    public HdlrBoxBuilder withFlags(int flags) {
+    public HandlerBoxBuilder withFlags(int flags) {
         this.flags = flags;
         return this;
     }
 
-    public HdlrBoxBuilder withHandlerType(String handlerType) {
+    public HandlerBoxBuilder withHandlerType(String handlerType) {
         this.handlerType = handlerType;
         return this;
     }
 
-    public HdlrBoxBuilder withName(String name) {
+    public HandlerBoxBuilder withName(String name) {
         this.name = name;
         return this;
     }
 
-    public HdlrBox build() {
-        HdlrBox box = new HdlrBox(new FourCC("hdlr"));
+    public HandlerBox build() {
+        HandlerBox box = new HandlerBox();
         box.setVersion(version);
         box.setFlags(flags);
         box.setPreDefined(0);

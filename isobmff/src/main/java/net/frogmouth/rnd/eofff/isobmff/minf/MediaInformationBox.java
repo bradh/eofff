@@ -5,8 +5,10 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class MediaInformationBox extends AbstractContainerBox {
 
-    public MediaInformationBox(FourCC name) {
-        super(name);
+    public static final FourCC MINF_ATOM = new FourCC("minf");
+
+    public MediaInformationBox() {
+        super(MINF_ATOM);
     }
 
     @Override

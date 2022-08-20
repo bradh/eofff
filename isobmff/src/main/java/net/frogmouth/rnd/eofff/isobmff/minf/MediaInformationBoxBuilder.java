@@ -1,7 +1,6 @@
 package net.frogmouth.rnd.eofff.isobmff.minf;
 
 import net.frogmouth.rnd.eofff.isobmff.AbstractContainerBoxBuilder;
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class MediaInformationBoxBuilder extends AbstractContainerBoxBuilder<MediaInformationBox> {
 
@@ -9,8 +8,7 @@ public class MediaInformationBoxBuilder extends AbstractContainerBoxBuilder<Medi
 
     @Override
     public MediaInformationBox build() {
-        int size = getBoxSize();
-        MediaInformationBox box = new MediaInformationBox(new FourCC("minf"));
+        MediaInformationBox box = new MediaInformationBox();
         box.addNestedBoxes(nestedBoxes);
         return box;
     }

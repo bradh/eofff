@@ -26,8 +26,8 @@ import net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.free.FreeBox;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.Brand;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
-import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBox;
-import net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBoxBuilder;
+import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBox;
+import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBoxBuilder;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.mdhd.MediaHeaderBox;
 import net.frogmouth.rnd.eofff.isobmff.mdhd.MediaHeaderBoxBuilder;
@@ -392,8 +392,8 @@ public class ModifyTest {
                         .withTrackID(2)
                         .withDuration(motionImageryTrackHeaderDuration)
                         .build();
-        HdlrBox metadataHandlerBox =
-                new HdlrBoxBuilder()
+        HandlerBox metadataHandlerBox =
+                new HandlerBoxBuilder()
                         .withVersion(0)
                         .withFlags(0)
                         .withHandlerType("meta")
@@ -499,8 +499,8 @@ public class ModifyTest {
     }
 
     private MetaBox buildPresentationLevelMetaBox() throws IOException {
-        HdlrBox hdlr =
-                new HdlrBoxBuilder()
+        HandlerBox hdlr =
+                new HandlerBoxBuilder()
                         .withVersion(0)
                         .withFlags(0)
                         .withHandlerType("meta")
@@ -543,8 +543,8 @@ public class ModifyTest {
     }
 
     private MetaBox buildStaticMotionImageryTrackLevelMetaBox() throws IOException {
-        HdlrBox hdlr =
-                new HdlrBoxBuilder()
+        HandlerBox hdlr =
+                new HandlerBoxBuilder()
                         .withVersion(0)
                         .withFlags(0)
                         .withHandlerType("meta")
@@ -618,8 +618,8 @@ public class ModifyTest {
     }
 
     private MetaBox buildStaticMetadataTrackLevelMetaBox() throws IOException {
-        HdlrBox hdlr =
-                new HdlrBoxBuilder()
+        HandlerBox hdlr =
+                new HandlerBoxBuilder()
                         .withVersion(0)
                         .withFlags(0)
                         .withHandlerType("meta")

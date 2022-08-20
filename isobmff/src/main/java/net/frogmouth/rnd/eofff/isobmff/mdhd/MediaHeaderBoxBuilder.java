@@ -1,7 +1,5 @@
 package net.frogmouth.rnd.eofff.isobmff.mdhd;
 
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
-
 public class MediaHeaderBoxBuilder {
 
     private int version;
@@ -51,7 +49,7 @@ public class MediaHeaderBoxBuilder {
 
     public MediaHeaderBox build() {
 
-        MediaHeaderBox box = new MediaHeaderBox(new FourCC("mdhd"));
+        MediaHeaderBox box = new MediaHeaderBox();
         box.setVersion(version);
         box.setFlags(flags);
         box.setCreationTime(creationTime);

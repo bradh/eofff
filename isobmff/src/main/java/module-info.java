@@ -14,7 +14,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.free.FreeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.free.SkipBoxParser,
             net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.hdlr.HdlrBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mdhd.MediaHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.ItemDataBoxParser,

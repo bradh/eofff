@@ -10,12 +10,12 @@ public class MediaInformationBoxParser extends BaseBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("minf");
+        return MediaInformationBox.MINF_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        MediaInformationBox box = new MediaInformationBox(boxName);
+        MediaInformationBox box = new MediaInformationBox();
         box.addNestedBoxes(parseContext.parseNestedBoxes(initialOffset + boxSize));
         return box;
     }

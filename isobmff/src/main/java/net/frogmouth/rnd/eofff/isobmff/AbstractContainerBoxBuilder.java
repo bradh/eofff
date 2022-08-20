@@ -15,6 +15,7 @@ public abstract class AbstractContainerBoxBuilder<T extends AbstractContainerBox
     }
 
     protected int getBoxSize() {
+        // TODO: this needs to handle the largebox option.
         int size = Integer.BYTES + FourCC.BYTES;
         for (Box box : nestedBoxes) {
             size += box.getSize();

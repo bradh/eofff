@@ -7,19 +7,19 @@ import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HdlrBoxParser extends FullBoxParser {
-    private static final Logger LOG = LoggerFactory.getLogger(HdlrBoxParser.class);
+public class HandlerBoxParser extends FullBoxParser {
+    private static final Logger LOG = LoggerFactory.getLogger(HandlerBoxParser.class);
 
-    public HdlrBoxParser() {}
+    public HandlerBoxParser() {}
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("hdlr");
+        return HandlerBox.HDLR_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        HdlrBox box = new HdlrBox(boxName);
+        HandlerBox box = new HandlerBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
