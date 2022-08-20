@@ -15,7 +15,7 @@ public class TrackBoxParser extends BaseBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        TrackBox box = new TrackBox(boxName);
+        TrackBox box = new TrackBox();
         box.addNestedBoxes(parseContext.parseNestedBoxes(initialOffset + boxSize));
         return box;
     }

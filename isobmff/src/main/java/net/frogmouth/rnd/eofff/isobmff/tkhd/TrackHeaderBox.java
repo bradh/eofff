@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.isobmff.trak;
+package net.frogmouth.rnd.eofff.isobmff.tkhd;
 
 import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
@@ -11,6 +11,8 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  * <p>See ISO/IEC 14496-12:2015 Section 8.3.2.
  */
 public class TrackHeaderBox extends FullBox {
+
+    public static final FourCC TKHD_ATOM = new FourCC("tkhd");
     private long creationTime;
     private long modificationTime;
     private long trackId;
@@ -22,13 +24,40 @@ public class TrackHeaderBox extends FullBox {
     private long width;
     private long height;
 
-    public TrackHeaderBox(FourCC name) {
-        super(name);
+    public TrackHeaderBox() {
+        super(TKHD_ATOM);
     }
 
     @Override
     public long getSize() {
         long size = Integer.BYTES + FourCC.BYTES + 1 + 3;
+        if (getVersion() == 1) {
+            size += Long.BYTES;
+            size += Long.BYTES;
+            size += Integer.BYTES;
+            size += Integer.BYTES;
+            size += Long.BYTES;
+        } else {
+            size += Integer.BYTES;
+            size += Integer.BYTES;
+            size += Integer.BYTES;
+            size += Integer.BYTES;
+            size += Integer.BYTES;
+        }
+        size += 2 * Integer.BYTES;
+        size += Short.BYTES;
+        size += Short.BYTES;
+        size += Short.BYTES;
+        size += Short.BYTES;
+        size += 9 * Integer.BYTES;
+        size += Integer.BYTES;
+        size += Integer.BYTES;
+        return size;
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = 0;
         if (getVersion() == 1) {
             size += Long.BYTES;
             size += Long.BYTES;
@@ -140,9 +169,7 @@ public class TrackHeaderBox extends FullBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         if (getVersion() == 1) {
             stream.writeLong(creationTime);
             stream.writeLong(modificationTime);

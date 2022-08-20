@@ -5,9 +5,8 @@ import net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupBox;
 
 public class BaseBox implements Box {
 
-    protected static final long BYTES_IN_BOX_HEADER = Integer.BYTES + FourCC.BYTES;
-    protected static final long BYTES_IN_LARGE_BOX_HEADER =
-            Integer.BYTES + FourCC.BYTES + Long.BYTES;
+    private static final long BYTES_IN_BOX_HEADER = Integer.BYTES + FourCC.BYTES;
+    private static final long BYTES_IN_LARGE_BOX_HEADER = Integer.BYTES + FourCC.BYTES + Long.BYTES;
     protected static final int LARGE_SIZE_FLAG = 1;
 
     // private long size;
@@ -53,19 +52,19 @@ public class BaseBox implements Box {
         System.out.println("need writeTo() implementation for " + boxName.toString());
     }
 
-    protected boolean needLargeSize(long bodySize) {
-        return 0xFFFFFFFFL < bodySize + TrackGroupBox.BYTES_IN_BOX_HEADER;
+    private boolean needLargeSize(long bodySize) {
+        return 0xFFFFFFFFL < bodySize + BYTES_IN_BOX_HEADER;
     }
 
     protected void writeBoxHeader(OutputStreamWriter stream) throws IOException {
         long bodySize = getBodySize();
         if (needLargeSize(bodySize)) {
-            long boxSize = TrackGroupBox.BYTES_IN_LARGE_BOX_HEADER + bodySize;
+            long boxSize = BYTES_IN_LARGE_BOX_HEADER + bodySize;
             stream.writeUnsignedInt32(TrackGroupBox.LARGE_SIZE_FLAG);
             stream.writeFourCC(this.getFourCC());
             stream.writeLong(boxSize);
         } else {
-            long boxSize = TrackGroupBox.BYTES_IN_BOX_HEADER + bodySize;
+            long boxSize = BYTES_IN_BOX_HEADER + bodySize;
             stream.writeUnsignedInt32(boxSize);
             stream.writeFourCC(this.getFourCC());
         }

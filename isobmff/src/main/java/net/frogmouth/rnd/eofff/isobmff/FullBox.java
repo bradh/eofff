@@ -1,6 +1,12 @@
 package net.frogmouth.rnd.eofff.isobmff;
 
+import java.io.IOException;
+import net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupBox;
+
 public class FullBox extends BaseBox {
+    private static final long BYTES_IN_FULL_BOX_HEADER = Integer.BYTES + FourCC.BYTES + 1 + 3;
+    private static final long BYTES_IN_LARGE_FULL_BOX_HEADER =
+            Integer.BYTES + FourCC.BYTES + Long.BYTES + 1 + 3;
 
     private int version;
     private int flags;
@@ -27,6 +33,26 @@ public class FullBox extends BaseBox {
 
     public boolean isFlagSet(int bitmask) {
         return ((this.flags & bitmask) == bitmask);
+    }
+
+    private boolean needLargeSize(long bodySize) {
+        return 0xFFFFFFFFL < bodySize + BYTES_IN_FULL_BOX_HEADER;
+    }
+
+    @Override
+    protected void writeBoxHeader(OutputStreamWriter stream) throws IOException {
+        long bodySize = getBodySize();
+        if (needLargeSize(bodySize)) {
+            long boxSize = BYTES_IN_LARGE_FULL_BOX_HEADER + bodySize;
+            stream.writeUnsignedInt32(TrackGroupBox.LARGE_SIZE_FLAG);
+            stream.writeFourCC(this.getFourCC());
+            stream.writeLong(boxSize);
+        } else {
+            long boxSize = BYTES_IN_FULL_BOX_HEADER + bodySize;
+            stream.writeUnsignedInt32(boxSize);
+            stream.writeFourCC(this.getFourCC());
+        }
+        stream.write(getVersionAndFlagsAsBytes());
     }
 
     protected byte[] getVersionAndFlagsAsBytes() {

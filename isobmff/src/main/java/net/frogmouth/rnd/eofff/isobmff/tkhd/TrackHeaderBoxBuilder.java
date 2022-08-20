@@ -1,6 +1,4 @@
-package net.frogmouth.rnd.eofff.isobmff.trak;
-
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
+package net.frogmouth.rnd.eofff.isobmff.tkhd;
 
 public class TrackHeaderBoxBuilder {
 
@@ -24,7 +22,7 @@ public class TrackHeaderBoxBuilder {
     }
 
     public TrackHeaderBox build() {
-        TrackHeaderBox box = new TrackHeaderBox(new FourCC("tkhd"));
+        TrackHeaderBox box = new TrackHeaderBox();
         box.setVersion(version);
         box.setFlags(flags);
         box.setTrackId(trackID);

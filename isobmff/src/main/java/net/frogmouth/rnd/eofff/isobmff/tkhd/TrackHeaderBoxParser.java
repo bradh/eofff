@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.isobmff.trak;
+package net.frogmouth.rnd.eofff.isobmff.tkhd;
 
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
@@ -14,12 +14,12 @@ public class TrackHeaderBoxParser extends FullBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("tkhd");
+        return TrackHeaderBox.TKHD_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        TrackHeaderBox box = new TrackHeaderBox(boxName);
+        TrackHeaderBox box = new TrackHeaderBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

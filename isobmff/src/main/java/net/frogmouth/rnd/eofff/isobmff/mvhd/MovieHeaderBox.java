@@ -11,6 +11,9 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  * <p>See ISO/IEC 14496-12:2015 Section 8.2.2.
  */
 public class MovieHeaderBox extends FullBox {
+
+    public static final FourCC MVHD_ATOM = new FourCC("mvhd");
+
     private long creationTime;
     private long modificationTime;
     private long timescale;
@@ -20,8 +23,8 @@ public class MovieHeaderBox extends FullBox {
     private int[] matrix;
     private long nextTrackId;
 
-    public MovieHeaderBox(FourCC name) {
-        super(name);
+    public MovieHeaderBox() {
+        super(MVHD_ATOM);
     }
 
     @Override
@@ -42,10 +45,28 @@ public class MovieHeaderBox extends FullBox {
         size += Short.BYTES;
         size += Integer.BYTES;
         size += Integer.BYTES;
-
-        for (int i : matrix) {
+        size += (Integer.BYTES * matrix.length);
+        for (int i = 0; i < 6; i++) {
             size += Integer.BYTES;
         }
+        size += Integer.BYTES;
+        return size;
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = 0;
+        if (getVersion() == 1) {
+            size += (3 * Long.BYTES + Integer.BYTES);
+        } else {
+            size += (4 * Long.BYTES);
+        }
+        size += Integer.BYTES;
+        size += Short.BYTES;
+        size += Short.BYTES;
+        size += Integer.BYTES;
+        size += Integer.BYTES;
+        size += (Integer.BYTES * matrix.length);
         for (int i = 0; i < 6; i++) {
             size += Integer.BYTES;
         }
@@ -119,8 +140,7 @@ public class MovieHeaderBox extends FullBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
+        this.writeBoxHeader(stream);
         stream.write(getVersionAndFlagsAsBytes());
         writeBodyTo(stream);
     }

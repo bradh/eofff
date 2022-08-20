@@ -10,12 +10,12 @@ public class MediaBoxParser extends BaseBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("mdia");
+        return MediaBox.MDIA_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        MediaBox box = new MediaBox(boxName);
+        MediaBox box = new MediaBox();
         box.addNestedBoxes(parseContext.parseNestedBoxes(initialOffset + boxSize));
         return box;
     }

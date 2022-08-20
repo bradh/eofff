@@ -37,7 +37,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.mvhd.MovieHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stbl.SampleTableBoxParser,
             net.frogmouth.rnd.eofff.isobmff.trak.TrackBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.trak.TrackHeaderBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.tkhd.TrackHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.nmhd.NullMediaHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.pasp.PixelAspectRatioBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sbgp.SampleToGroupBoxParser,
@@ -86,6 +86,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.stsz;
     exports net.frogmouth.rnd.eofff.isobmff.stts;
     exports net.frogmouth.rnd.eofff.isobmff.styp;
+    exports net.frogmouth.rnd.eofff.isobmff.tkhd;
     exports net.frogmouth.rnd.eofff.isobmff.trak;
     exports net.frogmouth.rnd.eofff.isobmff.tref;
     exports net.frogmouth.rnd.eofff.isobmff.trgr;

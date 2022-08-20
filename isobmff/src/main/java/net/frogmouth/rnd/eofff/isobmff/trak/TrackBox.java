@@ -5,8 +5,10 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class TrackBox extends AbstractContainerBox {
 
-    public TrackBox(FourCC name) {
-        super(name);
+    public static final FourCC TRAK_ATOM = new FourCC("trak");
+
+    public TrackBox() {
+        super(TRAK_ATOM);
     }
 
     @Override
