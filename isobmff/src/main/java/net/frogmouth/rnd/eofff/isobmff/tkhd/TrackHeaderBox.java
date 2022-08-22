@@ -13,6 +13,8 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 public class TrackHeaderBox extends FullBox {
 
     public static final FourCC TKHD_ATOM = new FourCC("tkhd");
+    private static final double SCALE_FACTOR_16_16 = 1.0 / Math.pow(2.0, 16);
+
     private long creationTime;
     private long modificationTime;
     private long trackId;
@@ -58,6 +60,22 @@ public class TrackHeaderBox extends FullBox {
     @Override
     public String getFullName() {
         return "TrackHeaderBox";
+    }
+
+    public boolean isEnabled() {
+        return ((getFlags() & 0x000001) == 0x000001);
+    }
+
+    public boolean isTrackInMovie() {
+        return ((getFlags() & 0x000002) == 0x000002);
+    }
+
+    public boolean isTrackInPreview() {
+        return ((getFlags() & 0x000004) == 0x000004);
+    }
+
+    public boolean isTrackSizeAspectRatio() {
+        return ((getFlags() & 0x000008) == 0x000008);
     }
 
     public long getCreationTime() {
@@ -124,16 +142,24 @@ public class TrackHeaderBox extends FullBox {
         this.matrix = matrix;
     }
 
-    public long getWidth() {
+    public long getRawWidth() {
         return width;
+    }
+
+    public double getWidth() {
+        return width * SCALE_FACTOR_16_16;
     }
 
     public void setWidth(long width) {
         this.width = width;
     }
 
-    public long getHeight() {
+    public long getRawHeight() {
         return height;
+    }
+
+    public double getHeight() {
+        return height * SCALE_FACTOR_16_16;
     }
 
     public void setHeight(long height) {

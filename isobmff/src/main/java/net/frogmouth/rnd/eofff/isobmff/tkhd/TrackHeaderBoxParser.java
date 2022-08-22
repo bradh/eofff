@@ -57,6 +57,6 @@ public class TrackHeaderBoxParser extends FullBoxParser {
     }
 
     private boolean isSupportedVersion(int version) {
-        return ((version == 0x00) || (version == 0x01) || (version == 0x02) || (version == 0x03));
+        return ((version == 0x00) || (version == 0x01));
     }
 }

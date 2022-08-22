@@ -35,7 +35,7 @@ public class SampleSizeBoxBuilder {
         box.setVersion(version);
         box.setFlags(flags);
         box.setSampleSize(sampleSize);
-        box.setSampleCount(sampleCount);
+        // TODO: we should be adding sample entries
         return box;
     }
 }

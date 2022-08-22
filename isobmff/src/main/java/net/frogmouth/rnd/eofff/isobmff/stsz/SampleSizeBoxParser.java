@@ -29,9 +29,12 @@ public class SampleSizeBoxParser extends FullBoxParser {
         box.setFlags(parseFlags(parseContext));
         box.setSampleSize(parseContext.readUnsignedInt32());
         long sampleCount = parseContext.readUnsignedInt32();
-        for (long i = 0; i < sampleCount; i++) {
-            Long entry = parseContext.readUnsignedInt32();
-            box.addEntry(entry);
+        box.setSampleCount(sampleCount);
+        if (box.getSampleSize() == 0) {
+            for (long i = 0; i < sampleCount; i++) {
+                Long entry = parseContext.readUnsignedInt32();
+                box.addEntry(entry);
+            }
         }
         return box;
     }

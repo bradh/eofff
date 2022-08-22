@@ -71,6 +71,10 @@ public class MediaHeaderBox extends FullBox {
         return duration;
     }
 
+    public double getDurationMilliseconds() {
+        return 1000.0 * duration / timescale;
+    }
+
     public void setDuration(long duration) {
         this.duration = duration;
     }
