@@ -67,6 +67,16 @@ public class OutputStreamWriter {
         outputStream.write(fourCC.toBytes());
     }
 
+    public void writeUnsignedInt16(int i) throws IOException {
+        // TODO: check range
+        outputStream.write(shortToBytes((short) i));
+    }
+
+    public void writeUnsignedInt16(long i) throws IOException {
+        // TODO: check range
+        outputStream.write(shortToBytes((short) i));
+    }
+
     public void writeUnsignedInt32(int i) throws IOException {
         outputStream.write(intToBytes(i));
     }

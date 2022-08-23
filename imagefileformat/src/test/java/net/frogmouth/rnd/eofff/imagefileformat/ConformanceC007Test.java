@@ -12,6 +12,7 @@ import net.frogmouth.rnd.eofff.isobmff.FileParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBox;
+import net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,5 +85,13 @@ public class ConformanceC007Test {
         assertEquals(hdlr.getReserved1(), 0);
         assertEquals(hdlr.getReserved2(), 0);
         // TODO: check more boxes
+        Box nestedBox4 = meta.getNestedBoxes().get(4);
+        assertTrue(nestedBox4 instanceof ItemReferenceBox);
+        checkItemReferenceBox((ItemReferenceBox) nestedBox4);
+    }
+
+    private void checkItemReferenceBox(ItemReferenceBox itemReferenceBox) {
+        assertEquals(itemReferenceBox.getFullName(), "ItemReferenceBox");
+        // TODO: more checks.
     }
 }
