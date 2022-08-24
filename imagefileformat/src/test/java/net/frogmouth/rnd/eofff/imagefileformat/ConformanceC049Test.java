@@ -55,10 +55,10 @@ public class ConformanceC049Test {
         assertEquals(ftyp.getMajorBrand(), ImageFileFormatBrand.MIF1);
         assertEquals(ftyp.getMinorVersion(), 0);
         assertEquals(ftyp.getCompatibleBrands().size(), 7);
-        assertEquals(ftyp.getCompatibleBrands().get(0), new Brand("heic"));
-        assertEquals(ftyp.getCompatibleBrands().get(1), new Brand("mif1"));
+        assertEquals(ftyp.getCompatibleBrands().get(0), ImageFileFormatBrand.HEIC);
+        assertEquals(ftyp.getCompatibleBrands().get(1), ImageFileFormatBrand.MIF1);
         assertEquals(ftyp.getCompatibleBrands().get(2), new Brand("mp42"));
-        assertEquals(ftyp.getCompatibleBrands().get(3), new Brand("isom"));
+        assertEquals(ftyp.getCompatibleBrands().get(3), Brand.ISOM);
         assertEquals(ftyp.getCompatibleBrands().get(4), new Brand("M4A "));
         assertEquals(ftyp.getCompatibleBrands().get(5), new Brand("miaf"));
         assertEquals(ftyp.getCompatibleBrands().get(6), new Brand("MiHA"));

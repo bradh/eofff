@@ -55,13 +55,13 @@ public class ConformanceMIAF005Test {
         assertEquals(ftyp.getMajorBrand(), ImageFileFormatBrand.MSF1);
         assertEquals(ftyp.getMinorVersion(), 0);
         assertEquals(ftyp.getCompatibleBrands().size(), 8);
-        assertEquals(ftyp.getCompatibleBrands().get(0), new Brand("heic"));
-        assertEquals(ftyp.getCompatibleBrands().get(1), new Brand("hevc"));
-        assertEquals(ftyp.getCompatibleBrands().get(2), new Brand("mif1"));
+        assertEquals(ftyp.getCompatibleBrands().get(0), ImageFileFormatBrand.HEIC);
+        assertEquals(ftyp.getCompatibleBrands().get(1), ImageFileFormatBrand.HEVC);
+        assertEquals(ftyp.getCompatibleBrands().get(2), ImageFileFormatBrand.MIF1);
         assertEquals(ftyp.getCompatibleBrands().get(3), new Brand("miaf"));
         assertEquals(ftyp.getCompatibleBrands().get(4), new Brand("MiHB"));
         assertEquals(ftyp.getCompatibleBrands().get(5), new Brand("MiAn"));
-        assertEquals(ftyp.getCompatibleBrands().get(6), new Brand("msf1"));
-        assertEquals(ftyp.getCompatibleBrands().get(7), new Brand("iso8"));
+        assertEquals(ftyp.getCompatibleBrands().get(6), ImageFileFormatBrand.MSF1);
+        assertEquals(ftyp.getCompatibleBrands().get(7), Brand.ISO8);
     }
 }

@@ -56,9 +56,9 @@ public class ConformanceC048Test {
         assertEquals(ftyp.getMinorVersion(), 0);
         assertEquals(ftyp.getCompatibleBrands().size(), 5);
         assertEquals(ftyp.getCompatibleBrands().get(0), ImageFileFormatBrand.MIF1);
-        assertEquals(ftyp.getCompatibleBrands().get(1), new Brand("msf1"));
-        assertEquals(ftyp.getCompatibleBrands().get(2), new Brand("hevx"));
-        assertEquals(ftyp.getCompatibleBrands().get(3), new Brand("heix"));
-        assertEquals(ftyp.getCompatibleBrands().get(4), new Brand("iso8"));
+        assertEquals(ftyp.getCompatibleBrands().get(1), ImageFileFormatBrand.MSF1);
+        assertEquals(ftyp.getCompatibleBrands().get(2), ImageFileFormatBrand.HEVX);
+        assertEquals(ftyp.getCompatibleBrands().get(3), ImageFileFormatBrand.HEIX);
+        assertEquals(ftyp.getCompatibleBrands().get(4), Brand.ISO8);
     }
 }

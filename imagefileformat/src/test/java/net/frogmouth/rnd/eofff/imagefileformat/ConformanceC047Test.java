@@ -59,7 +59,7 @@ public class ConformanceC047Test {
         assertEquals(ftyp.getCompatibleBrands().size(), 5);
         assertEquals(ftyp.getCompatibleBrands().get(0), ImageFileFormatBrand.MIF1);
         assertEquals(ftyp.getCompatibleBrands().get(1), new Brand("mif2"));
-        assertEquals(ftyp.getCompatibleBrands().get(2), new Brand("heix"));
+        assertEquals(ftyp.getCompatibleBrands().get(2), ImageFileFormatBrand.HEIX);
         assertEquals(ftyp.getCompatibleBrands().get(3), new Brand("miaf"));
         assertEquals(ftyp.getCompatibleBrands().get(4), new Brand("MiHA"));
     }

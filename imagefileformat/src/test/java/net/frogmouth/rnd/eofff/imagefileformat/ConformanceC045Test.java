@@ -55,12 +55,12 @@ public class ConformanceC045Test {
         assertTrue(box0 instanceof FileTypeBox);
         FileTypeBox ftyp = (FileTypeBox) box0;
         assertEquals(ftyp.getFourCC(), new FourCC("ftyp"));
-        assertEquals(ftyp.getMajorBrand(), new Brand("mif1"));
+        assertEquals(ftyp.getMajorBrand(), ImageFileFormatBrand.MIF1);
         assertEquals(ftyp.getMinorVersion(), 0);
         assertEquals(ftyp.getCompatibleBrands().size(), 5);
         assertEquals(ftyp.getCompatibleBrands().get(0), ImageFileFormatBrand.MIF1);
         assertEquals(ftyp.getCompatibleBrands().get(1), new Brand("mif2"));
-        assertEquals(ftyp.getCompatibleBrands().get(2), new Brand("heix"));
+        assertEquals(ftyp.getCompatibleBrands().get(2), ImageFileFormatBrand.HEIX);
         assertEquals(ftyp.getCompatibleBrands().get(3), new Brand("miaf"));
         assertEquals(ftyp.getCompatibleBrands().get(4), new Brand("MiHA"));
     }

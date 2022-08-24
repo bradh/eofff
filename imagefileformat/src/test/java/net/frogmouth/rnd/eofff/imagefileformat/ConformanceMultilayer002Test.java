@@ -10,7 +10,6 @@ import net.frogmouth.rnd.eofff.imagefileformat.brands.ImageFileFormatBrand;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FileParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.ftyp.Brand;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,8 +54,8 @@ public class ConformanceMultilayer002Test {
         assertEquals(ftyp.getMajorBrand(), ImageFileFormatBrand.HEIS);
         assertEquals(ftyp.getMinorVersion(), 0);
         assertEquals(ftyp.getCompatibleBrands().size(), 3);
-        assertEquals(ftyp.getCompatibleBrands().get(0), new Brand("mif1"));
-        assertEquals(ftyp.getCompatibleBrands().get(1), new Brand("heic"));
-        assertEquals(ftyp.getCompatibleBrands().get(2), new Brand("heis"));
+        assertEquals(ftyp.getCompatibleBrands().get(0), ImageFileFormatBrand.MIF1);
+        assertEquals(ftyp.getCompatibleBrands().get(1), ImageFileFormatBrand.HEIC);
+        assertEquals(ftyp.getCompatibleBrands().get(2), ImageFileFormatBrand.HEIS);
     }
 }
