@@ -12,6 +12,8 @@
     <packaging>jar</packaging>
     <properties>
         <exec.mainClass>net.frogmouth.rnd.tools.Tools</exec.mainClass>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
     <dependencies>
         <dependency>
