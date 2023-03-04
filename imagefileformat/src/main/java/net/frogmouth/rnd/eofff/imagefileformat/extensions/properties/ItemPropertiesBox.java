@@ -1,9 +1,11 @@
 package net.frogmouth.rnd.eofff.imagefileformat.extensions.properties;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
  * Item Properties Box.
@@ -17,12 +19,14 @@ import net.frogmouth.rnd.eofff.isobmff.FullBox;
  *
  * <p>Refer to ISO/IEC 23008-12:2017(E) Section 9.3 "Item Properties Box".
  */
-public class ItemPropertiesBox extends FullBox {
+public class ItemPropertiesBox extends BaseBox {
     private ItemPropertyContainerBox itemProperties;
     private final List<ItemPropertyAssociation> propertyAssociations = new ArrayList<>();
 
-    public ItemPropertiesBox(FourCC name) {
-        super(name);
+    public static FourCC IPRP_ATOM = new FourCC("iprp");
+
+    public ItemPropertiesBox() {
+        super(IPRP_ATOM);
     }
 
     @Override
@@ -44,6 +48,25 @@ public class ItemPropertiesBox extends FullBox {
 
     public void addItemPropertyAssociation(ItemPropertyAssociation association) {
         this.propertyAssociations.add(association);
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = 0;
+        size += itemProperties.getSize();
+        for (ItemPropertyAssociation propertyAssociation : propertyAssociations) {
+            size += propertyAssociation.getSize();
+        }
+        return size;
+    }
+
+    @Override
+    public void writeTo(OutputStreamWriter writer) throws IOException {
+        this.writeBoxHeader(writer);
+        itemProperties.writeTo(writer);
+        for (ItemPropertyAssociation propertyAssociation : propertyAssociations) {
+            propertyAssociation.writeTo(writer);
+        }
     }
 
     @Override

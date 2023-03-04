@@ -1,16 +1,20 @@
 package net.frogmouth.rnd.eofff.imagefileformat.extensions.properties;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class ItemPropertyContainerBox extends BaseBox {
 
-    private List<AbstractItemProperty> properties = new ArrayList<>();
+    public static FourCC IPCO_ATOM = new FourCC("ipco");
 
-    public ItemPropertyContainerBox(FourCC name) {
-        super(name);
+    private final List<AbstractItemProperty> properties = new ArrayList<>();
+
+    public ItemPropertyContainerBox() {
+        super(IPCO_ATOM);
     }
 
     @Override
@@ -24,6 +28,23 @@ public class ItemPropertyContainerBox extends BaseBox {
 
     public void addProperty(AbstractItemProperty property) {
         properties.add(property);
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = 0;
+        for (AbstractItemProperty itemProperty : properties) {
+            size += itemProperty.getSize();
+        }
+        return size;
+    }
+
+    @Override
+    public void writeTo(OutputStreamWriter writer) throws IOException {
+        this.writeBoxHeader(writer);
+        for (AbstractItemProperty itemProperty : properties) {
+            itemProperty.writeTo(writer);
+        }
     }
 
     @Override

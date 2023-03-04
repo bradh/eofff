@@ -2,13 +2,12 @@ package net.frogmouth.rnd.eofff.isobmff.stsd;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.frogmouth.rnd.eofff.isobmff.Box;
 
 public class SampleDescriptionBoxBuilder {
 
     private int version;
     private int flags;
-    private final List<Box> nestedBoxes = new ArrayList<>();
+    private final List<SampleEntry> sampleEntries = new ArrayList<>();
 
     public SampleDescriptionBoxBuilder() {}
 
@@ -22,8 +21,8 @@ public class SampleDescriptionBoxBuilder {
         return this;
     }
 
-    public SampleDescriptionBoxBuilder withNestedBox(Box box) {
-        this.nestedBoxes.add(box);
+    public SampleDescriptionBoxBuilder withNestedBox(SampleEntry box) {
+        this.sampleEntries.add(box);
         return this;
     }
 
@@ -31,7 +30,7 @@ public class SampleDescriptionBoxBuilder {
         SampleDescriptionBox box = new SampleDescriptionBox();
         box.setVersion(version);
         box.setFlags(flags);
-        box.addNestedBoxes(nestedBoxes);
+        box.addSampleEntries(sampleEntries);
         return box;
     }
 }

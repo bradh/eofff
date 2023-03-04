@@ -1,21 +1,41 @@
 package net.frogmouth.rnd.eofff.imagefileformat.extensions.properties;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class ItemPropertyAssociation extends FullBox {
-
+    public static final FourCC IPMA_ATOM = new FourCC("ipma");
     private final List<AssociationEntry> entries = new ArrayList<>();
 
-    public ItemPropertyAssociation(FourCC name) {
-        super(name);
+    public ItemPropertyAssociation() {
+        super(IPMA_ATOM);
+    }
+
+    @Override
+    public long getBodySize() {
+        int count = Integer.BYTES;
+        for (AssociationEntry entry : entries) {
+            count += entry.getSize(getVersion(), getFlags());
+        }
+        return count;
     }
 
     @Override
     public String getFullName() {
         return "ItemPropertyAssociation";
+    }
+
+    @Override
+    public void writeTo(OutputStreamWriter writer) throws IOException {
+        this.writeBoxHeader(writer);
+        writer.writeUnsignedInt32(entries.size());
+        for (AssociationEntry entry : entries) {
+            entry.writeTo(writer, getVersion(), getFlags());
+        }
     }
 
     public void addEntry(AssociationEntry entry) {

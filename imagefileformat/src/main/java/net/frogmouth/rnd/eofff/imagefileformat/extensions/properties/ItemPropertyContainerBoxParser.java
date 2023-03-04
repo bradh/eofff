@@ -14,12 +14,12 @@ public class ItemPropertyContainerBoxParser extends BoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("ipco");
+        return ItemPropertyContainerBox.IPCO_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ItemPropertyContainerBox box = new ItemPropertyContainerBox(boxName);
+        ItemPropertyContainerBox box = new ItemPropertyContainerBox();
         while (parseContext.hasRemainingUntil(initialOffset + boxSize)) {
             long initialPropertyPosition = parseContext.getCursorPosition();
             long propertyBoxSize = parseContext.readUnsignedInt32();

@@ -1,9 +1,13 @@
 package net.frogmouth.rnd.eofff.imagefileformat.properties.hevc;
 
+import java.io.IOException;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class HEVCConfigurationItemProperty extends ItemProperty {
+    public static final FourCC HVCC_ATOM = new FourCC("hvcC");
+
     private int configurationVersion;
     private int general_profile_space;
     private int general_tier_flag;
@@ -34,8 +38,21 @@ public class HEVCConfigurationItemProperty extends ItemProperty {
     	}
     }
        */
-    public HEVCConfigurationItemProperty(FourCC property) {
-        super(property);
+
+    @Override
+    public long getBodySize() {
+        // TODO: incomplete
+        return 0;
+    }
+
+    @Override
+    public void writeTo(OutputStreamWriter writer) throws IOException {
+        this.writeBoxHeader(writer);
+        // TODO: rest of box
+    }
+
+    public HEVCConfigurationItemProperty() {
+        super(HVCC_ATOM);
     }
 
     public int getConfigurationVersion() {

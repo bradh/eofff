@@ -11,13 +11,13 @@ public class HEVCConfigurationItemPropertyParser extends PropertyParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("hvcC");
+        return HEVCConfigurationItemProperty.HVCC_ATOM;
     }
 
     @Override
     public AbstractItemProperty parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        HEVCConfigurationItemProperty box = new HEVCConfigurationItemProperty(boxName);
+        HEVCConfigurationItemProperty box = new HEVCConfigurationItemProperty();
         box.setConfigurationVersion(parseContext.readByte());
         int temp = parseContext.readByte();
         box.setGeneral_profile_space((temp & 0b11000000) >> 6);

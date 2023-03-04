@@ -14,12 +14,12 @@ public class ItemPropertyAssociationParser extends FullBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("ipma");
+        return ItemPropertyAssociation.IPMA_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ItemPropertyAssociation box = new ItemPropertyAssociation(boxName);
+        ItemPropertyAssociation box = new ItemPropertyAssociation();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

@@ -2,16 +2,16 @@ package net.frogmouth.rnd.eofff.nalvideo;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import net.frogmouth.rnd.eofff.isobmff.AbstractContainerBox;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.stsd.SampleEntry;
 
 /*
  * TODO: This needs to be in an ISO 14496:15 related package
  * TODO: This need to have the VisualSampleEntry stuff refactored out
  */
-public class AVCSampleEntry extends AbstractContainerBox {
+public class AVCSampleEntry extends SampleEntry {
 
     private int dataReferenceIndex;
     private int width;

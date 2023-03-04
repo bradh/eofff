@@ -15,13 +15,13 @@ public class ImageSpatialExtentsPropertyParser extends ItemFullPropertyParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("ispe");
+        return ImageSpatialExtentsProperty.ISPE_ATOM;
     }
 
     @Override
     public AbstractItemProperty parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ImageSpatialExtentsProperty box = new ImageSpatialExtentsProperty(boxName);
+        ImageSpatialExtentsProperty box = new ImageSpatialExtentsProperty();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {

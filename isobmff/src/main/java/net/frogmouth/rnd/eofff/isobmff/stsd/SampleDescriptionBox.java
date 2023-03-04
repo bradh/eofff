@@ -17,7 +17,7 @@ public class SampleDescriptionBox extends FullBox {
 
     public static final FourCC STSD_ATOM = new FourCC("stsd");
 
-    private final List<Box> nestedBoxes = new ArrayList<>();
+    private final List<SampleEntry> nestedBoxes = new ArrayList<>();
 
     public SampleDescriptionBox() {
         super(STSD_ATOM);
@@ -32,7 +32,7 @@ public class SampleDescriptionBox extends FullBox {
     public long getBodySize() {
         long size = 0;
         size += Integer.BYTES;
-        for (Box box : nestedBoxes) {
+        for (SampleEntry box : nestedBoxes) {
             size += box.getSize();
         }
         return size;
@@ -42,7 +42,7 @@ public class SampleDescriptionBox extends FullBox {
         return new ArrayList<>(nestedBoxes);
     }
 
-    public void addNestedBoxes(List<Box> boxes) {
+    public void addSampleEntries(List<SampleEntry> boxes) {
         nestedBoxes.addAll(boxes);
     }
 

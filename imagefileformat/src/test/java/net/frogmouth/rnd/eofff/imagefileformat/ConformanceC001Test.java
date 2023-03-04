@@ -2,7 +2,9 @@ package net.frogmouth.rnd.eofff.imagefileformat;
 
 import static org.testng.Assert.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -10,6 +12,7 @@ import net.frogmouth.rnd.eofff.imagefileformat.brands.ImageFileFormatBrand;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FileParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.Brand;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBox;
@@ -17,11 +20,13 @@ import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 public class ConformanceC001Test {
     private static final Logger LOG = LoggerFactory.getLogger(ConformanceC001Test.class);
     private List<Box> boxes;
+    private byte[] originalBytes;
 
     public ConformanceC001Test() {}
 
@@ -38,6 +43,7 @@ public class ConformanceC001Test {
     @BeforeTest
     public void parseFile() throws IOException {
         Path testFile = getExample();
+        originalBytes = Files.readAllBytes(testFile);
         FileParser fileParser = new FileParser();
         boxes = fileParser.parse(testFile);
         for (Box box : boxes) {
@@ -88,5 +94,17 @@ public class ConformanceC001Test {
         assertEquals(hdlr.getReserved1(), 0);
         assertEquals(hdlr.getReserved2(), 0);
         // TODO: check more boxes
+    }
+
+    @Ignore
+    @Test
+    public void checkWrite() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        OutputStreamWriter writer = new OutputStreamWriter(baos);
+        for (Box box : boxes) {
+            box.writeTo(writer);
+        }
+        byte[] writtenBytes = baos.toByteArray();
+        assertEquals(writtenBytes, originalBytes);
     }
 }

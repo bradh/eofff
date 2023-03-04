@@ -1,15 +1,22 @@
 package net.frogmouth.rnd.eofff.imagefileformat.properties.image;
 
+import java.io.IOException;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemFullProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class ImageSpatialExtentsProperty extends ItemFullProperty {
-
+    public static final FourCC ISPE_ATOM = new FourCC("ispe");
     private long imageWidth;
     private long imageHeight;
 
-    public ImageSpatialExtentsProperty(FourCC name) {
-        super(name);
+    public ImageSpatialExtentsProperty() {
+        super(ISPE_ATOM);
+    }
+
+    @Override
+    public long getBodySize() {
+        return 2 * Integer.BYTES;
     }
 
     @Override
@@ -31,6 +38,13 @@ public class ImageSpatialExtentsProperty extends ItemFullProperty {
 
     public void setImageHeight(long imageHeight) {
         this.imageHeight = imageHeight;
+    }
+
+    @Override
+    public void writeTo(OutputStreamWriter writer) throws IOException {
+        this.writeBoxHeader(writer);
+        writer.writeUnsignedInt32(imageWidth);
+        writer.writeUnsignedInt32(imageHeight);
     }
 
     @Override

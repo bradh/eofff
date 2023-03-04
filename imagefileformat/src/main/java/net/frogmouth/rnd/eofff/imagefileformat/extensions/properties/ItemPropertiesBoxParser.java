@@ -1,25 +1,25 @@
 package net.frogmouth.rnd.eofff.imagefileformat.extensions.properties;
 
 import net.frogmouth.rnd.eofff.isobmff.Box;
+import net.frogmouth.rnd.eofff.isobmff.BoxParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ItemPropertiesBoxParser extends FullBoxParser {
+public class ItemPropertiesBoxParser extends BoxParser {
     private static final Logger LOG = LoggerFactory.getLogger(ItemPropertiesBoxParser.class);
 
     public ItemPropertiesBoxParser() {}
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("iprp");
+        return ItemPropertiesBox.IPRP_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ItemPropertiesBox box = new ItemPropertiesBox(boxName);
+        ItemPropertiesBox box = new ItemPropertiesBox();
         Box propertiesBox = parseContext.parseBox();
         if (!(propertiesBox instanceof ItemPropertyContainerBox)) {
             LOG.error(

@@ -155,7 +155,20 @@ public class MovieHeaderBox extends FullBox {
         sb.append(getFullName());
         sb.append(" '");
         sb.append(getFourCC());
-        sb.append("': TODO");
+        sb.append("': creation_time=");
+        sb.append(creationTime);
+        sb.append(", modification_time=");
+        sb.append(modificationTime);
+        sb.append(", timescale=");
+        sb.append(timescale);
+        sb.append(", duration=");
+        sb.append(duration);
+        sb.append(", rate=");
+        sb.append(rate);
+        sb.append(", volume=");
+        sb.append(volume);
+        sb.append(", next_track_id=");
+        sb.append(nextTrackId);
         return sb.toString();
     }
 }

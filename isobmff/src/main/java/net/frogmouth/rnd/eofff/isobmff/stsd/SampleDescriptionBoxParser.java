@@ -1,5 +1,7 @@
 package net.frogmouth.rnd.eofff.isobmff.stsd;
 
+import java.util.ArrayList;
+import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
@@ -29,7 +31,20 @@ public class SampleDescriptionBoxParser extends FullBoxParser {
         }
         box.setFlags(parseFlags(parseContext));
         long entryCount = parseContext.readUnsignedInt32();
-        box.addNestedBoxes(parseContext.parseNestedBoxes(initialOffset + boxSize));
+        List<Box> nestedBoxes = parseContext.parseNestedBoxes(initialOffset + boxSize);
+        List<SampleEntry> sampleEntries = new ArrayList<>();
+        for (Box nestedBox : nestedBoxes) {
+            if (nestedBox instanceof SampleEntry) {
+                sampleEntries.add((SampleEntry) nestedBox);
+            } else {
+                LOG.warn(
+                        "expected nested box to be a SampleEntry: "
+                                + nestedBox.getFullName()
+                                + ", "
+                                + nestedBox.getFourCC().toString());
+            }
+        }
+        box.addSampleEntries(sampleEntries);
         return box;
     }
 

@@ -1,12 +1,14 @@
 package net.frogmouth.rnd.eofff.isobmff.stsd;
 
-import net.frogmouth.rnd.eofff.isobmff.AbstractContainerBoxBuilder;
+import java.util.ArrayList;
+import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
-public class URIMetaSampleEntryBuilder extends AbstractContainerBoxBuilder<URIMetaSampleEntry> {
+public class URIMetaSampleEntryBuilder {
 
     private int dataReferenceIndex;
+    private final List<Box> nestedBoxes = new ArrayList<>();
 
     public URIMetaSampleEntryBuilder() {}
 
@@ -15,7 +17,11 @@ public class URIMetaSampleEntryBuilder extends AbstractContainerBoxBuilder<URIMe
         return this;
     }
 
-    @Override
+    public URIMetaSampleEntryBuilder withNestedBox(Box box) {
+        this.nestedBoxes.add(box);
+        return this;
+    }
+
     public URIMetaSampleEntry build() {
         int size = Integer.BYTES + FourCC.BYTES;
         size += 6 * Byte.BYTES;
