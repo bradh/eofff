@@ -17,6 +17,10 @@ public class FourCC {
         integerCode = ByteBuffer.wrap(bytes).getInt();
     }
 
+    public long asUnsigned() {
+        return integerCode & 0x0FFFFFFFFl;
+    }
+
     @Override
     public String toString() {
         ByteBuffer bb = ByteBuffer.allocate(Integer.BYTES);

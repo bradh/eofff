@@ -7,10 +7,11 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class MediaDataBox extends BaseBox {
 
+    public static final FourCC MDAT_ATOM = new FourCC("mdat");
     private byte[] data;
 
-    public MediaDataBox(FourCC name) {
-        super(name);
+    public MediaDataBox() {
+        super(MDAT_ATOM);
     }
 
     @Override

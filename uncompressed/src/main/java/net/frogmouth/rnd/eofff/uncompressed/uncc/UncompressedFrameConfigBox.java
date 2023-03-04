@@ -3,8 +3,8 @@ package net.frogmouth.rnd.eofff.uncompressed.uncc;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemFullProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
@@ -12,7 +12,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  *
  * <p>See ISO/IEC 23001-17 (DIS) Section 5.2.2.
  */
-public class UncompressedFrameConfigBox extends FullBox {
+public class UncompressedFrameConfigBox extends ItemFullProperty {
 
     public static final FourCC UNCC_ATOM = new FourCC("uncC");
 

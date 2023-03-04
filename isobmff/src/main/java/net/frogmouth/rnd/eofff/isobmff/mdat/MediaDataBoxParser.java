@@ -11,12 +11,12 @@ public class MediaDataBoxParser extends BoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("mdat");
+        return MediaDataBox.MDAT_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        MediaDataBox box = new MediaDataBox(boxName);
+        MediaDataBox box = new MediaDataBox();
         // box.setDataOffset(parseContext.getCursorPosition());
         //  box.setDataLength(initialOffset + boxSize - parseContext.getCursorPosition());
         byte[] data =
