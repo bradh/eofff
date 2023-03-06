@@ -4,14 +4,12 @@ import static org.testng.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
-import net.frogmouth.rnd.eofff.isobmff.Box;
-import net.frogmouth.rnd.eofff.isobmff.ByteArrayParser;
+import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import org.testng.annotations.Test;
 
 /** Unit tests for ComponentDefinitionBox. */
-public class ComponentDefinitionBoxTest {
+public class ComponentDefinitionBoxTest extends PropertyTestSupport {
     private static final byte[] CMPD_BYTES_NO_STRING =
             new byte[] {
                 0x00, 0x00, 0x00, 0x10, 0x63, 0x6d, 0x70, 0x64, 0x00, 0x03, 0x00, 0x04, 0x00, 0x06,
@@ -20,12 +18,9 @@ public class ComponentDefinitionBoxTest {
 
     @Test
     public void checkParseNoString() throws IOException {
-        ByteArrayParser parser = new ByteArrayParser();
-        List<Box> boxes = parser.parse(CMPD_BYTES_NO_STRING);
-        assertEquals(boxes.size(), 1);
-        Box box = boxes.get(0);
-        assertTrue(box instanceof ComponentDefinitionBox);
-        ComponentDefinitionBox cmpd = (ComponentDefinitionBox) box;
+        AbstractItemProperty prop = parseBytesToSingleProperty(CMPD_BYTES_NO_STRING);
+        assertTrue(prop instanceof ComponentDefinitionBox);
+        ComponentDefinitionBox cmpd = (ComponentDefinitionBox) prop;
         assertTrue(cmpd.getFourCC().toString().equals("cmpd"));
         assertEquals(cmpd.getComponentDefinitions().size(), 3);
         ComponentDefinition defn0 = cmpd.getComponentDefinitions().get(0);
