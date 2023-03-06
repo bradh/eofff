@@ -8,8 +8,9 @@ module net.frogmouth.rnd.eofff.uncompressed {
 
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
             net.frogmouth.rnd.eofff.uncompressed.cloc.ChromaLocationBoxParser,
+            net.frogmouth.rnd.eofff.uncompressed.sbpm.SensorBadPixelsMapBoxParser;
+    provides net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser with
             net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBoxParser,
-            net.frogmouth.rnd.eofff.uncompressed.sbpm.SensorBadPixelsMapBoxParser,
             net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBoxParser;
 
     exports net.frogmouth.rnd.eofff.uncompressed.cloc;

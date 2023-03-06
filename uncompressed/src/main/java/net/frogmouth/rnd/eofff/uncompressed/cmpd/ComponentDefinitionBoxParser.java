@@ -1,12 +1,12 @@
 package net.frogmouth.rnd.eofff.uncompressed.cmpd;
 
-import net.frogmouth.rnd.eofff.isobmff.BaseBoxParser;
+import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ComponentDefinitionBoxParser extends BaseBoxParser {
+public class ComponentDefinitionBoxParser extends PropertyParser {
     private static final Logger LOG = LoggerFactory.getLogger(ComponentDefinitionBoxParser.class);
 
     public ComponentDefinitionBoxParser() {}

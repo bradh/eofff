@@ -1,13 +1,13 @@
 package net.frogmouth.rnd.eofff.uncompressed.uncc;
 
-import net.frogmouth.rnd.eofff.isobmff.Box;
+import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
+import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UncompressedFrameConfigBoxParser extends FullBoxParser {
+public class UncompressedFrameConfigBoxParser extends PropertyParser {
     private static final Logger LOG =
             LoggerFactory.getLogger(UncompressedFrameConfigBoxParser.class);
 
@@ -19,13 +19,14 @@ public class UncompressedFrameConfigBoxParser extends FullBoxParser {
     }
 
     @Override
-    public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
+    public AbstractItemProperty parse(
+            ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
         UncompressedFrameConfigBox box = new UncompressedFrameConfigBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
             LOG.warn("Got unsupported version {}, parsing as base box.", version);
-            return parseAsBaseBox(parseContext, initialOffset, boxSize, boxName);
+            return null;
         }
         box.setFlags(parseFlags(parseContext));
         FourCC profile = parseContext.readFourCC();
@@ -63,5 +64,11 @@ public class UncompressedFrameConfigBoxParser extends FullBoxParser {
 
     private boolean isSupportedVersion(int version) {
         return (version == 0x00);
+    }
+
+    protected int parseFlags(ParseContext parseContext) {
+        byte[] flags = new byte[3];
+        parseContext.readBytes(flags);
+        return ((flags[0] & 0xFF) << 16) | ((flags[1] & 0xFF) << 8) | (flags[2] & 0xFF);
     }
 }

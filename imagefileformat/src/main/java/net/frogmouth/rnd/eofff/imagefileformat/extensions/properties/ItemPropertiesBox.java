@@ -50,6 +50,22 @@ public class ItemPropertiesBox extends BaseBox {
         this.propertyAssociations.add(association);
     }
 
+    public List<AbstractItemProperty> getPropertiesForItem(long itemId) {
+        List<AbstractItemProperty> properties = new ArrayList<>();
+        for (ItemPropertyAssociation association : propertyAssociations) {
+            for (AssociationEntry associationEntry : association.getEntries()) {
+                if (associationEntry.getItemId() == itemId) {
+                    for (PropertyAssociation propertyAssociation :
+                            associationEntry.getAssociations()) {
+                        int index = propertyAssociation.getPropertyIndex();
+                        properties.add(itemProperties.getProperties().get(index));
+                    }
+                }
+            }
+        }
+        return properties;
+    }
+
     @Override
     public long getBodySize() {
         long size = 0;
