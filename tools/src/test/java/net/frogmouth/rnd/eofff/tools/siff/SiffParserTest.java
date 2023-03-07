@@ -31,6 +31,9 @@ import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
+import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
+import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
+import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,97 +76,82 @@ public class SiffParserTest {
                 (ItemPropertiesBox) findChildBox(meta, ItemPropertiesBox.IPRP_ATOM);
         List<AbstractItemProperty> properties = iprp.getPropertiesForItem(primaryItemId);
         System.out.println("properties: " + properties);
-        int width = 0;
-        int height = 0;
-        FourCC profile = null;
+
+        ImageSpatialExtentsProperty ispe = null;
+        UncompressedFrameConfigBox uncC = null;
+        ComponentDefinitionBox cmpd = null;
         for (AbstractItemProperty prop : properties) {
-            if (prop instanceof ImageSpatialExtentsProperty ispe) {
-                height = (int) ispe.getImageHeight();
-                width = (int) ispe.getImageWidth();
+            if (prop instanceof ImageSpatialExtentsProperty box) {
+                ispe = box;
             }
-            if (prop instanceof UncompressedFrameConfigBox uncC) {
-                profile = uncC.getProfile();
+            if (prop instanceof UncompressedFrameConfigBox box) {
+                uncC = box;
+            }
+            if (prop instanceof ComponentDefinitionBox box) {
+                cmpd = box;
             }
         }
 
-        if ((width > 0) && (height > 0)) {
-            if (profile != null) {
-                byte[] data = getData(boxes);
-                if (profile.equals(new FourCC("rgb3"))) {
-                    DataBuffer dataBuffer = new DataBufferByte(data, data.length);
-                    PixelInterleavedSampleModel sampleModel =
-                            new PixelInterleavedSampleModel(
-                                    DataBuffer.TYPE_BYTE,
-                                    width,
-                                    height,
-                                    3,
-                                    3 * width,
-                                    new int[] {0, 1, 2});
-                    WritableRaster raster =
-                            Raster.createWritableRaster(sampleModel, dataBuffer, (Point) null);
-                    ColorModel colourModel =
-                            new ComponentColorModel(
-                                    ColorSpace.getInstance(ColorSpace.CS_sRGB),
-                                    false,
-                                    true,
-                                    Transparency.OPAQUE,
-                                    DataBuffer.TYPE_BYTE);
-                    BufferedImage target = new BufferedImage(colourModel, raster, true, null);
-                    File outputFile = new File(outputPath);
-                    ImageIO.write(target, "PNG", outputFile);
-                } else if (profile.equals(new FourCC("rgba"))) {
-                    DataBuffer dataBuffer = new DataBufferByte(data, data.length);
-                    PixelInterleavedSampleModel sampleModel =
-                            new PixelInterleavedSampleModel(
-                                    DataBuffer.TYPE_BYTE,
-                                    width,
-                                    height,
-                                    4,
-                                    4 * width,
-                                    new int[] {0, 1, 2});
-                    WritableRaster raster =
-                            Raster.createWritableRaster(sampleModel, dataBuffer, (Point) null);
-                    ColorModel colourModel =
-                            new ComponentColorModel(
-                                    ColorSpace.getInstance(ColorSpace.CS_sRGB),
-                                    false,
-                                    true,
-                                    Transparency.OPAQUE,
-                                    DataBuffer.TYPE_BYTE);
-                    BufferedImage target = new BufferedImage(colourModel, raster, true, null);
-                    File outputFile = new File(outputPath);
-                    ImageIO.write(target, "PNG", outputFile);
-                } else if (profile.equals(new FourCC("abgr"))) {
-                    DataBuffer dataBuffer = new DataBufferByte(data, data.length);
-                    PixelInterleavedSampleModel sampleModel =
-                            new PixelInterleavedSampleModel(
-                                    DataBuffer.TYPE_BYTE,
-                                    width,
-                                    height,
-                                    4,
-                                    4 * width,
-                                    new int[] {3, 2, 1});
-                    WritableRaster raster =
-                            Raster.createWritableRaster(sampleModel, dataBuffer, (Point) null);
-                    ColorModel colourModel =
-                            new ComponentColorModel(
-                                    ColorSpace.getInstance(ColorSpace.CS_sRGB),
-                                    false,
-                                    true,
-                                    Transparency.OPAQUE,
-                                    DataBuffer.TYPE_BYTE);
-                    BufferedImage target = new BufferedImage(colourModel, raster, true, null);
-                    File outputFile = new File(outputPath);
-                    ImageIO.write(target, "PNG", outputFile);
-                } else {
-                    fail("unsupported profile: " + profile.toString());
-                }
+        if ((ispe != null) && (uncC != null) && (cmpd != null)) {
+            int width = (int) ispe.getImageWidth();
+            int height = (int) ispe.getImageHeight();
+            FourCC profile = uncC.getProfile();
+            int pixelStride = getPixelStride(uncC);
+            int rowStride = getRowStride(uncC, ispe);
+            byte[] data = getData(boxes);
+            boolean alphaIsPremultiplied = true;
+            boolean hasAlpha = getHasAlpha(uncC, cmpd);
+
+            int[] bandOffset = getBandOffsetsRGBA(uncC, cmpd);
+            if (profile.equals(new FourCC("rgb3"))
+                    || profile.equals(new FourCC("rgba"))
+                    || profile.equals(new FourCC("abgr"))) {
+                ColorModel colourModel =
+                        new ComponentColorModel(
+                                ColorSpace.getInstance(ColorSpace.CS_sRGB),
+                                hasAlpha,
+                                alphaIsPremultiplied,
+                                hasAlpha ? Transparency.TRANSLUCENT : Transparency.OPAQUE,
+                                DataBuffer.TYPE_BYTE);
+                BufferedImage target =
+                        buildBufferedImage(
+                                data,
+                                width,
+                                height,
+                                pixelStride,
+                                rowStride,
+                                bandOffset,
+                                colourModel);
+                writeOutput(outputPath, target);
             } else {
-                fail("missing uncC or profile");
+                fail("unsupported profile: " + profile.toString());
             }
         } else {
-            fail("missing ispe width or height");
+            fail("missing ispe, uncC or cmpd");
         }
+    }
+
+    private BufferedImage buildBufferedImage(
+            byte[] data,
+            int width,
+            int height,
+            int pixelStride,
+            int rowStride,
+            int[] bandOffset,
+            ColorModel colourModel) {
+        DataBuffer dataBuffer = new DataBufferByte(data, data.length);
+        PixelInterleavedSampleModel sampleModel =
+                new PixelInterleavedSampleModel(
+                        DataBuffer.TYPE_BYTE, width, height, pixelStride, rowStride, bandOffset);
+        WritableRaster raster = Raster.createWritableRaster(sampleModel, dataBuffer, (Point) null);
+
+        BufferedImage target = new BufferedImage(colourModel, raster, true, null);
+        return target;
+    }
+
+    private void writeOutput(String outputPath, BufferedImage target) throws IOException {
+        File outputFile = new File(outputPath);
+        ImageIO.write(target, "PNG", outputFile);
     }
 
     private static Box findBox(AbstractContainerBox parent, String... fourCCs) {
@@ -214,5 +202,55 @@ public class SiffParserTest {
         MediaDataBox mdat = (MediaDataBox) getTopLevelBoxByFourCC(boxes, "mdat");
         // TODO: we need to do the construction properly, off what is in iloc
         return mdat.getData();
+    }
+
+    private int getPixelStride(UncompressedFrameConfigBox uncC) {
+        // TODO: this will need more work.
+        return uncC.getComponents().size();
+    }
+
+    private int getRowStride(UncompressedFrameConfigBox uncC, ImageSpatialExtentsProperty ispe) {
+        return getPixelStride(uncC) * (int) ispe.getImageWidth();
+    }
+
+    private boolean getHasAlpha(UncompressedFrameConfigBox uncC, ComponentDefinitionBox cmpd) {
+        return uncC.getComponents().stream()
+                .map(component -> component.getComponentIndex())
+                .map(index -> cmpd.getComponentDefinitions().get(index).getComponentType())
+                .anyMatch(component_type -> (component_type == 7));
+    }
+
+    private int[] getBandOffsetsRGBA(UncompressedFrameConfigBox uncC, ComponentDefinitionBox cmpd) {
+        int[] bandOffsets;
+        if (getHasAlpha(uncC, cmpd)) {
+            bandOffsets = new int[4];
+        } else {
+            bandOffsets = new int[3];
+        }
+        for (int i = 0; i < uncC.getComponents().size(); i++) {
+            Component component = uncC.getComponents().get(i);
+            int component_index = component.getComponentIndex();
+            ComponentDefinition componentDefinition =
+                    cmpd.getComponentDefinitions().get(component_index);
+            switch (componentDefinition.getComponentType()) {
+                case 4:
+                    bandOffsets[0] = i;
+                    break;
+                case 5:
+                    bandOffsets[1] = i;
+                    break;
+                case 6:
+                    bandOffsets[2] = i;
+                    break;
+                case 7:
+                    bandOffsets[3] = i;
+                    break;
+                default:
+                    LOG.info(
+                            "got unexpected band component definition:"
+                                    + componentDefinition.getComponentType());
+            }
+        }
+        return bandOffsets;
     }
 }
