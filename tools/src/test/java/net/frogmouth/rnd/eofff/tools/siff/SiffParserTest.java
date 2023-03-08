@@ -5,6 +5,7 @@ import static org.testng.Assert.*;
 import java.awt.Point;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
+import java.awt.image.BandedSampleModel;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
@@ -12,6 +13,7 @@ import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.PixelInterleavedSampleModel;
 import java.awt.image.Raster;
+import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
@@ -23,12 +25,14 @@ import javax.imageio.ImageIO;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertiesBox;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageSpatialExtentsProperty;
-import net.frogmouth.rnd.eofff.isobmff.AbstractContainerBox;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FileParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
+import net.frogmouth.rnd.eofff.isobmff.iloc.ILocItem;
+import net.frogmouth.rnd.eofff.isobmff.iloc.ItemLocationBox;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
+import net.frogmouth.rnd.eofff.isobmff.meta.ILocExtent;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
@@ -50,17 +54,27 @@ public class SiffParserTest {
 
     @Test
     public void parse_rgb3() throws IOException {
-        convertToPNG("test_siff_rgb3.mp4", "siff_rgb3.png");
+        convertToPNG("test_siff_rgb3.mp4", "test_siff_rgb3.png");
+    }
+
+    @Test
+    public void parse_bgr() throws IOException {
+        convertToPNG("test_siff_bgr.mp4", "test_siff_bgr.png");
     }
 
     @Test
     public void parse_rgba() throws IOException {
-        convertToPNG("test_siff_rgba.mp4", "siff_rgba.png");
+        convertToPNG("test_siff_rgba.mp4", "test_siff_rgba.png");
     }
 
     @Test
     public void parse_abgr() throws IOException {
-        convertToPNG("test_siff_abgr.mp4", "siff_abgr.png");
+        convertToPNG("test_siff_abgr.mp4", "test_siff_abgr.png");
+    }
+
+    @Test
+    public void parse_rgb_component() throws IOException {
+        convertToPNG("test_siff_rgb_component.mp4", "test_siff_rgb_component.png");
     }
 
     private void convertToPNG(String inputPath, String outputPath) throws IOException {
@@ -93,36 +107,41 @@ public class SiffParserTest {
         }
 
         if ((ispe != null) && (uncC != null) && (cmpd != null)) {
-            int width = (int) ispe.getImageWidth();
-            int height = (int) ispe.getImageHeight();
             FourCC profile = uncC.getProfile();
-            int pixelStride = getPixelStride(uncC);
-            int rowStride = getRowStride(uncC, ispe);
-            byte[] data = getData(boxes);
-            boolean alphaIsPremultiplied = true;
-            boolean hasAlpha = getHasAlpha(uncC, cmpd);
+            byte[] data = getData(boxes, primaryItemId);
 
-            int[] bandOffset = getBandOffsetsRGBA(uncC, cmpd);
             if (profile.equals(new FourCC("rgb3"))
                     || profile.equals(new FourCC("rgba"))
                     || profile.equals(new FourCC("abgr"))) {
-                ColorModel colourModel =
-                        new ComponentColorModel(
-                                ColorSpace.getInstance(ColorSpace.CS_sRGB),
-                                hasAlpha,
-                                alphaIsPremultiplied,
-                                hasAlpha ? Transparency.TRANSLUCENT : Transparency.OPAQUE,
-                                DataBuffer.TYPE_BYTE);
-                BufferedImage target =
-                        buildBufferedImage(
-                                data,
-                                width,
-                                height,
-                                pixelStride,
-                                rowStride,
-                                bandOffset,
-                                colourModel);
+                SampleModel sampleModel = getSampleModel(uncC, cmpd, ispe);
+                ColorModel colourModel = getColourModel(uncC, cmpd);
+                BufferedImage target = buildBufferedImage(data, sampleModel, colourModel);
                 writeOutput(outputPath, target);
+            } else if (profile.equals(new FourCC("gene"))) {
+                // we need to check more cases
+                SampleModel sampleModel = getSampleModel(uncC, cmpd, ispe);
+                ColorModel colourModel = getColourModel(uncC, cmpd);
+                if ((sampleModel != null) && (colourModel != null)) {
+                    switch (uncC.getInterleaveType()) {
+                        case 0:
+                            {
+                                BufferedImage target =
+                                        buildBufferedImageBanded(data, sampleModel, colourModel);
+                                writeOutput(outputPath, target);
+                                break;
+                            }
+                        case 1:
+                            {
+                                BufferedImage target =
+                                        buildBufferedImage(data, sampleModel, colourModel);
+                                writeOutput(outputPath, target);
+                                break;
+                            }
+                        default:
+                            fail("unsupported interleave type");
+                            break;
+                    }
+                }
             } else {
                 fail("unsupported profile: " + profile.toString());
             }
@@ -131,20 +150,74 @@ public class SiffParserTest {
         }
     }
 
-    private BufferedImage buildBufferedImage(
-            byte[] data,
-            int width,
-            int height,
-            int pixelStride,
-            int rowStride,
-            int[] bandOffset,
-            ColorModel colourModel) {
-        DataBuffer dataBuffer = new DataBufferByte(data, data.length);
-        PixelInterleavedSampleModel sampleModel =
-                new PixelInterleavedSampleModel(
-                        DataBuffer.TYPE_BYTE, width, height, pixelStride, rowStride, bandOffset);
-        WritableRaster raster = Raster.createWritableRaster(sampleModel, dataBuffer, (Point) null);
+    private SampleModel getSampleModel(
+            UncompressedFrameConfigBox uncC,
+            ComponentDefinitionBox cmpd,
+            ImageSpatialExtentsProperty ispe) {
+        int width = (int) ispe.getImageWidth();
+        int height = (int) ispe.getImageHeight();
+        int pixelStride = getPixelStride(uncC);
+        int rowStride = getRowStride(uncC, ispe);
+        switch (uncC.getInterleaveType()) {
+            case 0:
+                // TODO: don't hard code number of bands
+                SampleModel bandedSampleModel =
+                        new BandedSampleModel(DataBuffer.TYPE_BYTE, width, height, 3);
+                return bandedSampleModel;
+            case 1:
+                int[] bandOffsets = getBandOffsetsRGBA(uncC, cmpd);
+                if (bandOffsetsAreValid(bandOffsets)) {
+                    SampleModel pixelInterleavedComponentModel =
+                            new PixelInterleavedSampleModel(
+                                    DataBuffer.TYPE_BYTE,
+                                    width,
+                                    height,
+                                    pixelStride,
+                                    rowStride,
+                                    bandOffsets);
+                    return pixelInterleavedComponentModel;
 
+                } else {
+                    return null;
+                }
+
+            default:
+                return null;
+        }
+    }
+
+    private ColorModel getColourModel(
+            UncompressedFrameConfigBox uncC, ComponentDefinitionBox cmpd) {
+        boolean alphaIsPremultiplied = true;
+        boolean hasAlpha = getHasAlpha(uncC, cmpd);
+        ColorModel colourModel =
+                new ComponentColorModel(
+                        ColorSpace.getInstance(ColorSpace.CS_sRGB),
+                        hasAlpha,
+                        alphaIsPremultiplied,
+                        hasAlpha ? Transparency.TRANSLUCENT : Transparency.OPAQUE,
+                        DataBuffer.TYPE_BYTE);
+        return colourModel;
+    }
+
+    private BufferedImage buildBufferedImage(
+            byte[] data, SampleModel sampleModel, ColorModel colourModel) {
+        DataBuffer dataBuffer = new DataBufferByte(data, data.length);
+        WritableRaster raster = Raster.createWritableRaster(sampleModel, dataBuffer, (Point) null);
+        BufferedImage target = new BufferedImage(colourModel, raster, true, null);
+        return target;
+    }
+
+    private BufferedImage buildBufferedImageBanded(
+            byte[] data, SampleModel sampleModel, ColorModel colourModel) {
+        int numBanks = 3;
+        int lengthOfBank = data.length / numBanks;
+        byte[][] bankData = new byte[numBanks][lengthOfBank];
+        for (int bankIndex = 0; bankIndex < numBanks; bankIndex++) {
+            System.arraycopy(data, bankIndex * lengthOfBank, bankData[bankIndex], 0, lengthOfBank);
+        }
+        DataBufferByte dataBuffer = new DataBufferByte(bankData, lengthOfBank);
+        WritableRaster raster = Raster.createWritableRaster(sampleModel, dataBuffer, (Point) null);
         BufferedImage target = new BufferedImage(colourModel, raster, true, null);
         return target;
     }
@@ -154,35 +227,12 @@ public class SiffParserTest {
         ImageIO.write(target, "PNG", outputFile);
     }
 
-    private static Box findBox(AbstractContainerBox parent, String... fourCCs) {
-        Box child = null;
-        for (String fourCC : fourCCs) {
-            child = findChildBox(parent, fourCC);
-            if (child instanceof AbstractContainerBox abstractContainerBox) {
-                parent = abstractContainerBox;
-            }
-        }
-        return child;
-    }
-
     private static Box findChildBox(MetaBox parent, FourCC fourCC) {
         if (parent == null) {
             return null;
         }
         for (Box box : parent.getNestedBoxes()) {
             if (box.getFourCC().equals(fourCC)) {
-                return box;
-            }
-        }
-        return null;
-    }
-
-    private static Box findChildBox(AbstractContainerBox parent, String fourCC) {
-        if (parent == null) {
-            return null;
-        }
-        for (Box box : parent.getNestedBoxes()) {
-            if (box.getFourCC().equals(new FourCC(fourCC))) {
                 return box;
             }
         }
@@ -198,10 +248,28 @@ public class SiffParserTest {
         return null;
     }
 
-    private byte[] getData(List<Box> boxes) {
+    private byte[] getData(List<Box> boxes, long primaryItemId) {
         MediaDataBox mdat = (MediaDataBox) getTopLevelBoxByFourCC(boxes, "mdat");
-        // TODO: we need to do the construction properly, off what is in iloc
-        return mdat.getData();
+        MetaBox meta = (MetaBox) getTopLevelBoxByFourCC(boxes, "meta");
+        ItemLocationBox iloc = (ItemLocationBox) findChildBox(meta, new FourCC("iloc"));
+        for (ILocItem item : iloc.getItems()) {
+            if (primaryItemId == item.getItemId()) {
+                // TODO: we need to do the construction properly, off what is in iloc
+                List<ILocExtent> extents = item.getExtents();
+                if (extents.size() != 1) {
+                    // TODO: need to handle split extent
+                    fail("multiple extents is not yet handled");
+                }
+                ILocExtent ilocExtent = extents.get(0);
+                long startOffset = ilocExtent.getExtentOffset();
+                int length = (int) ilocExtent.getExtentLength();
+                int dataOffset = (int) (startOffset - mdat.getInitialOffset());
+                byte[] data = new byte[length];
+                System.arraycopy(mdat.getData(), dataOffset, data, 0, length);
+                return data;
+            }
+        }
+        return null;
     }
 
     private int getPixelStride(UncompressedFrameConfigBox uncC) {
@@ -223,9 +291,9 @@ public class SiffParserTest {
     private int[] getBandOffsetsRGBA(UncompressedFrameConfigBox uncC, ComponentDefinitionBox cmpd) {
         int[] bandOffsets;
         if (getHasAlpha(uncC, cmpd)) {
-            bandOffsets = new int[4];
+            bandOffsets = new int[] {-1, -1, -1, -1};
         } else {
-            bandOffsets = new int[3];
+            bandOffsets = new int[] {-1, -1, -1};
         }
         for (int i = 0; i < uncC.getComponents().size(); i++) {
             Component component = uncC.getComponents().get(i);
@@ -252,5 +320,14 @@ public class SiffParserTest {
             }
         }
         return bandOffsets;
+    }
+
+    private boolean bandOffsetsAreValid(int[] bandOffsets) {
+        for (int bandOffset : bandOffsets) {
+            if (bandOffset < 0) {
+                return false;
+            }
+        }
+        return true;
     }
 }

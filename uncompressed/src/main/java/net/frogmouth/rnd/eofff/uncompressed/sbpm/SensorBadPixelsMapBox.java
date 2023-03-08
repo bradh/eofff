@@ -17,6 +17,9 @@ public class SensorBadPixelsMapBox extends FullBox {
     public static final FourCC SBPM_ATOM = new FourCC("sbpm");
     private final List<Integer> componentIndexes = new ArrayList<>();
     private boolean correctionApplied;
+    private List<Long> badRows = new ArrayList<>();
+    private List<Long> badColumns = new ArrayList<>();
+    private List<PixelCoordinate> badPixels = new ArrayList<>();
 
     public SensorBadPixelsMapBox() {
         super(SBPM_ATOM);
@@ -33,8 +36,14 @@ public class SensorBadPixelsMapBox extends FullBox {
         sb.append(getFullName());
         sb.append(" '");
         sb.append(getFourCC());
-        sb.append("':");
-        // TODO
+        sb.append("': corrections applied: ");
+        sb.append(this.correctionApplied ? "true" : "false");
+        sb.append(", bad rows: ");
+        sb.append(this.badRows.toString());
+        sb.append(", bad columns: ");
+        sb.append(this.badColumns.toString());
+        sb.append(", bad pixels: ");
+        sb.append(this.badPixels.toString());
         return sb.toString();
     }
 
@@ -44,6 +53,12 @@ public class SensorBadPixelsMapBox extends FullBox {
         count += Short.BYTES;
         count += (this.componentIndexes.size() * Short.BYTES);
         count += Byte.BYTES;
+        count += Integer.BYTES;
+        count += Integer.BYTES;
+        count += Integer.BYTES;
+        count += (Integer.BYTES * this.badRows.size());
+        count += (Integer.BYTES * this.badColumns.size());
+        count += (2 * Integer.BYTES * this.badPixels.size());
         return count;
     }
 
@@ -55,6 +70,19 @@ public class SensorBadPixelsMapBox extends FullBox {
             stream.writeUnsignedInt16(this.componentIndexes.get(i));
         }
         stream.writeByte(correctionApplied ? (byte) 0x80 : 0x00);
+        stream.writeUnsignedInt32(badRows.size());
+        stream.writeUnsignedInt32(badColumns.size());
+        stream.writeUnsignedInt32(badPixels.size());
+        for (Long row : badRows) {
+            stream.writeUnsignedInt32(row);
+        }
+        for (Long column : badColumns) {
+            stream.writeUnsignedInt32(column);
+        }
+        for (PixelCoordinate pixelCoordinate : badPixels) {
+            stream.writeUnsignedInt32(pixelCoordinate.row());
+            stream.writeUnsignedInt32(pixelCoordinate.column());
+        }
     }
 
     public List<Integer> getComponentIndexes() {
@@ -71,5 +99,29 @@ public class SensorBadPixelsMapBox extends FullBox {
 
     public void setCorrectionApplied(boolean correctionApplied) {
         this.correctionApplied = correctionApplied;
+    }
+
+    public List<Long> getBadRows() {
+        return badRows;
+    }
+
+    public void addBadRow(long badRow) {
+        this.badRows.add(badRow);
+    }
+
+    public List<Long> getBadColumns() {
+        return badColumns;
+    }
+
+    public void addBadColumn(long badColumn) {
+        this.badColumns.add(badColumn);
+    }
+
+    public List<PixelCoordinate> getBadPixels() {
+        return badPixels;
+    }
+
+    public void addBadPixel(PixelCoordinate badPixel) {
+        this.badPixels.add(badPixel);
     }
 }

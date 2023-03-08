@@ -76,6 +76,7 @@ public class UncompressedFrameConfigBoxTest extends PropertyTestSupport {
         assertTrue(prop instanceof UncompressedFrameConfigBox);
         UncompressedFrameConfigBox uncc = (UncompressedFrameConfigBox) prop;
         assertTrue(uncc.getFourCC().toString().equals("uncC"));
+        assertEquals(uncc.getFullName(), "UncompressedFrameConfigBox");
         assertEquals(uncc.getProfile(), new FourCC("rgb3"));
         assertEquals(uncc.getComponents().size(), 3);
         assertEquals(uncc.getComponents().get(0).getComponentIndex(), 0);
@@ -94,6 +95,7 @@ public class UncompressedFrameConfigBoxTest extends PropertyTestSupport {
         assertEquals(uncc.getTileAlignSize(), 7);
         assertEquals(uncc.getNumTileColumnsMinusOne(), 255);
         assertEquals(uncc.getNumTileRowsMinusOne(), 127);
+        assertEquals(uncc.toString(), "UncompressedFrameConfigBox 'uncC':");
     }
 
     @Test

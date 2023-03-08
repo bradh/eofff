@@ -51,7 +51,7 @@ public class ComponentDefinition {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("component=");
+        sb.append(" component=");
         sb.append(getComponentTypeDescription());
         sb.append(" (");
         sb.append(componentType);

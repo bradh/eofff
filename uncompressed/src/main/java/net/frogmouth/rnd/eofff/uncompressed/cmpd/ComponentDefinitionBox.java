@@ -60,14 +60,13 @@ public class ComponentDefinitionBox extends ItemProperty {
         sb.append(getFullName());
         sb.append(" '");
         sb.append(getFourCC());
-        sb.append("': ");
+        sb.append("':");
         List<String> components = new ArrayList<>();
         this.componentDefinitions.forEach(
                 definition -> {
                     components.add(definition.toString());
                 });
         sb.append(String.join(",", components));
-        sb.append("'");
         return sb.toString();
     }
 }

@@ -25,18 +25,36 @@ public class ChromaLocationBoxTest {
         Box box = boxes.get(0);
         assertTrue(box instanceof ChromaLocationBox);
         ChromaLocationBox cloc = (ChromaLocationBox) box;
+        assertEquals(cloc.getFullName(), "ChromaLocationBox");
         assertTrue(cloc.getFourCC().toString().equals("cloc"));
         assertEquals(cloc.getChromaLocation(), 2);
+        assertEquals(cloc.toString(), "ChromaLocationBox 'cloc':2");
     }
 
     @Test
     public void checkWrite() throws IOException {
         ChromaLocationBox box = new ChromaLocationBox();
         box.setChromaLocation(2);
+        assertEquals(box.getFullName(), "ChromaLocationBox");
+        assertEquals(box.toString(), "ChromaLocationBox 'cloc':2");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
         box.writeTo(streamWriter);
         byte[] bytes = baos.toByteArray();
         assertEquals(bytes, CLOC_BYTES);
+    }
+
+    @Test
+    public void checkParseUnsupportedVersion() throws IOException {
+        ByteArrayParser parser = new ByteArrayParser();
+        List<Box> boxes =
+                parser.parse(
+                        new byte[] {
+                            0x00, 0x00, 0x00, 0xd, 0x63, 0x6c, 0x6f, 0x63, 0x0f, 0x00, 0x00, 0x00,
+                            0x02
+                        });
+        assertEquals(boxes.size(), 1);
+        Box box = boxes.get(0);
+        assertFalse(box instanceof ChromaLocationBox);
     }
 }

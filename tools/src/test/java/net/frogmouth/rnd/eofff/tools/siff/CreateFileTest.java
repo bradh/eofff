@@ -1,5 +1,19 @@
 package net.frogmouth.rnd.eofff.tools.siff;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
+import java.awt.image.BandedSampleModel;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -7,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import javax.imageio.ImageIO;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AssociationEntry;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertiesBox;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyAssociation;
@@ -46,6 +61,22 @@ public class CreateFileTest {
     private static final int LENGTH_OF_FREEBOX_HEADER = 8;
     private static final int MDAT_START = 1000;
     private static final int IMAGE_DATA_START = MDAT_START + 8; // assumes mdat header is 8 bytes.
+    private static final Color[] COLOURS =
+            new Color[] {
+                Color.RED,
+                Color.GREEN,
+                Color.BLUE,
+                Color.BLACK,
+                Color.WHITE,
+                Color.DARK_GRAY,
+                Color.CYAN,
+                Color.MAGENTA,
+                Color.LIGHT_GRAY,
+                Color.YELLOW,
+                Color.PINK,
+                Color.ORANGE,
+                Color.GRAY
+            };
 
     @Test
     public void writeFile_rgb3() throws IOException {
@@ -62,6 +93,23 @@ public class CreateFileTest {
         MediaDataBox mdat = createMediaDataBox_rgb3();
         boxes.add(mdat);
         writeBoxes(boxes, "test_siff_rgb3.mp4");
+    }
+
+    @Test
+    public void writeFile_bgr() throws IOException {
+        List<Box> boxes = new ArrayList<>();
+        FileTypeBox ftyp = createFileTypeBox();
+        boxes.add(ftyp);
+        MetaBox meta = createMetaBox_bgr();
+        boxes.add(meta);
+        long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
+        long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
+        FreeBox free = new FreeBox();
+        free.setData(new byte[(int) numberOfFillBytes]);
+        boxes.add(free);
+        MediaDataBox mdat = createMediaDataBox_bgr();
+        boxes.add(mdat);
+        writeBoxes(boxes, "test_siff_bgr.mp4");
     }
 
     @Test
@@ -98,6 +146,23 @@ public class CreateFileTest {
         writeBoxes(boxes, "test_siff_abgr.mp4");
     }
 
+    @Test
+    public void writeFile_rgb_component() throws IOException {
+        List<Box> boxes = new ArrayList<>();
+        FileTypeBox ftyp = createFileTypeBox();
+        boxes.add(ftyp);
+        MetaBox meta = createMetaBox_rgb_component();
+        boxes.add(meta);
+        long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
+        long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
+        FreeBox free = new FreeBox();
+        free.setData(new byte[(int) numberOfFillBytes]);
+        boxes.add(free);
+        MediaDataBox mdat = createMediaDataBox_rgb_component();
+        boxes.add(mdat);
+        writeBoxes(boxes, "test_siff_rgb_component.mp4");
+    }
+
     private void writeBoxes(List<Box> boxes, String outputPathName) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
@@ -128,6 +193,18 @@ public class CreateFileTest {
         return meta;
     }
 
+    private MetaBox createMetaBox_rgb_component() {
+        MetaBox meta = new MetaBox();
+        List<Box> boxes = new ArrayList<>();
+        boxes.add(makeHandlerBox());
+        boxes.add(makePrimaryItemBox());
+        boxes.add(makeItemInfoBox());
+        boxes.add(makeItemLocationBox_rgb_component());
+        boxes.add(makeItemPropertiesBox_rgb_component());
+        meta.addNestedBoxes(boxes);
+        return meta;
+    }
+
     private MetaBox createMetaBox_rgba() {
         MetaBox meta = new MetaBox();
         List<Box> boxes = new ArrayList<>();
@@ -148,6 +225,18 @@ public class CreateFileTest {
         boxes.add(makeItemInfoBox());
         boxes.add(makeItemLocationBox_abgr());
         boxes.add(makeItemPropertiesBox_abgr());
+        meta.addNestedBoxes(boxes);
+        return meta;
+    }
+
+    private MetaBox createMetaBox_bgr() {
+        MetaBox meta = new MetaBox();
+        List<Box> boxes = new ArrayList<>();
+        boxes.add(makeHandlerBox());
+        boxes.add(makePrimaryItemBox());
+        boxes.add(makeItemInfoBox());
+        boxes.add(makeItemLocationBox_bgr());
+        boxes.add(makeItemPropertiesBox_bgr());
         meta.addNestedBoxes(boxes);
         return meta;
     }
@@ -175,6 +264,14 @@ public class CreateFileTest {
         infe0.setItemName("Uncompressed Image");
         iinf.addItem(infe0);
         return iinf;
+    }
+
+    private ItemLocationBox makeItemLocationBox_bgr() {
+        return makeItemLocationBox_rgb3();
+    }
+
+    private ItemLocationBox makeItemLocationBox_rgb_component() {
+        return makeItemLocationBox_rgb3();
     }
 
     private ItemLocationBox makeItemLocationBox_rgb3() {
@@ -224,6 +321,70 @@ public class CreateFileTest {
         ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
         ipco.addProperty(makeComponentDefinitionBox_rgb3());
         ipco.addProperty(makeUncompressedFrameConfigBox_rgb3());
+        ipco.addProperty(makeImageSpatialExtentsProperty());
+        iprp.setItemProperties(ipco);
+        ItemPropertyAssociation componentDefinitionAssociation = new ItemPropertyAssociation();
+        AssociationEntry componentDefinitionAssociationEntry = new AssociationEntry();
+        componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
+
+        PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
+        associationToComponentDefinitionBox.setPropertyIndex(0);
+        associationToComponentDefinitionBox.setEssential(true);
+        componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
+
+        PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
+        associationToUncompressedFrameConfigBox.setPropertyIndex(1);
+        associationToUncompressedFrameConfigBox.setEssential(true);
+        componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
+
+        PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
+        associationToImageSpatialExtentsProperty.setPropertyIndex(2);
+        associationToImageSpatialExtentsProperty.setEssential(false);
+        componentDefinitionAssociationEntry.addAssociation(
+                associationToImageSpatialExtentsProperty);
+
+        componentDefinitionAssociation.addEntry(componentDefinitionAssociationEntry);
+        iprp.addItemPropertyAssociation(componentDefinitionAssociation);
+        return iprp;
+    }
+
+    private Box makeItemPropertiesBox_rgb_component() {
+        ItemPropertiesBox iprp = new ItemPropertiesBox();
+        ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
+        ipco.addProperty(makeComponentDefinitionBox_rgb3());
+        ipco.addProperty(makeUncompressedFrameConfigBox_rgb_component());
+        ipco.addProperty(makeImageSpatialExtentsProperty());
+        iprp.setItemProperties(ipco);
+        ItemPropertyAssociation componentDefinitionAssociation = new ItemPropertyAssociation();
+        AssociationEntry componentDefinitionAssociationEntry = new AssociationEntry();
+        componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
+
+        PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
+        associationToComponentDefinitionBox.setPropertyIndex(0);
+        associationToComponentDefinitionBox.setEssential(true);
+        componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
+
+        PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
+        associationToUncompressedFrameConfigBox.setPropertyIndex(1);
+        associationToUncompressedFrameConfigBox.setEssential(true);
+        componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
+
+        PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
+        associationToImageSpatialExtentsProperty.setPropertyIndex(2);
+        associationToImageSpatialExtentsProperty.setEssential(false);
+        componentDefinitionAssociationEntry.addAssociation(
+                associationToImageSpatialExtentsProperty);
+
+        componentDefinitionAssociation.addEntry(componentDefinitionAssociationEntry);
+        iprp.addItemPropertyAssociation(componentDefinitionAssociation);
+        return iprp;
+    }
+
+    private Box makeItemPropertiesBox_bgr() {
+        ItemPropertiesBox iprp = new ItemPropertiesBox();
+        ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
+        ipco.addProperty(makeComponentDefinitionBox_rgb3());
+        ipco.addProperty(makeUncompressedFrameConfigBox_bgr());
         ipco.addProperty(makeImageSpatialExtentsProperty());
         iprp.setItemProperties(ipco);
         ItemPropertyAssociation componentDefinitionAssociation = new ItemPropertyAssociation();
@@ -374,6 +535,50 @@ public class CreateFileTest {
         return uncc;
     }
 
+    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_rgb_component() {
+        UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
+        uncc.setProfile(new FourCC("gene"));
+        uncc.addComponent(new Component(0, 7, 0, 0));
+        uncc.addComponent(new Component(1, 7, 0, 0));
+        uncc.addComponent(new Component(2, 7, 0, 0));
+        uncc.setSamplingType(0);
+        uncc.setInterleaveType(0);
+        uncc.setBlockSize(0);
+        uncc.setComponentLittleEndian(false);
+        uncc.setBlockPadLSB(false);
+        uncc.setBlockLittleEndian(false);
+        uncc.setBlockReversed(false);
+        uncc.setPadUnknown(false);
+        uncc.setPixelSize(0);
+        uncc.setRowAlignSize(0);
+        uncc.setTileAlignSize(0);
+        uncc.setNumTileColumnsMinusOne(0);
+        uncc.setNumTileColumnsMinusOne(0);
+        return uncc;
+    }
+
+    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_bgr() {
+        UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
+        uncc.setProfile(new FourCC("gene"));
+        uncc.addComponent(new Component(2, 7, 0, 0));
+        uncc.addComponent(new Component(1, 7, 0, 0));
+        uncc.addComponent(new Component(0, 7, 0, 0));
+        uncc.setSamplingType(0);
+        uncc.setInterleaveType(1);
+        uncc.setBlockSize(0);
+        uncc.setComponentLittleEndian(false);
+        uncc.setBlockPadLSB(false);
+        uncc.setBlockLittleEndian(false);
+        uncc.setBlockReversed(false);
+        uncc.setPadUnknown(false);
+        uncc.setPixelSize(0);
+        uncc.setRowAlignSize(0);
+        uncc.setTileAlignSize(0);
+        uncc.setNumTileColumnsMinusOne(0);
+        uncc.setNumTileColumnsMinusOne(0);
+        return uncc;
+    }
+
     private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_rgba() {
         UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
         uncc.setProfile(new FourCC("rgba"));
@@ -467,6 +672,37 @@ public class CreateFileTest {
         return mdat;
     }
 
+    private MediaDataBox createMediaDataBox_rgb_component() throws IOException {
+        MediaDataBox mdat = new MediaDataBox();
+        SampleModel sampleModel =
+                new BandedSampleModel(DataBuffer.TYPE_BYTE, IMAGE_WIDTH, IMAGE_HEIGHT, 3);
+        WritableRaster raster = Raster.createWritableRaster(sampleModel, (Point) null);
+        ColorModel colourModel =
+                new ComponentColorModel(
+                        ColorSpace.getInstance(ColorSpace.CS_sRGB),
+                        false,
+                        true,
+                        Transparency.OPAQUE,
+                        DataBuffer.TYPE_BYTE);
+        BufferedImage image = new BufferedImage(colourModel, raster, true, null);
+        drawColouredRectangles(image);
+        ImageIO.write(image, "PNG", new File("ref_component.png"));
+        DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
+        int numBanks = buffer.getNumBanks();
+        int totalSize = 0;
+        for (int i = 0; i < numBanks; i++) {
+            totalSize += buffer.getData(i).length;
+        }
+        byte[] data = new byte[totalSize];
+        int destination = 0;
+        for (int i = 0; i < numBanks; i++) {
+            System.arraycopy(buffer.getData(i), 0, data, destination, buffer.getData(i).length);
+            destination += buffer.getData(i).length;
+        }
+        mdat.setData(data);
+        return mdat;
+    }
+
     private MediaDataBox createMediaDataBox_rgba() {
         MediaDataBox mdat = new MediaDataBox();
         byte[] bytes = new byte[IMAGE_WIDTH * IMAGE_HEIGHT * NUM_BYTES_PER_PIXEL_RGBA];
@@ -511,47 +747,38 @@ public class CreateFileTest {
         return mdat;
     }
 
-    private MediaDataBox createMediaDataBox_abgr() {
+    private MediaDataBox createMediaDataBox_abgr() throws IOException {
         MediaDataBox mdat = new MediaDataBox();
-        byte[] bytes = new byte[IMAGE_WIDTH * IMAGE_HEIGHT * NUM_BYTES_PER_PIXEL_RGBA];
-        int index = 0;
-        for (int r = 0; r < IMAGE_HEIGHT / 4; r++) {
-            for (int c = 0; c < IMAGE_WIDTH; c++) {
-                bytes[index] = (byte) 0xFF;
-                bytes[index + 1] = (byte) 0x00;
-                bytes[index + 2] = (byte) 0x00;
-                bytes[index + 3] = (byte) 0xff;
-                index += NUM_BYTES_PER_PIXEL_RGBA;
+        BufferedImage image =
+                new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_4BYTE_ABGR);
+        drawColouredRectangles(image);
+        ImageIO.write(image, "PNG", new File("ref.png"));
+        DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
+        mdat.setData(buffer.getData());
+        return mdat;
+    }
+
+    private void drawColouredRectangles(BufferedImage image) {
+        Graphics2D g2 = image.createGraphics();
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 4; c++) {
+                g2.setColor(COLOURS[r * 4 + c]);
+                g2.fillRect(
+                        c * IMAGE_WIDTH / 4,
+                        r * IMAGE_HEIGHT / 3,
+                        IMAGE_WIDTH / 4,
+                        IMAGE_HEIGHT / 3);
             }
         }
-        for (int r = 0; r < IMAGE_HEIGHT / 4; r++) {
-            for (int c = 0; c < IMAGE_WIDTH; c++) {
-                bytes[index] = (byte) 0xff;
-                bytes[index + 1] = (byte) 0x00;
-                bytes[index + 2] = (byte) 0xff;
-                bytes[index + 3] = (byte) 0x00;
-                index += NUM_BYTES_PER_PIXEL_RGBA;
-            }
-        }
-        for (int r = 0; r < IMAGE_HEIGHT / 4; r++) {
-            for (int c = 0; c < IMAGE_WIDTH; c++) {
-                bytes[index] = (byte) 0xff;
-                bytes[index + 1] = (byte) 0xff;
-                bytes[index + 2] = (byte) 0x00;
-                bytes[index + 3] = (byte) 0x00;
-                index += NUM_BYTES_PER_PIXEL_RGBA;
-            }
-        }
-        for (int r = 0; r < IMAGE_HEIGHT / 4; r++) {
-            for (int c = 0; c < IMAGE_WIDTH; c++) {
-                bytes[index] = (byte) 0xff;
-                bytes[index + 1] = (byte) 0xFF;
-                bytes[index + 2] = (byte) 0xff;
-                bytes[index + 3] = (byte) 0xff;
-                index += NUM_BYTES_PER_PIXEL_RGBA;
-            }
-        }
-        mdat.setData(bytes);
+    }
+
+    private MediaDataBox createMediaDataBox_bgr() throws IOException {
+        MediaDataBox mdat = new MediaDataBox();
+        BufferedImage image =
+                new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
+        drawColouredRectangles(image);
+        DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
+        mdat.setData(buffer.getData());
         return mdat;
     }
 }

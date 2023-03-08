@@ -31,7 +31,22 @@ public class SensorBadPixelsMapBoxParser extends FullBoxParser {
         for (int i = 0; i < component_count; i++) {
             box.addComponentIndex(parseContext.readUnsignedInt16());
         }
-        // TODO: correction_applied onwards
+        int bits = parseContext.readUnsignedInt8();
+        box.setCorrectionApplied(((bits & 0x80) == 0x80));
+        long num_bad_rows = parseContext.readUnsignedInt32();
+        long num_bad_cols = parseContext.readUnsignedInt32();
+        long num_bad_pixels = parseContext.readUnsignedInt32();
+        for (int i = 0; i < num_bad_rows; i++) {
+            box.addBadRow(parseContext.readUnsignedInt32());
+        }
+        for (int i = 0; i < num_bad_cols; i++) {
+            box.addBadColumn(parseContext.readUnsignedInt32());
+        }
+        for (int i = 0; i < num_bad_pixels; i++) {
+            box.addBadPixel(
+                    new PixelCoordinate(
+                            parseContext.readUnsignedInt32(), parseContext.readUnsignedInt32()));
+        }
         return box;
     }
 

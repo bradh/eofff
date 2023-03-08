@@ -8,6 +8,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 public class MediaDataBox extends BaseBox {
 
     public static final FourCC MDAT_ATOM = new FourCC("mdat");
+    private long initialOffset;
     private byte[] data;
 
     public MediaDataBox() {
@@ -22,6 +23,14 @@ public class MediaDataBox extends BaseBox {
     @Override
     public long getBodySize() {
         return data.length;
+    }
+
+    public long getInitialOffset() {
+        return initialOffset;
+    }
+
+    public void setInitialOffset(long initialOffset) {
+        this.initialOffset = initialOffset;
     }
 
     public byte[] getData() {
