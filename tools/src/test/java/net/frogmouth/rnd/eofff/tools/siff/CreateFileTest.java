@@ -188,20 +188,20 @@ public class CreateFileTest {
 
     @Test
     public void writeFile_rgb555_block_le() throws IOException {
-        List<Box> boxes = buildBoxes_rgb555(ByteOrder.BIG_ENDIAN, false);
-        writeBoxes(boxes, "test_siff_rgb555_block_be.mp4");
+        List<Box> boxes = buildBoxes_rgb555(ByteOrder.LITTLE_ENDIAN, false);
+        writeBoxes(boxes, "test_siff_rgb555_block_le.mp4");
     }
 
     @Test
-    public void writeFile_rgb555_block_be_lsb_pad() throws IOException {
+    public void writeFile_rgb555_block_be_pad_lsb() throws IOException {
         List<Box> boxes = buildBoxes_rgb555(ByteOrder.BIG_ENDIAN, true);
-        writeBoxes(boxes, "test_siff_rgb555_block_be_lsb_pad.mp4");
+        writeBoxes(boxes, "test_siff_rgb555_block_be_pad_lsb.mp4");
     }
 
     @Test
-    public void writeFile_rgb555_block_le_lsb_pad() throws IOException {
+    public void writeFile_rgb555_block_le_pad_lsb() throws IOException {
         List<Box> boxes = buildBoxes_rgb555(ByteOrder.LITTLE_ENDIAN, true);
-        writeBoxes(boxes, "test_siff_rgb555_block_le_lsb_pad.mp4");
+        writeBoxes(boxes, "test_siff_rgb555_block_le_pad_lsb.mp4");
     }
 
     private List<Box> buildBoxes_rgb565(ByteOrder blockEndian) throws IOException {

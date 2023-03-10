@@ -102,6 +102,18 @@ public class SiffParserTest {
         convertToPNG("test_siff_rgb555_block_le.mp4", "test_siff_rgb555_block_le.png");
     }
 
+    @Test
+    public void parse_rgb555_block_be_pad_lsb() throws IOException {
+        convertToPNG(
+                "test_siff_rgb555_block_be_pad_lsb.mp4", "test_siff_rgb555_block_be_pad_lsb.png");
+    }
+
+    @Test
+    public void parse_rgb555_block_le_pad_lsb() throws IOException {
+        convertToPNG(
+                "test_siff_rgb555_block_le_pad_lsb.mp4", "test_siff_rgb555_block_le_pad_lsb.png");
+    }
+
     private void convertToPNG(String inputPath, String outputPath) throws IOException {
         List<Box> boxes = new ArrayList<>();
         boxes.addAll(parseFile(inputPath));
