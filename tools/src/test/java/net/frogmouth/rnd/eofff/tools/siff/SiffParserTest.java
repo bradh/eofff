@@ -11,12 +11,17 @@ import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferUShort;
+import java.awt.image.DirectColorModel;
 import java.awt.image.PixelInterleavedSampleModel;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
+import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -77,6 +82,26 @@ public class SiffParserTest {
         convertToPNG("test_siff_rgb_component.mp4", "test_siff_rgb_component.png");
     }
 
+    @Test
+    public void parse_rgb565_block_be() throws IOException {
+        convertToPNG("test_siff_rgb565_block_be.mp4", "test_siff_rgb565_block_be.png");
+    }
+
+    @Test
+    public void parse_rgb565_block_le() throws IOException {
+        convertToPNG("test_siff_rgb565_block_le.mp4", "test_siff_rgb565_block_le.png");
+    }
+
+    @Test
+    public void parse_rgb555_block_be() throws IOException {
+        convertToPNG("test_siff_rgb555_block_be.mp4", "test_siff_rgb555_block_be.png");
+    }
+
+    @Test
+    public void parse_rgb555_block_le() throws IOException {
+        convertToPNG("test_siff_rgb555_block_le.mp4", "test_siff_rgb555_block_le.png");
+    }
+
     private void convertToPNG(String inputPath, String outputPath) throws IOException {
         List<Box> boxes = new ArrayList<>();
         boxes.addAll(parseFile(inputPath));
@@ -109,13 +134,16 @@ public class SiffParserTest {
         if ((ispe != null) && (uncC != null) && (cmpd != null)) {
             FourCC profile = uncC.getProfile();
             byte[] data = getData(boxes, primaryItemId);
+            ByteOrder blockEndian =
+                    uncC.isBlockLittleEndian() ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
 
             if (profile.equals(new FourCC("rgb3"))
                     || profile.equals(new FourCC("rgba"))
                     || profile.equals(new FourCC("abgr"))) {
                 SampleModel sampleModel = getSampleModel(uncC, cmpd, ispe);
-                ColorModel colourModel = getColourModel(uncC, cmpd);
-                BufferedImage target = buildBufferedImage(data, sampleModel, colourModel);
+                ColorModel colourModel = getColourModelRgb(uncC, cmpd);
+                BufferedImage target =
+                        buildBufferedImage(data, sampleModel, colourModel, blockEndian);
                 writeOutput(outputPath, target);
             } else if (profile.equals(new FourCC("gene"))) {
                 // we need to check more cases
@@ -133,7 +161,8 @@ public class SiffParserTest {
                         case 1:
                             {
                                 BufferedImage target =
-                                        buildBufferedImage(data, sampleModel, colourModel);
+                                        buildBufferedImage(
+                                                data, sampleModel, colourModel, blockEndian);
                                 writeOutput(outputPath, target);
                                 break;
                             }
@@ -166,7 +195,22 @@ public class SiffParserTest {
                 return bandedSampleModel;
             case 1:
                 int[] bandOffsets = getBandOffsetsRGBA(uncC, cmpd);
+                boolean isShortAligned = isShortAligned(uncC);
                 if (bandOffsetsAreValid(bandOffsets)) {
+                    if (isShortAligned) {
+                        // TODO: this might be useful for more stuff, on byte, ushort and uint
+                        // boundaries.
+                        int scanlineStride = width; // for now
+                        int[] bitmasks = getBitMaskRGB(uncC, cmpd);
+                        SampleModel singlePixelPackedSampleModel =
+                                new SinglePixelPackedSampleModel(
+                                        DataBuffer.TYPE_USHORT,
+                                        width,
+                                        height,
+                                        scanlineStride,
+                                        bitmasks);
+                        return singlePixelPackedSampleModel;
+                    }
                     SampleModel pixelInterleavedComponentModel =
                             new PixelInterleavedSampleModel(
                                     DataBuffer.TYPE_BYTE,
@@ -186,7 +230,27 @@ public class SiffParserTest {
         }
     }
 
-    private ColorModel getColourModel(
+    private int[] getBitMaskRGB(UncompressedFrameConfigBox uncC, ComponentDefinitionBox cmpd) {
+        int[] bandOffsets = this.getBandOffsetsRGBA(uncC, cmpd);
+        int numRedBits =
+                uncC.getComponents().get(bandOffsets[0]).getComponentBitDepthMinusOne() + 1;
+        int numGreenBits =
+                uncC.getComponents().get(bandOffsets[1]).getComponentBitDepthMinusOne() + 1;
+        int numBlueBits =
+                uncC.getComponents().get(bandOffsets[2]).getComponentBitDepthMinusOne() + 1;
+        int numPadBits = 0;
+        if (uncC.isBlockPadLSB()) {
+            numPadBits =
+                    uncC.getBlockSize() * Byte.SIZE - (numRedBits + numGreenBits + numBlueBits);
+        }
+        int redMask = fillBits(numPadBits + numBlueBits + numGreenBits, numRedBits);
+        int greenMask = fillBits(numPadBits + numBlueBits, numGreenBits);
+        int blueMask = fillBits(numPadBits, numBlueBits);
+        int[] bitmasks = new int[] {redMask, greenMask, blueMask};
+        return bitmasks;
+    }
+
+    private ColorModel getColourModelRgb(
             UncompressedFrameConfigBox uncC, ComponentDefinitionBox cmpd) {
         boolean alphaIsPremultiplied = true;
         boolean hasAlpha = getHasAlpha(uncC, cmpd);
@@ -200,12 +264,44 @@ public class SiffParserTest {
         return colourModel;
     }
 
+    private ColorModel getColourModel(
+            UncompressedFrameConfigBox uncC, ComponentDefinitionBox cmpd) {
+        if (uncC.getBlockSize() > 0) {
+            int[] bitMasks = getBitMaskRGB(uncC, cmpd);
+            ColorModel colourModel =
+                    new DirectColorModel(
+                            uncC.getBlockSize() * Byte.SIZE, bitMasks[0], bitMasks[1], bitMasks[2]);
+            return colourModel;
+        } else {
+            boolean alphaIsPremultiplied = true;
+            boolean hasAlpha = getHasAlpha(uncC, cmpd);
+            ColorModel colourModel =
+                    new ComponentColorModel(
+                            ColorSpace.getInstance(ColorSpace.CS_sRGB),
+                            hasAlpha,
+                            alphaIsPremultiplied,
+                            hasAlpha ? Transparency.TRANSLUCENT : Transparency.OPAQUE,
+                            DataBuffer.TYPE_BYTE);
+            return colourModel;
+        }
+    }
+
     private BufferedImage buildBufferedImage(
-            byte[] data, SampleModel sampleModel, ColorModel colourModel) {
-        DataBuffer dataBuffer = new DataBufferByte(data, data.length);
-        WritableRaster raster = Raster.createWritableRaster(sampleModel, dataBuffer, (Point) null);
-        BufferedImage target = new BufferedImage(colourModel, raster, true, null);
-        return target;
+            byte[] data, SampleModel sampleModel, ColorModel colourModel, ByteOrder blockEndian) {
+        if (sampleModel.getDataType() == DataBuffer.TYPE_BYTE) {
+            DataBuffer dataBuffer = new DataBufferByte(data, data.length);
+            WritableRaster raster =
+                    Raster.createWritableRaster(sampleModel, dataBuffer, (Point) null);
+            BufferedImage target = new BufferedImage(colourModel, raster, true, null);
+            return target;
+        } else {
+            DataBuffer dataBuffer =
+                    new DataBufferUShort(byteArrayToShortArray(data, blockEndian), data.length / 2);
+            WritableRaster raster =
+                    Raster.createWritableRaster(sampleModel, dataBuffer, (Point) null);
+            BufferedImage target = new BufferedImage(colourModel, raster, true, null);
+            return target;
+        }
     }
 
     private BufferedImage buildBufferedImageBanded(
@@ -329,5 +425,27 @@ public class SiffParserTest {
             }
         }
         return true;
+    }
+
+    private boolean isShortAligned(UncompressedFrameConfigBox uncC) {
+        // TODO: temporary hack
+        return uncC.getBlockSize() == 2;
+    }
+
+    private short[] byteArrayToShortArray(byte[] data, ByteOrder endian) {
+        short[] shorts = new short[data.length / Short.BYTES];
+        ByteBuffer.wrap(data).order(endian).asShortBuffer().get(shorts);
+        return shorts;
+    }
+
+    private int fillBits(int initialOffset, int numBits) {
+        int mask = 0;
+        for (int i = 0; i < initialOffset + numBits; i++) {
+            if (i < initialOffset) {
+                continue;
+            }
+            mask |= (0x1 << i);
+        }
+        return mask;
     }
 }

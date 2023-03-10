@@ -1,5 +1,7 @@
 package net.frogmouth.rnd.eofff.tools.siff;
 
+import static org.testng.Assert.*;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -11,17 +13,20 @@ import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferUShort;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
+import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AssociationEntry;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertiesBox;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyAssociation;
@@ -163,10 +168,81 @@ public class CreateFileTest {
         writeBoxes(boxes, "test_siff_rgb_component.mp4");
     }
 
+    @Test
+    public void writeFile_rgb565_block_be() throws IOException {
+        List<Box> boxes = buildBoxes_rgb565(ByteOrder.BIG_ENDIAN);
+        writeBoxes(boxes, "test_siff_rgb565_block_be.mp4");
+    }
+
+    @Test
+    public void writeFile_rgb565_block_le() throws IOException {
+        List<Box> boxes = buildBoxes_rgb565(ByteOrder.LITTLE_ENDIAN);
+        writeBoxes(boxes, "test_siff_rgb565_block_le.mp4");
+    }
+
+    @Test
+    public void writeFile_rgb555_block_be() throws IOException {
+        List<Box> boxes = buildBoxes_rgb555(ByteOrder.BIG_ENDIAN, false);
+        writeBoxes(boxes, "test_siff_rgb555_block_be.mp4");
+    }
+
+    @Test
+    public void writeFile_rgb555_block_le() throws IOException {
+        List<Box> boxes = buildBoxes_rgb555(ByteOrder.BIG_ENDIAN, false);
+        writeBoxes(boxes, "test_siff_rgb555_block_be.mp4");
+    }
+
+    @Test
+    public void writeFile_rgb555_block_be_lsb_pad() throws IOException {
+        List<Box> boxes = buildBoxes_rgb555(ByteOrder.BIG_ENDIAN, true);
+        writeBoxes(boxes, "test_siff_rgb555_block_be_lsb_pad.mp4");
+    }
+
+    @Test
+    public void writeFile_rgb555_block_le_lsb_pad() throws IOException {
+        List<Box> boxes = buildBoxes_rgb555(ByteOrder.LITTLE_ENDIAN, true);
+        writeBoxes(boxes, "test_siff_rgb555_block_le_lsb_pad.mp4");
+    }
+
+    private List<Box> buildBoxes_rgb565(ByteOrder blockEndian) throws IOException {
+        List<Box> boxes = new ArrayList<>();
+        FileTypeBox ftyp = createFileTypeBox();
+        boxes.add(ftyp);
+        MetaBox meta = createMetaBox_rgb565(blockEndian);
+        boxes.add(meta);
+        long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
+        long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
+        FreeBox free = new FreeBox();
+        free.setData(new byte[(int) numberOfFillBytes]);
+        boxes.add(free);
+        MediaDataBox mdat = createMediaDataBox_rgb565(blockEndian);
+        boxes.add(mdat);
+        return boxes;
+    }
+
+    private List<Box> buildBoxes_rgb555(ByteOrder blockEndian, boolean padLSB) throws IOException {
+        List<Box> boxes = new ArrayList<>();
+        FileTypeBox ftyp = createFileTypeBox();
+        boxes.add(ftyp);
+        MetaBox meta = createMetaBox_rgb555(blockEndian, padLSB);
+        boxes.add(meta);
+        long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
+        long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
+        FreeBox free = new FreeBox();
+        free.setData(new byte[(int) numberOfFillBytes]);
+        boxes.add(free);
+        MediaDataBox mdat = createMediaDataBox_rgb555(blockEndian, padLSB);
+        boxes.add(mdat);
+        return boxes;
+    }
+
     private void writeBoxes(List<Box> boxes, String outputPathName) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
         for (Box box : boxes) {
+            if (box instanceof MetaBox metaBox) {
+                validateMetaBox(metaBox);
+            }
             box.writeTo(streamWriter);
         }
         File testOut = new File(outputPathName);
@@ -241,6 +317,30 @@ public class CreateFileTest {
         return meta;
     }
 
+    private MetaBox createMetaBox_rgb565(ByteOrder blockEndian) {
+        MetaBox meta = new MetaBox();
+        List<Box> boxes = new ArrayList<>();
+        boxes.add(makeHandlerBox());
+        boxes.add(makePrimaryItemBox());
+        boxes.add(makeItemInfoBox());
+        boxes.add(makeItemLocationBox_rgb565());
+        boxes.add(makeItemPropertiesBox_rgb565(blockEndian));
+        meta.addNestedBoxes(boxes);
+        return meta;
+    }
+
+    private MetaBox createMetaBox_rgb555(ByteOrder blockEndian, boolean padLSB) {
+        MetaBox meta = new MetaBox();
+        List<Box> boxes = new ArrayList<>();
+        boxes.add(makeHandlerBox());
+        boxes.add(makePrimaryItemBox());
+        boxes.add(makeItemInfoBox());
+        boxes.add(makeItemLocationBox_rgb555());
+        boxes.add(makeItemPropertiesBox_rgb555(blockEndian, padLSB));
+        meta.addNestedBoxes(boxes);
+        return meta;
+    }
+
     private HandlerBox makeHandlerBox() {
         HandlerBox hdlr = new HandlerBox();
         hdlr.setHandlerType("pict");
@@ -272,6 +372,33 @@ public class CreateFileTest {
 
     private ItemLocationBox makeItemLocationBox_rgb_component() {
         return makeItemLocationBox_rgb3();
+    }
+
+    private ItemLocationBox makeItemLocationBox_rgb565() {
+        return makeItemLocationBox_two_byte_per_pixel();
+    }
+
+    private ItemLocationBox makeItemLocationBox_rgb555() {
+        return makeItemLocationBox_two_byte_per_pixel();
+    }
+
+    private ItemLocationBox makeItemLocationBox_two_byte_per_pixel() {
+        ItemLocationBox iloc = new ItemLocationBox();
+        iloc.setOffsetSize(4);
+        iloc.setLengthSize(4);
+        iloc.setBaseOffsetSize(4);
+        iloc.setIndexSize(4);
+        iloc.setVersion(1);
+        ILocItem mainItemLocation = new ILocItem();
+        mainItemLocation.setConstructionMethod(0);
+        mainItemLocation.setItemId(MAIN_ITEM_ID);
+        ILocExtent mainItemExtent = new ILocExtent();
+        mainItemExtent.setExtentIndex(0);
+        mainItemExtent.setExtentOffset(IMAGE_DATA_START);
+        mainItemExtent.setExtentLength(IMAGE_HEIGHT * IMAGE_WIDTH * 2);
+        mainItemLocation.addExtent(mainItemExtent);
+        iloc.addItem(mainItemLocation);
+        return iloc;
     }
 
     private ItemLocationBox makeItemLocationBox_rgb3() {
@@ -353,6 +480,70 @@ public class CreateFileTest {
         ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
         ipco.addProperty(makeComponentDefinitionBox_rgb3());
         ipco.addProperty(makeUncompressedFrameConfigBox_rgb_component());
+        ipco.addProperty(makeImageSpatialExtentsProperty());
+        iprp.setItemProperties(ipco);
+        ItemPropertyAssociation componentDefinitionAssociation = new ItemPropertyAssociation();
+        AssociationEntry componentDefinitionAssociationEntry = new AssociationEntry();
+        componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
+
+        PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
+        associationToComponentDefinitionBox.setPropertyIndex(0);
+        associationToComponentDefinitionBox.setEssential(true);
+        componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
+
+        PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
+        associationToUncompressedFrameConfigBox.setPropertyIndex(1);
+        associationToUncompressedFrameConfigBox.setEssential(true);
+        componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
+
+        PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
+        associationToImageSpatialExtentsProperty.setPropertyIndex(2);
+        associationToImageSpatialExtentsProperty.setEssential(false);
+        componentDefinitionAssociationEntry.addAssociation(
+                associationToImageSpatialExtentsProperty);
+
+        componentDefinitionAssociation.addEntry(componentDefinitionAssociationEntry);
+        iprp.addItemPropertyAssociation(componentDefinitionAssociation);
+        return iprp;
+    }
+
+    private Box makeItemPropertiesBox_rgb565(ByteOrder blockEndian) {
+        ItemPropertiesBox iprp = new ItemPropertiesBox();
+        ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
+        ipco.addProperty(makeComponentDefinitionBox_rgb3());
+        ipco.addProperty(makeUncompressedFrameConfigBox_rgb565(blockEndian));
+        ipco.addProperty(makeImageSpatialExtentsProperty());
+        iprp.setItemProperties(ipco);
+        ItemPropertyAssociation componentDefinitionAssociation = new ItemPropertyAssociation();
+        AssociationEntry componentDefinitionAssociationEntry = new AssociationEntry();
+        componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
+
+        PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
+        associationToComponentDefinitionBox.setPropertyIndex(0);
+        associationToComponentDefinitionBox.setEssential(true);
+        componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
+
+        PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
+        associationToUncompressedFrameConfigBox.setPropertyIndex(1);
+        associationToUncompressedFrameConfigBox.setEssential(true);
+        componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
+
+        PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
+        associationToImageSpatialExtentsProperty.setPropertyIndex(2);
+        associationToImageSpatialExtentsProperty.setEssential(false);
+        componentDefinitionAssociationEntry.addAssociation(
+                associationToImageSpatialExtentsProperty);
+
+        componentDefinitionAssociation.addEntry(componentDefinitionAssociationEntry);
+        iprp.addItemPropertyAssociation(componentDefinitionAssociation);
+        return iprp;
+    }
+
+    private Box makeItemPropertiesBox_rgb555(ByteOrder blockEndian, boolean padLSB) {
+        ItemPropertiesBox iprp = new ItemPropertiesBox();
+        ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
+        ipco.addProperty(makeComponentDefinitionBox_rgb3());
+        ipco.addProperty(makeUncompressedFrameConfigBox_rgb555(blockEndian, padLSB));
         ipco.addProperty(makeImageSpatialExtentsProperty());
         iprp.setItemProperties(ipco);
         ItemPropertyAssociation componentDefinitionAssociation = new ItemPropertyAssociation();
@@ -547,6 +738,51 @@ public class CreateFileTest {
         uncc.setComponentLittleEndian(false);
         uncc.setBlockPadLSB(false);
         uncc.setBlockLittleEndian(false);
+        uncc.setBlockReversed(false);
+        uncc.setPadUnknown(false);
+        uncc.setPixelSize(0);
+        uncc.setRowAlignSize(0);
+        uncc.setTileAlignSize(0);
+        uncc.setNumTileColumnsMinusOne(0);
+        uncc.setNumTileColumnsMinusOne(0);
+        return uncc;
+    }
+
+    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_rgb565(ByteOrder endian) {
+        UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
+        uncc.setProfile(new FourCC("gene"));
+        uncc.addComponent(new Component(0, 4, 0, 0));
+        uncc.addComponent(new Component(1, 5, 0, 0));
+        uncc.addComponent(new Component(2, 4, 0, 0));
+        uncc.setSamplingType(0);
+        uncc.setInterleaveType(1);
+        uncc.setBlockSize(2);
+        uncc.setComponentLittleEndian(false);
+        uncc.setBlockPadLSB(false);
+        uncc.setBlockLittleEndian(endian == ByteOrder.LITTLE_ENDIAN);
+        uncc.setBlockReversed(false);
+        uncc.setPadUnknown(false);
+        uncc.setPixelSize(0);
+        uncc.setRowAlignSize(0);
+        uncc.setTileAlignSize(0);
+        uncc.setNumTileColumnsMinusOne(0);
+        uncc.setNumTileColumnsMinusOne(0);
+        return uncc;
+    }
+
+    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_rgb555(
+            ByteOrder endian, boolean padLSB) {
+        UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
+        uncc.setProfile(new FourCC("gene"));
+        uncc.addComponent(new Component(0, 4, 0, 0));
+        uncc.addComponent(new Component(1, 4, 0, 0));
+        uncc.addComponent(new Component(2, 4, 0, 0));
+        uncc.setSamplingType(0);
+        uncc.setInterleaveType(1);
+        uncc.setBlockSize(2);
+        uncc.setComponentLittleEndian(false);
+        uncc.setBlockPadLSB(padLSB);
+        uncc.setBlockLittleEndian(endian == ByteOrder.LITTLE_ENDIAN);
         uncc.setBlockReversed(false);
         uncc.setPadUnknown(false);
         uncc.setPixelSize(0);
@@ -780,5 +1016,482 @@ public class CreateFileTest {
         DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
         mdat.setData(buffer.getData());
         return mdat;
+    }
+
+    private MediaDataBox createMediaDataBox_rgb565(ByteOrder blockEndian) throws IOException {
+        MediaDataBox mdat = new MediaDataBox();
+        BufferedImage image =
+                new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_USHORT_565_RGB);
+        drawColouredRectangles(image);
+        SampleModel sm = image.getSampleModel();
+        System.out.println(sm.toString());
+        ColorModel cm = image.getColorModel();
+        System.out.println(cm.toString());
+        DataBufferUShort buffer = (DataBufferUShort) image.getRaster().getDataBuffer();
+        mdat.setData(shortArrayToByteArray(buffer.getData(), blockEndian));
+        return mdat;
+    }
+
+    private MediaDataBox createMediaDataBox_rgb555(ByteOrder blockEndian, boolean padLSB)
+            throws IOException {
+        MediaDataBox mdat = new MediaDataBox();
+        BufferedImage image =
+                new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_USHORT_555_RGB);
+        drawColouredRectangles(image);
+        SampleModel sm = image.getSampleModel();
+        System.out.println(sm.toString());
+        ColorModel cm = image.getColorModel();
+        System.out.println(cm.toString());
+        DataBufferUShort buffer = (DataBufferUShort) image.getRaster().getDataBuffer();
+        if (padLSB) {
+            short[] shortsUnshifted = buffer.getData();
+            short[] shortsShifted = new short[shortsUnshifted.length];
+            for (int i = 0; i < shortsUnshifted.length; i++) {
+                shortsShifted[i] = (short) (shortsUnshifted[i] << 1);
+            }
+            mdat.setData(shortArrayToByteArray(shortsShifted, blockEndian));
+        } else {
+            mdat.setData(shortArrayToByteArray(buffer.getData(), blockEndian));
+        }
+        return mdat;
+    }
+
+    public byte[] shortArrayToByteArray(short[] data, ByteOrder byteOrder) {
+        byte[] bytes = new byte[data.length * Short.BYTES];
+        int c = 0;
+        for (int i = 0; i < data.length; i++) {
+            if (byteOrder.equals(ByteOrder.BIG_ENDIAN)) {
+                bytes[c++] = (byte) (((data[i]) >>> 8) & 0xFF);
+                bytes[c++] = (byte) (((data[i])) & 0xFF);
+
+            } else {
+                bytes[c++] = (byte) (((data[i])) & 0xFF);
+                bytes[c++] = (byte) (((data[i]) >>> 8) & 0xFF);
+            }
+        }
+        return bytes;
+    }
+
+    private void validateMetaBox(MetaBox metaBox) {
+        for (Box box : metaBox.getNestedBoxes()) {
+            if (box instanceof ItemPropertiesBox iprp) {
+                validateItemPropertiesBox(iprp);
+            } else if (box instanceof HandlerBox hdlr) {
+                // Not yet
+            } else if (box instanceof PrimaryItemBox pitm) {
+                // Not yet
+            } else if (box instanceof ItemInfoBox iinf) {
+                // Not yet
+            } else if (box instanceof ItemLocationBox iloc) {
+                // Not yet
+            } else {
+                fail(
+                        "metaBox validation is not yet implemented for this case: "
+                                + box.getFullName());
+            }
+        }
+    }
+
+    private void validateItemPropertiesBox(ItemPropertiesBox iprp) {
+        ItemPropertyContainerBox ipco = iprp.getItemProperties();
+        validateItemProperties(ipco.getProperties());
+    }
+
+    private void validateItemProperties(List<AbstractItemProperty> properties) {
+        ComponentDefinitionBox cmpd = null;
+        UncompressedFrameConfigBox uncC = null;
+        ImageSpatialExtentsProperty ispe = null;
+
+        for (AbstractItemProperty property : properties) {
+            if (property instanceof ComponentDefinitionBox componentDefinitionBox) {
+                cmpd = componentDefinitionBox;
+            } else if (property instanceof UncompressedFrameConfigBox uncompressedFrameConfigBox) {
+                uncC = uncompressedFrameConfigBox;
+            } else if (property
+                    instanceof ImageSpatialExtentsProperty imageSpatialExtentsProperty) {
+                ispe = imageSpatialExtentsProperty;
+            } else {
+                fail("TODO: property: " + property.toString());
+            }
+        }
+        if (cmpd == null) {
+            fail("ComponentDefinitionBox is required (see 4.3)");
+        }
+        if (uncC == null) {
+            fail("UncompressedFrameConfigBox is required (see 4.3)");
+        }
+        if (ispe == null) {
+            fail("ImageSpatialExtentsProperty is required (see 4.3)");
+        }
+        checkUnccComponentsAreInRange(uncC.getComponents(), cmpd.getComponentDefinitions());
+        checkAtMostOneFAComponent(uncC.getComponents(), cmpd.getComponentDefinitions());
+        // TODO: check we have ComponentPatternDefinitionBox if FA is present.
+        checkAtMostOnePaletteComponent(uncC.getComponents(), cmpd.getComponentDefinitions());
+        // TODO: check we have ComponentPaletteBox if P is present.
+        checkComponentFormatIsValid(uncC.getComponents());
+        checkComponentAlignSizeIsValid(uncC.getComponents());
+        checkComponentAlignSizeIsConsistent(uncC);
+        checkTileWidthIsConsistentWithFrameWidth(uncC, ispe);
+        checkTileHeightIsConsistentWithFrameHeight(uncC, ispe);
+        checkSamplingTypeIsValid(uncC);
+        // TODO: sampling_type == 1 checks
+        // TODO: sampling_type == 2 checks
+        // TODO: sampling_type == 3 checks
+        checkInterleaveTypeIsValid(uncC);
+        // TODO: interleave consistency checks
+        checkBlockingConsistency(uncC);
+        checkBlockReversed(uncC);
+        checkPixelSizeConsistency(uncC);
+        checkTileAlignConsistency(uncC);
+        checkProfile(uncC, cmpd);
+    }
+
+    private void checkUnccComponentsAreInRange(
+            List<Component> components, List<ComponentDefinition> componentDefinitions) {
+        for (Component component : components) {
+            assertTrue(
+                    component.getComponentIndex() < componentDefinitions.size(),
+                    "5.1.1. 'The component_index field shall be strictly less than the component_count field value of the associated ComponentDefinitionBox'");
+        }
+    }
+
+    private void checkAtMostOnePaletteComponent(
+            List<Component> components, List<ComponentDefinition> componentDefinitions) {
+        int numberOfP = getNumberOfPaletteComponents(components, componentDefinitions);
+        if (numberOfP > 1) {
+            fail(
+                    "5.2.1.2 'There shall be at most one component with type 10 (P) present in the component list'");
+        }
+    }
+
+    private void checkAtMostOneFAComponent(
+            List<Component> components, List<ComponentDefinition> componentDefinitions) {
+        int numberOfFA = getNumberOfFAComponents(components, componentDefinitions);
+        if (numberOfFA > 1) {
+            fail(
+                    "5.2.1.2 'There shall be at most one component with type 11 (FA) present in the component list'");
+        }
+    }
+
+    private int getNumberOfPaletteComponents(
+            List<Component> components, List<ComponentDefinition> componentDefinitions) {
+        return getNumberOfComponentsWithType(components, componentDefinitions, 10);
+    }
+
+    private int getNumberOfFAComponents(
+            List<Component> components, List<ComponentDefinition> componentDefinitions) {
+        return getNumberOfComponentsWithType(components, componentDefinitions, 11);
+    }
+
+    private int getNumberOfComponentsWithType(
+            List<Component> components,
+            List<ComponentDefinition> componentDefinitions,
+            int componentType) {
+        int count = 0;
+        for (Component component : components) {
+            if (componentDefinitions.get(component.getComponentIndex()).getComponentType()
+                    == componentType) {
+                count += 1;
+            }
+        }
+        return count;
+    }
+
+    private void checkComponentFormatIsValid(List<Component> components) {
+        for (Component component : components) {
+            if ((component.getComponentFormat() < 0) || (component.getComponentFormat() > 2)) {
+                fail("Table 2. component_format field is outside of defined range");
+            }
+        }
+    }
+
+    private void checkComponentAlignSizeIsValid(List<Component> components) {
+        for (Component component : components) {
+            int component_bit_depth = component.getComponentBitDepthMinusOne() + 1;
+            if (component.getComponentAlignSize() != 0) {
+                assertTrue(
+                        component.getComponentAlignSize() * 8 > component_bit_depth,
+                        "5.2.1.3 ' component_align_size shall be either 0 or such that component_align_size*8 is greater than component_bit_depth'");
+            }
+        }
+    }
+
+    private void checkComponentAlignSizeIsConsistent(UncompressedFrameConfigBox uncC) {
+        if (uncC.isComponentLittleEndian()) {
+            assertFalse(
+                    uncC.isBlockLittleEndian(),
+                    "5.2.1.3 ' If components_little_endian is 1, block_little_endian shall be 0 and component_align_size of each component shall be different from 0.'");
+            for (Component component : uncC.getComponents()) {
+                assertTrue(
+                        component.getComponentAlignSize() != 0,
+                        "5.2.1.3 ' If components_little_endian is 1, block_little_endian shall be 0 and component_align_size of each component shall be different from 0.'");
+            }
+        }
+    }
+
+    private void checkTileWidthIsConsistentWithFrameWidth(
+            UncompressedFrameConfigBox uncC, ImageSpatialExtentsProperty ispe) {
+        assertEquals(
+                ispe.getImageWidth() % (uncC.getNumTileColumnsMinusOne() + 1),
+                0,
+                "5.2.1.4 'The frame width shall be a multiple of num_tile_cols_minus_one+1");
+    }
+
+    private void checkTileHeightIsConsistentWithFrameHeight(
+            UncompressedFrameConfigBox uncC, ImageSpatialExtentsProperty ispe) {
+        assertEquals(
+                ispe.getImageHeight() % (uncC.getNumTileRowsMinusOne() + 1),
+                0,
+                "5.2.1.4 'The frame height shall be a multiple of num_tile_rows_minus_one+1");
+    }
+
+    private void checkSamplingTypeIsValid(UncompressedFrameConfigBox uncC) {
+        int sampling_type = uncC.getSamplingType();
+        if ((sampling_type < 0) || (sampling_type > 3)) {
+            fail("Table 3. sampling_type field is outside of defined range");
+        }
+    }
+
+    private void checkInterleaveTypeIsValid(UncompressedFrameConfigBox uncC) {
+        int interleave_type = uncC.getInterleaveType();
+        if ((interleave_type < 0) || (interleave_type > 5)) {
+            fail("Table 4. interleave_type field is outside of defined range");
+        }
+    }
+
+    private void checkBlockingConsistency(UncompressedFrameConfigBox uncC) {
+        if (uncC.getBlockSize() == 0) {
+            assertFalse(
+                    uncC.isBlockPadLSB(),
+                    "5.2.1.7 'If the block size is 0 (blocking is not used within the sample data), block_pad_lsb, block_little_endian and block_reversed shall all be 0'");
+            assertFalse(
+                    uncC.isBlockLittleEndian(),
+                    "5.2.1.7 'If the block size is 0 (blocking is not used within the sample data), block_pad_lsb, block_little_endian and block_reversed shall all be 0'");
+            assertFalse(
+                    uncC.isBlockReversed(),
+                    "5.2.1.7 'If the block size is 0 (blocking is not used within the sample data), block_pad_lsb, block_little_endian and block_reversed shall all be 0'");
+        } else {
+            // TODO: see what is possible.
+        }
+    }
+
+    private void checkBlockReversed(UncompressedFrameConfigBox uncC) {
+        if (!uncC.isBlockLittleEndian()) {
+            assertFalse(
+                    uncC.isBlockReversed(),
+                    "5.2.1.7 'block_reversed shall be 0 if block_little_endian is 0");
+        }
+    }
+
+    private void checkPixelSizeConsistency(UncompressedFrameConfigBox uncC) {
+        if (uncC.getPixelSize() > 0) {
+            // TODO: check pixel_size is large enough
+        }
+        if ((uncC.getInterleaveType() != 1) && (uncC.getInterleaveType() != 5)) {
+            assertEquals(
+                    uncC.getPixelSize(),
+                    0,
+                    "5.2.1.7 'pixel_size shall be 0 if interleave_type is different to 1 or 5'");
+        }
+    }
+
+    private void checkTileAlignConsistency(UncompressedFrameConfigBox uncC) {
+        if ((uncC.getNumTileColumnsMinusOne() == 0) && (uncC.getNumTileRowsMinusOne() == 0)) {
+            assertEquals(
+                    uncC.getTileAlignSize(),
+                    0,
+                    "5.2.1.7 'tile_align_size shall be 0 if a single tile is used'");
+        }
+    }
+
+    private void checkProfile(UncompressedFrameConfigBox uncC, ComponentDefinitionBox cmpd) {
+        if ((uncC.getProfile().equals(new FourCC("gene"))) || (uncC.getProfile().hashCode() == 0)) {
+            return;
+        }
+        List<ComponentDefinition> componentDefinitions = cmpd.getComponentDefinitions();
+        List<Component> components = uncC.getComponents();
+        switch (uncC.getProfile().toString()) {
+            case "rgb3":
+                assertEquals(
+                        components.size(),
+                        3,
+                        "5.3.2 Table 5 rgb3 requires [{4,7},{5,7},{6,7}], 0, 1");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(0).getComponentIndex())
+                                .getComponentType(),
+                        4,
+                        "5.3.2 Table 5 rgb3 requires [{4,7},{5,7},{6,7}], 0, 1");
+                assertEquals(
+                        components.get(0).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 rgb3 requires [{4,7},{5,7},{6,7}], 0, 1");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(1).getComponentIndex())
+                                .getComponentType(),
+                        5,
+                        "5.3.2 Table 5 rgb3 requires [{4,7},{5,7},{6,7}], 0, 1");
+                assertEquals(
+                        components.get(1).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 rgb3 requires [{4,7},{5,7},{6,7}], 0, 1");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(2).getComponentIndex())
+                                .getComponentType(),
+                        6,
+                        "5.3.2 Table 5 rgb3 requires [{4,7},{5,7},{6,7}], 0, 1");
+                assertEquals(
+                        components.get(2).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 rgb3 requires [{4,7},{5,7},{6,7}], 0, 1");
+                assertEquals(
+                        uncC.getSamplingType(),
+                        0,
+                        "5.3.2 Table 5 rgb3 requires [{4,7},{5,7},{6,7}], 0, 1");
+                assertEquals(
+                        uncC.getInterleaveType(),
+                        1,
+                        "5.3.2 Table 5 rgb3 requires [{4,7},{5,7},{6,7}], 0, 1");
+                checkAllOtherFieldsAreZero(uncC);
+                break;
+            case "rgba":
+                assertEquals(
+                        components.size(),
+                        4,
+                        "5.3.2 Table 5 rgba requires [{4,7},{5,7},{6,7},{7,7}], 0, 1");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(0).getComponentIndex())
+                                .getComponentType(),
+                        4,
+                        "5.3.2 Table 5 rgba requires [{4,7},{5,7},{6,7},{7,7}], 0, 1");
+                assertEquals(
+                        components.get(0).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 rgba requires [{4,7},{5,7},{6,7},{7,7}], 0, 1");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(1).getComponentIndex())
+                                .getComponentType(),
+                        5,
+                        "5.3.2 Table 5 rgba requires [{4,7},{5,7},{6,7},{7,7}], 0, 1");
+                assertEquals(
+                        components.get(1).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 rgba requires [{4,7},{5,7},{6,7},{7,7}], 0, 1");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(2).getComponentIndex())
+                                .getComponentType(),
+                        6,
+                        "5.3.2 Table 5 rgba requires [{4,7},{5,7},{6,7},{7,7}], 0, 1");
+                assertEquals(
+                        components.get(2).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 rgba requires [{4,7},{5,7},{6,7},{7,7}], 0, 1");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(3).getComponentIndex())
+                                .getComponentType(),
+                        7,
+                        "5.3.2 Table 5 rgba requires [{4,7},{5,7},{6,7},{7,7}], 0, 1");
+                assertEquals(
+                        components.get(3).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 rgba requires [{4,7},{5,7},{6,7},{7,7}], 0, 1");
+                assertEquals(
+                        uncC.getSamplingType(),
+                        0,
+                        "5.3.2 Table 5 rgba requires [{4,7},{5,7},{6,7},{7,7}], 0, 1");
+
+                assertEquals(
+                        uncC.getInterleaveType(),
+                        1,
+                        "5.3.2 Table 5 rgba requires [{4,7},{5,7},{6,7},{7,7}], 0, 1");
+                checkAllOtherFieldsAreZero(uncC);
+                break;
+            case "abgr":
+                assertEquals(
+                        components.size(),
+                        4,
+                        "5.3.2 Table 5 abgr requires [{7,7},{6,7},{5,7},{4,7}], 0, 1");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(0).getComponentIndex())
+                                .getComponentType(),
+                        7,
+                        "5.3.2 Table 5 abgr requires [{7,7},{6,7},{5,7},{4,7}], 0, 1");
+                assertEquals(
+                        components.get(0).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 abgr requires [{7,7},{6,7},{5,7},{4,7}], 0, 1");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(1).getComponentIndex())
+                                .getComponentType(),
+                        6,
+                        "5.3.2 Table 5 abgr requires [{7,7},{6,7},{5,7},{4,7}], 0, 1");
+                assertEquals(
+                        components.get(1).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 abgr requires [{7,7},{6,7},{5,7},{4,7}], 0, 1");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(2).getComponentIndex())
+                                .getComponentType(),
+                        5,
+                        "5.3.2 Table 5 abgr requires [{7,7},{6,7},{5,7},{4,7}], 0, 1");
+                assertEquals(
+                        components.get(2).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 abgr requires [{7,7},{6,7},{5,7},{4,7}], 0, 1");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(3).getComponentIndex())
+                                .getComponentType(),
+                        4,
+                        "5.3.2 Table 5 abgr requires [{7,7},{6,7},{5,7},{4,7}], 0, 1");
+                assertEquals(
+                        components.get(3).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 abgr requires [{7,7},{6,7},{5,7},{4,7}], 0, 1");
+                assertEquals(
+                        uncC.getSamplingType(),
+                        0,
+                        "5.3.2 Table 5 abgr requires [{7,7},{6,7},{5,7},{4,7}], 0, 1");
+
+                assertEquals(
+                        uncC.getInterleaveType(),
+                        1,
+                        "5.3.2 Table 5 abgr requires [{7,7},{6,7},{5,7},{4,7}], 0, 1");
+                checkAllOtherFieldsAreZero(uncC);
+                break;
+            default:
+                fail("unhandled profile case: " + uncC.getProfile().toString());
+        }
+    }
+
+    private void checkAllOtherFieldsAreZero(UncompressedFrameConfigBox uncC) {
+        String message =
+                String.format(
+                        "5.3.2 requires all other fields to be zero for profile: %s",
+                        uncC.getProfile().toString());
+        for (Component component : uncC.getComponents()) {
+            assertEquals(component.getComponentFormat(), 0, message);
+            assertEquals(component.getComponentAlignSize(), 0, message);
+        }
+        assertEquals(uncC.getBlockSize(), 0, message);
+        assertFalse(uncC.isComponentLittleEndian(), message);
+        assertFalse(uncC.isBlockPadLSB(), message);
+        assertFalse(uncC.isBlockLittleEndian(), message);
+        assertFalse(uncC.isBlockReversed(), message);
+        assertFalse(uncC.isPadUnknown(), message);
+        assertEquals(uncC.getPixelSize(), 0, message);
+        assertEquals(uncC.getRowAlignSize(), 0, message);
+        assertEquals(uncC.getTileAlignSize(), 0, message);
+        assertEquals(uncC.getNumTileRowsMinusOne(), 0, message);
+        assertEquals(uncC.getNumTileColumnsMinusOne(), 0, message);
     }
 }
