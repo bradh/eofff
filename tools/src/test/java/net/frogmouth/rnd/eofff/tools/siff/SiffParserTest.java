@@ -273,7 +273,6 @@ public class SiffParserTest {
         int rowStride = getRowStride(uncC, ispe);
         switch (uncC.getInterleaveType()) {
             case 0:
-                // TODO: don't hard code number of bands
                 SampleModel bandedSampleModel =
                         new BandedSampleModel(
                                 DataBuffer.TYPE_BYTE, width, height, uncC.getComponents().size());
