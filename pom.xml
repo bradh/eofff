@@ -13,6 +13,7 @@
         <module>nalvideo</module>
         <module>tools</module>
         <module>uncompressed</module>
+        <module>yuv</module>
     </modules>
     <properties>
         <googleformatter.maven.plugin.version>1.7.5</googleformatter.maven.plugin.version>

@@ -13,6 +13,7 @@ import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferUShort;
 import java.awt.image.DirectColorModel;
+import java.awt.image.IndexColorModel;
 import java.awt.image.PixelInterleavedSampleModel;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
@@ -42,8 +43,13 @@ import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
+import net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteBox;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
+import net.frogmouth.rnd.eofff.yuv.ColourSpace;
+import net.frogmouth.rnd.eofff.yuv.ColourSpaceConverter;
+import net.frogmouth.rnd.eofff.yuv.OutputFormat;
+import net.frogmouth.rnd.eofff.yuv.OutputFormat_BGR_Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -114,6 +120,26 @@ public class SiffParserTest {
                 "test_siff_rgb555_block_le_pad_lsb.mp4", "test_siff_rgb555_block_le_pad_lsb.png");
     }
 
+    @Test
+    public void parse_yuv444() throws IOException {
+        convertToPNG("test_siff_yuv444.mp4", "test_siff_yuv444.png");
+    }
+
+    @Test
+    public void parse_yuv422() throws IOException {
+        convertToPNG("test_siff_yuv422.mp4", "test_siff_yuv422.png");
+    }
+
+    @Test
+    public void parse_yuv420() throws IOException {
+        convertToPNG("test_siff_yuv420.mp4", "test_siff_yuv420.png");
+    }
+
+    @Test
+    public void parse_rgb_palette() throws IOException {
+        convertToPNG("test_siff_rgb_palette.mp4", "test_siff_rgb_palette.png");
+    }
+
     private void convertToPNG(String inputPath, String outputPath) throws IOException {
         List<Box> boxes = new ArrayList<>();
         boxes.addAll(parseFile(inputPath));
@@ -131,6 +157,7 @@ public class SiffParserTest {
         ImageSpatialExtentsProperty ispe = null;
         UncompressedFrameConfigBox uncC = null;
         ComponentDefinitionBox cmpd = null;
+        ComponentPaletteBox cpal = null;
         for (AbstractItemProperty prop : properties) {
             if (prop instanceof ImageSpatialExtentsProperty box) {
                 ispe = box;
@@ -140,6 +167,9 @@ public class SiffParserTest {
             }
             if (prop instanceof ComponentDefinitionBox box) {
                 cmpd = box;
+            }
+            if (prop instanceof ComponentPaletteBox box) {
+                cpal = box;
             }
         }
 
@@ -157,31 +187,73 @@ public class SiffParserTest {
                 BufferedImage target =
                         buildBufferedImage(data, sampleModel, colourModel, blockEndian);
                 writeOutput(outputPath, target);
-            } else if (profile.equals(new FourCC("gene"))) {
-                // we need to check more cases
-                SampleModel sampleModel = getSampleModel(uncC, cmpd, ispe);
-                ColorModel colourModel = getColourModel(uncC, cmpd);
-                if ((sampleModel != null) && (colourModel != null)) {
-                    switch (uncC.getInterleaveType()) {
-                        case 0:
-                            {
-                                BufferedImage target =
-                                        buildBufferedImageBanded(data, sampleModel, colourModel);
-                                writeOutput(outputPath, target);
+            } else if (profile.equals(new FourCC("gene")) || profile.equals(new FourCC("i420"))) {
+                if (isRGB(uncC, cmpd)) {
+                    // we need to check more cases
+                    SampleModel sampleModel = getSampleModel(uncC, cmpd, ispe);
+                    ColorModel colourModel = getColourModel(uncC, cmpd);
+                    if ((sampleModel != null) && (colourModel != null)) {
+                        switch (uncC.getInterleaveType()) {
+                            case 0:
+                                {
+                                    BufferedImage target =
+                                            buildBufferedImageBanded(
+                                                    data, sampleModel, colourModel);
+                                    writeOutput(outputPath, target);
+                                    break;
+                                }
+                            case 1:
+                                {
+                                    BufferedImage target =
+                                            buildBufferedImage(
+                                                    data, sampleModel, colourModel, blockEndian);
+                                    writeOutput(outputPath, target);
+                                    break;
+                                }
+                            default:
+                                fail("unsupported interleave type");
                                 break;
-                            }
-                        case 1:
-                            {
-                                BufferedImage target =
-                                        buildBufferedImage(
-                                                data, sampleModel, colourModel, blockEndian);
-                                writeOutput(outputPath, target);
-                                break;
-                            }
-                        default:
-                            fail("unsupported interleave type");
-                            break;
+                        }
                     }
+                } else if (isYCbCr(uncC, cmpd)) {
+                    OutputFormat outputFormat =
+                            new OutputFormat_BGR_Bytes(
+                                    (int) (ispe.getImageHeight() * ispe.getImageWidth()));
+                    ColourSpace colourSpace = ColourSpace.YUV444;
+                    if (uncC.getSamplingType() == 2) {
+                        colourSpace = ColourSpace.YUV420;
+                    } else if (uncC.getSamplingType() == 1) {
+                        colourSpace = ColourSpace.YUV422;
+                    }
+                    byte[] rgbData =
+                            ColourSpaceConverter.YuvConverter(
+                                    colourSpace,
+                                    (int) ispe.getImageHeight(),
+                                    (int) ispe.getImageWidth(),
+                                    data,
+                                    outputFormat);
+                    BufferedImage target =
+                            new BufferedImage(
+                                    (int) ispe.getImageWidth(),
+                                    (int) ispe.getImageHeight(),
+                                    BufferedImage.TYPE_3BYTE_BGR);
+                    byte[] imgData =
+                            ((DataBufferByte) target.getRaster().getDataBuffer()).getData();
+                    System.arraycopy(rgbData, 0, imgData, 0, rgbData.length);
+                    writeOutput(outputPath, target);
+                } else if (isPalette(uncC, cmpd, cpal)) {
+                    // we need to check more cases
+                    SampleModel sampleModel = getSampleModel(uncC, cmpd, ispe);
+                    ColorModel colourModel = getIndexColourModel(cpal);
+                    if ((sampleModel != null) && (colourModel != null)) {
+
+                        BufferedImage target =
+                                buildBufferedImage(data, sampleModel, colourModel, blockEndian);
+                        writeOutput(outputPath, target);
+                    }
+
+                } else {
+                    fail("unsupported component combination");
                 }
             } else {
                 fail("unsupported profile: " + profile.toString());
@@ -203,7 +275,8 @@ public class SiffParserTest {
             case 0:
                 // TODO: don't hard code number of bands
                 SampleModel bandedSampleModel =
-                        new BandedSampleModel(DataBuffer.TYPE_BYTE, width, height, 3);
+                        new BandedSampleModel(
+                                DataBuffer.TYPE_BYTE, width, height, uncC.getComponents().size());
                 return bandedSampleModel;
             case 1:
                 int[] bandOffsets = getBandOffsetsRGBA(uncC, cmpd);
@@ -296,6 +369,22 @@ public class SiffParserTest {
                             DataBuffer.TYPE_BYTE);
             return colourModel;
         }
+    }
+
+    private ColorModel getIndexColourModel(ComponentPaletteBox cpal) {
+        byte[] cmap =
+                new byte[cpal.getComponentValues().length * cpal.getComponentValues()[0].length];
+        for (int i = 0; i < cpal.getComponentValues().length; i++) {
+            System.arraycopy(
+                    cpal.getComponentValues()[i],
+                    0,
+                    cmap,
+                    i * cpal.getComponentValues()[i].length,
+                    cpal.getComponentValues()[i].length);
+        }
+        IndexColorModel cm =
+                new IndexColorModel(8, cpal.getComponentValues().length, cmap, 0, false);
+        return cm;
     }
 
     private BufferedImage buildBufferedImage(
@@ -459,5 +548,67 @@ public class SiffParserTest {
             mask |= (0x1 << i);
         }
         return mask;
+    }
+
+    private boolean isRGB(UncompressedFrameConfigBox uncC, ComponentDefinitionBox cmpd) {
+        int redComponents = 0;
+        int greenComponents = 0;
+        int blueComponents = 0;
+        for (int i = 0; i < uncC.getComponents().size(); i++) {
+            Component component = uncC.getComponents().get(i);
+            int component_index = component.getComponentIndex();
+            ComponentDefinition componentDefinition =
+                    cmpd.getComponentDefinitions().get(component_index);
+            switch (componentDefinition.getComponentType()) {
+                case 4:
+                    redComponents += 1;
+                    break;
+                case 5:
+                    greenComponents += 1;
+                    break;
+                case 6:
+                    blueComponents += 1;
+                    break;
+            }
+        }
+        return (redComponents == 1) && (greenComponents == 1) && (blueComponents == 1);
+    }
+
+    private boolean isYCbCr(UncompressedFrameConfigBox uncC, ComponentDefinitionBox cmpd) {
+        int yComponents = 0;
+        int cbComponents = 0;
+        int crComponents = 0;
+        for (int i = 0; i < uncC.getComponents().size(); i++) {
+            Component component = uncC.getComponents().get(i);
+            int component_index = component.getComponentIndex();
+            ComponentDefinition componentDefinition =
+                    cmpd.getComponentDefinitions().get(component_index);
+            switch (componentDefinition.getComponentType()) {
+                case 1:
+                    yComponents += 1;
+                    break;
+                case 2:
+                    cbComponents += 1;
+                    break;
+                case 3:
+                    crComponents += 1;
+                    break;
+            }
+        }
+        return (yComponents == 1) && (cbComponents == 1) && (crComponents == 1);
+    }
+
+    private boolean isPalette(
+            UncompressedFrameConfigBox uncC,
+            ComponentDefinitionBox cmpd,
+            ComponentPaletteBox cpal) {
+        if (cpal == null) {
+            return false;
+        }
+        if (uncC.getComponents().size() == 1) {
+            int component_index = uncC.getComponents().get(0).getComponentIndex();
+            return (cmpd.getComponentDefinitions().get(component_index).getComponentType() == 10);
+        }
+        return false;
     }
 }

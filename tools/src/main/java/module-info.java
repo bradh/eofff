@@ -12,6 +12,7 @@ module net.frogmouth.rnd.eofff.tools {
     requires org.slf4j;
     requires org.jmisb.api;
     requires java.desktop;
+    requires net.frogmouth.rnd.eofff.yuv;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
 }

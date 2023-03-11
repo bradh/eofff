@@ -1,5 +1,6 @@
 package net.frogmouth.rnd.eofff.tools.siff;
 
+import static net.frogmouth.rnd.eofff.yuv.ColourSpace.YUV420;
 import static org.testng.Assert.*;
 
 import java.awt.Color;
@@ -14,6 +15,7 @@ import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferUShort;
+import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
@@ -21,7 +23,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,8 +55,12 @@ import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
+import net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteBox;
+import net.frogmouth.rnd.eofff.uncompressed.cpal.PaletteComponent;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
+import net.frogmouth.rnd.eofff.yuv.ColourSpace;
+import net.frogmouth.rnd.eofff.yuv.Y4mReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -63,8 +72,9 @@ public class CreateFileTest {
     private static final int IMAGE_HEIGHT = 720;
     private static final int NUM_BYTES_PER_PIXEL_RGB = 3;
     private static final int NUM_BYTES_PER_PIXEL_RGBA = 4;
+    private static final int NUM_BYTES_PER_PIXEL_RGB_PALETTE = 1;
     private static final int LENGTH_OF_FREEBOX_HEADER = 8;
-    private static final int MDAT_START = 1000;
+    private static final int MDAT_START = 2000;
     private static final int IMAGE_DATA_START = MDAT_START + 8; // assumes mdat header is 8 bytes.
     private static final Color[] COLOURS =
             new Color[] {
@@ -169,6 +179,27 @@ public class CreateFileTest {
     }
 
     @Test
+    public void writeFile_rgb_palette() throws IOException {
+        BufferedImage image =
+                new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_BYTE_INDEXED);
+        drawColouredRectangles(image);
+        ImageIO.write(image, "PNG", new File("ref_byte_indexed.png"));
+        List<Box> boxes = new ArrayList<>();
+        FileTypeBox ftyp = createFileTypeBox();
+        boxes.add(ftyp);
+        MetaBox meta = createMetaBox_rgb_palette(image.getColorModel());
+        boxes.add(meta);
+        long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
+        long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
+        FreeBox free = new FreeBox();
+        free.setData(new byte[(int) numberOfFillBytes]);
+        boxes.add(free);
+        MediaDataBox mdat = createMediaDataBox_rgb_palette(image);
+        boxes.add(mdat);
+        writeBoxes(boxes, "test_siff_rgb_palette.mp4");
+    }
+
+    @Test
     public void writeFile_rgb565_block_be() throws IOException {
         List<Box> boxes = buildBoxes_rgb565(ByteOrder.BIG_ENDIAN);
         writeBoxes(boxes, "test_siff_rgb565_block_be.mp4");
@@ -202,6 +233,41 @@ public class CreateFileTest {
     public void writeFile_rgb555_block_le_pad_lsb() throws IOException {
         List<Box> boxes = buildBoxes_rgb555(ByteOrder.LITTLE_ENDIAN, true);
         writeBoxes(boxes, "test_siff_rgb555_block_le_pad_lsb.mp4");
+    }
+
+    @Test
+    public void writeFile_yuv444() throws IOException {
+        writeFileYUV("/home/bradh/yuvdata/in_to_tree_444_720p50.y4m", "test_siff_yuv444.mp4");
+    }
+
+    @Test
+    public void writeFile_yuv422() throws IOException {
+        writeFileYUV("/home/bradh/yuvdata/controlled_burn_1080p.y4m", "test_siff_yuv422.mp4");
+    }
+
+    @Test
+    public void writeFile_yuv420() throws IOException {
+        writeFileYUV("/home/bradh/yuvdata/pedestrian_area_1080p25.y4m", "test_siff_yuv420.mp4");
+    }
+
+    private void writeFileYUV(String inFile, String outFile) throws IOException {
+        Path path = Path.of(inFile);
+        SeekableByteChannel fileChannel = FileChannel.open(path, StandardOpenOption.READ);
+        Y4mReader reader = new Y4mReader(fileChannel);
+        reader.readHeader();
+        List<Box> boxes = new ArrayList<>();
+        FileTypeBox ftyp = createFileTypeBox();
+        boxes.add(ftyp);
+        MetaBox meta = createMetaBox_yuv(reader);
+        boxes.add(meta);
+        long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
+        long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
+        FreeBox free = new FreeBox();
+        free.setData(new byte[(int) numberOfFillBytes]);
+        boxes.add(free);
+        MediaDataBox mdat = createMediaDataBox_yuv(reader);
+        boxes.add(mdat);
+        writeBoxes(boxes, outFile);
     }
 
     private List<Box> buildBoxes_rgb565(ByteOrder blockEndian) throws IOException {
@@ -317,6 +383,18 @@ public class CreateFileTest {
         return meta;
     }
 
+    private MetaBox createMetaBox_rgb_palette(ColorModel colourModel) {
+        MetaBox meta = new MetaBox();
+        List<Box> boxes = new ArrayList<>();
+        boxes.add(makeHandlerBox());
+        boxes.add(makePrimaryItemBox());
+        boxes.add(makeItemInfoBox());
+        boxes.add(makeItemLocationBox_rgb_palette());
+        boxes.add(makeItemPropertiesBox_rgb_palette(colourModel));
+        meta.addNestedBoxes(boxes);
+        return meta;
+    }
+
     private MetaBox createMetaBox_rgb565(ByteOrder blockEndian) {
         MetaBox meta = new MetaBox();
         List<Box> boxes = new ArrayList<>();
@@ -337,6 +415,18 @@ public class CreateFileTest {
         boxes.add(makeItemInfoBox());
         boxes.add(makeItemLocationBox_rgb555());
         boxes.add(makeItemPropertiesBox_rgb555(blockEndian, padLSB));
+        meta.addNestedBoxes(boxes);
+        return meta;
+    }
+
+    private MetaBox createMetaBox_yuv(Y4mReader reader) {
+        MetaBox meta = new MetaBox();
+        List<Box> boxes = new ArrayList<>();
+        boxes.add(makeHandlerBox());
+        boxes.add(makePrimaryItemBox());
+        boxes.add(makeItemInfoBox());
+        boxes.add(makeItemLocationBox_yuv(reader));
+        boxes.add(makeItemPropertiesBox_yuv(reader));
         meta.addNestedBoxes(boxes);
         return meta;
     }
@@ -374,12 +464,51 @@ public class CreateFileTest {
         return makeItemLocationBox_rgb3();
     }
 
+    private ItemLocationBox makeItemLocationBox_rgb_palette() {
+        ItemLocationBox iloc = new ItemLocationBox();
+        iloc.setOffsetSize(4);
+        iloc.setLengthSize(4);
+        iloc.setBaseOffsetSize(4);
+        iloc.setIndexSize(4);
+        iloc.setVersion(1);
+        ILocItem mainItemLocation = new ILocItem();
+        mainItemLocation.setConstructionMethod(0);
+        mainItemLocation.setItemId(MAIN_ITEM_ID);
+        ILocExtent mainItemExtent = new ILocExtent();
+        mainItemExtent.setExtentIndex(0);
+        mainItemExtent.setExtentOffset(IMAGE_DATA_START);
+        mainItemExtent.setExtentLength(
+                IMAGE_HEIGHT * IMAGE_WIDTH * NUM_BYTES_PER_PIXEL_RGB_PALETTE);
+        mainItemLocation.addExtent(mainItemExtent);
+        iloc.addItem(mainItemLocation);
+        return iloc;
+    }
+
     private ItemLocationBox makeItemLocationBox_rgb565() {
         return makeItemLocationBox_two_byte_per_pixel();
     }
 
     private ItemLocationBox makeItemLocationBox_rgb555() {
         return makeItemLocationBox_two_byte_per_pixel();
+    }
+
+    private ItemLocationBox makeItemLocationBox_yuv(Y4mReader reader) {
+        ItemLocationBox iloc = new ItemLocationBox();
+        iloc.setOffsetSize(4);
+        iloc.setLengthSize(4);
+        iloc.setBaseOffsetSize(4);
+        iloc.setIndexSize(4);
+        iloc.setVersion(1);
+        ILocItem mainItemLocation = new ILocItem();
+        mainItemLocation.setConstructionMethod(0);
+        mainItemLocation.setItemId(MAIN_ITEM_ID);
+        ILocExtent mainItemExtent = new ILocExtent();
+        mainItemExtent.setExtentIndex(0);
+        mainItemExtent.setExtentOffset(IMAGE_DATA_START);
+        mainItemExtent.setExtentLength(reader.getFrameSizeBytes());
+        mainItemLocation.addExtent(mainItemExtent);
+        iloc.addItem(mainItemLocation);
+        return iloc;
     }
 
     private ItemLocationBox makeItemLocationBox_two_byte_per_pixel() {
@@ -635,12 +764,105 @@ public class CreateFileTest {
         return iprp;
     }
 
+    private Box makeItemPropertiesBox_rgb_palette(ColorModel colourModel) {
+        ItemPropertiesBox iprp = new ItemPropertiesBox();
+        ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
+        ipco.addProperty(makeComponentDefinitionBox_rgb_palette());
+        ipco.addProperty(makeUncompressedFrameConfigBox_rgb_palette());
+        ipco.addProperty(makeImageSpatialExtentsProperty());
+        ipco.addProperty(makeComponentPaletteBox(colourModel));
+        iprp.setItemProperties(ipco);
+        ItemPropertyAssociation componentDefinitionAssociation = new ItemPropertyAssociation();
+        AssociationEntry componentDefinitionAssociationEntry = new AssociationEntry();
+        componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
+
+        PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
+        associationToComponentDefinitionBox.setPropertyIndex(0);
+        associationToComponentDefinitionBox.setEssential(true);
+        componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
+
+        PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
+        associationToUncompressedFrameConfigBox.setPropertyIndex(1);
+        associationToUncompressedFrameConfigBox.setEssential(true);
+        componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
+
+        PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
+        associationToImageSpatialExtentsProperty.setPropertyIndex(2);
+        associationToImageSpatialExtentsProperty.setEssential(false);
+        componentDefinitionAssociationEntry.addAssociation(
+                associationToImageSpatialExtentsProperty);
+
+        PropertyAssociation associationToComponentPaletteBox = new PropertyAssociation();
+        associationToComponentPaletteBox.setPropertyIndex(3);
+        associationToComponentPaletteBox.setEssential(true);
+        componentDefinitionAssociationEntry.addAssociation(associationToComponentPaletteBox);
+
+        componentDefinitionAssociation.addEntry(componentDefinitionAssociationEntry);
+        iprp.addItemPropertyAssociation(componentDefinitionAssociation);
+        return iprp;
+    }
+
+    private AbstractItemProperty makeComponentPaletteBox(ColorModel colourModel) {
+        ComponentPaletteBox cpal = new ComponentPaletteBox();
+        cpal.addComponent(new PaletteComponent(1, 7, 0));
+        cpal.addComponent(new PaletteComponent(2, 7, 0));
+        cpal.addComponent(new PaletteComponent(3, 7, 0));
+        IndexColorModel icm = (IndexColorModel) colourModel;
+        int mapSize = icm.getMapSize();
+        byte[][] values = new byte[mapSize][3];
+        byte[] reds = new byte[mapSize];
+        icm.getReds(reds);
+        byte[] greens = new byte[mapSize];
+        icm.getGreens(greens);
+        byte[] blues = new byte[mapSize];
+        icm.getBlues(blues);
+        for (int i = 0; i < mapSize; i++) {
+            values[i][0] = reds[i];
+            values[i][1] = greens[i];
+            values[i][2] = blues[i];
+        }
+        cpal.setComponentValues(values);
+        return cpal;
+    }
+
     private Box makeItemPropertiesBox_abgr() {
         ItemPropertiesBox iprp = new ItemPropertiesBox();
         ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
         ipco.addProperty(makeComponentDefinitionBox_abgr());
         ipco.addProperty(makeUncompressedFrameConfigBox_abgr());
         ipco.addProperty(makeImageSpatialExtentsProperty());
+        iprp.setItemProperties(ipco);
+        ItemPropertyAssociation componentDefinitionAssociation = new ItemPropertyAssociation();
+        AssociationEntry componentDefinitionAssociationEntry = new AssociationEntry();
+        componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
+
+        PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
+        associationToComponentDefinitionBox.setPropertyIndex(0);
+        associationToComponentDefinitionBox.setEssential(true);
+        componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
+
+        PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
+        associationToUncompressedFrameConfigBox.setPropertyIndex(1);
+        associationToUncompressedFrameConfigBox.setEssential(true);
+        componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
+
+        PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
+        associationToImageSpatialExtentsProperty.setPropertyIndex(2);
+        associationToImageSpatialExtentsProperty.setEssential(false);
+        componentDefinitionAssociationEntry.addAssociation(
+                associationToImageSpatialExtentsProperty);
+
+        componentDefinitionAssociation.addEntry(componentDefinitionAssociationEntry);
+        iprp.addItemPropertyAssociation(componentDefinitionAssociation);
+        return iprp;
+    }
+
+    private Box makeItemPropertiesBox_yuv(Y4mReader reader) {
+        ItemPropertiesBox iprp = new ItemPropertiesBox();
+        ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
+        ipco.addProperty(makeComponentDefinitionBox_yuv());
+        ipco.addProperty(makeUncompressedFrameConfigBox_yuv(reader));
+        ipco.addProperty(makeImageSpatialExtentsProperty_yuv(reader));
         iprp.setItemProperties(ipco);
         ItemPropertyAssociation componentDefinitionAssociation = new ItemPropertyAssociation();
         AssociationEntry componentDefinitionAssociationEntry = new AssociationEntry();
@@ -678,6 +900,19 @@ public class CreateFileTest {
         return cmpd;
     }
 
+    private ComponentDefinitionBox makeComponentDefinitionBox_rgb_palette() {
+        ComponentDefinitionBox cmpd = new ComponentDefinitionBox();
+        ComponentDefinition paletteComponent = new ComponentDefinition(10, null);
+        cmpd.addComponentDefinition(paletteComponent);
+        ComponentDefinition redComponent = new ComponentDefinition(4, null);
+        cmpd.addComponentDefinition(redComponent);
+        ComponentDefinition greenComponent = new ComponentDefinition(5, null);
+        cmpd.addComponentDefinition(greenComponent);
+        ComponentDefinition blueComponent = new ComponentDefinition(6, null);
+        cmpd.addComponentDefinition(blueComponent);
+        return cmpd;
+    }
+
     private ComponentDefinitionBox makeComponentDefinitionBox_rgba() {
         ComponentDefinitionBox cmpd = new ComponentDefinitionBox();
         ComponentDefinition redComponent = new ComponentDefinition(4, null);
@@ -701,6 +936,17 @@ public class CreateFileTest {
         cmpd.addComponentDefinition(blueComponent);
         ComponentDefinition alphaComponent = new ComponentDefinition(4, null);
         cmpd.addComponentDefinition(alphaComponent);
+        return cmpd;
+    }
+
+    private ComponentDefinitionBox makeComponentDefinitionBox_yuv() {
+        ComponentDefinitionBox cmpd = new ComponentDefinitionBox();
+        ComponentDefinition redComponent = new ComponentDefinition(1, null);
+        cmpd.addComponentDefinition(redComponent);
+        ComponentDefinition greenComponent = new ComponentDefinition(2, null);
+        cmpd.addComponentDefinition(greenComponent);
+        ComponentDefinition blueComponent = new ComponentDefinition(3, null);
+        cmpd.addComponentDefinition(blueComponent);
         return cmpd;
     }
 
@@ -838,6 +1084,26 @@ public class CreateFileTest {
         return uncc;
     }
 
+    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_rgb_palette() {
+        UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
+        uncc.setProfile(new FourCC("gene"));
+        uncc.addComponent(new Component(0, 7, 0, 0));
+        uncc.setSamplingType(0);
+        uncc.setInterleaveType(0);
+        uncc.setBlockSize(0);
+        uncc.setComponentLittleEndian(false);
+        uncc.setBlockPadLSB(false);
+        uncc.setBlockLittleEndian(false);
+        uncc.setBlockReversed(false);
+        uncc.setPadUnknown(false);
+        uncc.setPixelSize(0);
+        uncc.setRowAlignSize(0);
+        uncc.setTileAlignSize(0);
+        uncc.setNumTileColumnsMinusOne(0);
+        uncc.setNumTileColumnsMinusOne(0);
+        return uncc;
+    }
+
     private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_abgr() {
         UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
         uncc.setProfile(new FourCC("abgr"));
@@ -861,10 +1127,57 @@ public class CreateFileTest {
         return uncc;
     }
 
+    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_yuv(Y4mReader reader) {
+        UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
+        if (reader.getColourSpace().equals(ColourSpace.YUV420)) {
+            uncc.setProfile(new FourCC("i420"));
+        } else {
+            uncc.setProfile(new FourCC("gene"));
+        }
+        uncc.addComponent(new Component(0, 7, 0, 0));
+        uncc.addComponent(new Component(1, 7, 0, 0));
+        uncc.addComponent(new Component(2, 7, 0, 0));
+        uncc.setSamplingType(0);
+        switch (reader.getColourSpace()) {
+            case YUV420:
+                uncc.setSamplingType(2);
+                break;
+            case YUV422:
+                uncc.setSamplingType(1);
+                break;
+            case YUV444:
+                uncc.setSamplingType(0);
+                break;
+            default:
+                fail("unhandled YUV sampling");
+                break;
+        }
+        uncc.setInterleaveType(0);
+        uncc.setBlockSize(0);
+        uncc.setComponentLittleEndian(false);
+        uncc.setBlockPadLSB(false);
+        uncc.setBlockLittleEndian(false);
+        uncc.setBlockReversed(false);
+        uncc.setPadUnknown(false);
+        uncc.setPixelSize(0);
+        uncc.setRowAlignSize(0);
+        uncc.setTileAlignSize(0);
+        uncc.setNumTileColumnsMinusOne(0);
+        uncc.setNumTileColumnsMinusOne(0);
+        return uncc;
+    }
+
     private ImageSpatialExtentsProperty makeImageSpatialExtentsProperty() {
         ImageSpatialExtentsProperty ispe = new ImageSpatialExtentsProperty();
         ispe.setImageHeight(IMAGE_HEIGHT);
         ispe.setImageWidth(IMAGE_WIDTH);
+        return ispe;
+    }
+
+    private ImageSpatialExtentsProperty makeImageSpatialExtentsProperty_yuv(Y4mReader reader) {
+        ImageSpatialExtentsProperty ispe = new ImageSpatialExtentsProperty();
+        ispe.setImageHeight(reader.getFrameHeight());
+        ispe.setImageWidth(reader.getFrameWidth());
         return ispe;
     }
 
@@ -936,6 +1249,13 @@ public class CreateFileTest {
             destination += buffer.getData(i).length;
         }
         mdat.setData(data);
+        return mdat;
+    }
+
+    private MediaDataBox createMediaDataBox_rgb_palette(BufferedImage image) throws IOException {
+        MediaDataBox mdat = new MediaDataBox();
+        DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
+        mdat.setData(buffer.getData());
         return mdat;
     }
 
@@ -1056,6 +1376,20 @@ public class CreateFileTest {
         return mdat;
     }
 
+    private MediaDataBox createMediaDataBox_yuv(Y4mReader reader) throws IOException {
+        MediaDataBox mdat = new MediaDataBox();
+        int numFrames = 0;
+        while (reader.hasMoreFrames()) {
+            var frame = reader.getFrame();
+            numFrames += 1;
+            if (numFrames == 100) {
+                mdat.setData(frame);
+                break;
+            }
+        }
+        return mdat;
+    }
+
     public byte[] shortArrayToByteArray(short[] data, ByteOrder byteOrder) {
         byte[] bytes = new byte[data.length * Short.BYTES];
         int c = 0;
@@ -1101,6 +1435,7 @@ public class CreateFileTest {
         ComponentDefinitionBox cmpd = null;
         UncompressedFrameConfigBox uncC = null;
         ImageSpatialExtentsProperty ispe = null;
+        ComponentPaletteBox cpal = null;
 
         for (AbstractItemProperty property : properties) {
             if (property instanceof ComponentDefinitionBox componentDefinitionBox) {
@@ -1110,6 +1445,9 @@ public class CreateFileTest {
             } else if (property
                     instanceof ImageSpatialExtentsProperty imageSpatialExtentsProperty) {
                 ispe = imageSpatialExtentsProperty;
+            } else if (property instanceof ComponentPaletteBox componentPaletteBox) {
+                cpal = componentPaletteBox;
+
             } else {
                 fail("TODO: property: " + property.toString());
             }
@@ -1127,7 +1465,8 @@ public class CreateFileTest {
         checkAtMostOneFAComponent(uncC.getComponents(), cmpd.getComponentDefinitions());
         // TODO: check we have ComponentPatternDefinitionBox if FA is present.
         checkAtMostOnePaletteComponent(uncC.getComponents(), cmpd.getComponentDefinitions());
-        // TODO: check we have ComponentPaletteBox if P is present.
+        checkComponentPaletteBoxIsPresentIfNeeded(
+                uncC.getComponents(), cmpd.getComponentDefinitions(), cpal);
         checkComponentFormatIsValid(uncC.getComponents());
         checkComponentAlignSizeIsValid(uncC.getComponents());
         checkComponentAlignSizeIsConsistent(uncC);
@@ -1161,6 +1500,21 @@ public class CreateFileTest {
         if (numberOfP > 1) {
             fail(
                     "5.2.1.2 'There shall be at most one component with type 10 (P) present in the component list'");
+        }
+    }
+
+    private void checkComponentPaletteBoxIsPresentIfNeeded(
+            List<Component> components,
+            List<ComponentDefinition> componentDefinitions,
+            ComponentPaletteBox cpal) {
+        int numberOfP = getNumberOfPaletteComponents(components, componentDefinitions);
+        if ((numberOfP > 0) && (cpal == null)) {
+            fail(
+                    "6.1.2.1 'This box shall be present if and only if there is an associated ComponentDefinitionBox present, in which there is a component defined with a component_type of 10 ('P')'");
+        }
+        if ((numberOfP == 0) && (cpal != null)) {
+            fail(
+                    "6.1.2.1 'This box shall be present if and only if there is an associated ComponentDefinitionBox present, in which there is a component defined with a component_type of 10 ('P')'");
         }
     }
 
@@ -1354,6 +1708,51 @@ public class CreateFileTest {
                         uncC.getInterleaveType(),
                         1,
                         "5.3.2 Table 5 rgb3 requires [{4,7},{5,7},{6,7}], 0, 1");
+                checkAllOtherFieldsAreZero(uncC);
+                break;
+            case "i420":
+                assertEquals(
+                        components.size(),
+                        3,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(0).getComponentIndex())
+                                .getComponentType(),
+                        1,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
+                assertEquals(
+                        components.get(0).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(1).getComponentIndex())
+                                .getComponentType(),
+                        2,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
+                assertEquals(
+                        components.get(1).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(2).getComponentIndex())
+                                .getComponentType(),
+                        3,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
+                assertEquals(
+                        components.get(2).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
+                assertEquals(
+                        uncC.getSamplingType(),
+                        2,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
+                assertEquals(
+                        uncC.getInterleaveType(),
+                        0,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
                 checkAllOtherFieldsAreZero(uncC);
                 break;
             case "rgba":
