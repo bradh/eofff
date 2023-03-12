@@ -126,6 +126,11 @@ public class SiffParserTest {
     }
 
     @Test
+    public void parse_v308() throws IOException {
+        convertToPNG("test_siff_v308.mp4", "test_siff_v308.png");
+    }
+
+    @Test
     public void parse_yuv422() throws IOException {
         convertToPNG("test_siff_yuv422.mp4", "test_siff_yuv422.png");
     }
@@ -187,7 +192,9 @@ public class SiffParserTest {
                 BufferedImage target =
                         buildBufferedImage(data, sampleModel, colourModel, blockEndian);
                 writeOutput(outputPath, target);
-            } else if (profile.equals(new FourCC("gene")) || profile.equals(new FourCC("i420"))) {
+            } else if (profile.equals(new FourCC("gene"))
+                    || profile.equals(new FourCC("i420"))
+                    || profile.equals(new FourCC("v308"))) {
                 if (isRGB(uncC, cmpd)) {
                     // we need to check more cases
                     SampleModel sampleModel = getSampleModel(uncC, cmpd, ispe);
@@ -219,19 +226,29 @@ public class SiffParserTest {
                     OutputFormat outputFormat =
                             new OutputFormat_BGR_Bytes(
                                     (int) (ispe.getImageHeight() * ispe.getImageWidth()));
-                    ColourSpace colourSpace = ColourSpace.YUV444;
-                    if (uncC.getSamplingType() == 2) {
-                        colourSpace = ColourSpace.YUV420;
-                    } else if (uncC.getSamplingType() == 1) {
-                        colourSpace = ColourSpace.YUV422;
+                    byte[] rgbData;
+                    if (profile.equals(new FourCC("v308"))) {
+                        rgbData =
+                                ColourSpaceConverter.V308Converter(
+                                        (int) ispe.getImageHeight(),
+                                        (int) ispe.getImageWidth(),
+                                        data,
+                                        outputFormat);
+                    } else {
+                        ColourSpace colourSpace = ColourSpace.YUV444;
+                        if (uncC.getSamplingType() == 2) {
+                            colourSpace = ColourSpace.YUV420;
+                        } else if (uncC.getSamplingType() == 1) {
+                            colourSpace = ColourSpace.YUV422;
+                        }
+                        rgbData =
+                                ColourSpaceConverter.YuvConverter(
+                                        colourSpace,
+                                        (int) ispe.getImageHeight(),
+                                        (int) ispe.getImageWidth(),
+                                        data,
+                                        outputFormat);
                     }
-                    byte[] rgbData =
-                            ColourSpaceConverter.YuvConverter(
-                                    colourSpace,
-                                    (int) ispe.getImageHeight(),
-                                    (int) ispe.getImageWidth(),
-                                    data,
-                                    outputFormat);
                     BufferedImage target =
                             new BufferedImage(
                                     (int) ispe.getImageWidth(),

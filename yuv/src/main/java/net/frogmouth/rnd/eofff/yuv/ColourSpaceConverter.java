@@ -52,4 +52,26 @@ public class ColourSpaceConverter {
         }
         return outputFormat.getBytes();
     }
+
+    // TODO: this is gross
+    public static byte[] V308Converter(
+            int frameHeight, int frameWidth, byte[] frameData, OutputFormat outputFormat) {
+        for (int y = 0; y < frameHeight; y++) {
+            for (int x = 0; x < frameWidth; x++) {
+                try {
+                    int pixelIndex = 3 * (y * frameWidth + x);
+                    int crValue = (frameData[pixelIndex] & 0xFF) - 128;
+                    int yValue = frameData[pixelIndex + 1] & 0xFF;
+                    int cbValue = (frameData[pixelIndex + 2] & 0xFF) - 128;
+                    int r = (int) (yValue + 1.370705f * crValue);
+                    int g = (int) (yValue - (0.698001f * crValue) - (0.337633f * cbValue));
+                    int b = (int) (yValue + 1.732446f * cbValue);
+                    outputFormat.putRGB(r, g, b);
+                } catch (BufferOverflowException ex) {
+                    System.out.println(ex.toString());
+                }
+            }
+        }
+        return outputFormat.getBytes();
+    }
 }

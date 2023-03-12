@@ -241,6 +241,14 @@ public class CreateFileTest {
     }
 
     @Test
+    public void writeFile_v308() throws IOException {
+        writeFileYUV(
+                "/home/bradh/yuvdata/in_to_tree_444_720p50.y4m",
+                "test_siff_v308.mp4",
+                new FourCC("v308"));
+    }
+
+    @Test
     public void writeFile_yuv422() throws IOException {
         writeFileYUV("/home/bradh/yuvdata/controlled_burn_1080p.y4m", "test_siff_yuv422.mp4");
     }
@@ -258,14 +266,34 @@ public class CreateFileTest {
         List<Box> boxes = new ArrayList<>();
         FileTypeBox ftyp = createFileTypeBox();
         boxes.add(ftyp);
-        MetaBox meta = createMetaBox_yuv(reader);
+        MetaBox meta = createMetaBox_yuv(reader, null);
         boxes.add(meta);
         long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
         long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
         FreeBox free = new FreeBox();
         free.setData(new byte[(int) numberOfFillBytes]);
         boxes.add(free);
-        MediaDataBox mdat = createMediaDataBox_yuv(reader);
+        MediaDataBox mdat = createMediaDataBox_yuv(reader, null);
+        boxes.add(mdat);
+        writeBoxes(boxes, outFile);
+    }
+
+    private void writeFileYUV(String inFile, String outFile, FourCC profile) throws IOException {
+        Path path = Path.of(inFile);
+        SeekableByteChannel fileChannel = FileChannel.open(path, StandardOpenOption.READ);
+        Y4mReader reader = new Y4mReader(fileChannel);
+        reader.readHeader();
+        List<Box> boxes = new ArrayList<>();
+        FileTypeBox ftyp = createFileTypeBox();
+        boxes.add(ftyp);
+        MetaBox meta = createMetaBox_yuv(reader, profile);
+        boxes.add(meta);
+        long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
+        long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
+        FreeBox free = new FreeBox();
+        free.setData(new byte[(int) numberOfFillBytes]);
+        boxes.add(free);
+        MediaDataBox mdat = createMediaDataBox_yuv(reader, profile);
         boxes.add(mdat);
         writeBoxes(boxes, outFile);
     }
@@ -419,14 +447,14 @@ public class CreateFileTest {
         return meta;
     }
 
-    private MetaBox createMetaBox_yuv(Y4mReader reader) {
+    private MetaBox createMetaBox_yuv(Y4mReader reader, FourCC profile) {
         MetaBox meta = new MetaBox();
         List<Box> boxes = new ArrayList<>();
         boxes.add(makeHandlerBox());
         boxes.add(makePrimaryItemBox());
         boxes.add(makeItemInfoBox());
         boxes.add(makeItemLocationBox_yuv(reader));
-        boxes.add(makeItemPropertiesBox_yuv(reader));
+        boxes.add(makeItemPropertiesBox_yuv(reader, profile));
         meta.addNestedBoxes(boxes);
         return meta;
     }
@@ -857,11 +885,11 @@ public class CreateFileTest {
         return iprp;
     }
 
-    private Box makeItemPropertiesBox_yuv(Y4mReader reader) {
+    private Box makeItemPropertiesBox_yuv(Y4mReader reader, FourCC profile) {
         ItemPropertiesBox iprp = new ItemPropertiesBox();
         ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
         ipco.addProperty(makeComponentDefinitionBox_yuv());
-        ipco.addProperty(makeUncompressedFrameConfigBox_yuv(reader));
+        ipco.addProperty(makeUncompressedFrameConfigBox_yuv(reader, profile));
         ipco.addProperty(makeImageSpatialExtentsProperty_yuv(reader));
         iprp.setItemProperties(ipco);
         ItemPropertyAssociation componentDefinitionAssociation = new ItemPropertyAssociation();
@@ -1127,16 +1155,33 @@ public class CreateFileTest {
         return uncc;
     }
 
-    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_yuv(Y4mReader reader) {
-        UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
-        if (reader.getColourSpace().equals(ColourSpace.YUV420)) {
-            uncc.setProfile(new FourCC("i420"));
-        } else {
-            uncc.setProfile(new FourCC("gene"));
+    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_yuv(
+            Y4mReader reader, FourCC profile) {
+        if ((profile != null) && (!profile.equals(new FourCC("v308")))) {
+            fail("need to handle specified profile");
         }
-        uncc.addComponent(new Component(0, 7, 0, 0));
-        uncc.addComponent(new Component(1, 7, 0, 0));
-        uncc.addComponent(new Component(2, 7, 0, 0));
+        UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
+        if (profile != null) {
+            uncc.setProfile(profile);
+        } else {
+            if (reader.getColourSpace().equals(ColourSpace.YUV420)) {
+                // TODO: maybe should be passing this down
+                uncc.setProfile(new FourCC("i420"));
+            } else {
+                uncc.setProfile(new FourCC("gene"));
+            }
+        }
+        if (profile == null) {
+            uncc.addComponent(new Component(0, 7, 0, 0));
+            uncc.addComponent(new Component(1, 7, 0, 0));
+            uncc.addComponent(new Component(2, 7, 0, 0));
+        } else if (profile.equals(new FourCC("v308"))) {
+            uncc.addComponent(new Component(2, 7, 0, 0));
+            uncc.addComponent(new Component(0, 7, 0, 0));
+            uncc.addComponent(new Component(1, 7, 0, 0));
+        } else {
+            fail("need to handle specified profile");
+        }
         uncc.setSamplingType(0);
         switch (reader.getColourSpace()) {
             case YUV420:
@@ -1152,7 +1197,13 @@ public class CreateFileTest {
                 fail("unhandled YUV sampling");
                 break;
         }
-        uncc.setInterleaveType(0);
+        if (profile == null) {
+            uncc.setInterleaveType(0);
+        } else if (profile.equals(new FourCC("v308"))) {
+            uncc.setInterleaveType(1);
+        } else {
+            fail("need to handle specified profile");
+        }
         uncc.setBlockSize(0);
         uncc.setComponentLittleEndian(false);
         uncc.setBlockPadLSB(false);
@@ -1376,14 +1427,31 @@ public class CreateFileTest {
         return mdat;
     }
 
-    private MediaDataBox createMediaDataBox_yuv(Y4mReader reader) throws IOException {
+    private MediaDataBox createMediaDataBox_yuv(Y4mReader reader, FourCC profile)
+            throws IOException {
         MediaDataBox mdat = new MediaDataBox();
         int numFrames = 0;
         while (reader.hasMoreFrames()) {
-            var frame = reader.getFrame();
+            byte[] frame = reader.getFrame();
             numFrames += 1;
             if (numFrames == 100) {
-                mdat.setData(frame);
+                if (profile == null) {
+                    mdat.setData(frame);
+                } else if (profile.equals(new FourCC("v308"))) {
+                    // Base data is assumed to be 4:4:4
+                    byte[] data = new byte[frame.length];
+                    int yOffset = 0;
+                    int cbOffset = frame.length / 3;
+                    int crOffset = 2 * frame.length / 3;
+                    for (int i = 0; i < frame.length / 3; i++) {
+                        data[i * 3] = frame[crOffset + i];
+                        data[i * 3 + 1] = frame[yOffset + i];
+                        data[i * 3 + 2] = frame[cbOffset + i];
+                    }
+                    mdat.setData(data);
+                } else {
+                    fail("need to handle specified profile");
+                }
                 break;
             }
         }
@@ -1665,6 +1733,51 @@ public class CreateFileTest {
         List<ComponentDefinition> componentDefinitions = cmpd.getComponentDefinitions();
         List<Component> components = uncC.getComponents();
         switch (uncC.getProfile().toString()) {
+            case "v308":
+                assertEquals(
+                        components.size(),
+                        3,
+                        "5.3.2 Table 5 v308 requires [{3,7},{1,7},{2,7}], 0, 1");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(0).getComponentIndex())
+                                .getComponentType(),
+                        3,
+                        "5.3.2 Table 5 v308 requires [{3,7},{1,7},{2,7}], 0, 1");
+                assertEquals(
+                        components.get(0).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 v308 requires [{3,7},{1,7},{2,7}], 0, 1");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(1).getComponentIndex())
+                                .getComponentType(),
+                        1,
+                        "5.3.2 Table 5 v308 requires [{3,7},{1,7},{2,7}], 0, 1");
+                assertEquals(
+                        components.get(1).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 v308 requires [{3,7},{1,7},{2,7}], 0, 1");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(2).getComponentIndex())
+                                .getComponentType(),
+                        2,
+                        "5.3.2 Table 5 v308 requires [{3,7},{1,7},{2,7}], 0, 1");
+                assertEquals(
+                        components.get(2).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 v308 requires [{3,7},{1,7},{2,7}], 0, 1");
+                assertEquals(
+                        uncC.getSamplingType(),
+                        0,
+                        "5.3.2 Table 5 v308 requires [{3,7},{1,7},{2,7}], 0, 1");
+                assertEquals(
+                        uncC.getInterleaveType(),
+                        1,
+                        "5.3.2 Table 5 v308 requires [{3,7},{1,7},{2,7}], 0, 1");
+                checkAllOtherFieldsAreZero(uncC);
+                break;
             case "rgb3":
                 assertEquals(
                         components.size(),
