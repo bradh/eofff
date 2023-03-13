@@ -59,7 +59,6 @@ import net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteBox;
 import net.frogmouth.rnd.eofff.uncompressed.cpal.PaletteComponent;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
-import net.frogmouth.rnd.eofff.yuv.ColourSpace;
 import net.frogmouth.rnd.eofff.yuv.Y4mReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -286,8 +285,27 @@ public class CreateFileTest {
     }
 
     @Test
-    public void writeFile_yuv420() throws IOException {
-        writeFileYUV("/home/bradh/yuvdata/pedestrian_area_1080p25.y4m", "test_siff_yuv420.mp4");
+    public void writeFile_i420() throws IOException {
+        writeFileYUV(
+                "/home/bradh/yuvdata/pedestrian_area_1080p25.y4m",
+                "test_siff_i420.mp4",
+                new FourCC("i420"));
+    }
+
+    @Test
+    public void writeFile_nv12() throws IOException {
+        writeFileYUV(
+                "/home/bradh/yuvdata/pedestrian_area_1080p25.y4m",
+                "test_siff_nv12.mp4",
+                new FourCC("nv12"));
+    }
+
+    @Test
+    public void writeFile_nv21() throws IOException {
+        writeFileYUV(
+                "/home/bradh/yuvdata/pedestrian_area_1080p25.y4m",
+                "test_siff_nv21.mp4",
+                new FourCC("nv21"));
     }
 
     private void writeFileYUV(String inFile, String outFile) throws IOException {
@@ -1194,19 +1212,17 @@ public class CreateFileTest {
                 && (!profile.equals(new FourCC("yuv2")))
                 && (!profile.equals(new FourCC("yvyu")))
                 && (!profile.equals(new FourCC("vyuy")))
-                && (!profile.equals(new FourCC("v308")))) {
+                && (!profile.equals(new FourCC("i420")))
+                && (!profile.equals(new FourCC("v308")))
+                && (!profile.equals(new FourCC("nv12")))
+                && (!profile.equals(new FourCC("nv21")))) {
             fail("need to handle specified profile");
         }
         UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
         if (profile != null) {
             uncc.setProfile(profile);
         } else {
-            if (reader.getColourSpace().equals(ColourSpace.YUV420)) {
-                // TODO: maybe should be passing this down
-                uncc.setProfile(new FourCC("i420"));
-            } else {
-                uncc.setProfile(new FourCC("gene"));
-            }
+            uncc.setProfile(new FourCC("gene"));
         }
         if (profile == null) {
             uncc.addComponent(new Component(0, 7, 0, 0));
@@ -1236,6 +1252,19 @@ public class CreateFileTest {
             uncc.addComponent(new Component(2, 7, 0, 0));
             uncc.addComponent(new Component(0, 7, 0, 0));
             uncc.addComponent(new Component(1, 7, 0, 0));
+        } else if (profile.equals(new FourCC("i420"))) {
+            uncc.addComponent(new Component(0, 7, 0, 0));
+            uncc.addComponent(new Component(1, 7, 0, 0));
+            uncc.addComponent(new Component(2, 7, 0, 0));
+        } else if (profile.equals(new FourCC("nv12"))) {
+            uncc.addComponent(new Component(0, 7, 0, 0));
+            uncc.addComponent(new Component(1, 7, 0, 0));
+            uncc.addComponent(new Component(2, 7, 0, 0));
+        } else if (profile.equals(new FourCC("nv21"))) {
+            uncc.addComponent(new Component(0, 7, 0, 0));
+            uncc.addComponent(new Component(2, 7, 0, 0));
+            uncc.addComponent(new Component(1, 7, 0, 0));
+
         } else {
             fail("need to handle specified profile");
         }
@@ -1261,6 +1290,10 @@ public class CreateFileTest {
                 || (profile.equals(new FourCC("yvyu")))
                 || (profile.equals(new FourCC("vyuy")))) {
             uncc.setInterleaveType(5);
+        } else if (profile.equals(new FourCC("i420"))) {
+            uncc.setInterleaveType(0);
+        } else if ((profile.equals(new FourCC("nv12"))) || (profile.equals(new FourCC("nv21")))) {
+            uncc.setInterleaveType(2);
         } else if (profile.equals(new FourCC("v308"))) {
             uncc.setInterleaveType(1);
         } else {
@@ -1562,6 +1595,40 @@ public class CreateFileTest {
                         data[i * 3 + 1] = frame[yOffset + i];
                         data[i * 3 + 2] = frame[cbOffset + i];
                     }
+                    mdat.setData(data);
+                } else if (profile.equals(new FourCC("i420"))) {
+                    mdat.setData(frame);
+                } else if (profile.equals(new FourCC("nv12"))) {
+                    // Base data is assumed to be 4:2:0 planar
+                    assert ((frame.length % 6) == 0);
+                    byte[] data = new byte[frame.length];
+
+                    int cbOffset = 4 * frame.length / 6;
+                    int crOffset = 5 * frame.length / 6;
+                    byte[] interleavedChroma = new byte[frame.length - cbOffset];
+
+                    for (int i = 0; i < frame.length / 6; i++) {
+                        interleavedChroma[2 * i] = frame[cbOffset + i];
+                        interleavedChroma[2 * i + 1] = frame[crOffset + i];
+                    }
+                    System.arraycopy(frame, 0, data, 0, cbOffset);
+                    System.arraycopy(interleavedChroma, 0, data, cbOffset, data.length - cbOffset);
+                    mdat.setData(data);
+                } else if (profile.equals(new FourCC("nv21"))) {
+                    // Base data is assumed to be 4:2:0 planar
+                    assert ((frame.length % 6) == 0);
+                    byte[] data = new byte[frame.length];
+
+                    int cbOffset = 4 * frame.length / 6;
+                    int crOffset = 5 * frame.length / 6;
+                    byte[] interleavedChroma = new byte[frame.length - cbOffset];
+
+                    for (int i = 0; i < frame.length / 6; i++) {
+                        interleavedChroma[2 * i] = frame[crOffset + i];
+                        interleavedChroma[2 * i + 1] = frame[cbOffset + i];
+                    }
+                    System.arraycopy(frame, 0, data, 0, cbOffset);
+                    System.arraycopy(interleavedChroma, 0, data, cbOffset, data.length - cbOffset);
                     mdat.setData(data);
                 } else {
                     fail("need to handle specified profile");
@@ -2161,51 +2228,6 @@ public class CreateFileTest {
                         "5.3.2 Table 5 rgb3 requires [{4,7},{5,7},{6,7}], 0, 1");
                 checkAllOtherFieldsAreZero(uncC);
                 break;
-            case "i420":
-                assertEquals(
-                        components.size(),
-                        3,
-                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
-                assertEquals(
-                        componentDefinitions
-                                .get(components.get(0).getComponentIndex())
-                                .getComponentType(),
-                        1,
-                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
-                assertEquals(
-                        components.get(0).getComponentBitDepthMinusOne(),
-                        7,
-                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
-                assertEquals(
-                        componentDefinitions
-                                .get(components.get(1).getComponentIndex())
-                                .getComponentType(),
-                        2,
-                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
-                assertEquals(
-                        components.get(1).getComponentBitDepthMinusOne(),
-                        7,
-                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
-                assertEquals(
-                        componentDefinitions
-                                .get(components.get(2).getComponentIndex())
-                                .getComponentType(),
-                        3,
-                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
-                assertEquals(
-                        components.get(2).getComponentBitDepthMinusOne(),
-                        7,
-                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
-                assertEquals(
-                        uncC.getSamplingType(),
-                        2,
-                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
-                assertEquals(
-                        uncC.getInterleaveType(),
-                        0,
-                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
-                checkAllOtherFieldsAreZero(uncC);
-                break;
             case "rgba":
                 assertEquals(
                         components.size(),
@@ -2260,6 +2282,141 @@ public class CreateFileTest {
                         uncC.getInterleaveType(),
                         1,
                         "5.3.2 Table 5 rgba requires [{4,7},{5,7},{6,7},{7,7}], 0, 1");
+                checkAllOtherFieldsAreZero(uncC);
+                break;
+            case "i420":
+                assertEquals(
+                        components.size(),
+                        3,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(0).getComponentIndex())
+                                .getComponentType(),
+                        1,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
+                assertEquals(
+                        components.get(0).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(1).getComponentIndex())
+                                .getComponentType(),
+                        2,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
+                assertEquals(
+                        components.get(1).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(2).getComponentIndex())
+                                .getComponentType(),
+                        3,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
+                assertEquals(
+                        components.get(2).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
+                assertEquals(
+                        uncC.getSamplingType(),
+                        2,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
+                assertEquals(
+                        uncC.getInterleaveType(),
+                        0,
+                        "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
+                checkAllOtherFieldsAreZero(uncC);
+                break;
+            case "nv12":
+                assertEquals(
+                        components.size(),
+                        3,
+                        "5.3.2 Table 5 nv12 requires [{1,7},{2,7},{3,7}], 2, 2");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(0).getComponentIndex())
+                                .getComponentType(),
+                        1,
+                        "5.3.2 Table 5 nv12 requires [{1,7},{2,7},{3,7}], 2, 2");
+                assertEquals(
+                        components.get(0).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 nv12 requires [{1,7},{2,7},{3,7}], 2, 2");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(1).getComponentIndex())
+                                .getComponentType(),
+                        2,
+                        "5.3.2 Table 5 nv12 requires [{1,7},{2,7},{3,7}], 2, 2");
+                assertEquals(
+                        components.get(1).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 nv12 requires [{1,7},{2,7},{3,7}], 2, 2");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(2).getComponentIndex())
+                                .getComponentType(),
+                        3,
+                        "5.3.2 Table 5 nv12 requires [{1,7},{2,7},{3,7}], 2, 2");
+                assertEquals(
+                        components.get(2).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 nv12 requires [{1,7},{2,7},{3,7}], 2, 2");
+                assertEquals(
+                        uncC.getSamplingType(),
+                        2,
+                        "5.3.2 Table 5 nv12 requires [{1,7},{2,7},{3,7}], 2, 2");
+                assertEquals(
+                        uncC.getInterleaveType(),
+                        2,
+                        "5.3.2 Table 5 nv12 requires [{1,7},{2,7},{3,7}], 2, 2");
+                checkAllOtherFieldsAreZero(uncC);
+                break;
+            case "nv21":
+                assertEquals(
+                        components.size(),
+                        3,
+                        "5.3.2 Table 5 nv21 requires [{1,7},{3,7},{2,7}], 2, 2");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(0).getComponentIndex())
+                                .getComponentType(),
+                        1,
+                        "5.3.2 Table 5 nv21 requires [{1,7},{3,7},{2,7}], 2, 2");
+                assertEquals(
+                        components.get(0).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 nv21 requires [{1,7},{3,7},{2,7}], 2, 2");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(1).getComponentIndex())
+                                .getComponentType(),
+                        3,
+                        "5.3.2 Table 5 nv21 requires [{1,7},{3,7},{2,7}], 2, 2");
+                assertEquals(
+                        components.get(1).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 nv21 requires [{1,7},{3,7},{2,7}], 2, 2");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(2).getComponentIndex())
+                                .getComponentType(),
+                        2,
+                        "5.3.2 Table 5 nv21 requires [{1,7},{3,7},{2,7}], 2, 2");
+                assertEquals(
+                        components.get(2).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 nv21 requires [{1,7},{3,7},{2,7}], 2, 2");
+                assertEquals(
+                        uncC.getSamplingType(),
+                        2,
+                        "5.3.2 Table 5 nv21 requires [{1,7},{3,7},{2,7}], 2, 2");
+                assertEquals(
+                        uncC.getInterleaveType(),
+                        2,
+                        "5.3.2 Table 5 nv21 requires [{1,7},{3,7},{2,7}], 2, 2");
                 checkAllOtherFieldsAreZero(uncC);
                 break;
             case "abgr":

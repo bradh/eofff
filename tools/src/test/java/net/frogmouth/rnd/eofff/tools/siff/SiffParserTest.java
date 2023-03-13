@@ -156,8 +156,18 @@ public class SiffParserTest {
     }
 
     @Test
-    public void parse_yuv420() throws IOException {
-        convertToPNG("test_siff_yuv420.mp4", "test_siff_yuv420.png");
+    public void parse_i420() throws IOException {
+        convertToPNG("test_siff_i420.mp4", "test_siff_i420.png");
+    }
+
+    @Test
+    public void parse_nv12() throws IOException {
+        convertToPNG("test_siff_nv12.mp4", "test_siff_nv12.png");
+    }
+
+    @Test
+    public void parse_nv21() throws IOException {
+        convertToPNG("test_siff_nv21.mp4", "test_siff_nv21.png");
     }
 
     @Test
@@ -218,7 +228,9 @@ public class SiffParserTest {
                     || profile.equals(new FourCC("yvyu"))
                     || profile.equals(new FourCC("vyuy"))
                     || profile.equals(new FourCC("v308"))
-                    || profile.equals(new FourCC("i420"))) {
+                    || profile.equals(new FourCC("i420"))
+                    || profile.equals(new FourCC("nv12"))
+                    || profile.equals(new FourCC("nv21"))) {
                 if (isRGB(uncC, cmpd)) {
                     // we need to check more cases
                     SampleModel sampleModel = getSampleModel(uncC, cmpd, ispe);
@@ -282,6 +294,20 @@ public class SiffParserTest {
                     } else if (profile.equals(new FourCC("v308"))) {
                         rgbData =
                                 ColourSpaceConverter.V308Converter(
+                                        (int) ispe.getImageHeight(),
+                                        (int) ispe.getImageWidth(),
+                                        data,
+                                        outputFormat);
+                    } else if (profile.equals(new FourCC("nv12"))) {
+                        rgbData =
+                                ColourSpaceConverter.NV12Converter(
+                                        (int) ispe.getImageHeight(),
+                                        (int) ispe.getImageWidth(),
+                                        data,
+                                        outputFormat);
+                    } else if (profile.equals(new FourCC("nv21"))) {
+                        rgbData =
+                                ColourSpaceConverter.NV21Converter(
                                         (int) ispe.getImageHeight(),
                                         (int) ispe.getImageWidth(),
                                         data,
