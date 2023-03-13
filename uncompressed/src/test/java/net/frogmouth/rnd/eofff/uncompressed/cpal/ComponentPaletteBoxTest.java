@@ -29,7 +29,14 @@ public class ComponentPaletteBoxTest extends PropertyTestSupport {
         assertEquals(cpal.getComponents().get(0).getComponentIndex(), 1);
         assertEquals(cpal.getComponents().get(1).getComponentIndex(), 2);
         assertEquals(cpal.getComponents().get(2).getComponentIndex(), 3);
-        // TODO: check component values array of arrays
+        assertEquals(cpal.getComponentValues().length, 2);
+        assertEquals(cpal.getComponentValues()[0].length, 3);
+        assertEquals(cpal.getComponentValues()[0][0], 16);
+        assertEquals(cpal.getComponentValues()[0][1], 32);
+        assertEquals(cpal.getComponentValues()[0][2], 48);
+        assertEquals(cpal.getComponentValues()[1][0], 17);
+        assertEquals(cpal.getComponentValues()[1][1], 33);
+        assertEquals(cpal.getComponentValues()[1][2], 49);
         assertEquals(
                 cpal.toString(),
                 "ComponentPaletteBox 'cpal': {1, 7, 0}, {2, 7, 0}, {3, 7, 0}" + "");

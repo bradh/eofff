@@ -1,13 +1,13 @@
 package net.frogmouth.rnd.eofff.uncompressed.sbpm;
 
-import net.frogmouth.rnd.eofff.isobmff.Box;
+import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
+import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemFullPropertyParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SensorBadPixelsMapBoxParser extends FullBoxParser {
+public class SensorBadPixelsMapBoxParser extends ItemFullPropertyParser {
     private static final Logger LOG = LoggerFactory.getLogger(SensorBadPixelsMapBoxParser.class);
 
     public SensorBadPixelsMapBoxParser() {}
@@ -18,13 +18,14 @@ public class SensorBadPixelsMapBoxParser extends FullBoxParser {
     }
 
     @Override
-    public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
+    public AbstractItemProperty parse(
+            ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
         SensorBadPixelsMapBox box = new SensorBadPixelsMapBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
             LOG.warn("Got unsupported version {}, parsing as base box.", version);
-            return parseAsBaseBox(parseContext, initialOffset, boxSize, boxName);
+            return parseAsUnknownProperty(parseContext, initialOffset, boxSize, boxName);
         }
         box.setFlags(parseFlags(parseContext));
         int component_count = parseContext.readUnsignedInt16();

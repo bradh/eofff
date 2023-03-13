@@ -3,8 +3,8 @@ package net.frogmouth.rnd.eofff.uncompressed.sbpm;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemFullProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
@@ -12,7 +12,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  *
  * <p>See ISO/IEC 23001-17 (DIS) Section 6.1.7.
  */
-public class SensorBadPixelsMapBox extends FullBox {
+public class SensorBadPixelsMapBox extends ItemFullProperty {
 
     public static final FourCC SBPM_ATOM = new FourCC("sbpm");
     private final List<Integer> componentIndexes = new ArrayList<>();

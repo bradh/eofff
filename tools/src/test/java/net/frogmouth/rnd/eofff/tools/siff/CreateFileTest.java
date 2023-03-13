@@ -254,6 +254,38 @@ public class CreateFileTest {
     }
 
     @Test
+    public void writeFile_2vuy() throws IOException {
+        writeFileYUV(
+                "/home/bradh/yuvdata/controlled_burn_1080p.y4m",
+                "test_siff_2vuy.mp4",
+                new FourCC("2vuy"));
+    }
+
+    @Test
+    public void writeFile_yuv2() throws IOException {
+        writeFileYUV(
+                "/home/bradh/yuvdata/controlled_burn_1080p.y4m",
+                "test_siff_yuv2.mp4",
+                new FourCC("yuv2"));
+    }
+
+    @Test
+    public void writeFile_yvyu() throws IOException {
+        writeFileYUV(
+                "/home/bradh/yuvdata/controlled_burn_1080p.y4m",
+                "test_siff_yvyu.mp4",
+                new FourCC("yvyu"));
+    }
+
+    @Test
+    public void writeFile_vyuy() throws IOException {
+        writeFileYUV(
+                "/home/bradh/yuvdata/controlled_burn_1080p.y4m",
+                "test_siff_vyuy.mp4",
+                new FourCC("vyuy"));
+    }
+
+    @Test
     public void writeFile_yuv420() throws IOException {
         writeFileYUV("/home/bradh/yuvdata/pedestrian_area_1080p25.y4m", "test_siff_yuv420.mp4");
     }
@@ -969,12 +1001,12 @@ public class CreateFileTest {
 
     private ComponentDefinitionBox makeComponentDefinitionBox_yuv() {
         ComponentDefinitionBox cmpd = new ComponentDefinitionBox();
-        ComponentDefinition redComponent = new ComponentDefinition(1, null);
-        cmpd.addComponentDefinition(redComponent);
-        ComponentDefinition greenComponent = new ComponentDefinition(2, null);
-        cmpd.addComponentDefinition(greenComponent);
-        ComponentDefinition blueComponent = new ComponentDefinition(3, null);
-        cmpd.addComponentDefinition(blueComponent);
+        ComponentDefinition yComponent = new ComponentDefinition(1, null);
+        cmpd.addComponentDefinition(yComponent);
+        ComponentDefinition cbComponent = new ComponentDefinition(2, null);
+        cmpd.addComponentDefinition(cbComponent);
+        ComponentDefinition crComponent = new ComponentDefinition(3, null);
+        cmpd.addComponentDefinition(crComponent);
         return cmpd;
     }
 
@@ -1157,7 +1189,12 @@ public class CreateFileTest {
 
     private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_yuv(
             Y4mReader reader, FourCC profile) {
-        if ((profile != null) && (!profile.equals(new FourCC("v308")))) {
+        if ((profile != null)
+                && (!profile.equals(new FourCC("2vuy")))
+                && (!profile.equals(new FourCC("yuv2")))
+                && (!profile.equals(new FourCC("yvyu")))
+                && (!profile.equals(new FourCC("vyuy")))
+                && (!profile.equals(new FourCC("v308")))) {
             fail("need to handle specified profile");
         }
         UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
@@ -1175,6 +1212,26 @@ public class CreateFileTest {
             uncc.addComponent(new Component(0, 7, 0, 0));
             uncc.addComponent(new Component(1, 7, 0, 0));
             uncc.addComponent(new Component(2, 7, 0, 0));
+        } else if (profile.equals(new FourCC("2vuy"))) {
+            uncc.addComponent(new Component(1, 7, 0, 0));
+            uncc.addComponent(new Component(0, 7, 0, 0));
+            uncc.addComponent(new Component(2, 7, 0, 0));
+            uncc.addComponent(new Component(0, 7, 0, 0));
+        } else if (profile.equals(new FourCC("yuv2"))) {
+            uncc.addComponent(new Component(0, 7, 0, 0));
+            uncc.addComponent(new Component(1, 7, 0, 0));
+            uncc.addComponent(new Component(0, 7, 0, 0));
+            uncc.addComponent(new Component(2, 7, 0, 0));
+        } else if (profile.equals(new FourCC("yvyu"))) {
+            uncc.addComponent(new Component(0, 7, 0, 0));
+            uncc.addComponent(new Component(2, 7, 0, 0));
+            uncc.addComponent(new Component(0, 7, 0, 0));
+            uncc.addComponent(new Component(1, 7, 0, 0));
+        } else if (profile.equals(new FourCC("vyuy"))) {
+            uncc.addComponent(new Component(2, 7, 0, 0));
+            uncc.addComponent(new Component(0, 7, 0, 0));
+            uncc.addComponent(new Component(1, 7, 0, 0));
+            uncc.addComponent(new Component(0, 7, 0, 0));
         } else if (profile.equals(new FourCC("v308"))) {
             uncc.addComponent(new Component(2, 7, 0, 0));
             uncc.addComponent(new Component(0, 7, 0, 0));
@@ -1199,6 +1256,11 @@ public class CreateFileTest {
         }
         if (profile == null) {
             uncc.setInterleaveType(0);
+        } else if ((profile.equals(new FourCC("yuv2")))
+                || (profile.equals(new FourCC("2vuy")))
+                || (profile.equals(new FourCC("yvyu")))
+                || (profile.equals(new FourCC("vyuy")))) {
+            uncc.setInterleaveType(5);
         } else if (profile.equals(new FourCC("v308"))) {
             uncc.setInterleaveType(1);
         } else {
@@ -1437,8 +1499,60 @@ public class CreateFileTest {
             if (numFrames == 100) {
                 if (profile == null) {
                     mdat.setData(frame);
+                } else if (profile.equals(new FourCC("2vuy"))) {
+                    // Base data is assumed to be 4:2:2 planar
+                    byte[] data = new byte[frame.length];
+                    int yOffset = 0;
+                    int cbOffset = 2 * frame.length / 4;
+                    int crOffset = 3 * frame.length / 4;
+                    for (int i = 0; i < frame.length / 4; i++) {
+                        data[i * 4 + 0] = frame[cbOffset + i];
+                        data[i * 4 + 1] = frame[yOffset + 2 * i];
+                        data[i * 4 + 2] = frame[crOffset + i];
+                        data[i * 4 + 3] = frame[yOffset + 2 * i + 1];
+                    }
+                    mdat.setData(data);
+                } else if (profile.equals(new FourCC("yuv2"))) {
+                    // Base data is assumed to be 4:2:2 planar
+                    byte[] data = new byte[frame.length];
+                    int yOffset = 0;
+                    int cbOffset = 2 * frame.length / 4;
+                    int crOffset = 3 * frame.length / 4;
+                    for (int i = 0; i < frame.length / 4; i++) {
+                        data[i * 4 + 0] = frame[yOffset + 2 * i];
+                        data[i * 4 + 1] = frame[cbOffset + i];
+                        data[i * 4 + 2] = frame[yOffset + 2 * i + 1];
+                        data[i * 4 + 3] = frame[crOffset + i];
+                    }
+                    mdat.setData(data);
+                } else if (profile.equals(new FourCC("yvyu"))) {
+                    // Base data is assumed to be 4:2:2 planar
+                    byte[] data = new byte[frame.length];
+                    int yOffset = 0;
+                    int cbOffset = 2 * frame.length / 4;
+                    int crOffset = 3 * frame.length / 4;
+                    for (int i = 0; i < frame.length / 4; i++) {
+                        data[i * 4 + 0] = frame[yOffset + 2 * i];
+                        data[i * 4 + 1] = frame[crOffset + i];
+                        data[i * 4 + 2] = frame[yOffset + 2 * i + 1];
+                        data[i * 4 + 3] = frame[cbOffset + i];
+                    }
+                    mdat.setData(data);
+                } else if (profile.equals(new FourCC("vyuy"))) {
+                    // Base data is assumed to be 4:2:2 planar
+                    byte[] data = new byte[frame.length];
+                    int yOffset = 0;
+                    int cbOffset = 2 * frame.length / 4;
+                    int crOffset = 3 * frame.length / 4;
+                    for (int i = 0; i < frame.length / 4; i++) {
+                        data[i * 4 + 0] = frame[crOffset + i];
+                        data[i * 4 + 1] = frame[yOffset + 2 * i];
+                        data[i * 4 + 2] = frame[cbOffset + i];
+                        data[i * 4 + 3] = frame[yOffset + 2 * i + 1];
+                    }
+                    mdat.setData(data);
                 } else if (profile.equals(new FourCC("v308"))) {
-                    // Base data is assumed to be 4:4:4
+                    // Base data is assumed to be 4:4:4 planar
                     byte[] data = new byte[frame.length];
                     int yOffset = 0;
                     int cbOffset = frame.length / 3;
@@ -1733,6 +1847,230 @@ public class CreateFileTest {
         List<ComponentDefinition> componentDefinitions = cmpd.getComponentDefinitions();
         List<Component> components = uncC.getComponents();
         switch (uncC.getProfile().toString()) {
+            case "2vuy":
+                assertEquals(
+                        components.size(),
+                        4,
+                        "5.3.2 Table 5 2vuy requires [{2,7},{1,7},{3,7},{1,7}], 1, 5");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(0).getComponentIndex())
+                                .getComponentType(),
+                        2,
+                        "5.3.2 Table 5 2vuy requires [{2,7},{1,7},{3,7},{1,7}], 1, 5");
+                assertEquals(
+                        components.get(0).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 yuv2 requires [{1,7},{2,7},{1,7},{3,7}], 1, 5");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(1).getComponentIndex())
+                                .getComponentType(),
+                        1,
+                        "5.3.2 Table 5 2vuy requires [{2,7},{1,7},{3,7},{1,7}], 1, 5");
+                assertEquals(
+                        components.get(1).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 2vuy requires [{2,7},{1,7},{3,7},{1,7}], 1, 5");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(2).getComponentIndex())
+                                .getComponentType(),
+                        3,
+                        "5.3.2 Table 5 2vuy requires [{2,7},{1,7},{3,7},{1,7}], 1, 5");
+                assertEquals(
+                        components.get(2).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 2vuy requires [{2,7},{1,7},{3,7},{1,7}], 1, 5");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(3).getComponentIndex())
+                                .getComponentType(),
+                        1,
+                        "5.3.2 Table 5 2vuy requires [{2,7},{1,7},{3,7},{1,7}], 1, 5");
+                assertEquals(
+                        components.get(3).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 2vuy requires [{2,7},{1,7},{3,7},{1,7}], 1, 5");
+
+                assertEquals(
+                        uncC.getSamplingType(),
+                        1,
+                        "5.3.2 Table 5 2vuy requires [{2,7},{1,7},{3,7},{1,7}], 1, 5");
+                assertEquals(
+                        uncC.getInterleaveType(),
+                        5,
+                        "5.3.2 Table 5 2vuy requires [{2,7},{1,7},{3,7},{1,7}], 1, 5");
+                checkAllOtherFieldsAreZero(uncC);
+                break;
+            case "yuv2":
+                assertEquals(
+                        components.size(),
+                        4,
+                        "5.3.2 Table 5 yuv2 requires [{1,7},{2,7},{1,7},{3,7}], 1, 5");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(0).getComponentIndex())
+                                .getComponentType(),
+                        1,
+                        "5.3.2 Table 5 yuv2 requires [{1,7},{2,7},{1,7},{3,7}], 1, 5");
+                assertEquals(
+                        components.get(0).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 yuv2 requires [{1,7},{2,7},{1,7},{3,7}], 1, 5");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(1).getComponentIndex())
+                                .getComponentType(),
+                        2,
+                        "5.3.2 Table 5 yuv2 requires [{1,7},{2,7},{1,7},{3,7}], 1, 5");
+                assertEquals(
+                        components.get(1).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 yuv2 requires [{1,7},{2,7},{1,7},{3,7}], 1, 5");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(2).getComponentIndex())
+                                .getComponentType(),
+                        1,
+                        "5.3.2 Table 5 yuv2 requires [{1,7},{2,7},{1,7},{3,7}], 1, 5");
+                assertEquals(
+                        components.get(2).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 yuv2 requires [{1,7},{2,7},{1,7},{3,7}], 1, 5");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(3).getComponentIndex())
+                                .getComponentType(),
+                        3,
+                        "5.3.2 Table 5 yuv2 requires [{1,7},{2,7},{1,7},{3,7}], 1, 5");
+                assertEquals(
+                        components.get(3).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 yuv2 requires [{1,7},{2,7},{1,7},{3,7}], 1, 5");
+
+                assertEquals(
+                        uncC.getSamplingType(),
+                        1,
+                        "5.3.2 Table 5 yuv2 requires [{1,7},{2,7},{1,7},{3,7}], 1, 5");
+                assertEquals(
+                        uncC.getInterleaveType(),
+                        5,
+                        "5.3.2 Table 5 yuv2 requires [{1,7},{2,7},{1,7},{3,7}], 1, 5");
+                checkAllOtherFieldsAreZero(uncC);
+                break;
+            case "yvyu":
+                assertEquals(
+                        components.size(),
+                        4,
+                        "5.3.2 Table 5 yvyu requires [{1,7},{3,7},{1,7},{2,7}], 1, 5");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(0).getComponentIndex())
+                                .getComponentType(),
+                        1,
+                        "5.3.2 Table 5 yvyu requires [{1,7},{3,7},{1,7},{2,7}], 1, 5");
+                assertEquals(
+                        components.get(0).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 yvyu requires [{1,7},{3,7},{1,7},{2,7}], 1, 5");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(1).getComponentIndex())
+                                .getComponentType(),
+                        3,
+                        "5.3.2 Table 5 yvyu requires [{1,7},{3,7},{1,7},{2,7}], 1, 5");
+                assertEquals(
+                        components.get(1).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 yvyu requires [{1,7},{3,7},{1,7},{2,7}], 1, 5");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(2).getComponentIndex())
+                                .getComponentType(),
+                        1,
+                        "5.3.2 Table 5 yvyu requires [{1,7},{3,7},{1,7},{2,7}], 1, 5");
+                assertEquals(
+                        components.get(2).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 yvyu requires [{1,7},{3,7},{1,7},{2,7}], 1, 5");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(3).getComponentIndex())
+                                .getComponentType(),
+                        2,
+                        "5.3.2 Table 5 yvyu requires [{1,7},{3,7},{1,7},{2,7}], 1, 5");
+                assertEquals(
+                        components.get(3).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 yvyu requires [{1,7},{3,7},{1,7},{2,7}], 1, 5");
+
+                assertEquals(
+                        uncC.getSamplingType(),
+                        1,
+                        "5.3.2 Table 5 yvyu requires [{1,7},{3,7},{1,7},{2,7}], 1, 5");
+                assertEquals(
+                        uncC.getInterleaveType(),
+                        5,
+                        "5.3.2 Table 5 yvyu requires [{1,7},{3,7},{1,7},{2,7}], 1, 5");
+                checkAllOtherFieldsAreZero(uncC);
+                break;
+            case "vyuy":
+                assertEquals(
+                        components.size(),
+                        4,
+                        "5.3.2 Table 5 vyuy requires [{3,7},{1,7},{2,7},{1,7}], 1, 5");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(0).getComponentIndex())
+                                .getComponentType(),
+                        3,
+                        "5.3.2 Table 5 vyuy requires [{3,7},{1,7},{2,7},{1,7}], 1, 5");
+                assertEquals(
+                        components.get(0).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 vyuy requires [{3,7},{1,7},{2,7},{1,7}], 1, 5");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(1).getComponentIndex())
+                                .getComponentType(),
+                        1,
+                        "5.3.2 Table 5 vyuy requires [{3,7},{1,7},{2,7},{1,7}], 1, 5");
+                assertEquals(
+                        components.get(1).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 yvyu requires [{1,7},{3,7},{1,7},{2,7}], 1, 5");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(2).getComponentIndex())
+                                .getComponentType(),
+                        2,
+                        "5.3.2 Table 5 vyuy requires [{3,7},{1,7},{2,7},{1,7}], 1, 5");
+                assertEquals(
+                        components.get(2).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 vyuy requires [{3,7},{1,7},{2,7},{1,7}], 1, 5");
+                assertEquals(
+                        componentDefinitions
+                                .get(components.get(3).getComponentIndex())
+                                .getComponentType(),
+                        1,
+                        "5.3.2 Table 5 vyuy requires [{3,7},{1,7},{2,7},{1,7}], 1, 5");
+                assertEquals(
+                        components.get(3).getComponentBitDepthMinusOne(),
+                        7,
+                        "5.3.2 Table 5 vyuy requires [{3,7},{1,7},{2,7},{1,7}], 1, 5");
+
+                assertEquals(
+                        uncC.getSamplingType(),
+                        1,
+                        "5.3.2 Table 5 vyuy requires [{3,7},{1,7},{2,7},{1,7}], 1, 5");
+                assertEquals(
+                        uncC.getInterleaveType(),
+                        5,
+                        "5.3.2 Table 5 vyuy requires [{3,7},{1,7},{2,7},{1,7}], 1, 5");
+                checkAllOtherFieldsAreZero(uncC);
+                break;
             case "v308":
                 assertEquals(
                         components.size(),

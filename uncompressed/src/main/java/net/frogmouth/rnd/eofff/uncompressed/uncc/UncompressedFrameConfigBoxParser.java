@@ -1,13 +1,13 @@
 package net.frogmouth.rnd.eofff.uncompressed.uncc;
 
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser;
+import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemFullPropertyParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UncompressedFrameConfigBoxParser extends PropertyParser {
+public class UncompressedFrameConfigBoxParser extends ItemFullPropertyParser {
     private static final Logger LOG =
             LoggerFactory.getLogger(UncompressedFrameConfigBoxParser.class);
 
@@ -26,7 +26,7 @@ public class UncompressedFrameConfigBoxParser extends PropertyParser {
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
             LOG.warn("Got unsupported version {}, parsing as base box.", version);
-            return null;
+            return parseAsUnknownProperty(parseContext, initialOffset, boxSize, boxName);
         }
         box.setFlags(parseFlags(parseContext));
         FourCC profile = parseContext.readFourCC();
@@ -64,11 +64,5 @@ public class UncompressedFrameConfigBoxParser extends PropertyParser {
 
     private boolean isSupportedVersion(int version) {
         return (version == 0x00);
-    }
-
-    protected int parseFlags(ParseContext parseContext) {
-        byte[] flags = new byte[3];
-        parseContext.readBytes(flags);
-        return ((flags[0] & 0xFF) << 16) | ((flags[1] & 0xFF) << 8) | (flags[2] & 0xFF);
     }
 }

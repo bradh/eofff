@@ -4,14 +4,13 @@ import static org.testng.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
-import net.frogmouth.rnd.eofff.isobmff.Box;
-import net.frogmouth.rnd.eofff.isobmff.ByteArrayParser;
+import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.uncompressed.cmpd.PropertyTestSupport;
 import org.testng.annotations.Test;
 
 /** Unit tests for SensorBadPixelsMapBox. */
-public class SensorBadPixelsMapBoxTest {
+public class SensorBadPixelsMapBoxTest extends PropertyTestSupport {
     private static final byte[] SBPM_BYTES =
             new byte[] {
                 0x00,
@@ -208,12 +207,9 @@ public class SensorBadPixelsMapBoxTest {
 
     @Test
     public void checkParse() throws IOException {
-        ByteArrayParser parser = new ByteArrayParser();
-        List<Box> boxes = parser.parse(SBPM_BYTES);
-        assertEquals(boxes.size(), 1);
-        Box box = boxes.get(0);
-        assertTrue(box instanceof SensorBadPixelsMapBox);
-        SensorBadPixelsMapBox sbpm = (SensorBadPixelsMapBox) box;
+        AbstractItemProperty prop = parseBytesToSingleProperty(SBPM_BYTES);
+        assertTrue(prop instanceof SensorBadPixelsMapBox);
+        SensorBadPixelsMapBox sbpm = (SensorBadPixelsMapBox) prop;
         assertEquals(sbpm.getFullName(), "SensorBadPixelsMap");
         assertTrue(sbpm.getFourCC().toString().equals("sbpm"));
         assertTrue(sbpm.isCorrectionApplied());
@@ -241,12 +237,9 @@ public class SensorBadPixelsMapBoxTest {
 
     @Test
     public void checkParseNoCorrections() throws IOException {
-        ByteArrayParser parser = new ByteArrayParser();
-        List<Box> boxes = parser.parse(SBPM_BYTES_NOT_CORRECTED);
-        assertEquals(boxes.size(), 1);
-        Box box = boxes.get(0);
-        assertTrue(box instanceof SensorBadPixelsMapBox);
-        SensorBadPixelsMapBox sbpm = (SensorBadPixelsMapBox) box;
+        AbstractItemProperty prop = parseBytesToSingleProperty(SBPM_BYTES_NOT_CORRECTED);
+        assertTrue(prop instanceof SensorBadPixelsMapBox);
+        SensorBadPixelsMapBox sbpm = (SensorBadPixelsMapBox) prop;
         assertEquals(sbpm.getFullName(), "SensorBadPixelsMap");
         assertTrue(sbpm.getFourCC().toString().equals("sbpm"));
         assertFalse(sbpm.isCorrectionApplied());
@@ -270,39 +263,6 @@ public class SensorBadPixelsMapBoxTest {
         assertEquals(
                 sbpm.toString(),
                 "SensorBadPixelsMap 'sbpm': corrections applied: false, bad rows: [8, 260], bad columns: [513, 64, 1023], bad pixels: [(3, 16), (259, 272), (515, 528), (771, 784), (1027, 1040)]");
-    }
-
-    @Test
-    public void checkParseBadVersion() throws IOException {
-        ByteArrayParser parser = new ByteArrayParser();
-        List<Box> boxes =
-                parser.parse(
-                        new byte[] {
-                            0x00,
-                            0x00,
-                            0x00,
-                            0x15,
-                            0x73,
-                            0x62,
-                            0x70,
-                            0x6d,
-                            0x09,
-                            0x00,
-                            0x00,
-                            0x00,
-                            0x00,
-                            0x03,
-                            0x00,
-                            0x00,
-                            0x00,
-                            0x01,
-                            0x00,
-                            0x02,
-                            (byte) 0x80
-                        });
-        assertEquals(boxes.size(), 1);
-        Box box = boxes.get(0);
-        assertFalse(box instanceof SensorBadPixelsMapBox);
     }
 
     @Test

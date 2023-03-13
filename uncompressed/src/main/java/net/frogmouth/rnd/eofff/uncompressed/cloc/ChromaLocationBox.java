@@ -1,8 +1,8 @@
 package net.frogmouth.rnd.eofff.uncompressed.cloc;
 
 import java.io.IOException;
+import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemFullProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
@@ -12,7 +12,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  *
  * <p>See ISO/IEC 23001-17 (DIS) Section 6.1.8.
  */
-public class ChromaLocationBox extends FullBox {
+public class ChromaLocationBox extends ItemFullProperty {
 
     public static final FourCC CLOC_ATOM = new FourCC("cloc");
 

@@ -136,6 +136,26 @@ public class SiffParserTest {
     }
 
     @Test
+    public void parse_2vuy() throws IOException {
+        convertToPNG("test_siff_2vuy.mp4", "test_siff_2vuy.png");
+    }
+
+    @Test
+    public void parse_yuv2() throws IOException {
+        convertToPNG("test_siff_yuv2.mp4", "test_siff_yuv2.png");
+    }
+
+    @Test
+    public void parse_yvyu() throws IOException {
+        convertToPNG("test_siff_yvyu.mp4", "test_siff_yvyu.png");
+    }
+
+    @Test
+    public void parse_vyuy() throws IOException {
+        convertToPNG("test_siff_vyuy.mp4", "test_siff_vyuy.png");
+    }
+
+    @Test
     public void parse_yuv420() throws IOException {
         convertToPNG("test_siff_yuv420.mp4", "test_siff_yuv420.png");
     }
@@ -193,8 +213,12 @@ public class SiffParserTest {
                         buildBufferedImage(data, sampleModel, colourModel, blockEndian);
                 writeOutput(outputPath, target);
             } else if (profile.equals(new FourCC("gene"))
-                    || profile.equals(new FourCC("i420"))
-                    || profile.equals(new FourCC("v308"))) {
+                    || profile.equals(new FourCC("2vuy"))
+                    || profile.equals(new FourCC("yuv2"))
+                    || profile.equals(new FourCC("yvyu"))
+                    || profile.equals(new FourCC("vyuy"))
+                    || profile.equals(new FourCC("v308"))
+                    || profile.equals(new FourCC("i420"))) {
                 if (isRGB(uncC, cmpd)) {
                     // we need to check more cases
                     SampleModel sampleModel = getSampleModel(uncC, cmpd, ispe);
@@ -227,7 +251,35 @@ public class SiffParserTest {
                             new OutputFormat_BGR_Bytes(
                                     (int) (ispe.getImageHeight() * ispe.getImageWidth()));
                     byte[] rgbData;
-                    if (profile.equals(new FourCC("v308"))) {
+                    if (profile.equals(new FourCC("2vuy"))) {
+                        rgbData =
+                                ColourSpaceConverter.TwoVUYConverter(
+                                        (int) ispe.getImageHeight(),
+                                        (int) ispe.getImageWidth(),
+                                        data,
+                                        outputFormat);
+                    } else if (profile.equals(new FourCC("yuv2"))) {
+                        rgbData =
+                                ColourSpaceConverter.YUV2Converter(
+                                        (int) ispe.getImageHeight(),
+                                        (int) ispe.getImageWidth(),
+                                        data,
+                                        outputFormat);
+                    } else if (profile.equals(new FourCC("yvyu"))) {
+                        rgbData =
+                                ColourSpaceConverter.YVYUConverter(
+                                        (int) ispe.getImageHeight(),
+                                        (int) ispe.getImageWidth(),
+                                        data,
+                                        outputFormat);
+                    } else if (profile.equals(new FourCC("vyuy"))) {
+                        rgbData =
+                                ColourSpaceConverter.VYUYConverter(
+                                        (int) ispe.getImageHeight(),
+                                        (int) ispe.getImageWidth(),
+                                        data,
+                                        outputFormat);
+                    } else if (profile.equals(new FourCC("v308"))) {
                         rgbData =
                                 ColourSpaceConverter.V308Converter(
                                         (int) ispe.getImageHeight(),
@@ -611,7 +663,7 @@ public class SiffParserTest {
                     break;
             }
         }
-        return (yComponents == 1) && (cbComponents == 1) && (crComponents == 1);
+        return (yComponents >= 1) && (cbComponents == 1) && (crComponents == 1);
     }
 
     private boolean isPalette(
