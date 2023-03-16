@@ -3,17 +3,18 @@ package net.frogmouth.rnd.eofff.yuv.converters;
 import java.nio.BufferOverflowException;
 import net.frogmouth.rnd.eofff.yuv.OutputFormat;
 
-public class Converter {
+public class YUV420Converter implements YUVConverter {
     private final int frameHeight;
     private final int frameWidth;
     private final SourceFormat sourceFormat;
 
-    public Converter(int frameHeight, int frameWidth, SourceFormat format) {
+    public YUV420Converter(int frameHeight, int frameWidth, SourceFormat format) {
         this.frameHeight = frameHeight;
         this.frameWidth = frameWidth;
         this.sourceFormat = format;
     }
 
+    @Override
     public byte[] convert(byte[] frameData, OutputFormat outputFormat) {
         for (int y = 0; y < frameHeight; y++) {
             for (int x = 0; x < frameWidth / 2; x++) {

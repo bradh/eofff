@@ -4,7 +4,7 @@ public enum SourceFormat {
     TwoYUV("2yuv", 1, 3, 0, 2),
     YUV2("yuv2", 0, 2, 1, 3),
     VYUY("vyuy", 1, 3, 2, 0),
-    YVYU("yvyu", 0, 3, 2, 1);
+    YVYU("yvyu", 0, 2, 3, 1);
 
     private final String format;
     private final int y0Offset;

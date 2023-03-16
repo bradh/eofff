@@ -50,8 +50,9 @@ import net.frogmouth.rnd.eofff.yuv.ColourSpace;
 import net.frogmouth.rnd.eofff.yuv.ColourSpaceConverter;
 import net.frogmouth.rnd.eofff.yuv.OutputFormat;
 import net.frogmouth.rnd.eofff.yuv.OutputFormat_BGR_Bytes;
-import net.frogmouth.rnd.eofff.yuv.converters.Converter;
 import net.frogmouth.rnd.eofff.yuv.converters.SourceFormat;
+import net.frogmouth.rnd.eofff.yuv.converters.YUV420Converter;
+import net.frogmouth.rnd.eofff.yuv.converters.YUVConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -266,29 +267,29 @@ public class SiffParserTest {
                                     (int) (ispe.getImageHeight() * ispe.getImageWidth()));
                     byte[] rgbData;
                     if (profile.equals(new FourCC("2vuy"))) {
-                        Converter converter =
-                                new Converter(
+                        YUVConverter converter =
+                                new YUV420Converter(
                                         (int) ispe.getImageHeight(),
                                         (int) ispe.getImageWidth(),
                                         SourceFormat.TwoYUV);
                         rgbData = converter.convert(data, outputFormat);
                     } else if (profile.equals(new FourCC("yuv2"))) {
-                        Converter converter =
-                                new Converter(
+                        YUVConverter converter =
+                                new YUV420Converter(
                                         (int) ispe.getImageHeight(),
                                         (int) ispe.getImageWidth(),
                                         SourceFormat.YUV2);
                         rgbData = converter.convert(data, outputFormat);
                     } else if (profile.equals(new FourCC("yvyu"))) {
-                        Converter converter =
-                                new Converter(
+                        YUVConverter converter =
+                                new YUV420Converter(
                                         (int) ispe.getImageHeight(),
                                         (int) ispe.getImageWidth(),
                                         SourceFormat.YVYU);
                         rgbData = converter.convert(data, outputFormat);
                     } else if (profile.equals(new FourCC("vyuy"))) {
-                        Converter converter =
-                                new Converter(
+                        YUVConverter converter =
+                                new YUV420Converter(
                                         (int) ispe.getImageHeight(),
                                         (int) ispe.getImageWidth(),
                                         SourceFormat.VYUY);
