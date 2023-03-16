@@ -7,4 +7,5 @@ module net.frogmouth.rnd.eofff.yuv {
     requires org.slf4j;
 
     exports net.frogmouth.rnd.eofff.yuv;
+    exports net.frogmouth.rnd.eofff.yuv.converters;
 }
