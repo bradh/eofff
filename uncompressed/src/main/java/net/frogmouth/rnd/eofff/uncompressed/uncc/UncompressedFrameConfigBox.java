@@ -19,7 +19,7 @@ public class UncompressedFrameConfigBox extends ItemFullProperty {
     private FourCC profile;
     private final List<Component> components = new ArrayList<>();
     private SamplingType samplingType;
-    private int interleaveType;
+    private Interleaving interleaveType;
     private int blockSize;
     private boolean componentLittleEndian;
     private boolean blockPadLSB;
@@ -65,11 +65,11 @@ public class UncompressedFrameConfigBox extends ItemFullProperty {
         this.samplingType = samplingType;
     }
 
-    public int getInterleaveType() {
+    public Interleaving getInterleaveType() {
         return interleaveType;
     }
 
-    public void setInterleaveType(int interleaveType) {
+    public void setInterleaveType(Interleaving interleaveType) {
         this.interleaveType = interleaveType;
     }
 
@@ -188,7 +188,7 @@ public class UncompressedFrameConfigBox extends ItemFullProperty {
             component.writeTo(stream);
         }
         stream.writeByte(samplingType.getEncodedValue());
-        stream.writeByte(interleaveType);
+        stream.writeByte(interleaveType.getEncodedValue());
         stream.writeByte(blockSize);
         int bitMask = 0;
         // TODO: define constants for these bit flag masks

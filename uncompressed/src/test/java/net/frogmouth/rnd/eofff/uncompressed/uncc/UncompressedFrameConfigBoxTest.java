@@ -83,7 +83,7 @@ public class UncompressedFrameConfigBoxTest extends PropertyTestSupport {
         assertEquals(uncc.getComponents().get(1).getComponentIndex(), 1);
         assertEquals(uncc.getComponents().get(2).getComponentIndex(), 2);
         assertEquals(uncc.getSamplingType(), SamplingType.YCbCr420);
-        assertEquals(uncc.getInterleaveType(), 1);
+        assertEquals(uncc.getInterleaveType(), Interleaving.Pixel);
         assertEquals(uncc.getBlockSize(), 0);
         assertTrue(uncc.isComponentLittleEndian());
         assertTrue(uncc.isBlockPadLSB());
@@ -106,7 +106,7 @@ public class UncompressedFrameConfigBoxTest extends PropertyTestSupport {
         box.addComponent(new Component(1, 7, 0, 0));
         box.addComponent(new Component(2, 7, 0, 0));
         box.setSamplingType(SamplingType.YCbCr420);
-        box.setInterleaveType(1);
+        box.setInterleaveType(Interleaving.Pixel);
         box.setBlockSize(0);
         box.setComponentLittleEndian(true);
         box.setBlockPadLSB(true);

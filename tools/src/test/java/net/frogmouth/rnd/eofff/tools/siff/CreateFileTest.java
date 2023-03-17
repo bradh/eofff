@@ -58,6 +58,7 @@ import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteBox;
 import net.frogmouth.rnd.eofff.uncompressed.cpal.PaletteComponent;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
+import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
 import net.frogmouth.rnd.eofff.yuv.Y4mReader;
@@ -1036,7 +1037,7 @@ public class CreateFileTest {
         uncc.addComponent(new Component(1, 7, 0, 0));
         uncc.addComponent(new Component(2, 7, 0, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
-        uncc.setInterleaveType(1);
+        uncc.setInterleaveType(Interleaving.Pixel);
         uncc.setBlockSize(0);
         uncc.setComponentLittleEndian(false);
         uncc.setBlockPadLSB(false);
@@ -1058,7 +1059,7 @@ public class CreateFileTest {
         uncc.addComponent(new Component(1, 7, 0, 0));
         uncc.addComponent(new Component(2, 7, 0, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
-        uncc.setInterleaveType(0);
+        uncc.setInterleaveType(Interleaving.Component);
         uncc.setBlockSize(0);
         uncc.setComponentLittleEndian(false);
         uncc.setBlockPadLSB(false);
@@ -1080,7 +1081,7 @@ public class CreateFileTest {
         uncc.addComponent(new Component(1, 5, 0, 0));
         uncc.addComponent(new Component(2, 4, 0, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
-        uncc.setInterleaveType(1);
+        uncc.setInterleaveType(Interleaving.Pixel);
         uncc.setBlockSize(2);
         uncc.setComponentLittleEndian(false);
         uncc.setBlockPadLSB(false);
@@ -1103,7 +1104,7 @@ public class CreateFileTest {
         uncc.addComponent(new Component(1, 4, 0, 0));
         uncc.addComponent(new Component(2, 4, 0, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
-        uncc.setInterleaveType(1);
+        uncc.setInterleaveType(Interleaving.Pixel);
         uncc.setBlockSize(2);
         uncc.setComponentLittleEndian(false);
         uncc.setBlockPadLSB(padLSB);
@@ -1125,7 +1126,7 @@ public class CreateFileTest {
         uncc.addComponent(new Component(1, 7, 0, 0));
         uncc.addComponent(new Component(0, 7, 0, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
-        uncc.setInterleaveType(1);
+        uncc.setInterleaveType(Interleaving.Pixel);
         uncc.setBlockSize(0);
         uncc.setComponentLittleEndian(false);
         uncc.setBlockPadLSB(false);
@@ -1148,7 +1149,7 @@ public class CreateFileTest {
         uncc.addComponent(new Component(2, 7, 0, 0));
         uncc.addComponent(new Component(3, 7, 0, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
-        uncc.setInterleaveType(1);
+        uncc.setInterleaveType(Interleaving.Pixel);
         uncc.setBlockSize(0);
         uncc.setComponentLittleEndian(false);
         uncc.setBlockPadLSB(false);
@@ -1168,7 +1169,7 @@ public class CreateFileTest {
         uncc.setProfile(new FourCC("gene"));
         uncc.addComponent(new Component(0, 7, 0, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
-        uncc.setInterleaveType(0);
+        uncc.setInterleaveType(Interleaving.Component);
         uncc.setBlockSize(0);
         uncc.setComponentLittleEndian(false);
         uncc.setBlockPadLSB(false);
@@ -1191,7 +1192,7 @@ public class CreateFileTest {
         uncc.addComponent(new Component(2, 7, 0, 0));
         uncc.addComponent(new Component(3, 7, 0, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
-        uncc.setInterleaveType(1);
+        uncc.setInterleaveType(Interleaving.Pixel);
         uncc.setBlockSize(0);
         uncc.setComponentLittleEndian(false);
         uncc.setBlockPadLSB(false);
@@ -1285,18 +1286,18 @@ public class CreateFileTest {
                 break;
         }
         if (profile == null) {
-            uncc.setInterleaveType(0);
+            uncc.setInterleaveType(Interleaving.Component);
         } else if ((profile.equals(new FourCC("yuv2")))
                 || (profile.equals(new FourCC("2vuy")))
                 || (profile.equals(new FourCC("yvyu")))
                 || (profile.equals(new FourCC("vyuy")))) {
-            uncc.setInterleaveType(5);
+            uncc.setInterleaveType(Interleaving.MultiY);
         } else if (profile.equals(new FourCC("i420"))) {
-            uncc.setInterleaveType(0);
+            uncc.setInterleaveType(Interleaving.Component);
         } else if ((profile.equals(new FourCC("nv12"))) || (profile.equals(new FourCC("nv21")))) {
-            uncc.setInterleaveType(2);
+            uncc.setInterleaveType(Interleaving.Mixed);
         } else if (profile.equals(new FourCC("v308"))) {
-            uncc.setInterleaveType(1);
+            uncc.setInterleaveType(Interleaving.Pixel);
         } else {
             fail("need to handle specified profile");
         }
@@ -1856,8 +1857,7 @@ public class CreateFileTest {
     }
 
     private void checkInterleaveTypeIsValid(UncompressedFrameConfigBox uncC) {
-        int interleave_type = uncC.getInterleaveType();
-        if ((interleave_type < 0) || (interleave_type > 5)) {
+        if (uncC.getInterleaveType().equals(Interleaving.Reserved)) {
             fail("Table 4. interleave_type field is outside of defined range");
         }
     }
@@ -1890,7 +1890,8 @@ public class CreateFileTest {
         if (uncC.getPixelSize() > 0) {
             // TODO: check pixel_size is large enough
         }
-        if ((uncC.getInterleaveType() != 1) && (uncC.getInterleaveType() != 5)) {
+        if ((!uncC.getInterleaveType().equals(Interleaving.Pixel))
+                && (!uncC.getInterleaveType().equals(Interleaving.MultiY))) {
             assertEquals(
                     uncC.getPixelSize(),
                     0,
@@ -1965,7 +1966,7 @@ public class CreateFileTest {
                         1,
                         "5.3.2 Table 5 2vuy requires [{2,7},{1,7},{3,7},{1,7}], 1, 5");
                 assertEquals(
-                        uncC.getInterleaveType(),
+                        uncC.getInterleaveType().getEncodedValue(),
                         5,
                         "5.3.2 Table 5 2vuy requires [{2,7},{1,7},{3,7},{1,7}], 1, 5");
                 checkAllOtherFieldsAreZero(uncC);
@@ -2021,7 +2022,7 @@ public class CreateFileTest {
                         1,
                         "5.3.2 Table 5 yuv2 requires [{1,7},{2,7},{1,7},{3,7}], 1, 5");
                 assertEquals(
-                        uncC.getInterleaveType(),
+                        uncC.getInterleaveType().getEncodedValue(),
                         5,
                         "5.3.2 Table 5 yuv2 requires [{1,7},{2,7},{1,7},{3,7}], 1, 5");
                 checkAllOtherFieldsAreZero(uncC);
@@ -2077,7 +2078,7 @@ public class CreateFileTest {
                         1,
                         "5.3.2 Table 5 yvyu requires [{1,7},{3,7},{1,7},{2,7}], 1, 5");
                 assertEquals(
-                        uncC.getInterleaveType(),
+                        uncC.getInterleaveType().getEncodedValue(),
                         5,
                         "5.3.2 Table 5 yvyu requires [{1,7},{3,7},{1,7},{2,7}], 1, 5");
                 checkAllOtherFieldsAreZero(uncC);
@@ -2133,7 +2134,7 @@ public class CreateFileTest {
                         1,
                         "5.3.2 Table 5 vyuy requires [{3,7},{1,7},{2,7},{1,7}], 1, 5");
                 assertEquals(
-                        uncC.getInterleaveType(),
+                        uncC.getInterleaveType().getEncodedValue(),
                         5,
                         "5.3.2 Table 5 vyuy requires [{3,7},{1,7},{2,7},{1,7}], 1, 5");
                 checkAllOtherFieldsAreZero(uncC);
@@ -2178,7 +2179,7 @@ public class CreateFileTest {
                         0,
                         "5.3.2 Table 5 v308 requires [{3,7},{1,7},{2,7}], 0, 1");
                 assertEquals(
-                        uncC.getInterleaveType(),
+                        uncC.getInterleaveType().getEncodedValue(),
                         1,
                         "5.3.2 Table 5 v308 requires [{3,7},{1,7},{2,7}], 0, 1");
                 checkAllOtherFieldsAreZero(uncC);
@@ -2223,7 +2224,7 @@ public class CreateFileTest {
                         0,
                         "5.3.2 Table 5 rgb3 requires [{4,7},{5,7},{6,7}], 0, 1");
                 assertEquals(
-                        uncC.getInterleaveType(),
+                        uncC.getInterleaveType().getEncodedValue(),
                         1,
                         "5.3.2 Table 5 rgb3 requires [{4,7},{5,7},{6,7}], 0, 1");
                 checkAllOtherFieldsAreZero(uncC);
@@ -2279,7 +2280,7 @@ public class CreateFileTest {
                         "5.3.2 Table 5 rgba requires [{4,7},{5,7},{6,7},{7,7}], 0, 1");
 
                 assertEquals(
-                        uncC.getInterleaveType(),
+                        uncC.getInterleaveType().getEncodedValue(),
                         1,
                         "5.3.2 Table 5 rgba requires [{4,7},{5,7},{6,7},{7,7}], 0, 1");
                 checkAllOtherFieldsAreZero(uncC);
@@ -2324,7 +2325,7 @@ public class CreateFileTest {
                         2,
                         "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
                 assertEquals(
-                        uncC.getInterleaveType(),
+                        uncC.getInterleaveType().getEncodedValue(),
                         0,
                         "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
                 checkAllOtherFieldsAreZero(uncC);
@@ -2369,7 +2370,7 @@ public class CreateFileTest {
                         2,
                         "5.3.2 Table 5 nv12 requires [{1,7},{2,7},{3,7}], 2, 2");
                 assertEquals(
-                        uncC.getInterleaveType(),
+                        uncC.getInterleaveType().getEncodedValue(),
                         2,
                         "5.3.2 Table 5 nv12 requires [{1,7},{2,7},{3,7}], 2, 2");
                 checkAllOtherFieldsAreZero(uncC);
@@ -2414,7 +2415,7 @@ public class CreateFileTest {
                         2,
                         "5.3.2 Table 5 nv21 requires [{1,7},{3,7},{2,7}], 2, 2");
                 assertEquals(
-                        uncC.getInterleaveType(),
+                        uncC.getInterleaveType().getEncodedValue(),
                         2,
                         "5.3.2 Table 5 nv21 requires [{1,7},{3,7},{2,7}], 2, 2");
                 checkAllOtherFieldsAreZero(uncC);
@@ -2470,7 +2471,7 @@ public class CreateFileTest {
                         "5.3.2 Table 5 abgr requires [{7,7},{6,7},{5,7},{4,7}], 0, 1");
 
                 assertEquals(
-                        uncC.getInterleaveType(),
+                        uncC.getInterleaveType().getEncodedValue(),
                         1,
                         "5.3.2 Table 5 abgr requires [{7,7},{6,7},{5,7},{4,7}], 0, 1");
                 checkAllOtherFieldsAreZero(uncC);

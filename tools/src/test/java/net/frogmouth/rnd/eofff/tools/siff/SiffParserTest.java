@@ -241,7 +241,7 @@ public class SiffParserTest {
                     ColorModel colourModel = getColourModel(uncC, cmpd);
                     if ((sampleModel != null) && (colourModel != null)) {
                         switch (uncC.getInterleaveType()) {
-                            case 0:
+                            case Component:
                                 {
                                     BufferedImage target =
                                             buildBufferedImageBanded(
@@ -249,7 +249,7 @@ public class SiffParserTest {
                                     writeOutput(outputPath, target);
                                     break;
                                 }
-                            case 1:
+                            case Pixel:
                                 {
                                     BufferedImage target =
                                             buildBufferedImage(
@@ -371,12 +371,12 @@ public class SiffParserTest {
         int pixelStride = getPixelStride(uncC);
         int rowStride = getRowStride(uncC, ispe);
         switch (uncC.getInterleaveType()) {
-            case 0:
+            case Component:
                 SampleModel bandedSampleModel =
                         new BandedSampleModel(
                                 DataBuffer.TYPE_BYTE, width, height, uncC.getComponents().size());
                 return bandedSampleModel;
-            case 1:
+            case Pixel:
                 int[] bandOffsets = getBandOffsetsRGBA(uncC, cmpd);
                 boolean isShortAligned = isShortAligned(uncC);
                 if (bandOffsetsAreValid(bandOffsets)) {
