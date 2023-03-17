@@ -57,6 +57,8 @@ import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteBox;
 import net.frogmouth.rnd.eofff.uncompressed.cpal.PaletteComponent;
+import net.frogmouth.rnd.eofff.uncompressed.sbpm.PixelCoordinate;
+import net.frogmouth.rnd.eofff.uncompressed.sbpm.SensorBadPixelsMapBox;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
@@ -310,6 +312,23 @@ public class CreateFileTest {
                 new FourCC("nv21"));
     }
 
+    @Test
+    public void writeFile_bgr_sbpm() throws IOException {
+        List<Box> boxes = new ArrayList<>();
+        FileTypeBox ftyp = createFileTypeBox();
+        boxes.add(ftyp);
+        MetaBox meta = createMetaBox_bgr_sbpm();
+        boxes.add(meta);
+        long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
+        long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
+        FreeBox free = new FreeBox();
+        free.setData(new byte[(int) numberOfFillBytes]);
+        boxes.add(free);
+        MediaDataBox mdat = createMediaDataBox_bgr_sbpm();
+        boxes.add(mdat);
+        writeBoxes(boxes, "test_siff_bgr_sbpm.mp4");
+    }
+
     private void writeFileYUV(String inFile, String outFile) throws IOException {
         Path path = Path.of(inFile);
         SeekableByteChannel fileChannel = FileChannel.open(path, StandardOpenOption.READ);
@@ -459,6 +478,18 @@ public class CreateFileTest {
         boxes.add(makeItemInfoBox());
         boxes.add(makeItemLocationBox_bgr());
         boxes.add(makeItemPropertiesBox_bgr());
+        meta.addNestedBoxes(boxes);
+        return meta;
+    }
+
+    private MetaBox createMetaBox_bgr_sbpm() {
+        MetaBox meta = new MetaBox();
+        List<Box> boxes = new ArrayList<>();
+        boxes.add(makeHandlerBox());
+        boxes.add(makePrimaryItemBox());
+        boxes.add(makeItemInfoBox());
+        boxes.add(makeItemLocationBox_bgr());
+        boxes.add(makeItemPropertiesBox_bgr_sbpm());
         meta.addNestedBoxes(boxes);
         return meta;
     }
@@ -810,6 +841,71 @@ public class CreateFileTest {
         componentDefinitionAssociation.addEntry(componentDefinitionAssociationEntry);
         iprp.addItemPropertyAssociation(componentDefinitionAssociation);
         return iprp;
+    }
+
+    private Box makeItemPropertiesBox_bgr_sbpm() {
+        ItemPropertiesBox iprp = new ItemPropertiesBox();
+        ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
+        ipco.addProperty(makeComponentDefinitionBox_rgb3());
+        ipco.addProperty(makeUncompressedFrameConfigBox_bgr());
+        ipco.addProperty(makeImageSpatialExtentsProperty());
+        ipco.addProperty(makeSensorBadPixelsMap());
+        iprp.setItemProperties(ipco);
+        ItemPropertyAssociation componentDefinitionAssociation = new ItemPropertyAssociation();
+        AssociationEntry componentDefinitionAssociationEntry = new AssociationEntry();
+        componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
+
+        PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
+        associationToComponentDefinitionBox.setPropertyIndex(0);
+        associationToComponentDefinitionBox.setEssential(true);
+        componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
+
+        PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
+        associationToUncompressedFrameConfigBox.setPropertyIndex(1);
+        associationToUncompressedFrameConfigBox.setEssential(true);
+        componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
+
+        PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
+        associationToImageSpatialExtentsProperty.setPropertyIndex(2);
+        associationToImageSpatialExtentsProperty.setEssential(false);
+        componentDefinitionAssociationEntry.addAssociation(
+                associationToImageSpatialExtentsProperty);
+
+        PropertyAssociation associationToSensorBadPixelsMapBox = new PropertyAssociation();
+        associationToSensorBadPixelsMapBox.setPropertyIndex(3);
+        associationToSensorBadPixelsMapBox.setEssential(false);
+        componentDefinitionAssociationEntry.addAssociation(associationToSensorBadPixelsMapBox);
+
+        componentDefinitionAssociation.addEntry(componentDefinitionAssociationEntry);
+
+        iprp.addItemPropertyAssociation(componentDefinitionAssociation);
+        return iprp;
+    }
+
+    private AbstractItemProperty makeSensorBadPixelsMap() {
+        SensorBadPixelsMapBox sbpm = new SensorBadPixelsMapBox();
+        sbpm.addComponentIndex(0);
+        sbpm.addComponentIndex(1);
+        sbpm.addComponentIndex(2);
+        sbpm.setCorrectionApplied(false);
+        sbpm.addBadRow(100);
+        sbpm.addBadRow(101);
+        sbpm.addBadRow(102);
+        sbpm.addBadRow(105);
+        sbpm.addBadRow(104);
+        sbpm.addBadRow(103);
+        sbpm.addBadColumn(80);
+        sbpm.addBadColumn(81);
+        sbpm.addBadColumn(82);
+        sbpm.addBadPixel(new PixelCoordinate(120, 160));
+        sbpm.addBadPixel(new PixelCoordinate(120, 161));
+        sbpm.addBadPixel(new PixelCoordinate(121, 160));
+        sbpm.addBadPixel(new PixelCoordinate(121, 161));
+        sbpm.addBadPixel(new PixelCoordinate(122, 160));
+        sbpm.addBadPixel(new PixelCoordinate(122, 161));
+        sbpm.addBadPixel(new PixelCoordinate(123, 160));
+        sbpm.addBadPixel(new PixelCoordinate(123, 161));
+        return sbpm;
     }
 
     private Box makeItemPropertiesBox_rgba() {
@@ -1476,11 +1572,44 @@ public class CreateFileTest {
         }
     }
 
+    private void overdrawBadPixels(BufferedImage image) {
+        Graphics2D g2 = image.createGraphics();
+        for (int r = 100; r < 105; r++) {
+            g2.setColor(Color.WHITE);
+            g2.drawLine(0, r, IMAGE_WIDTH - 1, r);
+        }
+
+        for (int c = 80; c < 82; c++) {
+            g2.setColor(Color.BLACK);
+            g2.drawLine(c, 0, c, IMAGE_HEIGHT - 1);
+        }
+
+        image.setRGB(120, 160, Color.BLACK.getRGB());
+        image.setRGB(121, 160, Color.BLACK.getRGB());
+        image.setRGB(122, 160, Color.BLACK.getRGB());
+        image.setRGB(123, 160, Color.BLACK.getRGB());
+        image.setRGB(120, 161, Color.BLACK.getRGB());
+        image.setRGB(121, 161, Color.BLACK.getRGB());
+        image.setRGB(122, 161, Color.BLACK.getRGB());
+        image.setRGB(123, 161, Color.BLACK.getRGB());
+    }
+
     private MediaDataBox createMediaDataBox_bgr() throws IOException {
         MediaDataBox mdat = new MediaDataBox();
         BufferedImage image =
                 new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
         drawColouredRectangles(image);
+        DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
+        mdat.setData(buffer.getData());
+        return mdat;
+    }
+
+    private MediaDataBox createMediaDataBox_bgr_sbpm() throws IOException {
+        MediaDataBox mdat = new MediaDataBox();
+        BufferedImage image =
+                new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
+        drawColouredRectangles(image);
+        overdrawBadPixels(image);
         DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
         mdat.setData(buffer.getData());
         return mdat;
@@ -1687,6 +1816,7 @@ public class CreateFileTest {
         UncompressedFrameConfigBox uncC = null;
         ImageSpatialExtentsProperty ispe = null;
         ComponentPaletteBox cpal = null;
+        SensorBadPixelsMapBox sbpm = null;
 
         for (AbstractItemProperty property : properties) {
             if (property instanceof ComponentDefinitionBox componentDefinitionBox) {
@@ -1698,6 +1828,8 @@ public class CreateFileTest {
                 ispe = imageSpatialExtentsProperty;
             } else if (property instanceof ComponentPaletteBox componentPaletteBox) {
                 cpal = componentPaletteBox;
+            } else if (property instanceof SensorBadPixelsMapBox sensorBadPixelsMapBox) {
+                sbpm = sensorBadPixelsMapBox;
 
             } else {
                 fail("TODO: property: " + property.toString());
@@ -1734,6 +1866,7 @@ public class CreateFileTest {
         checkPixelSizeConsistency(uncC);
         checkTileAlignConsistency(uncC);
         checkProfile(uncC, cmpd);
+        checkSensorBadPixelsMap(sbpm, cmpd);
     }
 
     private void checkUnccComponentsAreInRange(
@@ -2501,5 +2634,9 @@ public class CreateFileTest {
         assertEquals(uncC.getTileAlignSize(), 0, message);
         assertEquals(uncC.getNumTileRowsMinusOne(), 0, message);
         assertEquals(uncC.getNumTileColumnsMinusOne(), 0, message);
+    }
+
+    private void checkSensorBadPixelsMap(SensorBadPixelsMapBox sbpm, ComponentDefinitionBox cmpd) {
+        // TODO: implement checks
     }
 }

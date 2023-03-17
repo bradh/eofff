@@ -179,6 +179,11 @@ public class SiffParserTest {
         convertToPNG("test_siff_rgb_palette.mp4", "test_siff_rgb_palette.png");
     }
 
+    @Test
+    public void parse_bgr_sbpm() throws IOException {
+        convertToPNG("test_siff_bgr_sbpm.mp4", "test_siff_bgr_sbpm.png");
+    }
+
     private void convertToPNG(String inputPath, String outputPath) throws IOException {
         List<Box> boxes = new ArrayList<>();
         boxes.addAll(parseFile(inputPath));
