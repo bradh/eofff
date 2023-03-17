@@ -16,6 +16,15 @@ public class YUV420Converter implements YUVConverter {
 
     @Override
     public byte[] convert(byte[] frameData, OutputFormat outputFormat) {
+        if (sourceFormat.getInterleave().equals(Interleaving.Packed)) {
+            return convertPacked(frameData, outputFormat);
+        } else {
+            throw new UnsupportedOperationException(
+                    "Unsupported interleave: " + sourceFormat.getInterleave());
+        }
+    }
+
+    private byte[] convertPacked(byte[] frameData, OutputFormat outputFormat) {
         for (int y = 0; y < frameHeight; y++) {
             for (int x = 0; x < frameWidth / 2; x++) {
                 try {

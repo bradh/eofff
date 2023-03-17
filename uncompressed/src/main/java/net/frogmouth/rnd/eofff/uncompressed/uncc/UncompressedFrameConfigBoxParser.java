@@ -45,7 +45,7 @@ public class UncompressedFrameConfigBoxParser extends ItemFullPropertyParser {
                             component_align_size);
             box.addComponent(component);
         }
-        box.setSamplingType(parseContext.readUnsignedInt8());
+        box.setSamplingType(SamplingType.lookup(parseContext.readUnsignedInt8()));
         box.setInterleaveType(parseContext.readUnsignedInt8());
         box.setBlockSize(parseContext.readUnsignedInt8());
         int bitMask = parseContext.readUnsignedInt8();

@@ -82,7 +82,7 @@ public class UncompressedFrameConfigBoxTest extends PropertyTestSupport {
         assertEquals(uncc.getComponents().get(0).getComponentIndex(), 0);
         assertEquals(uncc.getComponents().get(1).getComponentIndex(), 1);
         assertEquals(uncc.getComponents().get(2).getComponentIndex(), 2);
-        assertEquals(uncc.getSamplingType(), 2);
+        assertEquals(uncc.getSamplingType(), SamplingType.YCbCr420);
         assertEquals(uncc.getInterleaveType(), 1);
         assertEquals(uncc.getBlockSize(), 0);
         assertTrue(uncc.isComponentLittleEndian());
@@ -105,7 +105,7 @@ public class UncompressedFrameConfigBoxTest extends PropertyTestSupport {
         box.addComponent(new Component(0, 7, 0, 0));
         box.addComponent(new Component(1, 7, 0, 0));
         box.addComponent(new Component(2, 7, 0, 0));
-        box.setSamplingType(2);
+        box.setSamplingType(SamplingType.YCbCr420);
         box.setInterleaveType(1);
         box.setBlockSize(0);
         box.setComponentLittleEndian(true);

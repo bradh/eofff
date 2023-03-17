@@ -58,6 +58,7 @@ import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteBox;
 import net.frogmouth.rnd.eofff.uncompressed.cpal.PaletteComponent;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
+import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
 import net.frogmouth.rnd.eofff.yuv.Y4mReader;
 import org.slf4j.Logger;
@@ -1034,7 +1035,7 @@ public class CreateFileTest {
         uncc.addComponent(new Component(0, 7, 0, 0));
         uncc.addComponent(new Component(1, 7, 0, 0));
         uncc.addComponent(new Component(2, 7, 0, 0));
-        uncc.setSamplingType(0);
+        uncc.setSamplingType(SamplingType.NoSubsampling);
         uncc.setInterleaveType(1);
         uncc.setBlockSize(0);
         uncc.setComponentLittleEndian(false);
@@ -1056,7 +1057,7 @@ public class CreateFileTest {
         uncc.addComponent(new Component(0, 7, 0, 0));
         uncc.addComponent(new Component(1, 7, 0, 0));
         uncc.addComponent(new Component(2, 7, 0, 0));
-        uncc.setSamplingType(0);
+        uncc.setSamplingType(SamplingType.NoSubsampling);
         uncc.setInterleaveType(0);
         uncc.setBlockSize(0);
         uncc.setComponentLittleEndian(false);
@@ -1078,7 +1079,7 @@ public class CreateFileTest {
         uncc.addComponent(new Component(0, 4, 0, 0));
         uncc.addComponent(new Component(1, 5, 0, 0));
         uncc.addComponent(new Component(2, 4, 0, 0));
-        uncc.setSamplingType(0);
+        uncc.setSamplingType(SamplingType.NoSubsampling);
         uncc.setInterleaveType(1);
         uncc.setBlockSize(2);
         uncc.setComponentLittleEndian(false);
@@ -1101,7 +1102,7 @@ public class CreateFileTest {
         uncc.addComponent(new Component(0, 4, 0, 0));
         uncc.addComponent(new Component(1, 4, 0, 0));
         uncc.addComponent(new Component(2, 4, 0, 0));
-        uncc.setSamplingType(0);
+        uncc.setSamplingType(SamplingType.NoSubsampling);
         uncc.setInterleaveType(1);
         uncc.setBlockSize(2);
         uncc.setComponentLittleEndian(false);
@@ -1123,7 +1124,7 @@ public class CreateFileTest {
         uncc.addComponent(new Component(2, 7, 0, 0));
         uncc.addComponent(new Component(1, 7, 0, 0));
         uncc.addComponent(new Component(0, 7, 0, 0));
-        uncc.setSamplingType(0);
+        uncc.setSamplingType(SamplingType.NoSubsampling);
         uncc.setInterleaveType(1);
         uncc.setBlockSize(0);
         uncc.setComponentLittleEndian(false);
@@ -1146,7 +1147,7 @@ public class CreateFileTest {
         uncc.addComponent(new Component(1, 7, 0, 0));
         uncc.addComponent(new Component(2, 7, 0, 0));
         uncc.addComponent(new Component(3, 7, 0, 0));
-        uncc.setSamplingType(0);
+        uncc.setSamplingType(SamplingType.NoSubsampling);
         uncc.setInterleaveType(1);
         uncc.setBlockSize(0);
         uncc.setComponentLittleEndian(false);
@@ -1166,7 +1167,7 @@ public class CreateFileTest {
         UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
         uncc.setProfile(new FourCC("gene"));
         uncc.addComponent(new Component(0, 7, 0, 0));
-        uncc.setSamplingType(0);
+        uncc.setSamplingType(SamplingType.NoSubsampling);
         uncc.setInterleaveType(0);
         uncc.setBlockSize(0);
         uncc.setComponentLittleEndian(false);
@@ -1189,7 +1190,7 @@ public class CreateFileTest {
         uncc.addComponent(new Component(1, 7, 0, 0));
         uncc.addComponent(new Component(2, 7, 0, 0));
         uncc.addComponent(new Component(3, 7, 0, 0));
-        uncc.setSamplingType(0);
+        uncc.setSamplingType(SamplingType.NoSubsampling);
         uncc.setInterleaveType(1);
         uncc.setBlockSize(0);
         uncc.setComponentLittleEndian(false);
@@ -1268,16 +1269,16 @@ public class CreateFileTest {
         } else {
             fail("need to handle specified profile");
         }
-        uncc.setSamplingType(0);
+        uncc.setSamplingType(SamplingType.NoSubsampling);
         switch (reader.getColourSpace()) {
             case YUV420:
-                uncc.setSamplingType(2);
+                uncc.setSamplingType(SamplingType.YCbCr420);
                 break;
             case YUV422:
-                uncc.setSamplingType(1);
+                uncc.setSamplingType(SamplingType.YCbCr422);
                 break;
             case YUV444:
-                uncc.setSamplingType(0);
+                uncc.setSamplingType(SamplingType.NoSubsampling);
                 break;
             default:
                 fail("unhandled YUV sampling");
@@ -1849,8 +1850,7 @@ public class CreateFileTest {
     }
 
     private void checkSamplingTypeIsValid(UncompressedFrameConfigBox uncC) {
-        int sampling_type = uncC.getSamplingType();
-        if ((sampling_type < 0) || (sampling_type > 3)) {
+        if (uncC.getSamplingType().equals(SamplingType.Reserved)) {
             fail("Table 3. sampling_type field is outside of defined range");
         }
     }
@@ -1961,7 +1961,7 @@ public class CreateFileTest {
                         "5.3.2 Table 5 2vuy requires [{2,7},{1,7},{3,7},{1,7}], 1, 5");
 
                 assertEquals(
-                        uncC.getSamplingType(),
+                        uncC.getSamplingType().getEncodedValue(),
                         1,
                         "5.3.2 Table 5 2vuy requires [{2,7},{1,7},{3,7},{1,7}], 1, 5");
                 assertEquals(
@@ -2017,7 +2017,7 @@ public class CreateFileTest {
                         "5.3.2 Table 5 yuv2 requires [{1,7},{2,7},{1,7},{3,7}], 1, 5");
 
                 assertEquals(
-                        uncC.getSamplingType(),
+                        uncC.getSamplingType().getEncodedValue(),
                         1,
                         "5.3.2 Table 5 yuv2 requires [{1,7},{2,7},{1,7},{3,7}], 1, 5");
                 assertEquals(
@@ -2073,7 +2073,7 @@ public class CreateFileTest {
                         "5.3.2 Table 5 yvyu requires [{1,7},{3,7},{1,7},{2,7}], 1, 5");
 
                 assertEquals(
-                        uncC.getSamplingType(),
+                        uncC.getSamplingType().getEncodedValue(),
                         1,
                         "5.3.2 Table 5 yvyu requires [{1,7},{3,7},{1,7},{2,7}], 1, 5");
                 assertEquals(
@@ -2129,7 +2129,7 @@ public class CreateFileTest {
                         "5.3.2 Table 5 vyuy requires [{3,7},{1,7},{2,7},{1,7}], 1, 5");
 
                 assertEquals(
-                        uncC.getSamplingType(),
+                        uncC.getSamplingType().getEncodedValue(),
                         1,
                         "5.3.2 Table 5 vyuy requires [{3,7},{1,7},{2,7},{1,7}], 1, 5");
                 assertEquals(
@@ -2174,7 +2174,7 @@ public class CreateFileTest {
                         7,
                         "5.3.2 Table 5 v308 requires [{3,7},{1,7},{2,7}], 0, 1");
                 assertEquals(
-                        uncC.getSamplingType(),
+                        uncC.getSamplingType().getEncodedValue(),
                         0,
                         "5.3.2 Table 5 v308 requires [{3,7},{1,7},{2,7}], 0, 1");
                 assertEquals(
@@ -2219,7 +2219,7 @@ public class CreateFileTest {
                         7,
                         "5.3.2 Table 5 rgb3 requires [{4,7},{5,7},{6,7}], 0, 1");
                 assertEquals(
-                        uncC.getSamplingType(),
+                        uncC.getSamplingType().getEncodedValue(),
                         0,
                         "5.3.2 Table 5 rgb3 requires [{4,7},{5,7},{6,7}], 0, 1");
                 assertEquals(
@@ -2274,7 +2274,7 @@ public class CreateFileTest {
                         7,
                         "5.3.2 Table 5 rgba requires [{4,7},{5,7},{6,7},{7,7}], 0, 1");
                 assertEquals(
-                        uncC.getSamplingType(),
+                        uncC.getSamplingType().getEncodedValue(),
                         0,
                         "5.3.2 Table 5 rgba requires [{4,7},{5,7},{6,7},{7,7}], 0, 1");
 
@@ -2320,7 +2320,7 @@ public class CreateFileTest {
                         7,
                         "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
                 assertEquals(
-                        uncC.getSamplingType(),
+                        uncC.getSamplingType().getEncodedValue(),
                         2,
                         "5.3.2 Table 5 i420 requires [{1,7},{2,7},{3,7}], 2, 0");
                 assertEquals(
@@ -2365,7 +2365,7 @@ public class CreateFileTest {
                         7,
                         "5.3.2 Table 5 nv12 requires [{1,7},{2,7},{3,7}], 2, 2");
                 assertEquals(
-                        uncC.getSamplingType(),
+                        uncC.getSamplingType().getEncodedValue(),
                         2,
                         "5.3.2 Table 5 nv12 requires [{1,7},{2,7},{3,7}], 2, 2");
                 assertEquals(
@@ -2410,7 +2410,7 @@ public class CreateFileTest {
                         7,
                         "5.3.2 Table 5 nv21 requires [{1,7},{3,7},{2,7}], 2, 2");
                 assertEquals(
-                        uncC.getSamplingType(),
+                        uncC.getSamplingType().getEncodedValue(),
                         2,
                         "5.3.2 Table 5 nv21 requires [{1,7},{3,7},{2,7}], 2, 2");
                 assertEquals(
@@ -2465,7 +2465,7 @@ public class CreateFileTest {
                         7,
                         "5.3.2 Table 5 abgr requires [{7,7},{6,7},{5,7},{4,7}], 0, 1");
                 assertEquals(
-                        uncC.getSamplingType(),
+                        uncC.getSamplingType().getEncodedValue(),
                         0,
                         "5.3.2 Table 5 abgr requires [{7,7},{6,7},{5,7},{4,7}], 0, 1");
 

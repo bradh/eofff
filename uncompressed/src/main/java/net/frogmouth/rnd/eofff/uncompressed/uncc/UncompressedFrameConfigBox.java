@@ -18,7 +18,7 @@ public class UncompressedFrameConfigBox extends ItemFullProperty {
 
     private FourCC profile;
     private final List<Component> components = new ArrayList<>();
-    private int samplingType;
+    private SamplingType samplingType;
     private int interleaveType;
     private int blockSize;
     private boolean componentLittleEndian;
@@ -57,11 +57,11 @@ public class UncompressedFrameConfigBox extends ItemFullProperty {
         this.components.add(component);
     }
 
-    public int getSamplingType() {
+    public SamplingType getSamplingType() {
         return samplingType;
     }
 
-    public void setSamplingType(int samplingType) {
+    public void setSamplingType(SamplingType samplingType) {
         this.samplingType = samplingType;
     }
 
@@ -187,7 +187,7 @@ public class UncompressedFrameConfigBox extends ItemFullProperty {
         for (Component component : components) {
             component.writeTo(stream);
         }
-        stream.writeByte(samplingType);
+        stream.writeByte(samplingType.getEncodedValue());
         stream.writeByte(interleaveType);
         stream.writeByte(blockSize);
         int bitMask = 0;

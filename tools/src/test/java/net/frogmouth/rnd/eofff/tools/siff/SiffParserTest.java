@@ -45,6 +45,7 @@ import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteBox;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
+import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
 import net.frogmouth.rnd.eofff.yuv.ColourSpace;
 import net.frogmouth.rnd.eofff.yuv.ColourSpaceConverter;
@@ -317,9 +318,9 @@ public class SiffParserTest {
                                         outputFormat);
                     } else {
                         ColourSpace colourSpace = ColourSpace.YUV444;
-                        if (uncC.getSamplingType() == 2) {
+                        if (uncC.getSamplingType().equals(SamplingType.YCbCr420)) {
                             colourSpace = ColourSpace.YUV420;
-                        } else if (uncC.getSamplingType() == 1) {
+                        } else if (uncC.getSamplingType().equals(SamplingType.YCbCr422)) {
                             colourSpace = ColourSpace.YUV422;
                         }
                         rgbData =
