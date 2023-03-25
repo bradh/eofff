@@ -1,5 +1,6 @@
 /** Implementation of ISO/IEC 23008-12 "Image File Format". */
 module net.frogmouth.rnd.eofff.imagefileformat {
+    requires jdk.incubator.foreign;
     requires net.frogmouth.rnd.eofff.isobmff;
     requires org.slf4j;
 
@@ -23,10 +24,13 @@ module net.frogmouth.rnd.eofff.imagefileformat {
             net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageRotationParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.image
                     .ImageSpatialExtentsPropertyParser,
-            net.frogmouth.rnd.eofff.imagefileformat.properties.image.PixelInformationPropertyParser;
+            net.frogmouth.rnd.eofff.imagefileformat.properties.image.PixelInformationPropertyParser,
+            net.frogmouth.rnd.eofff.imagefileformat.properties.udes.UserDescriptionPropertyParser;
 
     exports net.frogmouth.rnd.eofff.imagefileformat.brands;
     exports net.frogmouth.rnd.eofff.imagefileformat.extensions.groups;
     exports net.frogmouth.rnd.eofff.imagefileformat.extensions.properties;
+    exports net.frogmouth.rnd.eofff.imagefileformat.items.rgan;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.image;
+    exports net.frogmouth.rnd.eofff.imagefileformat.properties.udes;
 }

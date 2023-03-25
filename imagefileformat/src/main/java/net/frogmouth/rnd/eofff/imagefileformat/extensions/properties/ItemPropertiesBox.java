@@ -58,7 +58,7 @@ public class ItemPropertiesBox extends BaseBox {
                     for (PropertyAssociation propertyAssociation :
                             associationEntry.getAssociations()) {
                         int index = propertyAssociation.getPropertyIndex();
-                        properties.add(itemProperties.getProperties().get(index));
+                        properties.add(itemProperties.getProperties().get(index - 1));
                     }
                 }
             }

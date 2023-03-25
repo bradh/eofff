@@ -8,6 +8,9 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class SingleItemReferenceBox extends BaseBox {
+
+    private static final long BYTES_IN_BOX_HEADER = Integer.BYTES + FourCC.BYTES;
+
     private long fromItemId;
     private final List<Long> references = new ArrayList<>();
 
@@ -31,7 +34,25 @@ public class SingleItemReferenceBox extends BaseBox {
         this.references.add(reference);
     }
 
+    public long getSize(int version) {
+        long size = 0;
+        size += BYTES_IN_BOX_HEADER;
+        if (version == 0) {
+            size += Short.BYTES;
+            size += Short.BYTES;
+            size += (this.references.size() * Short.BYTES);
+        } else {
+            size += Integer.BYTES;
+            size += Short.BYTES;
+            size += (this.references.size() * Integer.BYTES);
+        }
+        return size;
+    }
+
     void writeTo(OutputStreamWriter stream, int version) throws IOException {
+        long boxSize = getSize(version);
+        stream.writeUnsignedInt32(boxSize);
+        stream.writeFourCC(this.getFourCC());
         if (version == 0) {
             stream.writeUnsignedInt16(fromItemId);
             stream.writeUnsignedInt16(references.size());

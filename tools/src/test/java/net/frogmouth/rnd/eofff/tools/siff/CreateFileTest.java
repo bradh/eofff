@@ -37,7 +37,11 @@ import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropert
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyAssociation;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyContainerBox;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyAssociation;
+import net.frogmouth.rnd.eofff.imagefileformat.items.rgan.Rectangle;
+import net.frogmouth.rnd.eofff.imagefileformat.items.rgan.Region;
+import net.frogmouth.rnd.eofff.imagefileformat.items.rgan.RegionItem;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageSpatialExtentsProperty;
+import net.frogmouth.rnd.eofff.imagefileformat.properties.udes.UserDescriptionProperty;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
@@ -45,10 +49,13 @@ import net.frogmouth.rnd.eofff.isobmff.free.FreeBox;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.Brand;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBox;
+import net.frogmouth.rnd.eofff.isobmff.idat.ItemDataBox;
 import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoBox;
 import net.frogmouth.rnd.eofff.isobmff.iloc.ILocItem;
 import net.frogmouth.rnd.eofff.isobmff.iloc.ItemLocationBox;
 import net.frogmouth.rnd.eofff.isobmff.infe.ItemInfoEntry;
+import net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceBox;
+import net.frogmouth.rnd.eofff.isobmff.iref.SingleItemReferenceBox;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.ILocExtent;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
@@ -71,6 +78,7 @@ import org.testng.annotations.Test;
 public class CreateFileTest {
     private static final Logger LOG = LoggerFactory.getLogger(CreateFileTest.class);
     private static final long MAIN_ITEM_ID = 0x1777;
+    private static final long REGION_ITEM_ID = 0x1788;
     private static final int IMAGE_WIDTH = 1280;
     private static final int IMAGE_HEIGHT = 720;
     private static final int NUM_BYTES_PER_PIXEL_RGB = 3;
@@ -179,6 +187,23 @@ public class CreateFileTest {
         MediaDataBox mdat = createMediaDataBox_rgb_component();
         boxes.add(mdat);
         writeBoxes(boxes, "test_siff_rgb_component.mp4");
+    }
+
+    @Test
+    public void writeFile_rgb_component_rgan() throws IOException {
+        List<Box> boxes = new ArrayList<>();
+        FileTypeBox ftyp = createFileTypeBox();
+        boxes.add(ftyp);
+        MetaBox meta = createMetaBox_rgb_component_rgan();
+        boxes.add(meta);
+        long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
+        long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
+        FreeBox free = new FreeBox();
+        free.setData(new byte[(int) numberOfFillBytes]);
+        boxes.add(free);
+        MediaDataBox mdat = createMediaDataBox_rgb_component();
+        boxes.add(mdat);
+        writeBoxes(boxes, "test_siff_rgb_component_rgan.mp4");
     }
 
     @Test
@@ -405,6 +430,9 @@ public class CreateFileTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
         for (Box box : boxes) {
+            if (box instanceof FileTypeBox ftyp) {
+                validateFileTypeBox(ftyp);
+            }
             if (box instanceof MetaBox metaBox) {
                 validateMetaBox(metaBox);
             }
@@ -419,6 +447,9 @@ public class CreateFileTest {
         fileTypeBox.setMajorBrand(new Brand("mif1"));
         fileTypeBox.setMinorVersion(0);
         fileTypeBox.addCompatibleBrand(new Brand("mif1"));
+        fileTypeBox.addCompatibleBrand(new Brand("mif2"));
+        fileTypeBox.addCompatibleBrand(new Brand("ns01"));
+        fileTypeBox.addCompatibleBrand(new Brand("unif"));
         return fileTypeBox;
     }
 
@@ -442,6 +473,20 @@ public class CreateFileTest {
         boxes.add(makeItemInfoBox());
         boxes.add(makeItemLocationBox_rgb_component());
         boxes.add(makeItemPropertiesBox_rgb_component());
+        meta.addNestedBoxes(boxes);
+        return meta;
+    }
+
+    private MetaBox createMetaBox_rgb_component_rgan() throws IOException {
+        MetaBox meta = new MetaBox();
+        List<Box> boxes = new ArrayList<>();
+        boxes.add(makeHandlerBox());
+        boxes.add(makePrimaryItemBox());
+        boxes.add(makeItemInfoBox_with_rgan());
+        boxes.add(makeItemLocationBox_rgb_component_with_rgan());
+        boxes.add(makeItemDataBox_with_rgan());
+        boxes.add(makeItemPropertiesBox_rgb_component_with_rgan());
+        boxes.add(makeItemReferenceBox_with_rgan());
         meta.addNestedBoxes(boxes);
         return meta;
     }
@@ -567,12 +612,44 @@ public class CreateFileTest {
         return iinf;
     }
 
+    private ItemInfoBox makeItemInfoBox_with_rgan() {
+        ItemInfoBox iinf = makeItemInfoBox();
+        ItemInfoEntry infe1 = new ItemInfoEntry();
+        infe1.setVersion(2);
+        infe1.setItemID(REGION_ITEM_ID);
+        FourCC rgan = new FourCC("rgan");
+        infe1.setItemType(rgan.asUnsigned());
+        infe1.setItemName("Region Annotation");
+        iinf.addItem(infe1);
+        return iinf;
+    }
+
     private ItemLocationBox makeItemLocationBox_bgr() {
         return makeItemLocationBox_rgb3();
     }
 
     private ItemLocationBox makeItemLocationBox_rgb_component() {
         return makeItemLocationBox_rgb3();
+    }
+
+    private ItemLocationBox makeItemLocationBox_rgb_component_with_rgan() throws IOException {
+        ItemLocationBox iloc = makeItemLocationBox_rgb3();
+        ILocItem regionItemLocation = new ILocItem();
+        regionItemLocation.setConstructionMethod(1);
+        regionItemLocation.setItemId(REGION_ITEM_ID);
+        ILocExtent rganExtent = new ILocExtent();
+        rganExtent.setExtentIndex(0);
+        rganExtent.setExtentOffset(0);
+        rganExtent.setExtentLength(getRegionAnnotationBytes().length);
+        regionItemLocation.addExtent(rganExtent);
+        iloc.addItem(regionItemLocation);
+        return iloc;
+    }
+
+    private ItemDataBox makeItemDataBox_with_rgan() throws IOException {
+        ItemDataBox idat = new ItemDataBox();
+        idat.setData(this.getRegionAnnotationBytes());
+        return idat;
     }
 
     private ItemLocationBox makeItemLocationBox_rgb_palette() {
@@ -695,17 +772,17 @@ public class CreateFileTest {
         componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
 
         PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
-        associationToComponentDefinitionBox.setPropertyIndex(0);
+        associationToComponentDefinitionBox.setPropertyIndex(1);
         associationToComponentDefinitionBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
 
         PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
-        associationToUncompressedFrameConfigBox.setPropertyIndex(1);
+        associationToUncompressedFrameConfigBox.setPropertyIndex(2);
         associationToUncompressedFrameConfigBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
 
         PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
-        associationToImageSpatialExtentsProperty.setPropertyIndex(2);
+        associationToImageSpatialExtentsProperty.setPropertyIndex(3);
         associationToImageSpatialExtentsProperty.setEssential(false);
         componentDefinitionAssociationEntry.addAssociation(
                 associationToImageSpatialExtentsProperty);
@@ -727,17 +804,17 @@ public class CreateFileTest {
         componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
 
         PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
-        associationToComponentDefinitionBox.setPropertyIndex(0);
+        associationToComponentDefinitionBox.setPropertyIndex(1);
         associationToComponentDefinitionBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
 
         PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
-        associationToUncompressedFrameConfigBox.setPropertyIndex(1);
+        associationToUncompressedFrameConfigBox.setPropertyIndex(2);
         associationToUncompressedFrameConfigBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
 
         PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
-        associationToImageSpatialExtentsProperty.setPropertyIndex(2);
+        associationToImageSpatialExtentsProperty.setPropertyIndex(3);
         associationToImageSpatialExtentsProperty.setEssential(false);
         componentDefinitionAssociationEntry.addAssociation(
                 associationToImageSpatialExtentsProperty);
@@ -745,6 +822,68 @@ public class CreateFileTest {
         componentDefinitionAssociation.addEntry(componentDefinitionAssociationEntry);
         iprp.addItemPropertyAssociation(componentDefinitionAssociation);
         return iprp;
+    }
+
+    private Box makeItemPropertiesBox_rgb_component_with_rgan() {
+        ItemPropertiesBox iprp = new ItemPropertiesBox();
+        ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
+        ipco.addProperty(makeComponentDefinitionBox_rgb3());
+        ipco.addProperty(makeUncompressedFrameConfigBox_rgb_component());
+        ipco.addProperty(makeImageSpatialExtentsProperty());
+        ipco.addProperty(makeUserDescription_rgan());
+        ipco.addProperty(makeUserDescription());
+        iprp.setItemProperties(ipco);
+
+        ItemPropertyAssociation itemPropertyAssociation = new ItemPropertyAssociation();
+        {
+            AssociationEntry mainItemAssociations = new AssociationEntry();
+            mainItemAssociations.setItemId(MAIN_ITEM_ID);
+
+            PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
+            associationToComponentDefinitionBox.setPropertyIndex(1);
+            associationToComponentDefinitionBox.setEssential(true);
+            mainItemAssociations.addAssociation(associationToComponentDefinitionBox);
+
+            PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
+            associationToUncompressedFrameConfigBox.setPropertyIndex(2);
+            associationToUncompressedFrameConfigBox.setEssential(true);
+            mainItemAssociations.addAssociation(associationToUncompressedFrameConfigBox);
+
+            PropertyAssociation associationToImageSpatialExtentsProperty =
+                    new PropertyAssociation();
+            associationToImageSpatialExtentsProperty.setPropertyIndex(3);
+            associationToImageSpatialExtentsProperty.setEssential(false);
+            mainItemAssociations.addAssociation(associationToImageSpatialExtentsProperty);
+
+            PropertyAssociation associationToUserDescription = new PropertyAssociation();
+            associationToUserDescription.setPropertyIndex(5);
+            associationToUserDescription.setEssential(false);
+            mainItemAssociations.addAssociation(associationToUserDescription);
+
+            itemPropertyAssociation.addEntry(mainItemAssociations);
+        }
+        {
+            AssociationEntry regionAssociationEntry = new AssociationEntry();
+            regionAssociationEntry.setItemId(REGION_ITEM_ID);
+            PropertyAssociation associationToRegionUserDescription = new PropertyAssociation();
+            associationToRegionUserDescription.setPropertyIndex(4);
+            associationToRegionUserDescription.setEssential(false);
+            regionAssociationEntry.addAssociation(associationToRegionUserDescription);
+            itemPropertyAssociation.addEntry(regionAssociationEntry);
+        }
+        iprp.addItemPropertyAssociation(itemPropertyAssociation);
+
+        return iprp;
+    }
+
+    private Box makeItemReferenceBox_with_rgan() {
+        ItemReferenceBox iref = new ItemReferenceBox();
+        SingleItemReferenceBox rgan_csdc_primary_item =
+                new SingleItemReferenceBox(new FourCC("cdsc"));
+        rgan_csdc_primary_item.setFromItemId(REGION_ITEM_ID);
+        rgan_csdc_primary_item.addReference(MAIN_ITEM_ID);
+        iref.addItem(rgan_csdc_primary_item);
+        return iref;
     }
 
     private Box makeItemPropertiesBox_rgb565(ByteOrder blockEndian) {
@@ -759,17 +898,17 @@ public class CreateFileTest {
         componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
 
         PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
-        associationToComponentDefinitionBox.setPropertyIndex(0);
+        associationToComponentDefinitionBox.setPropertyIndex(1);
         associationToComponentDefinitionBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
 
         PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
-        associationToUncompressedFrameConfigBox.setPropertyIndex(1);
+        associationToUncompressedFrameConfigBox.setPropertyIndex(2);
         associationToUncompressedFrameConfigBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
 
         PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
-        associationToImageSpatialExtentsProperty.setPropertyIndex(2);
+        associationToImageSpatialExtentsProperty.setPropertyIndex(3);
         associationToImageSpatialExtentsProperty.setEssential(false);
         componentDefinitionAssociationEntry.addAssociation(
                 associationToImageSpatialExtentsProperty);
@@ -791,17 +930,17 @@ public class CreateFileTest {
         componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
 
         PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
-        associationToComponentDefinitionBox.setPropertyIndex(0);
+        associationToComponentDefinitionBox.setPropertyIndex(1);
         associationToComponentDefinitionBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
 
         PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
-        associationToUncompressedFrameConfigBox.setPropertyIndex(1);
+        associationToUncompressedFrameConfigBox.setPropertyIndex(2);
         associationToUncompressedFrameConfigBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
 
         PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
-        associationToImageSpatialExtentsProperty.setPropertyIndex(2);
+        associationToImageSpatialExtentsProperty.setPropertyIndex(3);
         associationToImageSpatialExtentsProperty.setEssential(false);
         componentDefinitionAssociationEntry.addAssociation(
                 associationToImageSpatialExtentsProperty);
@@ -823,17 +962,17 @@ public class CreateFileTest {
         componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
 
         PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
-        associationToComponentDefinitionBox.setPropertyIndex(0);
+        associationToComponentDefinitionBox.setPropertyIndex(1);
         associationToComponentDefinitionBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
 
         PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
-        associationToUncompressedFrameConfigBox.setPropertyIndex(1);
+        associationToUncompressedFrameConfigBox.setPropertyIndex(2);
         associationToUncompressedFrameConfigBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
 
         PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
-        associationToImageSpatialExtentsProperty.setPropertyIndex(2);
+        associationToImageSpatialExtentsProperty.setPropertyIndex(3);
         associationToImageSpatialExtentsProperty.setEssential(false);
         componentDefinitionAssociationEntry.addAssociation(
                 associationToImageSpatialExtentsProperty);
@@ -850,31 +989,37 @@ public class CreateFileTest {
         ipco.addProperty(makeUncompressedFrameConfigBox_bgr());
         ipco.addProperty(makeImageSpatialExtentsProperty());
         ipco.addProperty(makeSensorBadPixelsMap());
+        ipco.addProperty(makeUserDescription());
         iprp.setItemProperties(ipco);
         ItemPropertyAssociation componentDefinitionAssociation = new ItemPropertyAssociation();
         AssociationEntry componentDefinitionAssociationEntry = new AssociationEntry();
         componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
 
         PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
-        associationToComponentDefinitionBox.setPropertyIndex(0);
+        associationToComponentDefinitionBox.setPropertyIndex(1);
         associationToComponentDefinitionBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
 
         PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
-        associationToUncompressedFrameConfigBox.setPropertyIndex(1);
+        associationToUncompressedFrameConfigBox.setPropertyIndex(2);
         associationToUncompressedFrameConfigBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
 
         PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
-        associationToImageSpatialExtentsProperty.setPropertyIndex(2);
+        associationToImageSpatialExtentsProperty.setPropertyIndex(3);
         associationToImageSpatialExtentsProperty.setEssential(false);
         componentDefinitionAssociationEntry.addAssociation(
                 associationToImageSpatialExtentsProperty);
 
         PropertyAssociation associationToSensorBadPixelsMapBox = new PropertyAssociation();
-        associationToSensorBadPixelsMapBox.setPropertyIndex(3);
+        associationToSensorBadPixelsMapBox.setPropertyIndex(4);
         associationToSensorBadPixelsMapBox.setEssential(false);
         componentDefinitionAssociationEntry.addAssociation(associationToSensorBadPixelsMapBox);
+
+        PropertyAssociation associationToUserDescription = new PropertyAssociation();
+        associationToUserDescription.setPropertyIndex(5);
+        associationToUserDescription.setEssential(false);
+        componentDefinitionAssociationEntry.addAssociation(associationToUserDescription);
 
         componentDefinitionAssociation.addEntry(componentDefinitionAssociationEntry);
 
@@ -908,6 +1053,24 @@ public class CreateFileTest {
         return sbpm;
     }
 
+    private AbstractItemProperty makeUserDescription() {
+        UserDescriptionProperty udes = new UserDescriptionProperty();
+        udes.setLang("en-AU");
+        udes.setDescriptiveName("Coloured squares");
+        udes.setDescription("Four by Three grid with some bad pixels");
+        udes.setTags("udes,grid");
+        return udes;
+    }
+
+    private AbstractItemProperty makeUserDescription_rgan() {
+        UserDescriptionProperty udes = new UserDescriptionProperty();
+        udes.setLang("en-AU");
+        udes.setDescriptiveName("Yellow square");
+        udes.setDescription("The square in the third row, second column is yellow");
+        udes.setTags("udes,yellow,single square");
+        return udes;
+    }
+
     private Box makeItemPropertiesBox_rgba() {
         ItemPropertiesBox iprp = new ItemPropertiesBox();
         ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
@@ -920,17 +1083,17 @@ public class CreateFileTest {
         componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
 
         PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
-        associationToComponentDefinitionBox.setPropertyIndex(0);
+        associationToComponentDefinitionBox.setPropertyIndex(1);
         associationToComponentDefinitionBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
 
         PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
-        associationToUncompressedFrameConfigBox.setPropertyIndex(1);
+        associationToUncompressedFrameConfigBox.setPropertyIndex(2);
         associationToUncompressedFrameConfigBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
 
         PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
-        associationToImageSpatialExtentsProperty.setPropertyIndex(2);
+        associationToImageSpatialExtentsProperty.setPropertyIndex(3);
         associationToImageSpatialExtentsProperty.setEssential(false);
         componentDefinitionAssociationEntry.addAssociation(
                 associationToImageSpatialExtentsProperty);
@@ -953,23 +1116,23 @@ public class CreateFileTest {
         componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
 
         PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
-        associationToComponentDefinitionBox.setPropertyIndex(0);
+        associationToComponentDefinitionBox.setPropertyIndex(1);
         associationToComponentDefinitionBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
 
         PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
-        associationToUncompressedFrameConfigBox.setPropertyIndex(1);
+        associationToUncompressedFrameConfigBox.setPropertyIndex(2);
         associationToUncompressedFrameConfigBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
 
         PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
-        associationToImageSpatialExtentsProperty.setPropertyIndex(2);
+        associationToImageSpatialExtentsProperty.setPropertyIndex(3);
         associationToImageSpatialExtentsProperty.setEssential(false);
         componentDefinitionAssociationEntry.addAssociation(
                 associationToImageSpatialExtentsProperty);
 
         PropertyAssociation associationToComponentPaletteBox = new PropertyAssociation();
-        associationToComponentPaletteBox.setPropertyIndex(3);
+        associationToComponentPaletteBox.setPropertyIndex(4);
         associationToComponentPaletteBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToComponentPaletteBox);
 
@@ -1013,17 +1176,17 @@ public class CreateFileTest {
         componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
 
         PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
-        associationToComponentDefinitionBox.setPropertyIndex(0);
+        associationToComponentDefinitionBox.setPropertyIndex(1);
         associationToComponentDefinitionBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
 
         PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
-        associationToUncompressedFrameConfigBox.setPropertyIndex(1);
+        associationToUncompressedFrameConfigBox.setPropertyIndex(2);
         associationToUncompressedFrameConfigBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
 
         PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
-        associationToImageSpatialExtentsProperty.setPropertyIndex(2);
+        associationToImageSpatialExtentsProperty.setPropertyIndex(3);
         associationToImageSpatialExtentsProperty.setEssential(false);
         componentDefinitionAssociationEntry.addAssociation(
                 associationToImageSpatialExtentsProperty);
@@ -1045,17 +1208,17 @@ public class CreateFileTest {
         componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
 
         PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
-        associationToComponentDefinitionBox.setPropertyIndex(0);
+        associationToComponentDefinitionBox.setPropertyIndex(1);
         associationToComponentDefinitionBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
 
         PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
-        associationToUncompressedFrameConfigBox.setPropertyIndex(1);
+        associationToUncompressedFrameConfigBox.setPropertyIndex(2);
         associationToUncompressedFrameConfigBox.setEssential(true);
         componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
 
         PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
-        associationToImageSpatialExtentsProperty.setPropertyIndex(2);
+        associationToImageSpatialExtentsProperty.setPropertyIndex(3);
         associationToImageSpatialExtentsProperty.setEssential(false);
         componentDefinitionAssociationEntry.addAssociation(
                 associationToImageSpatialExtentsProperty);
@@ -1786,6 +1949,23 @@ public class CreateFileTest {
         return bytes;
     }
 
+    private void validateFileTypeBox(FileTypeBox ftyp) {
+        assertTrue(
+                ftyp.getCompatibleBrands().contains(new Brand("ns01")),
+                "NGA.STND.0078_0,1-02 SIFF files shall include the ns01 brand");
+        // TODO: -03
+        assertTrue(
+                ftyp.getCompatibleBrands().contains(new Brand("mif2")),
+                "NGA.STND.0078_0.1-04 SIFF files shall include the mif2 brand in the compatible brands list");
+        // TODO: -05
+        assertTrue(
+                ftyp.getCompatibleBrands().contains(new Brand("unif")),
+                "NGA.STND.0078_0.1-06 SIFF files shall include the unif brand in the compatible brands list");
+        // TODO: -07
+        // TODO: -08
+        // TODO: -09
+    }
+
     private void validateMetaBox(MetaBox metaBox) {
         for (Box box : metaBox.getNestedBoxes()) {
             if (box instanceof ItemPropertiesBox iprp) {
@@ -1797,6 +1977,10 @@ public class CreateFileTest {
             } else if (box instanceof ItemInfoBox iinf) {
                 // Not yet
             } else if (box instanceof ItemLocationBox iloc) {
+                // Not yet
+            } else if (box instanceof ItemDataBox idat) {
+                // Not yet
+            } else if (box instanceof ItemReferenceBox iref) {
                 // Not yet
             } else {
                 fail(
@@ -1817,6 +2001,7 @@ public class CreateFileTest {
         ImageSpatialExtentsProperty ispe = null;
         ComponentPaletteBox cpal = null;
         SensorBadPixelsMapBox sbpm = null;
+        UserDescriptionProperty udes = null;
 
         for (AbstractItemProperty property : properties) {
             if (property instanceof ComponentDefinitionBox componentDefinitionBox) {
@@ -1830,7 +2015,8 @@ public class CreateFileTest {
                 cpal = componentPaletteBox;
             } else if (property instanceof SensorBadPixelsMapBox sensorBadPixelsMapBox) {
                 sbpm = sensorBadPixelsMapBox;
-
+            } else if (property instanceof UserDescriptionProperty userDescriptionProperty) {
+                udes = userDescriptionProperty;
             } else {
                 fail("TODO: property: " + property.toString());
             }
@@ -2638,5 +2824,23 @@ public class CreateFileTest {
 
     private void checkSensorBadPixelsMap(SensorBadPixelsMapBox sbpm, ComponentDefinitionBox cmpd) {
         // TODO: implement checks
+    }
+
+    private byte[] getRegionAnnotationBytes() throws IOException {
+        RegionItem rgan = new RegionItem();
+        rgan.setReferenceWidth(IMAGE_WIDTH);
+        rgan.setReferenceHeight(IMAGE_HEIGHT);
+        Region rectangleRegion =
+                new Rectangle(
+                        IMAGE_WIDTH / 4, 2 * IMAGE_HEIGHT / 3, IMAGE_WIDTH / 4, IMAGE_HEIGHT / 3);
+        rgan.addRegion(rectangleRegion);
+        Region pointRegion =
+                new net.frogmouth.rnd.eofff.imagefileformat.items.rgan.Point(
+                        3 * IMAGE_WIDTH / 8, 5 * IMAGE_HEIGHT / 6);
+        rgan.addRegion(pointRegion);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
+        rgan.writeTo(streamWriter);
+        return baos.toByteArray();
     }
 }

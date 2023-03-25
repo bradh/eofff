@@ -34,6 +34,15 @@ public class ItemReferenceBox extends FullBox {
     }
 
     @Override
+    public long getBodySize() {
+        long size = 0;
+        for (SingleItemReferenceBox singleItemReferenceBox : this.items) {
+            size += singleItemReferenceBox.getSize(getVersion());
+        }
+        return size;
+    }
+
+    @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
         this.writeBoxHeader(stream);
         for (SingleItemReferenceBox singleItemReferenceBox : this.items) {
