@@ -30,6 +30,7 @@ module net.frogmouth.rnd.eofff.imagefileformat {
     exports net.frogmouth.rnd.eofff.imagefileformat.brands;
     exports net.frogmouth.rnd.eofff.imagefileformat.extensions.groups;
     exports net.frogmouth.rnd.eofff.imagefileformat.extensions.properties;
+    exports net.frogmouth.rnd.eofff.imagefileformat.items.grid;
     exports net.frogmouth.rnd.eofff.imagefileformat.items.rgan;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.image;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.udes;

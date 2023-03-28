@@ -45,10 +45,7 @@ public class FourCC {
             return false;
         }
         final FourCC other = (FourCC) obj;
-        if (this.integerCode != other.integerCode) {
-            return false;
-        }
-        return true;
+        return this.integerCode == other.integerCode;
     }
 
     byte[] toBytes() {

@@ -1,7 +1,9 @@
 package net.frogmouth.rnd.eofff.imagefileformat.properties.image;
 
+import java.io.IOException;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class CleanAperture extends ItemProperty {
 
@@ -14,8 +16,10 @@ public class CleanAperture extends ItemProperty {
     private long vertOffN;
     private long vertOffD;
 
-    public CleanAperture(FourCC name) {
-        super(name);
+    public static final FourCC CLAP_ATOM = new FourCC("clap");
+
+    public CleanAperture() {
+        super(CLAP_ATOM);
     }
 
     @Override
@@ -85,6 +89,24 @@ public class CleanAperture extends ItemProperty {
 
     public void setVertOffD(long vertOffD) {
         this.vertOffD = vertOffD;
+    }
+
+    @Override
+    public long getBodySize() {
+        return 8 * Integer.BYTES;
+    }
+
+    @Override
+    public void writeTo(OutputStreamWriter writer) throws IOException {
+        this.writeBoxHeader(writer);
+        writer.writeUnsignedInt32(this.cleanApertureWidthN);
+        writer.writeUnsignedInt32(this.cleanApertureWidthD);
+        writer.writeUnsignedInt32(this.cleanApertureHeightN);
+        writer.writeUnsignedInt32(this.cleanApertureHeightD);
+        writer.writeUnsignedInt32(this.getHorizOffN());
+        writer.writeUnsignedInt32(this.getHorizOffD());
+        writer.writeUnsignedInt32(this.getVertOffN());
+        writer.writeUnsignedInt32(this.getVertOffD());
     }
 
     @Override

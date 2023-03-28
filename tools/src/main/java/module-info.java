@@ -15,4 +15,5 @@ module net.frogmouth.rnd.eofff.tools {
     requires net.frogmouth.rnd.eofff.yuv;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
+    uses net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser;
 }

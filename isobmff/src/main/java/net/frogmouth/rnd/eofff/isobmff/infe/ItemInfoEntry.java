@@ -169,6 +169,9 @@ public class ItemInfoEntry extends FullBox {
             sb.append(getContentType());
             sb.append(", content_encoding=");
             sb.append(getContentEncoding());
+        } else if (getItemType() == URI) {
+            sb.append(", uri_type=");
+            sb.append(getItemUriType());
         }
         return sb.toString();
     }

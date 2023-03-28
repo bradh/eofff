@@ -111,4 +111,24 @@ public class Brand extends FourCC {
     public Brand(String string) {
         super(string);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Brand other = (Brand) obj;
+        return this.hashCode() == other.hashCode();
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }

@@ -1,23 +1,10 @@
 package net.frogmouth.rnd.eofff.tools.siff;
 
-import static net.frogmouth.rnd.eofff.tools.siff.UncompressedTestSupport.IMAGE_DATA_START;
-import static net.frogmouth.rnd.eofff.tools.siff.UncompressedTestSupport.IMAGE_HEIGHT;
-import static net.frogmouth.rnd.eofff.tools.siff.UncompressedTestSupport.IMAGE_WIDTH;
-import static net.frogmouth.rnd.eofff.tools.siff.UncompressedTestSupport.LENGTH_OF_FREEBOX_HEADER;
-import static net.frogmouth.rnd.eofff.tools.siff.UncompressedTestSupport.MAIN_ITEM_ID;
-import static net.frogmouth.rnd.eofff.tools.siff.UncompressedTestSupport.MDAT_START;
 import static org.testng.Assert.*;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBufferByte;
-import java.awt.image.IndexColorModel;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.imageio.ImageIO;
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AssociationEntry;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertiesBox;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyAssociation;
@@ -27,92 +14,96 @@ import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.free.FreeBox;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
-import net.frogmouth.rnd.eofff.isobmff.iloc.ILocExtent;
-import net.frogmouth.rnd.eofff.isobmff.iloc.ILocItem;
-import net.frogmouth.rnd.eofff.isobmff.iloc.ItemLocationBox;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
-import net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteBox;
-import net.frogmouth.rnd.eofff.uncompressed.cpal.PaletteComponent;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
 import org.testng.annotations.Test;
 
-public class Uncompressed_rgb_palette_Test extends UncompressedTestSupport {
-
-    private static final int NUM_BYTES_PER_PIXEL_RGB_PALETTE = 1;
-
+public class Uncompressed_rgba_Test extends UncompressedTestSupport {
     @Test
-    public void writeFile_rgb_palette() throws IOException {
-        BufferedImage image =
-                new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_BYTE_INDEXED);
-        drawColouredRectangles(image);
-        ImageIO.write(image, "PNG", new File("ref_byte_indexed.png"));
+    public void writeFile_rgba() throws IOException {
         List<Box> boxes = new ArrayList<>();
         FileTypeBox ftyp = createFileTypeBox();
         boxes.add(ftyp);
-        MetaBox meta = createMetaBox_rgb_palette(image.getColorModel());
+        MetaBox meta = createMetaBox_rgba();
         boxes.add(meta);
         long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
         long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
         FreeBox free = new FreeBox();
         free.setData(new byte[(int) numberOfFillBytes]);
         boxes.add(free);
-        MediaDataBox mdat = createMediaDataBox_rgb_palette(image);
+        MediaDataBox mdat = createMediaDataBox_rgba();
         boxes.add(mdat);
-        writeBoxes(boxes, "test_uncompressed_rgb_palette.mp4");
+        writeBoxes(boxes, "test_uncompressed_rgba.mp4");
     }
 
-    private MediaDataBox createMediaDataBox_rgb_palette(BufferedImage image) throws IOException {
+    private MediaDataBox createMediaDataBox_rgba() {
         MediaDataBox mdat = new MediaDataBox();
-        DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
-        mdat.setData(buffer.getData());
+        byte[] bytes = new byte[IMAGE_WIDTH * IMAGE_HEIGHT * NUM_BYTES_PER_PIXEL_RGBA];
+        int index = 0;
+        for (int r = 0; r < IMAGE_HEIGHT / 4; r++) {
+            for (int c = 0; c < IMAGE_WIDTH; c++) {
+                bytes[index] = (byte) 0xFF;
+                bytes[index + 1] = (byte) 0x00;
+                bytes[index + 2] = (byte) 0x00;
+                bytes[index + 3] = (byte) 0xff;
+                index += NUM_BYTES_PER_PIXEL_RGBA;
+            }
+        }
+        for (int r = 0; r < IMAGE_HEIGHT / 4; r++) {
+            for (int c = 0; c < IMAGE_WIDTH; c++) {
+                bytes[index] = (byte) 0x00;
+                bytes[index + 1] = (byte) 0xFF;
+                bytes[index + 2] = (byte) 0x00;
+                bytes[index + 3] = (byte) 0xff;
+                index += NUM_BYTES_PER_PIXEL_RGBA;
+            }
+        }
+        for (int r = 0; r < IMAGE_HEIGHT / 4; r++) {
+            for (int c = 0; c < IMAGE_WIDTH; c++) {
+                bytes[index] = (byte) 0x00;
+                bytes[index + 1] = (byte) 0x00;
+                bytes[index + 2] = (byte) 0xFF;
+                bytes[index + 3] = (byte) 0xff;
+                index += NUM_BYTES_PER_PIXEL_RGBA;
+            }
+        }
+        for (int r = 0; r < IMAGE_HEIGHT / 4; r++) {
+            for (int c = 0; c < IMAGE_WIDTH; c++) {
+                bytes[index] = (byte) 0xff;
+                bytes[index + 1] = (byte) 0xFF;
+                bytes[index + 2] = (byte) 0xff;
+                bytes[index + 3] = (byte) 0xff;
+                index += NUM_BYTES_PER_PIXEL_RGBA;
+            }
+        }
+        mdat.setData(bytes);
         return mdat;
     }
 
-    private MetaBox createMetaBox_rgb_palette(ColorModel colourModel) {
+    private MetaBox createMetaBox_rgba() {
         MetaBox meta = new MetaBox();
         List<Box> boxes = new ArrayList<>();
         boxes.add(makeHandlerBox());
         boxes.add(makePrimaryItemBox());
         boxes.add(makeItemInfoBox());
-        boxes.add(makeItemLocationBox_rgb_palette());
-        boxes.add(makeItemPropertiesBox_rgb_palette(colourModel));
+        boxes.add(makeItemLocationBox_rgba_generic());
+        boxes.add(makeItemPropertiesBox_rgba());
         meta.addNestedBoxes(boxes);
         return meta;
     }
 
-    private ItemLocationBox makeItemLocationBox_rgb_palette() {
-        ItemLocationBox iloc = new ItemLocationBox();
-        iloc.setOffsetSize(4);
-        iloc.setLengthSize(4);
-        iloc.setBaseOffsetSize(4);
-        iloc.setIndexSize(4);
-        iloc.setVersion(1);
-        ILocItem mainItemLocation = new ILocItem();
-        mainItemLocation.setConstructionMethod(0);
-        mainItemLocation.setItemId(MAIN_ITEM_ID);
-        ILocExtent mainItemExtent = new ILocExtent();
-        mainItemExtent.setExtentIndex(0);
-        mainItemExtent.setExtentOffset(IMAGE_DATA_START);
-        mainItemExtent.setExtentLength(
-                IMAGE_HEIGHT * IMAGE_WIDTH * NUM_BYTES_PER_PIXEL_RGB_PALETTE);
-        mainItemLocation.addExtent(mainItemExtent);
-        iloc.addItem(mainItemLocation);
-        return iloc;
-    }
-
-    private Box makeItemPropertiesBox_rgb_palette(ColorModel colourModel) {
+    private Box makeItemPropertiesBox_rgba() {
         ItemPropertiesBox iprp = new ItemPropertiesBox();
         ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
-        ipco.addProperty(makeComponentDefinitionBox_rgb_palette());
-        ipco.addProperty(makeUncompressedFrameConfigBox_rgb_palette());
+        ipco.addProperty(makeComponentDefinitionBox_rgba());
+        ipco.addProperty(makeUncompressedFrameConfigBox_rgba());
         ipco.addProperty(makeImageSpatialExtentsProperty());
-        ipco.addProperty(makeComponentPaletteBox(colourModel));
         iprp.setItemProperties(ipco);
         ItemPropertyAssociation componentDefinitionAssociation = new ItemPropertyAssociation();
         AssociationEntry componentDefinitionAssociationEntry = new AssociationEntry();
@@ -134,35 +125,33 @@ public class Uncompressed_rgb_palette_Test extends UncompressedTestSupport {
         componentDefinitionAssociationEntry.addAssociation(
                 associationToImageSpatialExtentsProperty);
 
-        PropertyAssociation associationToComponentPaletteBox = new PropertyAssociation();
-        associationToComponentPaletteBox.setPropertyIndex(4);
-        associationToComponentPaletteBox.setEssential(true);
-        componentDefinitionAssociationEntry.addAssociation(associationToComponentPaletteBox);
-
         componentDefinitionAssociation.addEntry(componentDefinitionAssociationEntry);
         iprp.addItemPropertyAssociation(componentDefinitionAssociation);
         return iprp;
     }
 
-    private ComponentDefinitionBox makeComponentDefinitionBox_rgb_palette() {
+    private ComponentDefinitionBox makeComponentDefinitionBox_rgba() {
         ComponentDefinitionBox cmpd = new ComponentDefinitionBox();
-        ComponentDefinition paletteComponent = new ComponentDefinition(10, null);
-        cmpd.addComponentDefinition(paletteComponent);
         ComponentDefinition redComponent = new ComponentDefinition(4, null);
         cmpd.addComponentDefinition(redComponent);
         ComponentDefinition greenComponent = new ComponentDefinition(5, null);
         cmpd.addComponentDefinition(greenComponent);
         ComponentDefinition blueComponent = new ComponentDefinition(6, null);
         cmpd.addComponentDefinition(blueComponent);
+        ComponentDefinition alphaComponent = new ComponentDefinition(7, null);
+        cmpd.addComponentDefinition(alphaComponent);
         return cmpd;
     }
 
-    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_rgb_palette() {
+    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_rgba() {
         UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
-        uncc.setProfile(new FourCC("gene"));
+        uncc.setProfile(new FourCC("rgba"));
         uncc.addComponent(new Component(0, 7, 0, 0));
+        uncc.addComponent(new Component(1, 7, 0, 0));
+        uncc.addComponent(new Component(2, 7, 0, 0));
+        uncc.addComponent(new Component(3, 7, 0, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
-        uncc.setInterleaveType(Interleaving.Component);
+        uncc.setInterleaveType(Interleaving.Pixel);
         uncc.setBlockSize(0);
         uncc.setComponentLittleEndian(false);
         uncc.setBlockPadLSB(false);
@@ -175,28 +164,5 @@ public class Uncompressed_rgb_palette_Test extends UncompressedTestSupport {
         uncc.setNumTileColumnsMinusOne(0);
         uncc.setNumTileColumnsMinusOne(0);
         return uncc;
-    }
-
-    private AbstractItemProperty makeComponentPaletteBox(ColorModel colourModel) {
-        ComponentPaletteBox cpal = new ComponentPaletteBox();
-        cpal.addComponent(new PaletteComponent(1, 7, 0));
-        cpal.addComponent(new PaletteComponent(2, 7, 0));
-        cpal.addComponent(new PaletteComponent(3, 7, 0));
-        IndexColorModel icm = (IndexColorModel) colourModel;
-        int mapSize = icm.getMapSize();
-        byte[][] values = new byte[mapSize][3];
-        byte[] reds = new byte[mapSize];
-        icm.getReds(reds);
-        byte[] greens = new byte[mapSize];
-        icm.getGreens(greens);
-        byte[] blues = new byte[mapSize];
-        icm.getBlues(blues);
-        for (int i = 0; i < mapSize; i++) {
-            values[i][0] = reds[i];
-            values[i][1] = greens[i];
-            values[i][2] = blues[i];
-        }
-        cpal.setComponentValues(values);
-        return cpal;
     }
 }

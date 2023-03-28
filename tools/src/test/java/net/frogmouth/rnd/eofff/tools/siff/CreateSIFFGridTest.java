@@ -2,18 +2,6 @@ package net.frogmouth.rnd.eofff.tools.siff;
 
 import static org.testng.Assert.*;
 
-import java.awt.Point;
-import java.awt.Transparency;
-import java.awt.color.ColorSpace;
-import java.awt.image.BandedSampleModel;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
-import java.awt.image.SampleModel;
-import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -23,17 +11,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.imageio.ImageIO;
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
+import mil.nga.tiff.FileDirectory;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AssociationEntry;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertiesBox;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyAssociation;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyContainerBox;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyAssociation;
-import net.frogmouth.rnd.eofff.imagefileformat.items.rgan.Rectangle;
-import net.frogmouth.rnd.eofff.imagefileformat.items.rgan.Region;
-import net.frogmouth.rnd.eofff.imagefileformat.items.rgan.RegionItem;
-import net.frogmouth.rnd.eofff.imagefileformat.properties.udes.UserDescriptionProperty;
+import net.frogmouth.rnd.eofff.imagefileformat.items.grid.GridItem;
+import net.frogmouth.rnd.eofff.imagefileformat.properties.image.CleanAperture;
+import net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageSpatialExtentsProperty;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
@@ -50,6 +36,7 @@ import net.frogmouth.rnd.eofff.isobmff.iref.SingleItemReferenceBox;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.tools.ItemDataBoxBuilder;
+import net.frogmouth.rnd.eofff.tools.MediaDataBoxBuilder;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
@@ -88,9 +75,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-public class CreateSIFFTest extends UncompressedTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(CreateSIFFTest.class);
-    private static final long REGION_ITEM_ID = 0x1788;
+public class CreateSIFFGridTest extends UncompressedTestSupport {
+    private static final Logger LOG = LoggerFactory.getLogger(CreateSIFFGridTest.class);
     private static final long FILE_METADATA_ITEM_ID = 0x1902;
     private static final String MIMD_URI = "urn:nsg:KLV:ul:060E2B34.02050101.0E010504.00000000";
     private static final long PRIMARY_TIMESTAMP_ITEM_ID = 0x1603;
@@ -98,6 +84,17 @@ public class CreateSIFFTest extends UncompressedTestSupport {
             "urn:nsg:KLV:ul:060E2B34.02050101.0E010302.09000000";
     private static final long CORE_ID_ITEM_ID = 0x1204;
     private static final String CORE_ID_URI = "urn:nsg:KLV:ul:060E2B34.01010101.0E010405.03000000";
+
+    private static final int TILE_WIDTH = 512;
+    private static final int TILE_HEIGHT = 512;
+    private static final int NUM_TILE_ROWS = 20;
+    private static final int NUM_TILE_COLUMNS = 20;
+    private static final int IMAGE_HEIGHT_GRID = TILE_HEIGHT * NUM_TILE_COLUMNS;
+    private static final int IMAGE_WIDTH_GRID = TILE_WIDTH * NUM_TILE_ROWS;
+    private static final int VALID_PIXELS_WIDTH = 10000;
+    private static final int VALID_PIXELS_HEIGHT = 10000;
+    private static final int MDAT_START_GRID = 37000;
+    private static final int TILE_SIZE_BYTES = TILE_WIDTH * TILE_HEIGHT * NUM_BYTES_PER_PIXEL_RGB;
 
     private static final byte[] MIIS_UUID_BYTES =
             new byte[] {
@@ -120,7 +117,7 @@ public class CreateSIFFTest extends UncompressedTestSupport {
             };
     private final UUID miisUuid;
 
-    public CreateSIFFTest() {
+    public CreateSIFFGridTest() {
         ByteBuffer byteBuffer = ByteBuffer.wrap(MIIS_UUID_BYTES);
         long high = byteBuffer.getLong();
         long low = byteBuffer.getLong();
@@ -128,46 +125,58 @@ public class CreateSIFFTest extends UncompressedTestSupport {
     }
 
     @Test
-    public void writeFile_rgb_component_rgan() throws IOException {
+    public void writeFile_rgb_grid() throws IOException {
         List<Box> boxes = new ArrayList<>();
         FileTypeBox ftyp = createFileTypeBox();
         boxes.add(ftyp);
-        MetaBox meta = createMetaBox_rgb_component_rgan();
+        MetaBox meta = createMetaBox_rgb();
         boxes.add(meta);
         long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
-        long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
+        long numberOfFillBytes = MDAT_START_GRID - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
         FreeBox free = new FreeBox();
         free.setData(new byte[(int) numberOfFillBytes]);
         boxes.add(free);
-        MediaDataBox mdat = createMediaDataBox_rgb_component();
+        MediaDataBox mdat = createMediaDataBox_rgb_grid();
         boxes.add(mdat);
-        writeBoxes(boxes, "test_siff_rgb_component_rgan.mp4");
+        writeBoxes(boxes, "test_siff_rgb_grid.mp4");
     }
 
-    private MetaBox createMetaBox_rgb_component_rgan() throws IOException {
+    private MetaBox createMetaBox_rgb() throws IOException {
         MetaBox meta = new MetaBox();
         List<Box> boxes = new ArrayList<>();
         boxes.add(makeHandlerBox());
         boxes.add(makePrimaryItemBox());
-        boxes.add(makeItemInfoBox_with_rgan());
-        boxes.add(makeItemLocationBox_rgb_component_with_rgan());
-        boxes.add(makeItemDataBox_with_rgan());
-        boxes.add(makeItemPropertiesBox_rgb_component_with_rgan());
-        boxes.add(makeItemReferenceBox_with_rgan());
+        boxes.add(makeItemInfoBoxGrid());
+        boxes.add(makeItemLocationBox_grid());
+        boxes.add(makeItemDataBox_grid());
+        boxes.add(makeItemPropertiesBox_grid());
+        boxes.add(makeItemReferenceBox());
         meta.addNestedBoxes(boxes);
         return meta;
     }
 
-    private ItemInfoBox makeItemInfoBox_with_rgan() {
-        ItemInfoBox iinf = makeItemInfoBox();
+    private ItemInfoBox makeItemInfoBoxGrid() {
+        ItemInfoBox iinf = new ItemInfoBox();
+        for (int y = 0; y < NUM_TILE_ROWS; y++) {
+            for (int x = 0; x < NUM_TILE_COLUMNS; x++) {
+                int itemID = getItemIdForGridComponent(x, y);
+                ItemInfoEntry infexy = new ItemInfoEntry();
+                infexy.setVersion(2);
+                infexy.setItemID(itemID);
+                FourCC unci = new FourCC("unci");
+                infexy.setItemType(unci.asUnsigned());
+                infexy.setItemName(String.format("Grid input image [%d, %d]", x, y));
+                iinf.addItem(infexy);
+            }
+        }
         {
-            ItemInfoEntry infe1 = new ItemInfoEntry();
-            infe1.setVersion(2);
-            infe1.setItemID(REGION_ITEM_ID);
-            FourCC rgan = new FourCC("rgan");
-            infe1.setItemType(rgan.asUnsigned());
-            infe1.setItemName("Region Annotation");
-            iinf.addItem(infe1);
+            ItemInfoEntry infe0 = new ItemInfoEntry();
+            infe0.setVersion(2);
+            infe0.setItemID(MAIN_ITEM_ID);
+            FourCC grid = new FourCC("grid");
+            infe0.setItemType(grid.asUnsigned());
+            infe0.setItemName("Grid Image");
+            iinf.addItem(infe0);
         }
         {
             ItemInfoEntry infe2 = new ItemInfoEntry();
@@ -202,18 +211,27 @@ public class CreateSIFFTest extends UncompressedTestSupport {
         return iinf;
     }
 
-    private ItemLocationBox makeItemLocationBox_rgb_component_with_rgan() throws IOException {
-        ItemLocationBox iloc = makeItemLocationBox_rgb3();
-        {
-            ILocItem regionItemLocation = new ILocItem();
-            regionItemLocation.setConstructionMethod(1);
-            regionItemLocation.setItemId(REGION_ITEM_ID);
-            ILocExtent rganExtent = new ILocExtent();
-            rganExtent.setExtentIndex(0);
-            rganExtent.setExtentOffset(0);
-            rganExtent.setExtentLength(getRegionAnnotationBytes().length);
-            regionItemLocation.addExtent(rganExtent);
-            iloc.addItem(regionItemLocation);
+    private ItemLocationBox makeItemLocationBox_grid() throws IOException {
+        ItemLocationBox iloc = new ItemLocationBox();
+        iloc.setOffsetSize(4);
+        iloc.setLengthSize(4);
+        iloc.setBaseOffsetSize(4);
+        iloc.setIndexSize(4);
+        iloc.setVersion(1);
+        for (int y = 0; y < NUM_TILE_ROWS; y++) {
+            for (int x = 0; x < NUM_TILE_COLUMNS; x++) {
+                int itemID = getItemIdForGridComponent(x, y);
+                int tileNumber = y * NUM_TILE_COLUMNS + x;
+                ILocItem itemxyloc = new ILocItem();
+                itemxyloc.setConstructionMethod(0);
+                itemxyloc.setItemId(itemID);
+                ILocExtent itemxyextent = new ILocExtent();
+                itemxyextent.setExtentIndex(0);
+                itemxyextent.setExtentOffset(MDAT_START_GRID + tileNumber * TILE_SIZE_BYTES);
+                itemxyextent.setExtentLength(TILE_SIZE_BYTES);
+                itemxyloc.addExtent(itemxyextent);
+                iloc.addItem(itemxyloc);
+            }
         }
         {
             ILocItem mimdItemLocation = new ILocItem();
@@ -221,7 +239,7 @@ public class CreateSIFFTest extends UncompressedTestSupport {
             mimdItemLocation.setItemId(FILE_METADATA_ITEM_ID);
             ILocExtent mimdExtent = new ILocExtent();
             mimdExtent.setExtentIndex(0);
-            mimdExtent.setExtentOffset(getRegionAnnotationBytes().length);
+            mimdExtent.setExtentOffset(0);
             mimdExtent.setExtentLength(getFileMetadataBytes(false).length);
             mimdItemLocation.addExtent(mimdExtent);
             iloc.addItem(mimdItemLocation);
@@ -232,8 +250,7 @@ public class CreateSIFFTest extends UncompressedTestSupport {
             nanoTimestampItemLocation.setItemId(PRIMARY_TIMESTAMP_ITEM_ID);
             ILocExtent nanoTimestampExtent = new ILocExtent();
             nanoTimestampExtent.setExtentIndex(0);
-            nanoTimestampExtent.setExtentOffset(
-                    getRegionAnnotationBytes().length + getFileMetadataBytes(false).length);
+            nanoTimestampExtent.setExtentOffset(getFileMetadataBytes(false).length);
             nanoTimestampExtent.setExtentLength(getNanoTimestampBytes(false).length);
             nanoTimestampItemLocation.addExtent(nanoTimestampExtent);
             iloc.addItem(nanoTimestampItemLocation);
@@ -245,104 +262,123 @@ public class CreateSIFFTest extends UncompressedTestSupport {
             ILocExtent coreIdExtent = new ILocExtent();
             coreIdExtent.setExtentIndex(0);
             coreIdExtent.setExtentOffset(
-                    getRegionAnnotationBytes().length
-                            + getFileMetadataBytes(false).length
-                            + getNanoTimestampBytes(false).length);
+                    getFileMetadataBytes(false).length + getNanoTimestampBytes(false).length);
             coreIdExtent.setExtentLength(this.getMiisCoreIdAsBytes(false).length);
             coreIdItemLocation.addExtent(coreIdExtent);
             iloc.addItem(coreIdItemLocation);
         }
+        {
+            ILocItem gridItemLocation = new ILocItem();
+            gridItemLocation.setConstructionMethod(1);
+            gridItemLocation.setItemId(MAIN_ITEM_ID);
+            ILocExtent gridItemExtent = new ILocExtent();
+            gridItemExtent.setExtentIndex(0);
+            gridItemExtent.setExtentOffset(
+                    getFileMetadataBytes(false).length
+                            + getNanoTimestampBytes(false).length
+                            + this.getMiisCoreIdAsBytes(false).length);
+            gridItemExtent.setExtentLength(this.getGridItemAsBytes(false).length);
+            gridItemLocation.addExtent(gridItemExtent);
+            iloc.addItem(gridItemLocation);
+        }
         return iloc;
     }
 
-    private ItemDataBox makeItemDataBox_with_rgan() throws IOException {
+    private ItemDataBox makeItemDataBox_grid() throws IOException {
         ItemDataBoxBuilder itemDataBoxBuilder = new ItemDataBoxBuilder();
-        itemDataBoxBuilder.addData(this.getRegionAnnotationBytes());
         itemDataBoxBuilder.addData(this.getFileMetadataBytes(true));
         itemDataBoxBuilder.addData(this.getNanoTimestampBytes(true));
         itemDataBoxBuilder.addData(this.getMiisCoreIdAsBytes(true));
         return itemDataBoxBuilder.build();
     }
 
-    private ItemLocationBox makeItemLocationBox_rgb3() {
-        ItemLocationBox iloc = new ItemLocationBox();
-        iloc.setOffsetSize(4);
-        iloc.setLengthSize(4);
-        iloc.setBaseOffsetSize(4);
-        iloc.setIndexSize(4);
-        iloc.setVersion(1);
-        ILocItem mainItemLocation = new ILocItem();
-        mainItemLocation.setConstructionMethod(0);
-        mainItemLocation.setItemId(MAIN_ITEM_ID);
-        ILocExtent mainItemExtent = new ILocExtent();
-        mainItemExtent.setExtentIndex(0);
-        mainItemExtent.setExtentOffset(IMAGE_DATA_START);
-        mainItemExtent.setExtentLength(IMAGE_HEIGHT * IMAGE_WIDTH * NUM_BYTES_PER_PIXEL_RGB);
-        mainItemLocation.addExtent(mainItemExtent);
-        iloc.addItem(mainItemLocation);
-        return iloc;
-    }
-
-    private Box makeItemPropertiesBox_rgb_component_with_rgan() {
+    private Box makeItemPropertiesBox_grid() {
         ItemPropertiesBox iprp = new ItemPropertiesBox();
         ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
         ipco.addProperty(makeComponentDefinitionBox_rgb3());
-        ipco.addProperty(makeUncompressedFrameConfigBox_rgb_component());
-        ipco.addProperty(makeImageSpatialExtentsProperty());
-        ipco.addProperty(makeUserDescription_rgan());
-        ipco.addProperty(makeUserDescription());
+        ipco.addProperty(makeUncompressedFrameConfigBox_grid_tile());
+        ipco.addProperty(makeImageSpatialExtentsProperty_grid_tile());
+        ipco.addProperty(makeCleanApertureBox());
         iprp.setItemProperties(ipco);
 
-        ItemPropertyAssociation itemPropertyAssociation = new ItemPropertyAssociation();
         {
-            AssociationEntry mainItemAssociations = new AssociationEntry();
-            mainItemAssociations.setItemId(MAIN_ITEM_ID);
+            ItemPropertyAssociation itemPropertyAssociation = new ItemPropertyAssociation();
+            for (int y = 0; y < NUM_TILE_ROWS; y++) {
+                for (int x = 0; x < NUM_TILE_COLUMNS; x++) {
+                    int itemID = getItemIdForGridComponent(x, y);
+                    AssociationEntry gridItemAssociations = new AssociationEntry();
+                    gridItemAssociations.setItemId(itemID);
 
-            PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
-            associationToComponentDefinitionBox.setPropertyIndex(1);
-            associationToComponentDefinitionBox.setEssential(true);
-            mainItemAssociations.addAssociation(associationToComponentDefinitionBox);
+                    PropertyAssociation associationToComponentDefinitionBox =
+                            new PropertyAssociation();
+                    associationToComponentDefinitionBox.setPropertyIndex(1);
+                    associationToComponentDefinitionBox.setEssential(true);
+                    gridItemAssociations.addAssociation(associationToComponentDefinitionBox);
 
-            PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
-            associationToUncompressedFrameConfigBox.setPropertyIndex(2);
-            associationToUncompressedFrameConfigBox.setEssential(true);
-            mainItemAssociations.addAssociation(associationToUncompressedFrameConfigBox);
+                    PropertyAssociation associationToUncompressedFrameConfigBox =
+                            new PropertyAssociation();
+                    associationToUncompressedFrameConfigBox.setPropertyIndex(2);
+                    associationToUncompressedFrameConfigBox.setEssential(true);
+                    gridItemAssociations.addAssociation(associationToUncompressedFrameConfigBox);
 
-            PropertyAssociation associationToImageSpatialExtentsProperty =
-                    new PropertyAssociation();
-            associationToImageSpatialExtentsProperty.setPropertyIndex(3);
-            associationToImageSpatialExtentsProperty.setEssential(false);
-            mainItemAssociations.addAssociation(associationToImageSpatialExtentsProperty);
-
-            PropertyAssociation associationToUserDescription = new PropertyAssociation();
-            associationToUserDescription.setPropertyIndex(5);
-            associationToUserDescription.setEssential(false);
-            mainItemAssociations.addAssociation(associationToUserDescription);
-
-            itemPropertyAssociation.addEntry(mainItemAssociations);
+                    PropertyAssociation associationToImageSpatialExtentsProperty =
+                            new PropertyAssociation();
+                    associationToImageSpatialExtentsProperty.setPropertyIndex(3);
+                    associationToImageSpatialExtentsProperty.setEssential(false);
+                    gridItemAssociations.addAssociation(associationToImageSpatialExtentsProperty);
+                    itemPropertyAssociation.addEntry(gridItemAssociations);
+                }
+            }
+            iprp.addItemPropertyAssociation(itemPropertyAssociation);
         }
         {
-            AssociationEntry regionAssociationEntry = new AssociationEntry();
-            regionAssociationEntry.setItemId(REGION_ITEM_ID);
-            PropertyAssociation associationToRegionUserDescription = new PropertyAssociation();
-            associationToRegionUserDescription.setPropertyIndex(4);
-            associationToRegionUserDescription.setEssential(false);
-            regionAssociationEntry.addAssociation(associationToRegionUserDescription);
-            itemPropertyAssociation.addEntry(regionAssociationEntry);
+            ItemPropertyAssociation assoc = new ItemPropertyAssociation();
+            AssociationEntry entry = new AssociationEntry();
+            entry.setItemId(MAIN_ITEM_ID);
+            PropertyAssociation associationToClap = new PropertyAssociation();
+            associationToClap.setPropertyIndex(4);
+            associationToClap.setEssential(true);
+            entry.addAssociation(associationToClap);
+            assoc.addEntry(entry);
+            iprp.addItemPropertyAssociation(assoc);
         }
-        iprp.addItemPropertyAssociation(itemPropertyAssociation);
 
         return iprp;
     }
 
-    private Box makeItemReferenceBox_with_rgan() {
+    private ImageSpatialExtentsProperty makeImageSpatialExtentsProperty_grid_tile() {
+        ImageSpatialExtentsProperty ispe = new ImageSpatialExtentsProperty();
+        ispe.setImageHeight(TILE_HEIGHT);
+        ispe.setImageWidth(TILE_WIDTH);
+        return ispe;
+    }
+
+    private CleanAperture makeCleanApertureBox() {
+        CleanAperture clap = new CleanAperture();
+        clap.setCleanApertureWidthN(VALID_PIXELS_WIDTH);
+        clap.setCleanApertureWidthD(1);
+        clap.setCleanApertureHeightN(VALID_PIXELS_HEIGHT);
+        clap.setCleanApertureHeightD(1);
+        clap.setHorizOffN(0);
+        clap.setHorizOffD(0);
+        clap.setVertOffN(0);
+        clap.setVertOffD(0);
+        return clap;
+    }
+
+    private Box makeItemReferenceBox() {
         ItemReferenceBox iref = new ItemReferenceBox();
         {
-            SingleItemReferenceBox rgan_csdc_primary_item =
-                    new SingleItemReferenceBox(new FourCC("cdsc"));
-            rgan_csdc_primary_item.setFromItemId(REGION_ITEM_ID);
-            rgan_csdc_primary_item.addReference(MAIN_ITEM_ID);
-            iref.addItem(rgan_csdc_primary_item);
+            SingleItemReferenceBox primary_item_dimg =
+                    new SingleItemReferenceBox(new FourCC("dimg"));
+            primary_item_dimg.setFromItemId(MAIN_ITEM_ID);
+            for (int y = 0; y < NUM_TILE_ROWS; y++) {
+                for (int x = 0; x < NUM_TILE_COLUMNS; x++) {
+                    int itemID = getItemIdForGridComponent(x, y);
+                    primary_item_dimg.addReference(itemID);
+                }
+            }
+            iref.addItem(primary_item_dimg);
         }
         {
             SingleItemReferenceBox timestamp_csdc_primary_item =
@@ -361,15 +397,6 @@ public class CreateSIFFTest extends UncompressedTestSupport {
         return iref;
     }
 
-    private AbstractItemProperty makeUserDescription_rgan() {
-        UserDescriptionProperty udes = new UserDescriptionProperty();
-        udes.setLang("en-AU");
-        udes.setDescriptiveName("Yellow square");
-        udes.setDescription("The square in the third row, second column is yellow");
-        udes.setTags("udes,yellow,single square");
-        return udes;
-    }
-
     private ComponentDefinitionBox makeComponentDefinitionBox_rgb3() {
         ComponentDefinitionBox cmpd = new ComponentDefinitionBox();
         ComponentDefinition redComponent = new ComponentDefinition(4, null);
@@ -381,14 +408,14 @@ public class CreateSIFFTest extends UncompressedTestSupport {
         return cmpd;
     }
 
-    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_rgb_component() {
+    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_grid_tile() {
         UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
-        uncc.setProfile(new FourCC("gene"));
+        uncc.setProfile(new FourCC("rgb3"));
         uncc.addComponent(new Component(0, 7, 0, 0));
         uncc.addComponent(new Component(1, 7, 0, 0));
         uncc.addComponent(new Component(2, 7, 0, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
-        uncc.setInterleaveType(Interleaving.Component);
+        uncc.setInterleaveType(Interleaving.Pixel);
         uncc.setBlockSize(0);
         uncc.setComponentLittleEndian(false);
         uncc.setBlockPadLSB(false);
@@ -403,53 +430,34 @@ public class CreateSIFFTest extends UncompressedTestSupport {
         return uncc;
     }
 
-    private MediaDataBox createMediaDataBox_rgb_component() throws IOException {
-        MediaDataBox mdat = new MediaDataBox();
-        SampleModel sampleModel =
-                new BandedSampleModel(DataBuffer.TYPE_BYTE, IMAGE_WIDTH, IMAGE_HEIGHT, 3);
-        WritableRaster raster = Raster.createWritableRaster(sampleModel, (Point) null);
-        ColorModel colourModel =
-                new ComponentColorModel(
-                        ColorSpace.getInstance(ColorSpace.CS_sRGB),
-                        false,
-                        true,
-                        Transparency.OPAQUE,
-                        DataBuffer.TYPE_BYTE);
-        BufferedImage image = new BufferedImage(colourModel, raster, true, null);
-        drawColouredRectangles(image);
-        ImageIO.write(image, "PNG", new File("ref_component.png"));
-        DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
-        int numBanks = buffer.getNumBanks();
-        int totalSize = 0;
-        for (int i = 0; i < numBanks; i++) {
-            totalSize += buffer.getData(i).length;
-        }
-        byte[] data = new byte[totalSize];
-        int destination = 0;
-        for (int i = 0; i < numBanks; i++) {
-            System.arraycopy(buffer.getData(i), 0, data, destination, buffer.getData(i).length);
-            destination += buffer.getData(i).length;
-        }
-        mdat.setData(data);
-        return mdat;
-    }
+    private MediaDataBox createMediaDataBox_rgb_grid() throws IOException {
+        MediaDataBoxBuilder mdatBuilder = new MediaDataBoxBuilder();
+        mil.nga.tiff.TIFFImage tiffImage =
+                mil.nga.tiff.TiffReader.readTiff(
+                        new File("/home/bradh/gdal_hacks/ACT2017-cog.tif"));
+        List<mil.nga.tiff.FileDirectory> directories = tiffImage.getFileDirectories();
+        FileDirectory directory = directories.get(0);
+        // mil.nga.tiff.Rasters rasters = directory.readRasters();
+        System.out.println(
+                String.format(
+                        "Tile width: %d, tile height: %d",
+                        directory.getTileWidth(), directory.getTileHeight()));
+        System.out.println(directory.getTileByteCounts());
+        int numTilesX =
+                (directory.getImageWidth().intValue() + directory.getTileWidth().intValue() - 1)
+                        / directory.getTileWidth().intValue();
+        int numTilesY =
+                (directory.getImageHeight().intValue() + directory.getTileHeight().intValue() - 1)
+                        / directory.getTileHeight().intValue();
 
-    private byte[] getRegionAnnotationBytes() throws IOException {
-        RegionItem rgan = new RegionItem();
-        rgan.setReferenceWidth(IMAGE_WIDTH);
-        rgan.setReferenceHeight(IMAGE_HEIGHT);
-        Region rectangleRegion =
-                new Rectangle(
-                        IMAGE_WIDTH / 4, 2 * IMAGE_HEIGHT / 3, IMAGE_WIDTH / 4, IMAGE_HEIGHT / 3);
-        rgan.addRegion(rectangleRegion);
-        Region pointRegion =
-                new net.frogmouth.rnd.eofff.imagefileformat.items.rgan.Point(
-                        3 * IMAGE_WIDTH / 8, 5 * IMAGE_HEIGHT / 6);
-        rgan.addRegion(pointRegion);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
-        rgan.writeTo(streamWriter);
-        return baos.toByteArray();
+        for (int y = 0; y < numTilesY; y++) {
+            for (int x = 0; x < numTilesX; x++) {
+                byte[] tileBytes = directory.getTileOrStrip(x, y, 0);
+                mdatBuilder.addData(tileBytes);
+            }
+        }
+
+        return mdatBuilder.build();
     }
 
     private byte[] getFileMetadataBytes(boolean dump) throws IOException {
@@ -567,5 +575,22 @@ public class CreateSIFFTest extends UncompressedTestSupport {
             System.out.print("\t");
         }
         System.out.println(value.getDisplayName() + ": " + value.getDisplayableValue());
+    }
+
+    private int getItemIdForGridComponent(int x, int y) {
+        return y * NUM_TILE_COLUMNS + x + 1;
+    }
+
+    private byte[] getGridItemAsBytes(boolean dump) throws IOException {
+        GridItem gridItem = new GridItem();
+        gridItem.setRows(NUM_TILE_ROWS);
+        gridItem.setColumns(NUM_TILE_COLUMNS);
+        gridItem.setOutput_width(NUM_TILE_COLUMNS * TILE_WIDTH);
+        gridItem.setOutput_height(NUM_TILE_ROWS * TILE_HEIGHT);
+        // TODO: dump if needed
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
+        gridItem.writeTo(streamWriter);
+        return baos.toByteArray();
     }
 }

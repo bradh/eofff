@@ -4,7 +4,6 @@ import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
-import net.frogmouth.rnd.eofff.isobmff.meta.ILocExtent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

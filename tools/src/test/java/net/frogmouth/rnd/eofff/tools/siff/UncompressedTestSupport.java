@@ -8,12 +8,14 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertiesBox;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyContainerBox;
+import net.frogmouth.rnd.eofff.imagefileformat.properties.image.CleanAperture;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageSpatialExtentsProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.udes.UserDescriptionProperty;
 import net.frogmouth.rnd.eofff.isobmff.Box;
@@ -24,11 +26,11 @@ import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBox;
 import net.frogmouth.rnd.eofff.isobmff.idat.ItemDataBox;
 import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoBox;
+import net.frogmouth.rnd.eofff.isobmff.iloc.ILocExtent;
 import net.frogmouth.rnd.eofff.isobmff.iloc.ILocItem;
 import net.frogmouth.rnd.eofff.isobmff.iloc.ItemLocationBox;
 import net.frogmouth.rnd.eofff.isobmff.infe.ItemInfoEntry;
 import net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceBox;
-import net.frogmouth.rnd.eofff.isobmff.meta.ILocExtent;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
@@ -96,7 +98,7 @@ public class UncompressedTestSupport {
         return ispe;
     }
 
-    protected ItemLocationBox makeItemLocationBox_rgba() {
+    protected ItemLocationBox makeItemLocationBox_rgba_generic() {
         ItemLocationBox iloc = new ItemLocationBox();
         iloc.setOffsetSize(4);
         iloc.setLengthSize(4);
@@ -895,6 +897,8 @@ public class UncompressedTestSupport {
                 sbpm = sensorBadPixelsMapBox;
             } else if (property instanceof UserDescriptionProperty userDescriptionProperty) {
                 udes = userDescriptionProperty;
+            } else if (property instanceof CleanAperture clap) {
+                // TODO
             } else {
                 fail("TODO: property: " + property.toString());
             }
@@ -1031,7 +1035,7 @@ public class UncompressedTestSupport {
         Graphics2D g2 = image.createGraphics();
         for (int r = 0; r < 3; r++) {
             for (int c = 0; c < 4; c++) {
-                g2.setColor(UncompressedFileTest.COLOURS[r * 4 + c]);
+                g2.setColor(Uncompressed_yuv_Test.COLOURS[r * 4 + c]);
                 g2.fillRect(
                         c * IMAGE_WIDTH / 4,
                         r * IMAGE_HEIGHT / 3,
@@ -1039,5 +1043,71 @@ public class UncompressedTestSupport {
                         IMAGE_HEIGHT / 3);
             }
         }
+    }
+
+    protected ItemLocationBox makeItemLocationBox_rgb_generic() {
+        ItemLocationBox iloc = new ItemLocationBox();
+        iloc.setOffsetSize(4);
+        iloc.setLengthSize(4);
+        iloc.setBaseOffsetSize(4);
+        iloc.setIndexSize(4);
+        iloc.setVersion(1);
+        ILocItem mainItemLocation = new ILocItem();
+        mainItemLocation.setConstructionMethod(0);
+        mainItemLocation.setItemId(MAIN_ITEM_ID);
+        ILocExtent mainItemExtent = new ILocExtent();
+        mainItemExtent.setExtentIndex(0);
+        mainItemExtent.setExtentOffset(IMAGE_DATA_START);
+        mainItemExtent.setExtentLength(IMAGE_HEIGHT * IMAGE_WIDTH * NUM_BYTES_PER_PIXEL_RGB);
+        mainItemLocation.addExtent(mainItemExtent);
+        iloc.addItem(mainItemLocation);
+        return iloc;
+    }
+
+    protected ComponentDefinitionBox makeComponentDefinitionBox_rgb_generic() {
+        ComponentDefinitionBox cmpd = new ComponentDefinitionBox();
+        ComponentDefinition redComponent = new ComponentDefinition(4, null);
+        cmpd.addComponentDefinition(redComponent);
+        ComponentDefinition greenComponent = new ComponentDefinition(5, null);
+        cmpd.addComponentDefinition(greenComponent);
+        ComponentDefinition blueComponent = new ComponentDefinition(6, null);
+        cmpd.addComponentDefinition(blueComponent);
+        return cmpd;
+    }
+
+    // TODO: move to utility class?
+    public byte[] shortArrayToByteArray(short[] data, ByteOrder byteOrder) {
+        byte[] bytes = new byte[data.length * Short.BYTES];
+        int c = 0;
+        for (int i = 0; i < data.length; i++) {
+            if (byteOrder.equals(ByteOrder.BIG_ENDIAN)) {
+                bytes[c++] = (byte) (((data[i]) >>> 8) & 0xFF);
+                bytes[c++] = (byte) (((data[i])) & 0xFF);
+
+            } else {
+                bytes[c++] = (byte) (((data[i])) & 0xFF);
+                bytes[c++] = (byte) (((data[i]) >>> 8) & 0xFF);
+            }
+        }
+        return bytes;
+    }
+
+    protected ItemLocationBox makeItemLocationBox_two_byte_per_pixel() {
+        ItemLocationBox iloc = new ItemLocationBox();
+        iloc.setOffsetSize(4);
+        iloc.setLengthSize(4);
+        iloc.setBaseOffsetSize(4);
+        iloc.setIndexSize(4);
+        iloc.setVersion(1);
+        ILocItem mainItemLocation = new ILocItem();
+        mainItemLocation.setConstructionMethod(0);
+        mainItemLocation.setItemId(MAIN_ITEM_ID);
+        ILocExtent mainItemExtent = new ILocExtent();
+        mainItemExtent.setExtentIndex(0);
+        mainItemExtent.setExtentOffset(IMAGE_DATA_START);
+        mainItemExtent.setExtentLength(IMAGE_HEIGHT * IMAGE_WIDTH * 2);
+        mainItemLocation.addExtent(mainItemExtent);
+        iloc.addItem(mainItemLocation);
+        return iloc;
     }
 }

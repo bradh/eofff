@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.isobmff.meta;
+package net.frogmouth.rnd.eofff.isobmff.iloc;
 
 import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;

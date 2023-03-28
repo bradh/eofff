@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
-import net.frogmouth.rnd.eofff.isobmff.meta.ILocExtent;
 
 public class ILocItem {
     private long itemId;
@@ -107,7 +106,7 @@ public class ILocItem {
         sb.append(", extent_count=");
         sb.append(getExtents().size());
         for (int i = 0; i < getExtents().size(); i++) {
-            ILocExtent extent = new ILocExtent();
+            ILocExtent extent = this.extents.get(i);
             if (extent.getExtentIndex() > 0) {
                 sb.append(", extent_index=");
                 sb.append(extent.getExtentIndex());
@@ -117,7 +116,6 @@ public class ILocItem {
             sb.append(", extent_length=");
             sb.append(extent.getExtentLength());
         }
-        sb.append(";");
         return sb.toString();
     }
 }

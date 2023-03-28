@@ -1,5 +1,7 @@
 package net.frogmouth.rnd.eofff.imagefileformat.extensions.groups;
 
+import static net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.GroupsListBox.GRPL_ATOM;
+
 import net.frogmouth.rnd.eofff.isobmff.BaseBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
@@ -10,7 +12,7 @@ public class GroupsListBoxParser extends BaseBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("grpl");
+        return GRPL_ATOM;
     }
 
     @Override

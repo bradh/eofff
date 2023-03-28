@@ -11,13 +11,13 @@ public class CleanApertureParser extends PropertyParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("clap");
+        return CleanAperture.CLAP_ATOM;
     }
 
     @Override
     public AbstractItemProperty parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        CleanAperture box = new CleanAperture(boxName);
+        CleanAperture box = new CleanAperture();
         box.setCleanApertureWidthN(parseContext.readUnsignedInt32());
         box.setCleanApertureWidthD(parseContext.readUnsignedInt32());
         box.setCleanApertureHeightN(parseContext.readUnsignedInt32());
