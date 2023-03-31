@@ -48,6 +48,15 @@ public class ItemInfoBox extends FullBox {
         this.items.add(item);
     }
 
+    public ItemInfoEntry findItemById(long id) {
+        for (ItemInfoEntry entry : getItems()) {
+            if (entry.getItemID() == id) {
+                return entry;
+            }
+        }
+        return null;
+    }
+
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
         if ((getVersion() == 0) && (items.size() >= (1 << 16))) {

@@ -1,6 +1,11 @@
-package net.frogmouth.rnd.eofff.tools.siff;
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package net.frogmouth.rnd.eofff.tools.viewer;
 
-import static org.testng.Assert.*;
+import static net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving.Component;
+import static net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving.Pixel;
 
 import java.awt.Point;
 import java.awt.Transparency;
@@ -19,7 +24,6 @@ import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -27,7 +31,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import javax.imageio.ImageIO;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertiesBox;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageSpatialExtentsProperty;
@@ -35,11 +38,9 @@ import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FileParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
-import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoBox;
 import net.frogmouth.rnd.eofff.isobmff.iloc.ILocExtent;
 import net.frogmouth.rnd.eofff.isobmff.iloc.ILocItem;
 import net.frogmouth.rnd.eofff.isobmff.iloc.ItemLocationBox;
-import net.frogmouth.rnd.eofff.isobmff.infe.ItemInfoEntry;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
@@ -56,208 +57,21 @@ import net.frogmouth.rnd.eofff.yuv.OutputFormat_BGR_Bytes;
 import net.frogmouth.rnd.eofff.yuv.converters.SourceFormat;
 import net.frogmouth.rnd.eofff.yuv.converters.YUV420Converter;
 import net.frogmouth.rnd.eofff.yuv.converters.YUVConverter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.annotations.Test;
 
-public class UncompressedParserTest {
-    private static final Logger LOG = LoggerFactory.getLogger(UncompressedParserTest.class);
+/** @author bradh */
+class Parser {
+    private BufferedImage target;
 
-    public List<Box> parseFile(String inputPath) throws IOException {
-        Path testFile = Paths.get(inputPath);
-        FileParser fileParser = new FileParser();
-        return fileParser.parse(testFile);
-    }
+    Parser(String[] args) throws IOException {
 
-    @Test
-    public void parse_rgb3() throws IOException {
-        convertToPNG("test_uncompressed_rgb3.mp4", "test_uncompressed_rgb3.png");
-    }
-
-    @Test
-    public void parse_bgr() throws IOException {
-        convertToPNG("test_uncompressed_bgr.mp4", "test_uncompressed_bgr.png");
-    }
-
-    @Test
-    public void parse_rgba() throws IOException {
-        convertToPNG("test_uncompressed_rgba.mp4", "test_uncompressed_rgba.png");
-    }
-
-    @Test
-    public void parse_abgr() throws IOException {
-        convertToPNG("test_uncompressed_abgr.mp4", "test_uncompressed_abgr.png");
-    }
-
-    @Test
-    public void parse_rgb_component() throws IOException {
-        convertToPNG("test_uncompressed_rgb_component.mp4", "test_uncompressed_rgb_component.png");
-    }
-
-    @Test
-    public void parse_rgb_component_with_rgan() throws IOException {
-        convertToPNG("test_siff_rgb_component_rgan.mp4", "test_siff_rgb_component_rgan.png");
-    }
-
-    @Test
-    public void parse_rgb565_block_be() throws IOException {
-        convertToPNG(
-                "test_uncompressed_rgb565_block_be.mp4", "test_uncompressed_rgb565_block_be.png");
-    }
-
-    @Test
-    public void parse_rgb565_block_le() throws IOException {
-        convertToPNG(
-                "test_uncompressed_rgb565_block_le.mp4", "test_uncompressed_rgb565_block_le.png");
-    }
-
-    @Test
-    public void parse_rgb555_block_be() throws IOException {
-        convertToPNG(
-                "test_uncompressed_rgb555_block_be.mp4", "test_uncompressed_rgb555_block_be.png");
-    }
-
-    @Test
-    public void parse_rgb555_block_le() throws IOException {
-        convertToPNG(
-                "test_uncompressed_rgb555_block_le.mp4", "test_uncompressed_rgb555_block_le.png");
-    }
-
-    @Test
-    public void parse_rgb555_block_be_pad_lsb() throws IOException {
-        convertToPNG(
-                "test_uncompressed_rgb555_block_be_pad_lsb.mp4",
-                "test_uncompressed_rgb555_block_be_pad_lsb.png");
-    }
-
-    @Test
-    public void parse_rgb555_block_le_pad_lsb() throws IOException {
-        convertToPNG(
-                "test_uncompressed_rgb555_block_le_pad_lsb.mp4",
-                "test_uncompressed_rgb555_block_le_pad_lsb.png");
-    }
-
-    @Test
-    public void parse_yuv444() throws IOException {
-        convertToPNG("test_uncompressed_yuv444.mp4", "test_uncompressed_yuv444.png");
-    }
-
-    @Test
-    public void parse_v308() throws IOException {
-        convertToPNG("test_uncompressed_v308.mp4", "test_uncompressed_v308.png");
-    }
-
-    @Test
-    public void parse_yuv422() throws IOException {
-        convertToPNG("test_uncompressed_yuv422.mp4", "test_uncompressed_yuv422.png");
-    }
-
-    @Test
-    public void parse_2vuy() throws IOException {
-        convertToPNG("test_uncompressed_2vuy.mp4", "test_uncompressed_2vuy.png");
-    }
-
-    @Test
-    public void parse_yuv2() throws IOException {
-        convertToPNG("test_uncompressed_yuv2.mp4", "test_uncompressed_yuv2.png");
-    }
-
-    @Test
-    public void parse_yvyu() throws IOException {
-        convertToPNG("test_uncompressed_yvyu.mp4", "test_uncompressed_yvyu.png");
-    }
-
-    @Test
-    public void parse_vyuy() throws IOException {
-        convertToPNG("test_uncompressed_vyuy.mp4", "test_uncompressed_vyuy.png");
-    }
-
-    @Test
-    public void parse_i420() throws IOException {
-        convertToPNG("test_uncompressed_i420.mp4", "test_uncompressed_i420.png");
-    }
-
-    @Test
-    public void parse_nv12() throws IOException {
-        convertToPNG("test_uncompressed_nv12.mp4", "test_uncompressed_nv12.png");
-    }
-
-    @Test
-    public void parse_nv21() throws IOException {
-        convertToPNG("test_uncompressed_nv21.mp4", "test_uncompressed_nv21.png");
-    }
-
-    @Test
-    public void parse_rgb_palette() throws IOException {
-        convertToPNG("test_uncompressed_rgb_palette.mp4", "test_uncompressed_rgb_palette.png");
-    }
-
-    @Test
-    public void parse_bgr_sbpm() throws IOException {
-        convertToPNG("test_uncompressed_bgr_sbpm.mp4", "test_uncompressed_bgr_sbpm.png");
-    }
-
-    @Test
-    public void parse_siff_grid() throws IOException {
-        // convertToPNG("test_siff_rgb_grid.mp4", "test_siff_rgb_grid.png");
-    }
-
-    @Test
-    public void parse_devon1() throws IOException {
-        convertToPNG(
-                "/home/bradh/Uncompressed Test Files/Uncompressed Test Files/uncC_1_rgb_planar.heif",
-                "devon1.png");
-    }
-
-    @Test
-    public void parse_devon2() throws IOException {
-        convertToPNG(
-                "/home/bradh/Uncompressed Test Files/Uncompressed Test Files/uncC_2_rgb_planar_tiled.heif",
-                "devon2.png");
-    }
-
-    @Test
-    public void parse_devon3() throws IOException {
-        convertToPNG(
-                "/home/bradh/Uncompressed Test Files/Uncompressed Test Files/uncC_3_rgb_interleaved_tiled.heif",
-                "devon3.png");
-    }
-
-    @Test
-    public void parse_devon4() throws IOException {
-        convertToPNG(
-                "/home/bradh/Uncompressed Test Files/Uncompressed Test Files/uncC_4_rgb_interleaved.heif",
-                "devon4.png");
-    }
-
-    private void convertToPNG(String inputPath, String outputPath) throws IOException {
         List<Box> boxes = new ArrayList<>();
-        boxes.addAll(parseFile(inputPath));
+        boxes.addAll(parseFile(args[0]));
         FileTypeBox ftyp = (FileTypeBox) getTopLevelBoxByFourCC(boxes, "ftyp");
         System.out.println(ftyp);
         MetaBox meta = (MetaBox) getTopLevelBoxByFourCC(boxes, "meta");
         PrimaryItemBox pitm = (PrimaryItemBox) findChildBox(meta, PrimaryItemBox.PITM_ATOM);
         long primaryItemId = pitm.getItemID();
         System.out.println("Primary item: " + primaryItemId);
-        ItemInfoBox iinf = (ItemInfoBox) findChildBox(meta, ItemInfoBox.IINF_ATOM);
-        ItemInfoEntry primaryItemEntry = iinf.findItemById(primaryItemId);
-        if (primaryItemEntry == null) {
-            fail("failed to find primary item in ItemInfoBox");
-        }
-        if (primaryItemEntry.getItemType() == (new FourCC("unci").asUnsigned())) {
-            convertUncompressedImageToPNG(boxes, outputPath);
-        } else if (primaryItemEntry.getItemType() == (new FourCC("grid").asUnsigned())) {
-            convertGridImageToPNG(boxes, outputPath);
-        } else {
-            fail("unhandled item type");
-        }
-    }
-
-    private void convertUncompressedImageToPNG(List<Box> boxes, String outputPath)
-            throws IOException {
-        MetaBox meta = (MetaBox) getTopLevelBoxByFourCC(boxes, "meta");
-        PrimaryItemBox pitm = (PrimaryItemBox) findChildBox(meta, PrimaryItemBox.PITM_ATOM);
-        long primaryItemId = pitm.getItemID();
         ItemPropertiesBox iprp =
                 (ItemPropertiesBox) findChildBox(meta, ItemPropertiesBox.IPRP_ATOM);
         List<AbstractItemProperty> properties = iprp.getPropertiesForItem(primaryItemId);
@@ -293,11 +107,9 @@ public class UncompressedParserTest {
                     || profile.equals(new FourCC("abgr"))) {
                 SampleModel sampleModel = getSampleModel(uncC, cmpd, ispe);
                 ColorModel colourModel = getColourModelRgb(uncC, cmpd);
-                BufferedImage target =
-                        buildBufferedImage(data, sampleModel, colourModel, blockEndian);
-                writeOutput(outputPath, target);
-            } else if ((profile.hashCode() == 0)
-                    || profile.equals(new FourCC("gene"))
+                target = buildBufferedImage(data, sampleModel, colourModel, blockEndian);
+
+            } else if (profile.equals(new FourCC("gene"))
                     || profile.equals(new FourCC("2vuy"))
                     || profile.equals(new FourCC("yuv2"))
                     || profile.equals(new FourCC("yvyu"))
@@ -314,22 +126,20 @@ public class UncompressedParserTest {
                         switch (uncC.getInterleaveType()) {
                             case Component:
                                 {
-                                    BufferedImage target =
+                                    target =
                                             buildBufferedImageBanded(
                                                     data, sampleModel, colourModel);
-                                    writeOutput(outputPath, target);
                                     break;
                                 }
                             case Pixel:
                                 {
-                                    BufferedImage target =
+                                    target =
                                             buildBufferedImage(
                                                     data, sampleModel, colourModel, blockEndian);
-                                    writeOutput(outputPath, target);
                                     break;
                                 }
                             default:
-                                fail("unsupported interleave type");
+                                System.out.println("FAIL. unsupported interleave type");
                                 break;
                         }
                     }
@@ -402,7 +212,7 @@ public class UncompressedParserTest {
                                         data,
                                         outputFormat);
                     }
-                    BufferedImage target =
+                    target =
                             new BufferedImage(
                                     (int) ispe.getImageWidth(),
                                     (int) ispe.getImageHeight(),
@@ -410,38 +220,31 @@ public class UncompressedParserTest {
                     byte[] imgData =
                             ((DataBufferByte) target.getRaster().getDataBuffer()).getData();
                     System.arraycopy(rgbData, 0, imgData, 0, rgbData.length);
-                    writeOutput(outputPath, target);
+
                 } else if (isPalette(uncC, cmpd, cpal)) {
                     // we need to check more cases
                     SampleModel sampleModel = getSampleModel(uncC, cmpd, ispe);
                     ColorModel colourModel = getIndexColourModel(cpal);
                     if ((sampleModel != null) && (colourModel != null)) {
 
-                        BufferedImage target =
-                                buildBufferedImage(data, sampleModel, colourModel, blockEndian);
-                        writeOutput(outputPath, target);
+                        target = buildBufferedImage(data, sampleModel, colourModel, blockEndian);
                     }
 
                 } else {
-                    fail("unsupported component combination");
+                    System.out.println("FAIL. unsupported component combination");
                 }
             } else {
-                fail("unsupported profile: " + profile.toString());
+                System.out.println("FAIL. unsupported profile: " + profile.toString());
             }
         } else {
-            fail("missing ispe, uncC or cmpd");
+            System.out.println("FAIL. missing ispe, uncC or cmpd");
         }
     }
 
-    private void convertGridImageToPNG(List<Box> boxes, String outputPath) throws IOException {
-        MetaBox meta = (MetaBox) getTopLevelBoxByFourCC(boxes, "meta");
-        PrimaryItemBox pitm = (PrimaryItemBox) findChildBox(meta, PrimaryItemBox.PITM_ATOM);
-        long primaryItemId = pitm.getItemID();
-        ItemPropertiesBox iprp =
-                (ItemPropertiesBox) findChildBox(meta, ItemPropertiesBox.IPRP_ATOM);
-        List<AbstractItemProperty> properties = iprp.getPropertiesForItem(primaryItemId);
-        System.out.println("properties: " + properties);
-        fail("not implemented yet: grid image");
+    private List<Box> parseFile(String inputPath) throws IOException {
+        Path testFile = Paths.get(inputPath);
+        FileParser fileParser = new FileParser();
+        return fileParser.parse(testFile);
     }
 
     private SampleModel getSampleModel(
@@ -573,7 +376,7 @@ public class UncompressedParserTest {
             DataBuffer dataBuffer = new DataBufferByte(data, data.length);
             WritableRaster raster =
                     Raster.createWritableRaster(sampleModel, dataBuffer, (Point) null);
-            BufferedImage target = new BufferedImage(colourModel, raster, true, null);
+            target = new BufferedImage(colourModel, raster, true, null);
             return target;
         } else {
             DataBuffer dataBuffer =
@@ -597,11 +400,6 @@ public class UncompressedParserTest {
         WritableRaster raster = Raster.createWritableRaster(sampleModel, dataBuffer, (Point) null);
         BufferedImage target = new BufferedImage(colourModel, raster, true, null);
         return target;
-    }
-
-    private void writeOutput(String outputPath, BufferedImage target) throws IOException {
-        File outputFile = new File(outputPath);
-        ImageIO.write(target, "PNG", outputFile);
     }
 
     private static Box findChildBox(MetaBox parent, FourCC fourCC) {
@@ -635,13 +433,12 @@ public class UncompressedParserTest {
                 List<ILocExtent> extents = item.getExtents();
                 if (extents.size() != 1) {
                     // TODO: need to handle split extent
-                    fail("multiple extents is not yet handled");
+                    System.out.println("FAIL. multiple extents is not yet handled");
                 }
-                long baseOffset = item.getBaseOffset();
                 ILocExtent ilocExtent = extents.get(0);
                 long startOffset = ilocExtent.getExtentOffset();
                 int length = (int) ilocExtent.getExtentLength();
-                int dataOffset = (int) (startOffset - mdat.getInitialOffset() + baseOffset);
+                int dataOffset = (int) (startOffset - mdat.getInitialOffset());
                 byte[] data = new byte[length];
                 System.arraycopy(mdat.getData(), dataOffset, data, 0, length);
                 return data;
@@ -692,8 +489,8 @@ public class UncompressedParserTest {
                     bandOffsets[3] = i;
                     break;
                 default:
-                    LOG.info(
-                            "got unexpected band component definition:"
+                    System.out.println(
+                            "FAIL. got unexpected band component definition:"
                                     + componentDefinition.getComponentType());
             }
         }
@@ -791,5 +588,9 @@ public class UncompressedParserTest {
             return (cmpd.getComponentDefinitions().get(component_index).getComponentType() == 10);
         }
         return false;
+    }
+
+    void show() {
+        new net.coobird.gui.simpleimageviewer4j.Viewer(target).show();
     }
 }

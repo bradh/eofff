@@ -299,6 +299,7 @@ public class CreateSIFFGridTest extends UncompressedTestSupport {
         ipco.addProperty(makeUncompressedFrameConfigBox_grid_tile());
         ipco.addProperty(makeImageSpatialExtentsProperty_grid_tile());
         ipco.addProperty(makeCleanApertureBox());
+        ipco.addProperty(makeImageSpatialExtentsProperty_grid());
         iprp.setItemProperties(ipco);
 
         {
@@ -324,7 +325,7 @@ public class CreateSIFFGridTest extends UncompressedTestSupport {
                     PropertyAssociation associationToImageSpatialExtentsProperty =
                             new PropertyAssociation();
                     associationToImageSpatialExtentsProperty.setPropertyIndex(3);
-                    associationToImageSpatialExtentsProperty.setEssential(false);
+                    associationToImageSpatialExtentsProperty.setEssential(true);
                     gridItemAssociations.addAssociation(associationToImageSpatialExtentsProperty);
                     itemPropertyAssociation.addEntry(gridItemAssociations);
                 }
@@ -335,10 +336,19 @@ public class CreateSIFFGridTest extends UncompressedTestSupport {
             ItemPropertyAssociation assoc = new ItemPropertyAssociation();
             AssociationEntry entry = new AssociationEntry();
             entry.setItemId(MAIN_ITEM_ID);
-            PropertyAssociation associationToClap = new PropertyAssociation();
-            associationToClap.setPropertyIndex(4);
-            associationToClap.setEssential(true);
-            entry.addAssociation(associationToClap);
+            {
+                PropertyAssociation associationToClap = new PropertyAssociation();
+                associationToClap.setPropertyIndex(4);
+                associationToClap.setEssential(true);
+                entry.addAssociation(associationToClap);
+            }
+            {
+                PropertyAssociation associationToImageSpatialExtentsProperty =
+                        new PropertyAssociation();
+                associationToImageSpatialExtentsProperty.setPropertyIndex(5);
+                associationToImageSpatialExtentsProperty.setEssential(false);
+                entry.addAssociation(associationToImageSpatialExtentsProperty);
+            }
             assoc.addEntry(entry);
             iprp.addItemPropertyAssociation(assoc);
         }
@@ -350,6 +360,13 @@ public class CreateSIFFGridTest extends UncompressedTestSupport {
         ImageSpatialExtentsProperty ispe = new ImageSpatialExtentsProperty();
         ispe.setImageHeight(TILE_HEIGHT);
         ispe.setImageWidth(TILE_WIDTH);
+        return ispe;
+    }
+
+    private ImageSpatialExtentsProperty makeImageSpatialExtentsProperty_grid() {
+        ImageSpatialExtentsProperty ispe = new ImageSpatialExtentsProperty();
+        ispe.setImageHeight(IMAGE_HEIGHT_GRID);
+        ispe.setImageWidth(IMAGE_WIDTH_GRID);
         return ispe;
     }
 

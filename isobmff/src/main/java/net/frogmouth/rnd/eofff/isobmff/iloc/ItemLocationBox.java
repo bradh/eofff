@@ -84,6 +84,15 @@ public class ItemLocationBox extends FullBox {
         this.items.add(item);
     }
 
+    public ILocItem findItemById(long itemId) {
+        for (ILocItem item : this.items) {
+            if (itemId == item.getItemId()) {
+                return item;
+            }
+        }
+        return null;
+    }
+
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
         this.writeBoxHeader(stream);
