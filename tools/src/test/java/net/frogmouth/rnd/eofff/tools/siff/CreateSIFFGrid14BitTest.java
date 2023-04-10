@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -76,8 +77,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-public class CreateSIFFGridTest extends UncompressedTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(CreateSIFFGridTest.class);
+public class CreateSIFFGrid14BitTest extends UncompressedTestSupport {
+    private static final Logger LOG = LoggerFactory.getLogger(CreateSIFFGrid14BitTest.class);
     protected static final long ALTERNATE_ITEM_ID = 0x1776;
     private static final long FILE_METADATA_ITEM_ID = 0x1902;
     private static final String MIMD_URI = "urn:nsg:KLV:ul:060E2B34.02050101.0E010504.00000000";
@@ -87,40 +88,42 @@ public class CreateSIFFGridTest extends UncompressedTestSupport {
     private static final long CORE_ID_ITEM_ID = 0x1204;
     private static final String CORE_ID_URI = "urn:nsg:KLV:ul:060E2B34.01010101.0E010405.03000000";
 
-    private static final int TILE_WIDTH = 512;
-    private static final int TILE_HEIGHT = 512;
-    private static final int NUM_TILE_ROWS = 20;
-    private static final int NUM_TILE_COLUMNS = 20;
+    private static final int TILE_WIDTH = 256;
+    private static final int TILE_HEIGHT = 256;
+    private static final int NUM_TILE_ROWS = 62;
+    private static final int NUM_TILE_COLUMNS = 59;
     private static final int IMAGE_HEIGHT_GRID = TILE_HEIGHT * NUM_TILE_ROWS;
     private static final int IMAGE_WIDTH_GRID = TILE_WIDTH * NUM_TILE_COLUMNS;
-    private static final int VALID_PIXELS_WIDTH = 10000;
-    private static final int VALID_PIXELS_HEIGHT = 10000;
-    private static final int MDAT_START_GRID = 37000;
+    private static final int VALID_PIXELS_WIDTH = 15801;
+    private static final int VALID_PIXELS_HEIGHT = 15881;
+    private static final int MDAT_START_GRID = 300000; // TODO
     private static final int MDAT_START_GRID_DATA = MDAT_START_GRID + 2 * Integer.BYTES;
-    private static final int TILE_SIZE_BYTES = TILE_WIDTH * TILE_HEIGHT * NUM_BYTES_PER_PIXEL_RGB;
+    private static final int NUM_BYTES_PER_PIXEL_14_BIT = 2;
+    private static final int TILE_SIZE_BYTES =
+            TILE_WIDTH * TILE_HEIGHT * NUM_BYTES_PER_PIXEL_14_BIT;
 
     private static final byte[] MIIS_UUID_BYTES =
             new byte[] {
-                (byte) 0x36,
-                (byte) 0x41,
-                (byte) 0xa9,
-                (byte) 0xe2,
-                (byte) 0x62,
-                (byte) 0x4f,
-                (byte) 0x43,
-                (byte) 0x46,
-                (byte) 0x8f,
-                (byte) 0x8e,
-                (byte) 0x66,
-                (byte) 0x6a,
-                (byte) 0x9b,
+                (byte) 0xbd,
+                (byte) 0x11,
+                (byte) 0x19,
+                (byte) 0x91,
+                (byte) 0x57,
+                (byte) 0xba,
+                (byte) 0x4a,
+                (byte) 0x55,
+                (byte) 0xb6,
+                (byte) 0x95,
+                (byte) 0x98,
+                (byte) 0x79,
                 (byte) 0xaa,
-                (byte) 0x08,
-                (byte) 0xbd
+                (byte) 0xb7,
+                (byte) 0x25,
+                (byte) 0xb9
             };
     private final UUID miisUuid;
 
-    public CreateSIFFGridTest() {
+    public CreateSIFFGrid14BitTest() {
         ByteBuffer byteBuffer = ByteBuffer.wrap(MIIS_UUID_BYTES);
         long high = byteBuffer.getLong();
         long low = byteBuffer.getLong();
@@ -128,23 +131,40 @@ public class CreateSIFFGridTest extends UncompressedTestSupport {
     }
 
     @Test
-    public void writeFile_rgb_grid() throws IOException {
+    public void writeFile_14bit() throws IOException {
         List<Box> boxes = new ArrayList<>();
         FileTypeBox ftyp = createFileTypeBox();
         boxes.add(ftyp);
-        MetaBox meta = createMetaBox_rgb();
+        MetaBox meta = createMetaBox_14bit_mono(ByteOrder.BIG_ENDIAN);
         boxes.add(meta);
         long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
         long numberOfFillBytes = MDAT_START_GRID - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
         FreeBox free = new FreeBox();
         free.setData(new byte[(int) numberOfFillBytes]);
         boxes.add(free);
-        MediaDataBox mdat = createMediaDataBox_rgb_grid();
+        MediaDataBox mdat = createMediaDataBox_mono_grid(ByteOrder.BIG_ENDIAN);
         boxes.add(mdat);
-        writeBoxes(boxes, "test_siff_rgb_grid.heif");
+        writeBoxes(boxes, "test_siff_14bit.heif");
     }
 
-    private MetaBox createMetaBox_rgb() throws IOException {
+    @Test
+    public void writeFile_14bit_le() throws IOException {
+        List<Box> boxes = new ArrayList<>();
+        FileTypeBox ftyp = createFileTypeBox();
+        boxes.add(ftyp);
+        MetaBox meta = createMetaBox_14bit_mono(ByteOrder.LITTLE_ENDIAN);
+        boxes.add(meta);
+        long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
+        long numberOfFillBytes = MDAT_START_GRID - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
+        FreeBox free = new FreeBox();
+        free.setData(new byte[(int) numberOfFillBytes]);
+        boxes.add(free);
+        MediaDataBox mdat = createMediaDataBox_mono_grid(ByteOrder.LITTLE_ENDIAN);
+        boxes.add(mdat);
+        writeBoxes(boxes, "test_siff_14bit_le.heif");
+    }
+
+    private MetaBox createMetaBox_14bit_mono(ByteOrder endian) throws IOException {
         MetaBox meta = new MetaBox();
         List<Box> boxes = new ArrayList<>();
         boxes.add(makeHandlerBox());
@@ -152,7 +172,7 @@ public class CreateSIFFGridTest extends UncompressedTestSupport {
         boxes.add(makeItemInfoBoxGrid());
         boxes.add(makeItemLocationBox_grid());
         boxes.add(makeItemDataBox_grid());
-        boxes.add(makeItemPropertiesBox_grid());
+        boxes.add(makeItemPropertiesBox_grid(endian));
         boxes.add(makeItemReferenceBox());
         meta.addNestedBoxes(boxes);
         return meta;
@@ -318,15 +338,15 @@ public class CreateSIFFGridTest extends UncompressedTestSupport {
         return itemDataBoxBuilder.build();
     }
 
-    private Box makeItemPropertiesBox_grid() {
+    private Box makeItemPropertiesBox_grid(ByteOrder endian) {
         ItemPropertiesBox iprp = new ItemPropertiesBox();
         ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
-        ipco.addProperty(makeComponentDefinitionBox_rgb3());
-        ipco.addProperty(makeUncompressedFrameConfigBox_grid_item());
+        ipco.addProperty(makeComponentDefinitionBox_mono());
+        ipco.addProperty(makeUncompressedFrameConfigBox_grid_item(endian));
         ipco.addProperty(makeImageSpatialExtentsProperty_grid_tile());
         ipco.addProperty(makeCleanApertureBox());
         ipco.addProperty(makeImageSpatialExtentsProperty_grid());
-        ipco.addProperty(makeUncompressedFrameConfigBox_tiled_item());
+        ipco.addProperty(makeUncompressedFrameConfigBox_tiled_item(endian));
         iprp.setItemProperties(ipco);
 
         {
@@ -474,27 +494,21 @@ public class CreateSIFFGridTest extends UncompressedTestSupport {
         return iref;
     }
 
-    private ComponentDefinitionBox makeComponentDefinitionBox_rgb3() {
+    private ComponentDefinitionBox makeComponentDefinitionBox_mono() {
         ComponentDefinitionBox cmpd = new ComponentDefinitionBox();
-        ComponentDefinition redComponent = new ComponentDefinition(4, null);
-        cmpd.addComponentDefinition(redComponent);
-        ComponentDefinition greenComponent = new ComponentDefinition(5, null);
-        cmpd.addComponentDefinition(greenComponent);
-        ComponentDefinition blueComponent = new ComponentDefinition(6, null);
-        cmpd.addComponentDefinition(blueComponent);
+        ComponentDefinition monoComponent = new ComponentDefinition(0, null);
+        cmpd.addComponentDefinition(monoComponent);
         return cmpd;
     }
 
-    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_grid_item() {
+    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_grid_item(ByteOrder endian) {
         UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
-        uncc.setProfile(new FourCC("rgb3"));
-        uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
-        uncc.addComponent(new Component(1, 7, ComponentFormat.UnsignedInteger, 0));
-        uncc.addComponent(new Component(2, 7, ComponentFormat.UnsignedInteger, 0));
+        uncc.setProfile(new FourCC("gene"));
+        uncc.addComponent(new Component(0, 13, ComponentFormat.UnsignedInteger, 2));
         uncc.setSamplingType(SamplingType.NoSubsampling);
-        uncc.setInterleaveType(Interleaving.Pixel);
+        uncc.setInterleaveType(Interleaving.Component);
         uncc.setBlockSize(0);
-        uncc.setComponentLittleEndian(false);
+        uncc.setComponentLittleEndian(endian == ByteOrder.LITTLE_ENDIAN);
         uncc.setBlockPadLSB(false);
         uncc.setBlockLittleEndian(false);
         uncc.setBlockReversed(false);
@@ -507,16 +521,14 @@ public class CreateSIFFGridTest extends UncompressedTestSupport {
         return uncc;
     }
 
-    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_tiled_item() {
+    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_tiled_item(ByteOrder endian) {
         UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
         uncc.setProfile(new FourCC("gene"));
-        uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
-        uncc.addComponent(new Component(1, 7, ComponentFormat.UnsignedInteger, 0));
-        uncc.addComponent(new Component(2, 7, ComponentFormat.UnsignedInteger, 0));
+        uncc.addComponent(new Component(0, 13, ComponentFormat.UnsignedInteger, 2));
         uncc.setSamplingType(SamplingType.NoSubsampling);
-        uncc.setInterleaveType(Interleaving.Pixel);
+        uncc.setInterleaveType(Interleaving.Component);
         uncc.setBlockSize(0);
-        uncc.setComponentLittleEndian(false);
+        uncc.setComponentLittleEndian(endian == ByteOrder.LITTLE_ENDIAN);
         uncc.setBlockPadLSB(false);
         uncc.setBlockLittleEndian(false);
         uncc.setBlockReversed(false);
@@ -529,11 +541,12 @@ public class CreateSIFFGridTest extends UncompressedTestSupport {
         return uncc;
     }
 
-    private MediaDataBox createMediaDataBox_rgb_grid() throws IOException {
+    private MediaDataBox createMediaDataBox_mono_grid(ByteOrder endian) throws IOException {
         MediaDataBoxBuilder mdatBuilder = new MediaDataBoxBuilder();
         mil.nga.tiff.TIFFImage tiffImage =
                 mil.nga.tiff.TiffReader.readTiff(
-                        new File("/home/bradh/gdal_hacks/ACT2017-cog.tif"));
+                        new File(
+                                "/home/bradh/coding/eofff-refactor/eofff/tools/landsat9/unc_b8.tif"));
         List<mil.nga.tiff.FileDirectory> directories = tiffImage.getFileDirectories();
         FileDirectory directory = directories.get(0);
         // mil.nga.tiff.Rasters rasters = directory.readRasters();
@@ -541,7 +554,7 @@ public class CreateSIFFGridTest extends UncompressedTestSupport {
                 String.format(
                         "Tile width: %d, tile height: %d",
                         directory.getTileWidth(), directory.getTileHeight()));
-        System.out.println(directory.getTileByteCounts());
+        // System.out.println(directory.getTileByteCounts());
         int numTilesX =
                 (directory.getImageWidth().intValue() + directory.getTileWidth().intValue() - 1)
                         / directory.getTileWidth().intValue();
@@ -552,7 +565,30 @@ public class CreateSIFFGridTest extends UncompressedTestSupport {
         for (int y = 0; y < numTilesY; y++) {
             for (int x = 0; x < numTilesX; x++) {
                 byte[] tileBytes = directory.getTileOrStrip(x, y, 0);
-                mdatBuilder.addData(tileBytes);
+                for (int i = 0; i < tileBytes.length; i += Short.BYTES) {
+                    int tileValue = (tileBytes[i] & 0xFF) << 8;
+                    tileValue |= ((tileBytes[i + 1] & 0xFF));
+                    if (tileValue < 0) {
+                        System.out.println("unexpected negative value: " + tileValue);
+                    }
+                    // We need padding at the top (MSB)
+                    int shiftedValue = tileValue >> 2;
+                    byte[] shiftedBytes;
+                    if (endian == ByteOrder.BIG_ENDIAN) {
+                        shiftedBytes =
+                                new byte[] {
+                                    (byte) ((shiftedValue >> 8) | 0xFF),
+                                    (byte) (shiftedValue & 0xFF)
+                                };
+                    } else {
+                        shiftedBytes =
+                                new byte[] {
+                                    (byte) (shiftedValue & 0xFF),
+                                    (byte) ((shiftedValue >> 8) | 0xFF)
+                                };
+                    }
+                    mdatBuilder.addData(shiftedBytes);
+                }
             }
         }
 

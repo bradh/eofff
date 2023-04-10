@@ -110,7 +110,7 @@ public class ParseContext {
         return cursor;
     }
 
-    void setCursorPosition(long l) {
+    public void setCursorPosition(long l) {
         if (cursor != l) {
             LOG.warn("Adjusting cursor by {} which might mean missing parsing", l - cursor);
         }

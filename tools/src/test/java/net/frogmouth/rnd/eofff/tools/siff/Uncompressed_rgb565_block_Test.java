@@ -28,6 +28,7 @@ import net.frogmouth.rnd.eofff.isobmff.iloc.ItemLocationBox;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
+import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
@@ -37,13 +38,13 @@ public class Uncompressed_rgb565_block_Test extends UncompressedTestSupport {
     @Test
     public void writeFile_rgb565_block_be() throws IOException {
         List<Box> boxes = buildBoxes_rgb565(ByteOrder.BIG_ENDIAN);
-        writeBoxes(boxes, "test_uncompressed_rgb565_block_be.mp4");
+        writeBoxes(boxes, "test_uncompressed_rgb565_block_be.heif");
     }
 
     @Test
     public void writeFile_rgb565_block_le() throws IOException {
         List<Box> boxes = buildBoxes_rgb565(ByteOrder.LITTLE_ENDIAN);
-        writeBoxes(boxes, "test_uncompressed_rgb565_block_le.mp4");
+        writeBoxes(boxes, "test_uncompressed_rgb565_block_le.heif");
     }
 
     private List<Box> buildBoxes_rgb565(ByteOrder blockEndian) throws IOException {
@@ -127,9 +128,9 @@ public class Uncompressed_rgb565_block_Test extends UncompressedTestSupport {
     private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_rgb565(ByteOrder endian) {
         UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
         uncc.setProfile(new FourCC("gene"));
-        uncc.addComponent(new Component(0, 4, 0, 0));
-        uncc.addComponent(new Component(1, 5, 0, 0));
-        uncc.addComponent(new Component(2, 4, 0, 0));
+        uncc.addComponent(new Component(0, 4, ComponentFormat.UnsignedInteger, 0));
+        uncc.addComponent(new Component(1, 5, ComponentFormat.UnsignedInteger, 0));
+        uncc.addComponent(new Component(2, 4, ComponentFormat.UnsignedInteger, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
         uncc.setInterleaveType(Interleaving.Pixel);
         uncc.setBlockSize(2);

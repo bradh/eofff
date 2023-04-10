@@ -38,6 +38,7 @@ import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteBox;
 import net.frogmouth.rnd.eofff.uncompressed.sbpm.SensorBadPixelsMapBox;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
+import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
@@ -123,7 +124,7 @@ public class UncompressedTestSupport {
                         "5.3.2 requires all other fields to be zero for profile: %s",
                         uncC.getProfile().toString());
         for (Component component : uncC.getComponents()) {
-            assertEquals(component.getComponentFormat(), 0, message);
+            assertEquals(component.getComponentFormat(), ComponentFormat.UnsignedInteger, message);
             assertEquals(component.getComponentAlignSize(), 0, message);
         }
         assertEquals(uncC.getBlockSize(), 0, message);
@@ -207,7 +208,7 @@ public class UncompressedTestSupport {
 
     protected void checkComponentFormatIsValid(List<Component> components) {
         for (Component component : components) {
-            if ((component.getComponentFormat() < 0) || (component.getComponentFormat() > 2)) {
+            if (component.getComponentFormat() == ComponentFormat.Reserved) {
                 fail("Table 2. component_format field is outside of defined range");
             }
         }

@@ -71,135 +71,140 @@ public class UncompressedParserTest {
 
     @Test
     public void parse_rgb3() throws IOException {
-        convertToPNG("test_uncompressed_rgb3.mp4", "test_uncompressed_rgb3.png");
+        convertToPNG("test_uncompressed_rgb3.heif", "test_uncompressed_rgb3.png");
     }
 
     @Test
     public void parse_bgr() throws IOException {
-        convertToPNG("test_uncompressed_bgr.mp4", "test_uncompressed_bgr.png");
+        convertToPNG("test_uncompressed_bgr.heif", "test_uncompressed_bgr.png");
     }
 
     @Test
     public void parse_rgba() throws IOException {
-        convertToPNG("test_uncompressed_rgba.mp4", "test_uncompressed_rgba.png");
+        convertToPNG("test_uncompressed_rgba.heif", "test_uncompressed_rgba.png");
     }
 
     @Test
     public void parse_abgr() throws IOException {
-        convertToPNG("test_uncompressed_abgr.mp4", "test_uncompressed_abgr.png");
+        convertToPNG("test_uncompressed_abgr.heif", "test_uncompressed_abgr.png");
     }
 
     @Test
     public void parse_rgb_component() throws IOException {
-        convertToPNG("test_uncompressed_rgb_component.mp4", "test_uncompressed_rgb_component.png");
+        convertToPNG("test_uncompressed_rgb_component.heif", "test_uncompressed_rgb_component.png");
     }
 
     @Test
     public void parse_rgb_component_with_rgan() throws IOException {
-        convertToPNG("test_siff_rgb_component_rgan.mp4", "test_siff_rgb_component_rgan.png");
+        convertToPNG("test_siff_rgb_component_rgan.heif", "test_siff_rgb_component_rgan.png");
+    }
+
+    @Test
+    public void parse_rgb_row() throws IOException {
+        convertToPNG("test_uncompressed_rgb_row.heif", "test_uncompressed_rgb_row.png");
     }
 
     @Test
     public void parse_rgb565_block_be() throws IOException {
         convertToPNG(
-                "test_uncompressed_rgb565_block_be.mp4", "test_uncompressed_rgb565_block_be.png");
+                "test_uncompressed_rgb565_block_be.heif", "test_uncompressed_rgb565_block_be.png");
     }
 
     @Test
     public void parse_rgb565_block_le() throws IOException {
         convertToPNG(
-                "test_uncompressed_rgb565_block_le.mp4", "test_uncompressed_rgb565_block_le.png");
+                "test_uncompressed_rgb565_block_le.heif", "test_uncompressed_rgb565_block_le.png");
     }
 
     @Test
     public void parse_rgb555_block_be() throws IOException {
         convertToPNG(
-                "test_uncompressed_rgb555_block_be.mp4", "test_uncompressed_rgb555_block_be.png");
+                "test_uncompressed_rgb555_block_be.heif", "test_uncompressed_rgb555_block_be.png");
     }
 
     @Test
     public void parse_rgb555_block_le() throws IOException {
         convertToPNG(
-                "test_uncompressed_rgb555_block_le.mp4", "test_uncompressed_rgb555_block_le.png");
+                "test_uncompressed_rgb555_block_le.heif", "test_uncompressed_rgb555_block_le.png");
     }
 
     @Test
     public void parse_rgb555_block_be_pad_lsb() throws IOException {
         convertToPNG(
-                "test_uncompressed_rgb555_block_be_pad_lsb.mp4",
+                "test_uncompressed_rgb555_block_be_pad_lsb.heif",
                 "test_uncompressed_rgb555_block_be_pad_lsb.png");
     }
 
     @Test
     public void parse_rgb555_block_le_pad_lsb() throws IOException {
         convertToPNG(
-                "test_uncompressed_rgb555_block_le_pad_lsb.mp4",
+                "test_uncompressed_rgb555_block_le_pad_lsb.heif",
                 "test_uncompressed_rgb555_block_le_pad_lsb.png");
     }
 
     @Test
     public void parse_yuv444() throws IOException {
-        convertToPNG("test_uncompressed_yuv444.mp4", "test_uncompressed_yuv444.png");
+        convertToPNG("test_uncompressed_yuv444.heif", "test_uncompressed_yuv444.png");
     }
 
     @Test
     public void parse_v308() throws IOException {
-        convertToPNG("test_uncompressed_v308.mp4", "test_uncompressed_v308.png");
+        convertToPNG("test_uncompressed_v308.heif", "test_uncompressed_v308.png");
     }
 
     @Test
     public void parse_yuv422() throws IOException {
-        convertToPNG("test_uncompressed_yuv422.mp4", "test_uncompressed_yuv422.png");
+        convertToPNG("test_uncompressed_yuv422.heif", "test_uncompressed_yuv422.png");
     }
 
     @Test
     public void parse_2vuy() throws IOException {
-        convertToPNG("test_uncompressed_2vuy.mp4", "test_uncompressed_2vuy.png");
+        convertToPNG("test_uncompressed_2vuy.heif", "test_uncompressed_2vuy.png");
     }
 
     @Test
     public void parse_yuv2() throws IOException {
-        convertToPNG("test_uncompressed_yuv2.mp4", "test_uncompressed_yuv2.png");
+        convertToPNG("test_uncompressed_yuv2.heif", "test_uncompressed_yuv2.png");
     }
 
     @Test
     public void parse_yvyu() throws IOException {
-        convertToPNG("test_uncompressed_yvyu.mp4", "test_uncompressed_yvyu.png");
+        convertToPNG("test_uncompressed_yvyu.heif", "test_uncompressed_yvyu.png");
     }
 
     @Test
     public void parse_vyuy() throws IOException {
-        convertToPNG("test_uncompressed_vyuy.mp4", "test_uncompressed_vyuy.png");
+        convertToPNG("test_uncompressed_vyuy.heif", "test_uncompressed_vyuy.png");
     }
 
     @Test
     public void parse_i420() throws IOException {
-        convertToPNG("test_uncompressed_i420.mp4", "test_uncompressed_i420.png");
+        convertToPNG("test_uncompressed_i420.heif", "test_uncompressed_i420.png");
     }
 
     @Test
     public void parse_nv12() throws IOException {
-        convertToPNG("test_uncompressed_nv12.mp4", "test_uncompressed_nv12.png");
+        convertToPNG("test_uncompressed_nv12.heif", "test_uncompressed_nv12.png");
     }
 
     @Test
     public void parse_nv21() throws IOException {
-        convertToPNG("test_uncompressed_nv21.mp4", "test_uncompressed_nv21.png");
+        convertToPNG("test_uncompressed_nv21.heif", "test_uncompressed_nv21.png");
     }
 
     @Test
     public void parse_rgb_palette() throws IOException {
-        convertToPNG("test_uncompressed_rgb_palette.mp4", "test_uncompressed_rgb_palette.png");
+        convertToPNG("test_uncompressed_rgb_palette.heif", "test_uncompressed_rgb_palette.png");
     }
 
     @Test
     public void parse_bgr_sbpm() throws IOException {
-        convertToPNG("test_uncompressed_bgr_sbpm.mp4", "test_uncompressed_bgr_sbpm.png");
+        convertToPNG("test_uncompressed_bgr_sbpm.heif", "test_uncompressed_bgr_sbpm.png");
     }
 
     @Test
     public void parse_siff_grid() throws IOException {
-        // convertToPNG("test_siff_rgb_grid.mp4", "test_siff_rgb_grid.png");
+        // convertToPNG("test_siff_rgb_grid.heif", "test_siff_rgb_grid.png");
     }
 
     @Test

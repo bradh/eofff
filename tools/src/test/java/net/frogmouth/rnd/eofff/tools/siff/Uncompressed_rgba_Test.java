@@ -19,6 +19,7 @@ import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
+import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
@@ -39,7 +40,7 @@ public class Uncompressed_rgba_Test extends UncompressedTestSupport {
         boxes.add(free);
         MediaDataBox mdat = createMediaDataBox_rgba();
         boxes.add(mdat);
-        writeBoxes(boxes, "test_uncompressed_rgba.mp4");
+        writeBoxes(boxes, "test_uncompressed_rgba.heif");
     }
 
     private MediaDataBox createMediaDataBox_rgba() {
@@ -146,10 +147,10 @@ public class Uncompressed_rgba_Test extends UncompressedTestSupport {
     private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_rgba() {
         UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
         uncc.setProfile(new FourCC("rgba"));
-        uncc.addComponent(new Component(0, 7, 0, 0));
-        uncc.addComponent(new Component(1, 7, 0, 0));
-        uncc.addComponent(new Component(2, 7, 0, 0));
-        uncc.addComponent(new Component(3, 7, 0, 0));
+        uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
+        uncc.addComponent(new Component(1, 7, ComponentFormat.UnsignedInteger, 0));
+        uncc.addComponent(new Component(2, 7, ComponentFormat.UnsignedInteger, 0));
+        uncc.addComponent(new Component(3, 7, ComponentFormat.UnsignedInteger, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
         uncc.setInterleaveType(Interleaving.Pixel);
         uncc.setBlockSize(0);

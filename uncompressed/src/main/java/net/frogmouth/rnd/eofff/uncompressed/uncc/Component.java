@@ -10,13 +10,13 @@ public class Component {
 
     private final int componentIndex;
     private final int componentBitDepthMinusOne;
-    private final int componentFormat;
+    private final ComponentFormat componentFormat;
     private final int componentAlignSize;
 
     public Component(
             int component_index,
             int component_bit_depth_minus_one,
-            int component_format,
+            ComponentFormat component_format,
             int component_align_size) {
         this.componentIndex = component_index;
         this.componentBitDepthMinusOne = component_bit_depth_minus_one;
@@ -32,7 +32,7 @@ public class Component {
         return componentBitDepthMinusOne;
     }
 
-    public int getComponentFormat() {
+    public ComponentFormat getComponentFormat() {
         return componentFormat;
     }
 
@@ -43,7 +43,21 @@ public class Component {
     public void writeTo(OutputStreamWriter stream) throws IOException {
         stream.writeUnsignedInt16(componentIndex);
         stream.writeByte(this.componentBitDepthMinusOne);
-        stream.writeByte(this.componentFormat);
+        stream.writeByte(this.componentFormat.getEncodedValue());
         stream.writeByte(this.componentAlignSize);
+    }
+
+    @Override
+    public String toString() {
+        return "Component{"
+                + "componentIndex="
+                + componentIndex
+                + ", componentBitDepthMinusOne="
+                + componentBitDepthMinusOne
+                + ", componentFormat="
+                + componentFormat
+                + ", componentAlignSize="
+                + componentAlignSize
+                + '}';
     }
 }

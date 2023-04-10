@@ -7,6 +7,8 @@ package net.frogmouth.rnd.eofff.tools.viewer;
 import static net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving.Component;
 import static net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving.Pixel;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
@@ -58,7 +60,9 @@ import net.frogmouth.rnd.eofff.yuv.converters.SourceFormat;
 import net.frogmouth.rnd.eofff.yuv.converters.YUV420Converter;
 import net.frogmouth.rnd.eofff.yuv.converters.YUVConverter;
 
-/** @author bradh */
+/**
+ * @author bradh
+ */
 class Parser {
     private BufferedImage target;
 
@@ -95,149 +99,222 @@ class Parser {
                 cpal = box;
             }
         }
-
+        byte[] itemData = getData(boxes, primaryItemId);
         if ((ispe != null) && (uncC != null) && (cmpd != null)) {
-            FourCC profile = uncC.getProfile();
-            byte[] data = getData(boxes, primaryItemId);
-            ByteOrder blockEndian =
-                    uncC.isBlockLittleEndian() ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
-
-            if (profile.equals(new FourCC("rgb3"))
-                    || profile.equals(new FourCC("rgba"))
-                    || profile.equals(new FourCC("abgr"))) {
-                SampleModel sampleModel = getSampleModel(uncC, cmpd, ispe);
-                ColorModel colourModel = getColourModelRgb(uncC, cmpd);
-                target = buildBufferedImage(data, sampleModel, colourModel, blockEndian);
-
-            } else if (profile.equals(new FourCC("gene"))
-                    || profile.equals(new FourCC("2vuy"))
-                    || profile.equals(new FourCC("yuv2"))
-                    || profile.equals(new FourCC("yvyu"))
-                    || profile.equals(new FourCC("vyuy"))
-                    || profile.equals(new FourCC("v308"))
-                    || profile.equals(new FourCC("i420"))
-                    || profile.equals(new FourCC("nv12"))
-                    || profile.equals(new FourCC("nv21"))) {
-                if (isRGB(uncC, cmpd)) {
-                    // we need to check more cases
-                    SampleModel sampleModel = getSampleModel(uncC, cmpd, ispe);
-                    ColorModel colourModel = getColourModel(uncC, cmpd);
-                    if ((sampleModel != null) && (colourModel != null)) {
-                        switch (uncC.getInterleaveType()) {
-                            case Component:
-                                {
-                                    target =
-                                            buildBufferedImageBanded(
-                                                    data, sampleModel, colourModel);
-                                    break;
-                                }
-                            case Pixel:
-                                {
-                                    target =
-                                            buildBufferedImage(
-                                                    data, sampleModel, colourModel, blockEndian);
-                                    break;
-                                }
-                            default:
-                                System.out.println("FAIL. unsupported interleave type");
-                                break;
-                        }
-                    }
-                } else if (isYCbCr(uncC, cmpd)) {
-                    OutputFormat outputFormat =
-                            new OutputFormat_BGR_Bytes(
-                                    (int) (ispe.getImageHeight() * ispe.getImageWidth()));
-                    byte[] rgbData;
-                    if (profile.equals(new FourCC("2vuy"))) {
-                        YUVConverter converter =
-                                new YUV420Converter(
-                                        (int) ispe.getImageHeight(),
-                                        (int) ispe.getImageWidth(),
-                                        SourceFormat.TwoYUV);
-                        rgbData = converter.convert(data, outputFormat);
-                    } else if (profile.equals(new FourCC("yuv2"))) {
-                        YUVConverter converter =
-                                new YUV420Converter(
-                                        (int) ispe.getImageHeight(),
-                                        (int) ispe.getImageWidth(),
-                                        SourceFormat.YUV2);
-                        rgbData = converter.convert(data, outputFormat);
-                    } else if (profile.equals(new FourCC("yvyu"))) {
-                        YUVConverter converter =
-                                new YUV420Converter(
-                                        (int) ispe.getImageHeight(),
-                                        (int) ispe.getImageWidth(),
-                                        SourceFormat.YVYU);
-                        rgbData = converter.convert(data, outputFormat);
-                    } else if (profile.equals(new FourCC("vyuy"))) {
-                        YUVConverter converter =
-                                new YUV420Converter(
-                                        (int) ispe.getImageHeight(),
-                                        (int) ispe.getImageWidth(),
-                                        SourceFormat.VYUY);
-                        rgbData = converter.convert(data, outputFormat);
-                    } else if (profile.equals(new FourCC("v308"))) {
-                        rgbData =
-                                ColourSpaceConverter.V308Converter(
-                                        (int) ispe.getImageHeight(),
-                                        (int) ispe.getImageWidth(),
-                                        data,
-                                        outputFormat);
-                    } else if (profile.equals(new FourCC("nv12"))) {
-                        rgbData =
-                                ColourSpaceConverter.NV12Converter(
-                                        (int) ispe.getImageHeight(),
-                                        (int) ispe.getImageWidth(),
-                                        data,
-                                        outputFormat);
-                    } else if (profile.equals(new FourCC("nv21"))) {
-                        rgbData =
-                                ColourSpaceConverter.NV21Converter(
-                                        (int) ispe.getImageHeight(),
-                                        (int) ispe.getImageWidth(),
-                                        data,
-                                        outputFormat);
-                    } else {
-                        ColourSpace colourSpace = ColourSpace.YUV444;
-                        if (uncC.getSamplingType().equals(SamplingType.YCbCr420)) {
-                            colourSpace = ColourSpace.YUV420;
-                        } else if (uncC.getSamplingType().equals(SamplingType.YCbCr422)) {
-                            colourSpace = ColourSpace.YUV422;
-                        }
-                        rgbData =
-                                ColourSpaceConverter.YuvConverter(
-                                        colourSpace,
-                                        (int) ispe.getImageHeight(),
-                                        (int) ispe.getImageWidth(),
-                                        data,
-                                        outputFormat);
-                    }
-                    target =
-                            new BufferedImage(
-                                    (int) ispe.getImageWidth(),
-                                    (int) ispe.getImageHeight(),
-                                    BufferedImage.TYPE_3BYTE_BGR);
-                    byte[] imgData =
-                            ((DataBufferByte) target.getRaster().getDataBuffer()).getData();
-                    System.arraycopy(rgbData, 0, imgData, 0, rgbData.length);
-
-                } else if (isPalette(uncC, cmpd, cpal)) {
-                    // we need to check more cases
-                    SampleModel sampleModel = getSampleModel(uncC, cmpd, ispe);
-                    ColorModel colourModel = getIndexColourModel(cpal);
-                    if ((sampleModel != null) && (colourModel != null)) {
-
-                        target = buildBufferedImage(data, sampleModel, colourModel, blockEndian);
-                    }
-
-                } else {
-                    System.out.println("FAIL. unsupported component combination");
-                }
+            if ((uncC.getNumTileColumnsMinusOne() == 0) && (uncC.getNumTileRowsMinusOne() == 0)) {
+                parseAsSingleTile(uncC, itemData, cmpd, ispe, cpal);
             } else {
-                System.out.println("FAIL. unsupported profile: " + profile.toString());
+                target =
+                        new BufferedImage(
+                                (int) ispe.getImageWidth(),
+                                (int) ispe.getImageHeight(),
+                                BufferedImage.TYPE_4BYTE_ABGR_PRE);
+                target.getGraphics().setColor(Color.YELLOW);
+                target.getGraphics()
+                        .fillRect(0, 0, (int) ispe.getImageWidth(), (int) ispe.getImageWidth());
+                long tileWidth = ispe.getImageWidth() / (1 + uncC.getNumTileColumnsMinusOne());
+                long tileHeight = ispe.getImageHeight() / (1 + uncC.getNumTileRowsMinusOne());
+                // TODO: avoid hard coding the 3
+                long tileSizeBytes = tileWidth * tileHeight * 3;
+                Graphics2D targetGraphics = (Graphics2D) target.getGraphics();
+                for (int y = 0; y <= uncC.getNumTileRowsMinusOne(); y++) {
+                    for (int x = 0; x <= uncC.getNumTileColumnsMinusOne(); x++) {
+                        long dataOffset =
+                                (x + y * (1 + uncC.getNumTileColumnsMinusOne())) * tileSizeBytes;
+                        byte[] tileData = new byte[(int) tileSizeBytes];
+                        System.arraycopy(
+                                itemData, (int) dataOffset, tileData, 0, (int) tileSizeBytes);
+                        System.out.println(
+                                String.format(
+                                        "Making tile (x=%d, y=%d), offset=%d", x, y, dataOffset));
+                        BufferedImage tile =
+                                renderTile(tileWidth, tileHeight, tileData, uncC, cmpd, cpal);
+                        if (tile != null) {
+                            targetGraphics.drawImage(
+                                    tile, (int) (x * tileWidth), (int) (y * tileHeight), null);
+                        }
+                    }
+                }
             }
         } else {
             System.out.println("FAIL. missing ispe, uncC or cmpd");
+        }
+    }
+
+    private BufferedImage renderTile(
+            long tileWidth,
+            long tileHeight,
+            byte[] itemData,
+            UncompressedFrameConfigBox uncC,
+            ComponentDefinitionBox cmpd,
+            ComponentPaletteBox cpal) {
+        SampleModel sampleModel = getSampleModel(uncC, cmpd, tileWidth, tileHeight);
+        ColorModel colourModel = getColourModel(uncC, cmpd);
+        if ((sampleModel != null) && (colourModel != null)) {
+            switch (uncC.getInterleaveType()) {
+                case Component:
+                    {
+                        return buildBufferedImageBanded(itemData, sampleModel, colourModel);
+                    }
+                case Pixel:
+                    {
+                        ByteOrder blockEndian =
+                                uncC.isBlockLittleEndian()
+                                        ? ByteOrder.LITTLE_ENDIAN
+                                        : ByteOrder.BIG_ENDIAN;
+                        return buildBufferedImage(itemData, sampleModel, colourModel, blockEndian);
+                    }
+                default:
+                    System.out.println("FAIL. unsupported interleave type");
+                    break;
+            }
+        }
+        return null;
+    }
+
+    private void parseAsSingleTile(
+            UncompressedFrameConfigBox uncC,
+            byte[] itemData,
+            ComponentDefinitionBox cmpd,
+            ImageSpatialExtentsProperty ispe,
+            ComponentPaletteBox cpal) {
+        FourCC profile = uncC.getProfile();
+        ByteOrder blockEndian =
+                uncC.isBlockLittleEndian() ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+
+        if (profile.equals(new FourCC("rgb3"))
+                || profile.equals(new FourCC("rgba"))
+                || profile.equals(new FourCC("abgr"))) {
+            SampleModel sampleModel = getSampleModel(uncC, cmpd, ispe);
+            ColorModel colourModel = getColourModelRgb(uncC, cmpd);
+            target = buildBufferedImage(itemData, sampleModel, colourModel, blockEndian);
+
+        } else if ((profile.hashCode() == 0)
+                || profile.equals(new FourCC("gene"))
+                || profile.equals(new FourCC("2vuy"))
+                || profile.equals(new FourCC("yuv2"))
+                || profile.equals(new FourCC("yvyu"))
+                || profile.equals(new FourCC("vyuy"))
+                || profile.equals(new FourCC("v308"))
+                || profile.equals(new FourCC("i420"))
+                || profile.equals(new FourCC("nv12"))
+                || profile.equals(new FourCC("nv21"))) {
+            if (isRGB(uncC, cmpd)) {
+                // we need to check more cases
+                SampleModel sampleModel = getSampleModel(uncC, cmpd, ispe);
+                ColorModel colourModel = getColourModel(uncC, cmpd);
+                if ((sampleModel != null) && (colourModel != null)) {
+                    switch (uncC.getInterleaveType()) {
+                        case Component:
+                            {
+                                target =
+                                        buildBufferedImageBanded(
+                                                itemData, sampleModel, colourModel);
+                                break;
+                            }
+                        case Pixel:
+                            {
+                                target =
+                                        buildBufferedImage(
+                                                itemData, sampleModel, colourModel, blockEndian);
+                                break;
+                            }
+                        default:
+                            System.out.println("FAIL. unsupported interleave type");
+                            break;
+                    }
+                }
+            } else if (isYCbCr(uncC, cmpd)) {
+                OutputFormat outputFormat =
+                        new OutputFormat_BGR_Bytes(
+                                (int) (ispe.getImageHeight() * ispe.getImageWidth()));
+                byte[] rgbData;
+                if (profile.equals(new FourCC("2vuy"))) {
+                    YUVConverter converter =
+                            new YUV420Converter(
+                                    (int) ispe.getImageHeight(),
+                                    (int) ispe.getImageWidth(),
+                                    SourceFormat.TwoYUV);
+                    rgbData = converter.convert(itemData, outputFormat);
+                } else if (profile.equals(new FourCC("yuv2"))) {
+                    YUVConverter converter =
+                            new YUV420Converter(
+                                    (int) ispe.getImageHeight(),
+                                    (int) ispe.getImageWidth(),
+                                    SourceFormat.YUV2);
+                    rgbData = converter.convert(itemData, outputFormat);
+                } else if (profile.equals(new FourCC("yvyu"))) {
+                    YUVConverter converter =
+                            new YUV420Converter(
+                                    (int) ispe.getImageHeight(),
+                                    (int) ispe.getImageWidth(),
+                                    SourceFormat.YVYU);
+                    rgbData = converter.convert(itemData, outputFormat);
+                } else if (profile.equals(new FourCC("vyuy"))) {
+                    YUVConverter converter =
+                            new YUV420Converter(
+                                    (int) ispe.getImageHeight(),
+                                    (int) ispe.getImageWidth(),
+                                    SourceFormat.VYUY);
+                    rgbData = converter.convert(itemData, outputFormat);
+                } else if (profile.equals(new FourCC("v308"))) {
+                    rgbData =
+                            ColourSpaceConverter.V308Converter(
+                                    (int) ispe.getImageHeight(),
+                                    (int) ispe.getImageWidth(),
+                                    itemData,
+                                    outputFormat);
+                } else if (profile.equals(new FourCC("nv12"))) {
+                    rgbData =
+                            ColourSpaceConverter.NV12Converter(
+                                    (int) ispe.getImageHeight(),
+                                    (int) ispe.getImageWidth(),
+                                    itemData,
+                                    outputFormat);
+                } else if (profile.equals(new FourCC("nv21"))) {
+                    rgbData =
+                            ColourSpaceConverter.NV21Converter(
+                                    (int) ispe.getImageHeight(),
+                                    (int) ispe.getImageWidth(),
+                                    itemData,
+                                    outputFormat);
+                } else {
+                    ColourSpace colourSpace = ColourSpace.YUV444;
+                    if (uncC.getSamplingType().equals(SamplingType.YCbCr420)) {
+                        colourSpace = ColourSpace.YUV420;
+                    } else if (uncC.getSamplingType().equals(SamplingType.YCbCr422)) {
+                        colourSpace = ColourSpace.YUV422;
+                    }
+                    rgbData =
+                            ColourSpaceConverter.YuvConverter(
+                                    colourSpace,
+                                    (int) ispe.getImageHeight(),
+                                    (int) ispe.getImageWidth(),
+                                    itemData,
+                                    outputFormat);
+                }
+                target =
+                        new BufferedImage(
+                                (int) ispe.getImageWidth(),
+                                (int) ispe.getImageHeight(),
+                                BufferedImage.TYPE_3BYTE_BGR);
+                byte[] imgData = ((DataBufferByte) target.getRaster().getDataBuffer()).getData();
+                System.arraycopy(rgbData, 0, imgData, 0, rgbData.length);
+
+            } else if (isPalette(uncC, cmpd, cpal)) {
+                // we need to check more cases
+                SampleModel sampleModel = getSampleModel(uncC, cmpd, ispe);
+                ColorModel colourModel = getIndexColourModel(cpal);
+                if ((sampleModel != null) && (colourModel != null)) {
+
+                    target = buildBufferedImage(itemData, sampleModel, colourModel, blockEndian);
+                }
+
+            } else {
+                System.out.println("FAIL. unsupported component combination");
+            }
+        } else {
+            System.out.println("FAIL. unsupported profile: " + profile.toString());
         }
     }
 
@@ -251,15 +328,21 @@ class Parser {
             UncompressedFrameConfigBox uncC,
             ComponentDefinitionBox cmpd,
             ImageSpatialExtentsProperty ispe) {
-        int width = (int) ispe.getImageWidth();
-        int height = (int) ispe.getImageHeight();
+        return getSampleModel(uncC, cmpd, ispe.getImageWidth(), ispe.getImageHeight());
+    }
+
+    private SampleModel getSampleModel(
+            UncompressedFrameConfigBox uncC, ComponentDefinitionBox cmpd, long width, long height) {
         int pixelStride = getPixelStride(uncC);
-        int rowStride = getRowStride(uncC, ispe);
+        long rowStride = getRowStride(uncC, width);
         switch (uncC.getInterleaveType()) {
             case Component:
                 SampleModel bandedSampleModel =
                         new BandedSampleModel(
-                                DataBuffer.TYPE_BYTE, width, height, uncC.getComponents().size());
+                                DataBuffer.TYPE_BYTE,
+                                (int) width,
+                                (int) height,
+                                uncC.getComponents().size());
                 return bandedSampleModel;
             case Pixel:
                 int[] bandOffsets = getBandOffsetsRGBA(uncC, cmpd);
@@ -268,24 +351,24 @@ class Parser {
                     if (isShortAligned) {
                         // TODO: this might be useful for more stuff, on byte, ushort and uint
                         // boundaries.
-                        int scanlineStride = width; // for now
+                        long scanlineStride = width; // for now
                         int[] bitmasks = getBitMaskRGB(uncC, cmpd);
                         SampleModel singlePixelPackedSampleModel =
                                 new SinglePixelPackedSampleModel(
                                         DataBuffer.TYPE_USHORT,
-                                        width,
-                                        height,
-                                        scanlineStride,
+                                        (int) width,
+                                        (int) height,
+                                        (int) scanlineStride,
                                         bitmasks);
                         return singlePixelPackedSampleModel;
                     }
                     SampleModel pixelInterleavedComponentModel =
                             new PixelInterleavedSampleModel(
                                     DataBuffer.TYPE_BYTE,
-                                    width,
-                                    height,
+                                    (int) width,
+                                    (int) height,
                                     pixelStride,
-                                    rowStride,
+                                    (int) rowStride,
                                     bandOffsets);
                     return pixelInterleavedComponentModel;
 
@@ -376,15 +459,15 @@ class Parser {
             DataBuffer dataBuffer = new DataBufferByte(data, data.length);
             WritableRaster raster =
                     Raster.createWritableRaster(sampleModel, dataBuffer, (Point) null);
-            target = new BufferedImage(colourModel, raster, true, null);
-            return target;
+            BufferedImage image = new BufferedImage(colourModel, raster, true, null);
+            return image;
         } else {
             DataBuffer dataBuffer =
                     new DataBufferUShort(byteArrayToShortArray(data, blockEndian), data.length / 2);
             WritableRaster raster =
                     Raster.createWritableRaster(sampleModel, dataBuffer, (Point) null);
-            BufferedImage target = new BufferedImage(colourModel, raster, true, null);
-            return target;
+            BufferedImage image = new BufferedImage(colourModel, raster, true, null);
+            return image;
         }
     }
 
@@ -394,12 +477,17 @@ class Parser {
         int lengthOfBank = data.length / numBanks;
         byte[][] bankData = new byte[numBanks][lengthOfBank];
         for (int bankIndex = 0; bankIndex < numBanks; bankIndex++) {
-            System.arraycopy(data, bankIndex * lengthOfBank, bankData[bankIndex], 0, lengthOfBank);
+            System.arraycopy(
+                    data,
+                    (int) (bankIndex * lengthOfBank),
+                    bankData[bankIndex],
+                    0,
+                    sampleModel.getHeight() * sampleModel.getWidth());
         }
         DataBufferByte dataBuffer = new DataBufferByte(bankData, lengthOfBank);
         WritableRaster raster = Raster.createWritableRaster(sampleModel, dataBuffer, (Point) null);
-        BufferedImage target = new BufferedImage(colourModel, raster, true, null);
-        return target;
+        BufferedImage image = new BufferedImage(colourModel, raster, true, null);
+        return image;
     }
 
     private static Box findChildBox(MetaBox parent, FourCC fourCC) {
@@ -438,7 +526,8 @@ class Parser {
                 ILocExtent ilocExtent = extents.get(0);
                 long startOffset = ilocExtent.getExtentOffset();
                 int length = (int) ilocExtent.getExtentLength();
-                int dataOffset = (int) (startOffset - mdat.getInitialOffset());
+                int dataOffset =
+                        (int) (startOffset - mdat.getInitialOffset() + item.getBaseOffset());
                 byte[] data = new byte[length];
                 System.arraycopy(mdat.getData(), dataOffset, data, 0, length);
                 return data;
@@ -452,8 +541,8 @@ class Parser {
         return uncC.getComponents().size();
     }
 
-    private int getRowStride(UncompressedFrameConfigBox uncC, ImageSpatialExtentsProperty ispe) {
-        return getPixelStride(uncC) * (int) ispe.getImageWidth();
+    private long getRowStride(UncompressedFrameConfigBox uncC, long imageWidth) {
+        return getPixelStride(uncC) * imageWidth;
     }
 
     private boolean getHasAlpha(UncompressedFrameConfigBox uncC, ComponentDefinitionBox cmpd) {

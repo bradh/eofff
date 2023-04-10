@@ -26,6 +26,11 @@ public class ItemInfoEntry extends FullBox {
         super(INFE_ATOM);
     }
 
+    @Override
+    public String getFullName() {
+        return "ItemInfoEntry";
+    }
+
     public long getItemID() {
         return itemID;
     }

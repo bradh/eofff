@@ -32,6 +32,7 @@ import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.uncompressed.sbpm.PixelCoordinate;
 import net.frogmouth.rnd.eofff.uncompressed.sbpm.SensorBadPixelsMapBox;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
+import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
@@ -52,7 +53,7 @@ public class Uncompressed_bgr_Test extends UncompressedTestSupport {
         boxes.add(free);
         MediaDataBox mdat = createMediaDataBox_bgr();
         boxes.add(mdat);
-        writeBoxes(boxes, "test_uncompressed_bgr.mp4");
+        writeBoxes(boxes, "test_uncompressed_bgr.heif");
     }
 
     private MetaBox createMetaBox_bgr() {
@@ -106,9 +107,9 @@ public class Uncompressed_bgr_Test extends UncompressedTestSupport {
     private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_bgr() {
         UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
         uncc.setProfile(new FourCC("gene"));
-        uncc.addComponent(new Component(2, 7, 0, 0));
-        uncc.addComponent(new Component(1, 7, 0, 0));
-        uncc.addComponent(new Component(0, 7, 0, 0));
+        uncc.addComponent(new Component(2, 7, ComponentFormat.UnsignedInteger, 0));
+        uncc.addComponent(new Component(1, 7, ComponentFormat.UnsignedInteger, 0));
+        uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
         uncc.setInterleaveType(Interleaving.Pixel);
         uncc.setBlockSize(0);
@@ -194,7 +195,7 @@ public class Uncompressed_bgr_Test extends UncompressedTestSupport {
         boxes.add(free);
         MediaDataBox mdat = createMediaDataBox_bgr_sbpm();
         boxes.add(mdat);
-        writeBoxes(boxes, "test_uncompressed_bgr_sbpm.mp4");
+        writeBoxes(boxes, "test_uncompressed_bgr_sbpm.heif");
     }
 
     private Box makeItemPropertiesBox_bgr_sbpm() {

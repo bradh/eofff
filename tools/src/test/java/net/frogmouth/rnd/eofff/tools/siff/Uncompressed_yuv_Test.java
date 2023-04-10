@@ -28,6 +28,7 @@ import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
+import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
@@ -39,28 +40,28 @@ public class Uncompressed_yuv_Test extends UncompressedTestSupport {
     @Test
     public void writeFile_yuv444() throws IOException {
         writeFileYUV(
-                "/home/bradh/yuvdata/in_to_tree_444_720p50.y4m", "test_uncompressed_yuv444.mp4");
+                "/home/bradh/yuvdata/in_to_tree_444_720p50.y4m", "test_uncompressed_yuv444.heif");
     }
 
     @Test
     public void writeFile_v308() throws IOException {
         writeFileYUV(
                 "/home/bradh/yuvdata/in_to_tree_444_720p50.y4m",
-                "test_uncompressed_v308.mp4",
+                "test_uncompressed_v308.heif",
                 new FourCC("v308"));
     }
 
     @Test
     public void writeFile_yuv422() throws IOException {
         writeFileYUV(
-                "/home/bradh/yuvdata/controlled_burn_1080p.y4m", "test_uncompressed_yuv422.mp4");
+                "/home/bradh/yuvdata/controlled_burn_1080p.y4m", "test_uncompressed_yuv422.heif");
     }
 
     @Test
     public void writeFile_2vuy() throws IOException {
         writeFileYUV(
                 "/home/bradh/yuvdata/controlled_burn_1080p.y4m",
-                "test_uncompressed_2vuy.mp4",
+                "test_uncompressed_2vuy.heif",
                 new FourCC("2vuy"));
     }
 
@@ -68,7 +69,7 @@ public class Uncompressed_yuv_Test extends UncompressedTestSupport {
     public void writeFile_yuv2() throws IOException {
         writeFileYUV(
                 "/home/bradh/yuvdata/controlled_burn_1080p.y4m",
-                "test_uncompressed_yuv2.mp4",
+                "test_uncompressed_yuv2.heif",
                 new FourCC("yuv2"));
     }
 
@@ -76,7 +77,7 @@ public class Uncompressed_yuv_Test extends UncompressedTestSupport {
     public void writeFile_yvyu() throws IOException {
         writeFileYUV(
                 "/home/bradh/yuvdata/controlled_burn_1080p.y4m",
-                "test_uncompressed_yvyu.mp4",
+                "test_uncompressed_yvyu.heif",
                 new FourCC("yvyu"));
     }
 
@@ -84,7 +85,7 @@ public class Uncompressed_yuv_Test extends UncompressedTestSupport {
     public void writeFile_vyuy() throws IOException {
         writeFileYUV(
                 "/home/bradh/yuvdata/controlled_burn_1080p.y4m",
-                "test_uncompressed_vyuy.mp4",
+                "test_uncompressed_vyuy.heif",
                 new FourCC("vyuy"));
     }
 
@@ -92,7 +93,7 @@ public class Uncompressed_yuv_Test extends UncompressedTestSupport {
     public void writeFile_i420() throws IOException {
         writeFileYUV(
                 "/home/bradh/yuvdata/pedestrian_area_1080p25.y4m",
-                "test_uncompressed_i420.mp4",
+                "test_uncompressed_i420.heif",
                 new FourCC("i420"));
     }
 
@@ -100,7 +101,7 @@ public class Uncompressed_yuv_Test extends UncompressedTestSupport {
     public void writeFile_nv12() throws IOException {
         writeFileYUV(
                 "/home/bradh/yuvdata/pedestrian_area_1080p25.y4m",
-                "test_uncompressed_nv12.mp4",
+                "test_uncompressed_nv12.heif",
                 new FourCC("nv12"));
     }
 
@@ -108,7 +109,7 @@ public class Uncompressed_yuv_Test extends UncompressedTestSupport {
     public void writeFile_nv21() throws IOException {
         writeFileYUV(
                 "/home/bradh/yuvdata/pedestrian_area_1080p25.y4m",
-                "test_uncompressed_nv21.mp4",
+                "test_uncompressed_nv21.heif",
                 new FourCC("nv21"));
     }
 
@@ -246,45 +247,45 @@ public class Uncompressed_yuv_Test extends UncompressedTestSupport {
             uncc.setProfile(new FourCC("gene"));
         }
         if (profile == null) {
-            uncc.addComponent(new Component(0, 7, 0, 0));
-            uncc.addComponent(new Component(1, 7, 0, 0));
-            uncc.addComponent(new Component(2, 7, 0, 0));
+            uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(1, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(2, 7, ComponentFormat.UnsignedInteger, 0));
         } else if (profile.equals(new FourCC("2vuy"))) {
-            uncc.addComponent(new Component(1, 7, 0, 0));
-            uncc.addComponent(new Component(0, 7, 0, 0));
-            uncc.addComponent(new Component(2, 7, 0, 0));
-            uncc.addComponent(new Component(0, 7, 0, 0));
+            uncc.addComponent(new Component(1, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(2, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
         } else if (profile.equals(new FourCC("yuv2"))) {
-            uncc.addComponent(new Component(0, 7, 0, 0));
-            uncc.addComponent(new Component(1, 7, 0, 0));
-            uncc.addComponent(new Component(0, 7, 0, 0));
-            uncc.addComponent(new Component(2, 7, 0, 0));
+            uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(1, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(2, 7, ComponentFormat.UnsignedInteger, 0));
         } else if (profile.equals(new FourCC("yvyu"))) {
-            uncc.addComponent(new Component(0, 7, 0, 0));
-            uncc.addComponent(new Component(2, 7, 0, 0));
-            uncc.addComponent(new Component(0, 7, 0, 0));
-            uncc.addComponent(new Component(1, 7, 0, 0));
+            uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(2, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(1, 7, ComponentFormat.UnsignedInteger, 0));
         } else if (profile.equals(new FourCC("vyuy"))) {
-            uncc.addComponent(new Component(2, 7, 0, 0));
-            uncc.addComponent(new Component(0, 7, 0, 0));
-            uncc.addComponent(new Component(1, 7, 0, 0));
-            uncc.addComponent(new Component(0, 7, 0, 0));
+            uncc.addComponent(new Component(2, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(1, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
         } else if (profile.equals(new FourCC("v308"))) {
-            uncc.addComponent(new Component(2, 7, 0, 0));
-            uncc.addComponent(new Component(0, 7, 0, 0));
-            uncc.addComponent(new Component(1, 7, 0, 0));
+            uncc.addComponent(new Component(2, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(1, 7, ComponentFormat.UnsignedInteger, 0));
         } else if (profile.equals(new FourCC("i420"))) {
-            uncc.addComponent(new Component(0, 7, 0, 0));
-            uncc.addComponent(new Component(1, 7, 0, 0));
-            uncc.addComponent(new Component(2, 7, 0, 0));
+            uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(1, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(2, 7, ComponentFormat.UnsignedInteger, 0));
         } else if (profile.equals(new FourCC("nv12"))) {
-            uncc.addComponent(new Component(0, 7, 0, 0));
-            uncc.addComponent(new Component(1, 7, 0, 0));
-            uncc.addComponent(new Component(2, 7, 0, 0));
+            uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(1, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(2, 7, ComponentFormat.UnsignedInteger, 0));
         } else if (profile.equals(new FourCC("nv21"))) {
-            uncc.addComponent(new Component(0, 7, 0, 0));
-            uncc.addComponent(new Component(2, 7, 0, 0));
-            uncc.addComponent(new Component(1, 7, 0, 0));
+            uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(2, 7, ComponentFormat.UnsignedInteger, 0));
+            uncc.addComponent(new Component(1, 7, ComponentFormat.UnsignedInteger, 0));
 
         } else {
             fail("need to handle specified profile");

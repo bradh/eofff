@@ -53,6 +53,7 @@ import net.frogmouth.rnd.eofff.tools.ItemDataBoxBuilder;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
+import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
@@ -141,7 +142,7 @@ public class CreateSIFFTest extends UncompressedTestSupport {
         boxes.add(free);
         MediaDataBox mdat = createMediaDataBox_rgb_component();
         boxes.add(mdat);
-        writeBoxes(boxes, "test_siff_rgb_component_rgan.mp4");
+        writeBoxes(boxes, "test_siff_rgb_component_rgan.heif");
     }
 
     private MetaBox createMetaBox_rgb_component_rgan() throws IOException {
@@ -384,9 +385,9 @@ public class CreateSIFFTest extends UncompressedTestSupport {
     private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_rgb_component() {
         UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
         uncc.setProfile(new FourCC("gene"));
-        uncc.addComponent(new Component(0, 7, 0, 0));
-        uncc.addComponent(new Component(1, 7, 0, 0));
-        uncc.addComponent(new Component(2, 7, 0, 0));
+        uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
+        uncc.addComponent(new Component(1, 7, ComponentFormat.UnsignedInteger, 0));
+        uncc.addComponent(new Component(2, 7, ComponentFormat.UnsignedInteger, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
         uncc.setInterleaveType(Interleaving.Component);
         uncc.setBlockSize(0);

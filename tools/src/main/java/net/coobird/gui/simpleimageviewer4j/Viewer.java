@@ -34,9 +34,7 @@ import javax.swing.SwingUtilities;
 import net.coobird.gui.simpleimageviewer4j.component.ViewerPanel;
 
 /**
- *
- *
- * <h1>simpleimageviewer4j - a simple image viewer</h1>
+ * simpleimageviewer4j - a simple image viewer.
  *
  * <p>This class provides a simple way to display images in Java using Swing. It's intended to aid
  * in debugging applications which manipulate images while developing on a desktop environment.

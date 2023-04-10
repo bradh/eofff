@@ -37,6 +37,7 @@ import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteBox;
 import net.frogmouth.rnd.eofff.uncompressed.cpal.PaletteComponent;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
+import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
@@ -64,7 +65,7 @@ public class Uncompressed_rgb_palette_Test extends UncompressedTestSupport {
         boxes.add(free);
         MediaDataBox mdat = createMediaDataBox_rgb_palette(image);
         boxes.add(mdat);
-        writeBoxes(boxes, "test_uncompressed_rgb_palette.mp4");
+        writeBoxes(boxes, "test_uncompressed_rgb_palette.heif");
     }
 
     private MediaDataBox createMediaDataBox_rgb_palette(BufferedImage image) throws IOException {
@@ -160,7 +161,7 @@ public class Uncompressed_rgb_palette_Test extends UncompressedTestSupport {
     private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_rgb_palette() {
         UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
         uncc.setProfile(new FourCC("gene"));
-        uncc.addComponent(new Component(0, 7, 0, 0));
+        uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
         uncc.setInterleaveType(Interleaving.Component);
         uncc.setBlockSize(0);

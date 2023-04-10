@@ -1,6 +1,5 @@
 package net.frogmouth.rnd.eofff.tools.siff;
 
-import static net.frogmouth.rnd.eofff.tools.siff.UncompressedTestSupport.MAIN_ITEM_ID;
 import static org.testng.Assert.*;
 
 import java.io.IOException;
@@ -18,6 +17,7 @@ import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
+import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
@@ -39,7 +39,7 @@ public class Uncompressed_rgb3_Test extends UncompressedTestSupport {
         boxes.add(free);
         MediaDataBox mdat = createMediaDataBox_rgb3();
         boxes.add(mdat);
-        writeBoxes(boxes, "test_uncompressed_rgb3.mp4");
+        writeBoxes(boxes, "test_uncompressed_rgb3.heif");
     }
 
     private MediaDataBox createMediaDataBox_rgb3() {
@@ -129,9 +129,9 @@ public class Uncompressed_rgb3_Test extends UncompressedTestSupport {
     private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_rgb3() {
         UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
         uncc.setProfile(new FourCC("rgb3"));
-        uncc.addComponent(new Component(0, 7, 0, 0));
-        uncc.addComponent(new Component(1, 7, 0, 0));
-        uncc.addComponent(new Component(2, 7, 0, 0));
+        uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
+        uncc.addComponent(new Component(1, 7, ComponentFormat.UnsignedInteger, 0));
+        uncc.addComponent(new Component(2, 7, ComponentFormat.UnsignedInteger, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
         uncc.setInterleaveType(Interleaving.Pixel);
         uncc.setBlockSize(0);

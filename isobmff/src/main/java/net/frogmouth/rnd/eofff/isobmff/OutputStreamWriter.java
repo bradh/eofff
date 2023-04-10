@@ -5,7 +5,9 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-/** @author bradh */
+/**
+ * @author bradh
+ */
 public class OutputStreamWriter {
 
     private final OutputStream outputStream;

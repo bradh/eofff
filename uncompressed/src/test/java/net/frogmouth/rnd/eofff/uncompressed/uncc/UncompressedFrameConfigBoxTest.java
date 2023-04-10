@@ -95,16 +95,18 @@ public class UncompressedFrameConfigBoxTest extends PropertyTestSupport {
         assertEquals(uncc.getTileAlignSize(), 7);
         assertEquals(uncc.getNumTileColumnsMinusOne(), 255);
         assertEquals(uncc.getNumTileRowsMinusOne(), 127);
-        assertEquals(uncc.toString(), "UncompressedFrameConfigBox 'uncC':");
+        assertEquals(
+                uncc.toString(),
+                "UncompressedFrameConfigBox 'uncC': profile=rgb3, Component{componentIndex=0, componentBitDepthMinusOne=7, componentFormat=UnsignedInteger, componentAlignSize=0},Component{componentIndex=1, componentBitDepthMinusOne=7, componentFormat=UnsignedInteger, componentAlignSize=0},Component{componentIndex=2, componentBitDepthMinusOne=7, componentFormat=UnsignedInteger, componentAlignSize=0}, sampling_type=YCbCr420, interleaveType=Pixel, blockSize=0, component_little_endian=true, block_pad_LSB=true, block_little_endian=true, block_reversed=true, pad_unknown=false, pixel_size=3, row_align_size=5, tile_align_size=7, num_tile_cols_minus_one=255, num_tile_rows_minus_one=127");
     }
 
     @Test
     public void checkWrite() throws IOException {
         UncompressedFrameConfigBox box = new UncompressedFrameConfigBox();
         box.setProfile(new FourCC("rgb3"));
-        box.addComponent(new Component(0, 7, 0, 0));
-        box.addComponent(new Component(1, 7, 0, 0));
-        box.addComponent(new Component(2, 7, 0, 0));
+        box.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
+        box.addComponent(new Component(1, 7, ComponentFormat.UnsignedInteger, 0));
+        box.addComponent(new Component(2, 7, ComponentFormat.UnsignedInteger, 0));
         box.setSamplingType(SamplingType.YCbCr420);
         box.setInterleaveType(Interleaving.Pixel);
         box.setBlockSize(0);

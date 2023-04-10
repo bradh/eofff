@@ -41,7 +41,7 @@ public class UncompressedFrameConfigBoxParser extends ItemFullPropertyParser {
                     new Component(
                             component_index,
                             component_bit_depth_minus_one,
-                            component_format,
+                            ComponentFormat.lookup(component_format),
                             component_align_size);
             box.addComponent(component);
         }

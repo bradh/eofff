@@ -30,13 +30,16 @@ import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteBox;
 import net.frogmouth.rnd.eofff.uncompressed.sbpm.SensorBadPixelsMapBox;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
+import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
 
 public class Validator {
 
-    /** @param args the command line arguments */
+    /**
+     * @param args the command line arguments
+     */
     public static void main(String[] args) throws IOException {
         if (args.length < 1) {
             System.out.println("Need to specify the file to validate...");
@@ -44,11 +47,11 @@ public class Validator {
             validate(
                     //        "/home/bradh/Uncompressed Test Files/Uncompressed Test
                     // Files/uncC_1_rgb_planar.heif");
-                    // "/home/bradh/Uncompressed Test Files/Uncompressed Test
-                    // Files/uncC_2_rgb_planar_tiled.heif");
-                    // "/home/bradh/Uncompressed Test Files/Uncompressed Test
-                    // Files/uncC_3_rgb_interleaved_tiled.heif");
-                    "/home/bradh/Uncompressed Test Files/Uncompressed Test Files/uncC_4_rgb_interleaved.heif");
+                    "/home/bradh/Uncompressed Test Files/Uncompressed Test Files/uncC_2_rgb_planar_tiled.heif");
+            // "/home/bradh/Uncompressed Test Files/Uncompressed Test
+            // Files/uncC_3_rgb_interleaved_tiled.heif");
+            // "/home/bradh/Uncompressed Test Files/Uncompressed Test
+            // Files/uncC_4_rgb_interleaved.heif");
         } else {
             validate(args[0]);
         }
@@ -883,7 +886,7 @@ public class Validator {
                         "\t\tFAIL. 5.3.2 requires all other fields to be zero for profile: %s",
                         uncC.getProfile().toString());
         for (Component component : uncC.getComponents()) {
-            if (component.getComponentFormat() == 0) {
+            if (component.getComponentFormat() == ComponentFormat.UnsignedInteger) {
                 System.out.println(message);
             }
             if (component.getComponentAlignSize() == 0) {
@@ -1024,7 +1027,7 @@ public class Validator {
 
     private static void checkComponentFormatIsValid(List<Component> components) {
         for (Component component : components) {
-            if ((component.getComponentFormat() < 0) || (component.getComponentFormat() > 2)) {
+            if (component.getComponentFormat() == ComponentFormat.Reserved) {
                 System.out.println(
                         "\t\tFAIL. Table 2. component_format field is outside of defined range");
             }

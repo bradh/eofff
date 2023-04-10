@@ -221,8 +221,41 @@ public class UncompressedFrameConfigBox extends ItemFullProperty {
         sb.append(getFullName());
         sb.append(" '");
         sb.append(getFourCC());
-        sb.append("':");
-        // TODO: more details
+        sb.append("': profile=");
+        sb.append(profile.toString());
+        sb.append(", ");
+        List<String> comps = new ArrayList<>();
+        this.components.forEach(
+                definition -> {
+                    comps.add(definition.toString());
+                });
+        sb.append(String.join(",", comps));
+        sb.append(", sampling_type=");
+        sb.append(this.samplingType);
+        sb.append(", interleaveType=");
+        sb.append(this.interleaveType);
+        sb.append(", blockSize=");
+        sb.append(this.blockSize);
+        sb.append(", component_little_endian=");
+        sb.append(this.componentLittleEndian);
+        sb.append(", block_pad_LSB=");
+        sb.append(this.blockPadLSB);
+        sb.append(", block_little_endian=");
+        sb.append(this.blockLittleEndian);
+        sb.append(", block_reversed=");
+        sb.append(this.blockReversed);
+        sb.append(", pad_unknown=");
+        sb.append(this.padUnknown);
+        sb.append(", pixel_size=");
+        sb.append(this.pixelSize);
+        sb.append(", row_align_size=");
+        sb.append(this.rowAlignSize);
+        sb.append(", tile_align_size=");
+        sb.append(this.tileAlignSize);
+        sb.append(", num_tile_cols_minus_one=");
+        sb.append(this.numTileColumnsMinusOne);
+        sb.append(", num_tile_rows_minus_one=");
+        sb.append(this.numTileRowsMinusOne);
         return sb.toString();
     }
 }
