@@ -8,6 +8,7 @@
     <modules>
         <module>isobmff</module>
         <module>imagefileformat</module>
+        <module>jpegxl</module>
         <module>visualiser</module>
         <module>dash</module>
         <module>nalvideo</module>
@@ -85,7 +86,7 @@
                     <configuration>
                         <java>
                             <googleJavaFormat>
-                                <version>1.13.0</version>
+                                <version>1.15.0</version>
                                 <style>AOSP</style>
                             </googleJavaFormat>
                         </java>
