@@ -5,7 +5,7 @@ import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyPar
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
-public class ImageMirrorParser extends PropertyParser {
+public class ImageMirrorParser implements PropertyParser {
 
     public ImageMirrorParser() {}
 

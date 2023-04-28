@@ -5,6 +5,7 @@ import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 
+// TODO: move to isobmff module
 public abstract class AbstractEntityToGroupBox extends FullBox {
 
     private long groupId;

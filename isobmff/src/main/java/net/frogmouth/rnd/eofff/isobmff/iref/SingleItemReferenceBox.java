@@ -18,6 +18,33 @@ public class SingleItemReferenceBox extends BaseBox {
         super(name);
     }
 
+    @Override
+    public String getFullName() {
+        if (this.getFourCC().equals(new FourCC("auxl"))) {
+            return "Auxiliary image";
+        }
+        if (this.getFourCC().equals(new FourCC("base"))) {
+            return "Pre-derived image base";
+        }
+        if (this.getFourCC().equals(new FourCC("cdsc"))) {
+            return "Content Describes";
+        }
+        if (this.getFourCC().equals(new FourCC("dimg"))) {
+            return "Derived image";
+        }
+        if (this.getFourCC().equals(new FourCC("font"))) {
+            return "Font item reference";
+        }
+        if (this.getFourCC().equals(new FourCC("grid"))) {
+            return "Grid reference image";
+        }
+        if (this.getFourCC().equals(new FourCC("thmb"))) {
+            return "Thumbnail";
+        }
+
+        return "(Unknown)";
+    }
+
     public long getFromItemId() {
         return fromItemId;
     }

@@ -18,4 +18,9 @@ public class SignatureBox extends BaseBox {
     public void setData(long data) {
         this.data = data;
     }
+
+    @Override
+    public String getFullName() {
+        return "JPEGXL Signature Box";
+    }
 }

@@ -56,7 +56,24 @@ public class ConformanceCafeTest {
     @Test
     public void checkFtypBox() {
         Box box1 = boxes.get(1);
-        // TODO
         assertTrue(box1 instanceof FileTypeBox);
+        FileTypeBox ftyp = (FileTypeBox) box1;
+        assertEquals(ftyp.getMajorBrand().toString(), "jxl ");
+        assertEquals(ftyp.getMinorVersion(), 0);
+        assertEquals(ftyp.getCompatibleBrands().size(), 1);
+        assertEquals(ftyp.getCompatibleBrands().get(0).toString(), "jxl ");
+    }
+
+    @Test
+    public void checkBitstreamReconstructionDataBox() {
+        Box box2 = boxes.get(2);
+        assertTrue(box2 instanceof BitstreamReconstructionDataBox);
+        // TODO: make sense of this
+    }
+
+    @Test
+    public void checkBox3() {
+        Box box3 = boxes.get(3);
+        assertTrue(box3 instanceof CodestreamBox);
     }
 }

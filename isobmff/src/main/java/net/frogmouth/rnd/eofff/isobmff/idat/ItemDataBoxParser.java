@@ -4,11 +4,8 @@ import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.BoxParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ItemDataBoxParser extends BoxParser {
-    private static final Logger LOG = LoggerFactory.getLogger(ItemDataBoxParser.class);
 
     public ItemDataBoxParser() {}
 
@@ -25,9 +22,5 @@ public class ItemDataBoxParser extends BoxParser {
         parseContext.readBytes(data);
         box.setData(data);
         return box;
-    }
-
-    private boolean isSupportedVersion(int version) {
-        return ((version == 0x00) || (version == 0x01));
     }
 }

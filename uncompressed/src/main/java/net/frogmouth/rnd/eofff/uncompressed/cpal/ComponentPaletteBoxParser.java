@@ -7,7 +7,7 @@ import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ComponentPaletteBoxParser extends PropertyParser {
+public class ComponentPaletteBoxParser implements PropertyParser {
     private static final Logger LOG = LoggerFactory.getLogger(ComponentPaletteBoxParser.class);
 
     public ComponentPaletteBoxParser() {}

@@ -3,7 +3,7 @@ package net.frogmouth.rnd.eofff.imagefileformat.extensions.properties;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
-public abstract class ItemFullPropertyParser extends PropertyParser {
+public abstract class ItemFullPropertyParser implements PropertyParser {
 
     protected AbstractItemProperty parseAsUnknownProperty(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {

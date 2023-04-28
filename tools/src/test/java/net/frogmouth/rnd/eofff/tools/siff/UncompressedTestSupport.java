@@ -17,6 +17,7 @@ import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropert
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyContainerBox;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.image.CleanAperture;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageSpatialExtentsProperty;
+import net.frogmouth.rnd.eofff.imagefileformat.properties.mski.MaskConfigurationProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.udes.UserDescriptionProperty;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
@@ -884,6 +885,7 @@ public class UncompressedTestSupport {
         ComponentPaletteBox cpal = null;
         SensorBadPixelsMapBox sbpm = null;
         UserDescriptionProperty udes = null;
+        MaskConfigurationProperty mskC = null;
         for (AbstractItemProperty property : properties) {
             if (property instanceof ComponentDefinitionBox componentDefinitionBox) {
                 cmpd = componentDefinitionBox;
@@ -900,6 +902,8 @@ public class UncompressedTestSupport {
                 udes = userDescriptionProperty;
             } else if (property instanceof CleanAperture clap) {
                 // TODO
+            } else if (property instanceof MaskConfigurationProperty maskConfigurationProperty) {
+                mskC = maskConfigurationProperty;
             } else {
                 fail("TODO: property: " + property.toString());
             }

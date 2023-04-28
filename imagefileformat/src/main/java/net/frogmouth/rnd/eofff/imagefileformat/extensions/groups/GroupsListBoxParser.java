@@ -7,6 +7,7 @@ import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
+// TODO: move to isobmff module
 public class GroupsListBoxParser extends BaseBoxParser {
     public GroupsListBoxParser() {}
 

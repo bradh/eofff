@@ -5,7 +5,7 @@ import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyPar
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
-public class ImageRotationParser extends PropertyParser {
+public class ImageRotationParser implements PropertyParser {
 
     public ImageRotationParser() {}
 

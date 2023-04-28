@@ -77,10 +77,15 @@ public class ParseContext {
     }
 
     public long readUnsignedInt(int numBits) {
-        if (numBits == Integer.SIZE) {
-            return readUnsignedInt32();
-        } else if (numBits == Long.SIZE) {
-            return readUnsignedInt64();
+        switch (numBits) {
+            case Integer.SIZE:
+                return readUnsignedInt32();
+            case Long.SIZE:
+                return readUnsignedInt64();
+            case 0:
+                return 0;
+            default:
+                break;
         }
         throw new IllegalArgumentException(
                 String.format("Only reading of 32 and 64 bits is supported, not %d", numBits));
@@ -128,9 +133,9 @@ public class ParseContext {
         return b;
     }
 
-    public void readBytes(byte[] flags) {
-        for (int i = 0; i < flags.length; i++) {
-            flags[i] = readByte();
+    public void readBytes(byte[] targetBytes) {
+        for (int i = 0; i < targetBytes.length; i++) {
+            targetBytes[i] = readByte();
         }
     }
 

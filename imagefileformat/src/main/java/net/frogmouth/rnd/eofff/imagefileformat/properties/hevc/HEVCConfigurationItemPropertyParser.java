@@ -5,7 +5,7 @@ import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyPar
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
-public class HEVCConfigurationItemPropertyParser extends PropertyParser {
+public class HEVCConfigurationItemPropertyParser implements PropertyParser {
 
     public HEVCConfigurationItemPropertyParser() {}
 
@@ -29,7 +29,7 @@ public class HEVCConfigurationItemPropertyParser extends PropertyParser {
         byte[] general_constraint_indicator_flags = new byte[6];
         parseContext.readBytes(general_constraint_indicator_flags);
         box.setGeneral_constraint_indicator_flags(general_constraint_indicator_flags);
-        box.setGeneral_profile_idc(parseContext.readByte());
+        box.setGeneral_level_idc(parseContext.readByte());
         temp = parseContext.readUnsignedInt16();
         box.setMin_spatial_segmentation_idc(temp & 0x0FFF);
         temp = parseContext.readByte();

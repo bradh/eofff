@@ -2,6 +2,8 @@ package net.frogmouth.rnd.eofff.imagefileformat.extensions.properties;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
@@ -32,6 +34,7 @@ public class ItemPropertyAssociation extends FullBox {
     @Override
     public void writeTo(OutputStreamWriter writer) throws IOException {
         this.writeBoxHeader(writer);
+        Collections.sort(entries, Comparator.comparingLong(AssociationEntry::getItemId));
         writer.writeUnsignedInt32(entries.size());
         for (AssociationEntry entry : entries) {
             entry.writeTo(writer, getVersion(), getFlags());

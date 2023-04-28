@@ -31,8 +31,10 @@ import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropert
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyContainerBox;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyAssociation;
 import net.frogmouth.rnd.eofff.imagefileformat.items.rgan.Rectangle;
+import net.frogmouth.rnd.eofff.imagefileformat.items.rgan.ReferencedMask;
 import net.frogmouth.rnd.eofff.imagefileformat.items.rgan.Region;
 import net.frogmouth.rnd.eofff.imagefileformat.items.rgan.RegionItem;
+import net.frogmouth.rnd.eofff.imagefileformat.properties.mski.MaskConfigurationProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.udes.UserDescriptionProperty;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
@@ -92,6 +94,7 @@ import org.testng.annotations.Test;
 public class CreateSIFFTest extends UncompressedTestSupport {
     private static final Logger LOG = LoggerFactory.getLogger(CreateSIFFTest.class);
     private static final long REGION_ITEM_ID = 0x1788;
+    private static final long MASK_ITEM_ID = 0x1111;
     private static final long FILE_METADATA_ITEM_ID = 0x1902;
     private static final String MIMD_URI = "urn:nsg:KLV:ul:060E2B34.02050101.0E010504.00000000";
     private static final long PRIMARY_TIMESTAMP_ITEM_ID = 0x1603;
@@ -99,6 +102,9 @@ public class CreateSIFFTest extends UncompressedTestSupport {
             "urn:nsg:KLV:ul:060E2B34.02050101.0E010302.09000000";
     private static final long CORE_ID_ITEM_ID = 0x1204;
     private static final String CORE_ID_URI = "urn:nsg:KLV:ul:060E2B34.01010101.0E010405.03000000";
+    private static final long MASK_HEIGHT = IMAGE_HEIGHT;
+    private static final long MASK_WIDTH = IMAGE_WIDTH;
+    private static final int NUM_BYTES_PER_PIXEL_MASK = 1;
 
     private static final byte[] MIIS_UUID_BYTES =
             new byte[] {
@@ -200,6 +206,15 @@ public class CreateSIFFTest extends UncompressedTestSupport {
             infe4.setItemName("Core ID metadata (ST 1204)");
             iinf.addItem(infe4);
         }
+        {
+            ItemInfoEntry infe5 = new ItemInfoEntry();
+            infe5.setVersion(2);
+            infe5.setItemID(MASK_ITEM_ID);
+            FourCC mski = new FourCC("mski");
+            infe5.setItemType(mski.asUnsigned());
+            infe5.setItemName("Region Mask");
+            iinf.addItem(infe5);
+        }
         return iinf;
     }
 
@@ -253,6 +268,18 @@ public class CreateSIFFTest extends UncompressedTestSupport {
             coreIdItemLocation.addExtent(coreIdExtent);
             iloc.addItem(coreIdItemLocation);
         }
+        {
+            ILocItem maskItemLocation = new ILocItem();
+            maskItemLocation.setConstructionMethod(0);
+            maskItemLocation.setItemId(MASK_ITEM_ID);
+            ILocExtent maskExtent = new ILocExtent();
+            maskExtent.setExtentIndex(0);
+            maskExtent.setExtentOffset(
+                    IMAGE_DATA_START + IMAGE_HEIGHT * IMAGE_WIDTH * NUM_BYTES_PER_PIXEL_RGB);
+            maskExtent.setExtentLength(MASK_HEIGHT * MASK_WIDTH * NUM_BYTES_PER_PIXEL_MASK);
+            maskItemLocation.addExtent(maskExtent);
+            iloc.addItem(maskItemLocation);
+        }
         return iloc;
     }
 
@@ -292,6 +319,7 @@ public class CreateSIFFTest extends UncompressedTestSupport {
         ipco.addProperty(makeImageSpatialExtentsProperty());
         ipco.addProperty(makeUserDescription_rgan());
         ipco.addProperty(makeUserDescription());
+        ipco.addProperty(makeMaskConfigurationProperty());
         iprp.setItemProperties(ipco);
 
         ItemPropertyAssociation itemPropertyAssociation = new ItemPropertyAssociation();
@@ -312,7 +340,7 @@ public class CreateSIFFTest extends UncompressedTestSupport {
             PropertyAssociation associationToImageSpatialExtentsProperty =
                     new PropertyAssociation();
             associationToImageSpatialExtentsProperty.setPropertyIndex(3);
-            associationToImageSpatialExtentsProperty.setEssential(false);
+            associationToImageSpatialExtentsProperty.setEssential(true);
             mainItemAssociations.addAssociation(associationToImageSpatialExtentsProperty);
 
             PropertyAssociation associationToUserDescription = new PropertyAssociation();
@@ -330,6 +358,22 @@ public class CreateSIFFTest extends UncompressedTestSupport {
             associationToRegionUserDescription.setEssential(false);
             regionAssociationEntry.addAssociation(associationToRegionUserDescription);
             itemPropertyAssociation.addEntry(regionAssociationEntry);
+        }
+        {
+            AssociationEntry maskAssociationEntry = new AssociationEntry();
+            maskAssociationEntry.setItemId(MASK_ITEM_ID);
+            PropertyAssociation associationToImageSpatialExtentsProperty =
+                    new PropertyAssociation();
+            associationToImageSpatialExtentsProperty.setPropertyIndex(3);
+            associationToImageSpatialExtentsProperty.setEssential(true);
+            maskAssociationEntry.addAssociation(associationToImageSpatialExtentsProperty);
+
+            PropertyAssociation associationToMaskConfigurationProperty = new PropertyAssociation();
+            associationToMaskConfigurationProperty.setPropertyIndex(6);
+            associationToMaskConfigurationProperty.setEssential(true);
+            maskAssociationEntry.addAssociation(associationToMaskConfigurationProperty);
+
+            itemPropertyAssociation.addEntry(maskAssociationEntry);
         }
         iprp.addItemPropertyAssociation(itemPropertyAssociation);
 
@@ -358,6 +402,12 @@ public class CreateSIFFTest extends UncompressedTestSupport {
             coreId_csdc_primary_item.setFromItemId(CORE_ID_ITEM_ID);
             coreId_csdc_primary_item.addReference(MAIN_ITEM_ID);
             iref.addItem(coreId_csdc_primary_item);
+        }
+        {
+            SingleItemReferenceBox rgan_to_mask = new SingleItemReferenceBox(new FourCC("mask"));
+            rgan_to_mask.setFromItemId(REGION_ITEM_ID);
+            rgan_to_mask.addReference(MASK_ITEM_ID);
+            iref.addItem(rgan_to_mask);
         }
         return iref;
     }
@@ -404,6 +454,12 @@ public class CreateSIFFTest extends UncompressedTestSupport {
         return uncc;
     }
 
+    private AbstractItemProperty makeMaskConfigurationProperty() {
+        MaskConfigurationProperty mskC = new MaskConfigurationProperty();
+        mskC.setBitDepth(NUM_BYTES_PER_PIXEL_MASK * 8);
+        return mskC;
+    }
+
     private MediaDataBox createMediaDataBox_rgb_component() throws IOException {
         MediaDataBox mdat = new MediaDataBox();
         SampleModel sampleModel =
@@ -425,12 +481,22 @@ public class CreateSIFFTest extends UncompressedTestSupport {
         for (int i = 0; i < numBanks; i++) {
             totalSize += buffer.getData(i).length;
         }
+        byte[] imageMaskBytes =
+                new byte[(int) (MASK_HEIGHT * MASK_WIDTH * NUM_BYTES_PER_PIXEL_MASK)];
+        for (int row = 2 * IMAGE_HEIGHT / 3; row < IMAGE_HEIGHT; row++) {
+            for (int col = IMAGE_WIDTH / 4; col < 2 * IMAGE_WIDTH / 4; col++) {
+                imageMaskBytes[row * IMAGE_WIDTH + col] = (byte) 0xFF;
+            }
+        }
+
+        totalSize += imageMaskBytes.length;
         byte[] data = new byte[totalSize];
         int destination = 0;
         for (int i = 0; i < numBanks; i++) {
             System.arraycopy(buffer.getData(i), 0, data, destination, buffer.getData(i).length);
             destination += buffer.getData(i).length;
         }
+        System.arraycopy(imageMaskBytes, 0, data, destination, imageMaskBytes.length);
         mdat.setData(data);
         return mdat;
     }
@@ -447,6 +513,8 @@ public class CreateSIFFTest extends UncompressedTestSupport {
                 new net.frogmouth.rnd.eofff.imagefileformat.items.rgan.Point(
                         3 * IMAGE_WIDTH / 8, 5 * IMAGE_HEIGHT / 6);
         rgan.addRegion(pointRegion);
+        Region referenceMaskRegion = new ReferencedMask(0, 0, 0, 0);
+        rgan.addRegion(referenceMaskRegion);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
         rgan.writeTo(streamWriter);

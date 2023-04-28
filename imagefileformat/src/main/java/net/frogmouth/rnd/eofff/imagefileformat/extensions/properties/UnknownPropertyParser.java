@@ -5,7 +5,7 @@ import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UnknownPropertyParser extends PropertyParser {
+public class UnknownPropertyParser implements PropertyParser {
     private static final Logger LOG = LoggerFactory.getLogger(UnknownPropertyParser.class);
 
     public UnknownPropertyParser() {}
@@ -22,6 +22,6 @@ public class UnknownPropertyParser extends PropertyParser {
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
         LOG.warn("Unable to parse unknown property type '{}'", boxName.toString());
         parseContext.skipBytes(initialOffset + boxSize - parseContext.getCursorPosition());
-        return null;
+        return new ItemProperty(boxName);
     }
 }

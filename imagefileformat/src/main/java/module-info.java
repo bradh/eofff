@@ -9,6 +9,7 @@ module net.frogmouth.rnd.eofff.imagefileformat {
 
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
             net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.AlternativesParser,
+            net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.AlbumCollectionParser,
             net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.GroupsListBoxParser,
             net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertiesBoxParser,
             net.frogmouth.rnd.eofff.imagefileformat.extensions.properties
@@ -24,7 +25,9 @@ module net.frogmouth.rnd.eofff.imagefileformat {
             net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageRotationParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.image
                     .ImageSpatialExtentsPropertyParser,
+            net.frogmouth.rnd.eofff.imagefileformat.properties.image.PixelAspectRatioPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.image.PixelInformationPropertyParser,
+            net.frogmouth.rnd.eofff.imagefileformat.properties.mski.MaskConfigurationPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.udes.UserDescriptionPropertyParser;
 
     exports net.frogmouth.rnd.eofff.imagefileformat.brands;
@@ -32,6 +35,8 @@ module net.frogmouth.rnd.eofff.imagefileformat {
     exports net.frogmouth.rnd.eofff.imagefileformat.extensions.properties;
     exports net.frogmouth.rnd.eofff.imagefileformat.items.grid;
     exports net.frogmouth.rnd.eofff.imagefileformat.items.rgan;
+    exports net.frogmouth.rnd.eofff.imagefileformat.properties.hevc;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.image;
+    exports net.frogmouth.rnd.eofff.imagefileformat.properties.mski;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.udes;
 }
