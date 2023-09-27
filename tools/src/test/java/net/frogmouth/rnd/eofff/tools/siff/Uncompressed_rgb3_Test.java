@@ -3,6 +3,8 @@ package net.frogmouth.rnd.eofff.tools.siff;
 import static org.testng.Assert.*;
 
 import java.io.IOException;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AssociationEntry;
@@ -95,34 +97,46 @@ public class Uncompressed_rgb3_Test extends UncompressedTestSupport {
     }
 
     private Box makeItemPropertiesBox_rgb3() {
+        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
         ItemPropertiesBox iprp = new ItemPropertiesBox();
         ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
         ipco.addProperty(makeComponentDefinitionBox_rgb_generic());
         ipco.addProperty(makeUncompressedFrameConfigBox_rgb3());
         ipco.addProperty(makeImageSpatialExtentsProperty());
+        ipco.addProperty(makeTAIClockInfoBox());
+        ipco.addProperty(makeTAITimeStampBox(now));
         iprp.setItemProperties(ipco);
-        ItemPropertyAssociation componentDefinitionAssociation = new ItemPropertyAssociation();
-        AssociationEntry componentDefinitionAssociationEntry = new AssociationEntry();
-        componentDefinitionAssociationEntry.setItemId(MAIN_ITEM_ID);
+        ItemPropertyAssociation itemPropertyAssociation = new ItemPropertyAssociation();
+        AssociationEntry associationEntry = new AssociationEntry();
+        associationEntry.setItemId(MAIN_ITEM_ID);
 
         PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
         associationToComponentDefinitionBox.setPropertyIndex(1);
         associationToComponentDefinitionBox.setEssential(true);
-        componentDefinitionAssociationEntry.addAssociation(associationToComponentDefinitionBox);
+        associationEntry.addAssociation(associationToComponentDefinitionBox);
 
         PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
         associationToUncompressedFrameConfigBox.setPropertyIndex(2);
         associationToUncompressedFrameConfigBox.setEssential(true);
-        componentDefinitionAssociationEntry.addAssociation(associationToUncompressedFrameConfigBox);
+        associationEntry.addAssociation(associationToUncompressedFrameConfigBox);
 
         PropertyAssociation associationToImageSpatialExtentsProperty = new PropertyAssociation();
         associationToImageSpatialExtentsProperty.setPropertyIndex(3);
         associationToImageSpatialExtentsProperty.setEssential(false);
-        componentDefinitionAssociationEntry.addAssociation(
-                associationToImageSpatialExtentsProperty);
+        associationEntry.addAssociation(associationToImageSpatialExtentsProperty);
 
-        componentDefinitionAssociation.addEntry(componentDefinitionAssociationEntry);
-        iprp.addItemPropertyAssociation(componentDefinitionAssociation);
+        PropertyAssociation associationToTAIClockInfoBox = new PropertyAssociation();
+        associationToTAIClockInfoBox.setPropertyIndex(4);
+        associationToTAIClockInfoBox.setEssential(false);
+        associationEntry.addAssociation(associationToTAIClockInfoBox);
+
+        PropertyAssociation associationToTAITimeStamp = new PropertyAssociation();
+        associationToTAITimeStamp.setPropertyIndex(5);
+        associationToTAIClockInfoBox.setEssential(false);
+        associationEntry.addAssociation(associationToTAITimeStamp);
+
+        itemPropertyAssociation.addEntry(associationEntry);
+        iprp.addItemPropertyAssociation(itemPropertyAssociation);
         return iprp;
     }
 

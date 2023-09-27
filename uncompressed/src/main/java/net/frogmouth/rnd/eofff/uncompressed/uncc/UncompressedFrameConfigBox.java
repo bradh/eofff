@@ -26,7 +26,7 @@ public class UncompressedFrameConfigBox extends ItemFullProperty {
     private boolean blockLittleEndian;
     private boolean blockReversed;
     private boolean padUnknown;
-    private int pixelSize;
+    private long pixelSize;
     private long rowAlignSize;
     private long tileAlignSize;
     private long numTileColumnsMinusOne;
@@ -121,11 +121,11 @@ public class UncompressedFrameConfigBox extends ItemFullProperty {
         this.padUnknown = padUnknown;
     }
 
-    public int getPixelSize() {
+    public long getPixelSize() {
         return pixelSize;
     }
 
-    public void setPixelSize(int pixelSize) {
+    public void setPixelSize(long pixelSize) {
         this.pixelSize = pixelSize;
     }
 
@@ -165,13 +165,13 @@ public class UncompressedFrameConfigBox extends ItemFullProperty {
     public long getBodySize() {
         long count = 0;
         count += FourCC.BYTES;
-        count += Short.BYTES;
+        count += Integer.BYTES;
         count += components.size() * Component.BYTES;
         count += Byte.BYTES;
         count += Byte.BYTES;
         count += Byte.BYTES;
         count += Byte.BYTES;
-        count += Byte.BYTES;
+        count += Integer.BYTES;
         count += Integer.BYTES;
         count += Integer.BYTES;
         count += Integer.BYTES;
@@ -183,7 +183,7 @@ public class UncompressedFrameConfigBox extends ItemFullProperty {
     public void writeTo(OutputStreamWriter stream) throws IOException {
         this.writeBoxHeader(stream);
         stream.writeFourCC(profile);
-        stream.writeUnsignedInt16(this.components.size());
+        stream.writeUnsignedInt32(this.components.size());
         for (Component component : components) {
             component.writeTo(stream);
         }
@@ -208,7 +208,7 @@ public class UncompressedFrameConfigBox extends ItemFullProperty {
             bitMask |= 0x08;
         }
         stream.writeByte(bitMask);
-        stream.writeByte(pixelSize);
+        stream.writeUnsignedInt32(pixelSize);
         stream.writeUnsignedInt32(this.rowAlignSize);
         stream.writeUnsignedInt32(this.tileAlignSize);
         stream.writeUnsignedInt32(this.numTileColumnsMinusOne);

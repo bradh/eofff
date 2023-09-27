@@ -43,7 +43,7 @@ public class ParseContext {
     }
 
     public long readInt64() {
-        long i = MemoryAccess.getLongAtIndex(memorySegment, cursor, ByteOrder.BIG_ENDIAN);
+        long i = MemoryAccess.getLongAtOffset(memorySegment, cursor, ByteOrder.BIG_ENDIAN);
         cursor += Long.BYTES;
         return i;
     }
@@ -89,6 +89,12 @@ public class ParseContext {
         }
         throw new IllegalArgumentException(
                 String.format("Only reading of 32 and 64 bits is supported, not %d", numBits));
+    }
+
+    public float readDouble32() {
+        float f = MemoryAccess.getFloatAtOffset(memorySegment, cursor, ByteOrder.BIG_ENDIAN);
+        cursor += Float.BYTES;
+        return f;
     }
 
     public Brand readBrand() {

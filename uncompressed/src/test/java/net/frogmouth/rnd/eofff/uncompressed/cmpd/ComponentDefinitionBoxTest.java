@@ -12,8 +12,8 @@ import org.testng.annotations.Test;
 public class ComponentDefinitionBoxTest extends PropertyTestSupport {
     private static final byte[] CMPD_BYTES_NO_STRING =
             new byte[] {
-                0x00, 0x00, 0x00, 0x10, 0x63, 0x6d, 0x70, 0x64, 0x00, 0x03, 0x00, 0x04, 0x00, 0x06,
-                0x00, 0x05
+                0x00, 0x00, 0x00, 0x12, 0x63, 0x6d, 0x70, 0x64, 0x00, 0x00, 0x00, 0x03, 0x00, 0x04,
+                0x00, 0x06, 0x00, 0x05
             };
 
     private static final byte[] CMPD_BYTES_STRING =
@@ -21,11 +21,13 @@ public class ComponentDefinitionBoxTest extends PropertyTestSupport {
                 0x00,
                 0x00,
                 0x00,
-                0x27,
+                0x29,
                 0x63,
                 0x6d,
                 0x70,
                 0x64,
+                0x00,
+                0x00,
                 0x00,
                 0x02,
                 (byte) 0x80,

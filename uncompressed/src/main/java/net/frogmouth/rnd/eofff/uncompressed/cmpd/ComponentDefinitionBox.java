@@ -38,7 +38,7 @@ public class ComponentDefinitionBox extends ItemProperty {
     @Override
     public long getBodySize() {
         long size = 0;
-        size += Short.BYTES;
+        size += Integer.BYTES;
         for (ComponentDefinition componentDefinition : this.componentDefinitions) {
             size += componentDefinition.getNumberOfBytes();
         }
@@ -48,7 +48,7 @@ public class ComponentDefinitionBox extends ItemProperty {
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
         this.writeBoxHeader(stream);
-        stream.writeUnsignedInt16(this.componentDefinitions.size());
+        stream.writeUnsignedInt32(this.componentDefinitions.size());
         for (ComponentDefinition componentDefinition : this.componentDefinitions) {
             componentDefinition.writeTo(stream);
         }

@@ -5,9 +5,6 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-/**
- * @author bradh
- */
 public class OutputStreamWriter {
 
     private final OutputStream outputStream;
@@ -86,5 +83,16 @@ public class OutputStreamWriter {
     public void writeUnsignedInt32(long i) throws IOException {
         // TODO: check range
         outputStream.write(intToBytes((int) i));
+    }
+
+    private byte[] floatToBytes(float f) {
+        ByteBuffer buffer = ByteBuffer.allocate(Float.BYTES);
+        buffer.putFloat(f);
+        buffer.rewind();
+        return buffer.array();
+    }
+
+    public void writeDouble32(float f) throws IOException {
+        outputStream.write(floatToBytes(f));
     }
 }

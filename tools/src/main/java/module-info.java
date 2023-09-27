@@ -13,6 +13,7 @@ module net.frogmouth.rnd.eofff.tools {
     requires org.jmisb.api;
     requires java.desktop;
     requires net.frogmouth.rnd.eofff.yuv;
+    requires org.codice.imaging.nitf.core;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
     uses net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser;

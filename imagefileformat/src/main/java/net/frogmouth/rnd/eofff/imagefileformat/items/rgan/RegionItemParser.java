@@ -42,7 +42,7 @@ public class RegionItemParser {
                     regionItem.addRegion(parseReferencedMaskShortForm(parseContext));
                     break;
                 case INLINE_MASK:
-                    throw new UnsupportedOperationException("Inline masks are not yet supported");
+                    regionItem.addRegion(parseInlineMaskShortForm(parseContext));
                 case POLYLINE:
                     regionItem.addRegion(parsePolylineShortForm(parseContext));
                     break;
@@ -105,5 +105,29 @@ public class RegionItemParser {
         int height = parseContext.readUnsignedInt16();
         ReferencedMask referencedMask = new ReferencedMask(x, y, width, height);
         return referencedMask;
+    }
+
+    private InlineMask parseInlineMaskShortForm(ParseContext parseContext) {
+        int x = parseContext.readInt16();
+        int y = parseContext.readInt16();
+        int width = parseContext.readUnsignedInt16();
+        int height = parseContext.readUnsignedInt16();
+        int mask_coding_method = parseContext.readUnsignedInt8();
+        if (mask_coding_method == 0) {
+            int data_len = width * height / Byte.SIZE;
+            byte[] data = new byte[data_len];
+            // TODO: read data
+            return new InlineMask(x, y, width, height, data);
+        } else {
+            if (mask_coding_method == 1) {
+                long mask_coding_parameters = parseContext.readUnsignedInt32();
+                byte[] data = new byte[(int) mask_coding_parameters];
+                // TODO: read data and decode from deflate()
+                return new InlineMask(x, y, width, height, data);
+            } else {
+                // TODO - log error?
+                return null;
+            }
+        }
     }
 }

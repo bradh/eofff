@@ -20,8 +20,8 @@ public class ComponentDefinitionBoxParser implements PropertyParser {
     public ComponentDefinitionBox parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
         ComponentDefinitionBox box = new ComponentDefinitionBox();
-        int component_count = parseContext.readUnsignedInt16();
-        for (int i = 0; i < component_count; i++) {
+        long component_count = parseContext.readUnsignedInt32();
+        for (long i = 0; i < component_count; i++) {
             int component_type = parseContext.readUnsignedInt16();
             String component_type_uri = null;
             if (component_type >= 0x8000) {

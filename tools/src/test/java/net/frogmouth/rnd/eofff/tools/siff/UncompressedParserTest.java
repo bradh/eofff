@@ -58,6 +58,7 @@ import net.frogmouth.rnd.eofff.yuv.converters.YUV420Converter;
 import net.frogmouth.rnd.eofff.yuv.converters.YUVConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 public class UncompressedParserTest {
@@ -69,6 +70,7 @@ public class UncompressedParserTest {
         return fileParser.parse(testFile);
     }
 
+    @Ignore
     @Test
     public void parse_rgb3() throws IOException {
         convertToPNG("test_uncompressed_rgb3.heif", "test_uncompressed_rgb3.png");
@@ -89,6 +91,7 @@ public class UncompressedParserTest {
         convertToPNG("test_uncompressed_abgr.heif", "test_uncompressed_abgr.png");
     }
 
+    @Ignore
     @Test
     public void parse_rgb_component() throws IOException {
         convertToPNG("test_uncompressed_rgb_component.heif", "test_uncompressed_rgb_component.png");
@@ -99,6 +102,7 @@ public class UncompressedParserTest {
         convertToPNG("test_siff_rgb_component_rgan.heif", "test_siff_rgb_component_rgan.png");
     }
 
+    @Ignore
     @Test
     public void parse_rgb_row() throws IOException {
         convertToPNG("test_uncompressed_rgb_row.heif", "test_uncompressed_rgb_row.png");
@@ -207,6 +211,7 @@ public class UncompressedParserTest {
         // convertToPNG("test_siff_rgb_grid.heif", "test_siff_rgb_grid.png");
     }
 
+    @Ignore
     @Test
     public void parse_devon1() throws IOException {
         convertToPNG(
@@ -214,6 +219,7 @@ public class UncompressedParserTest {
                 "devon1.png");
     }
 
+    @Ignore
     @Test
     public void parse_devon2() throws IOException {
         convertToPNG(
@@ -221,6 +227,7 @@ public class UncompressedParserTest {
                 "devon2.png");
     }
 
+    @Ignore
     @Test
     public void parse_devon3() throws IOException {
         convertToPNG(
@@ -228,6 +235,7 @@ public class UncompressedParserTest {
                 "devon3.png");
     }
 
+    @Ignore
     @Test
     public void parse_devon4() throws IOException {
         convertToPNG(

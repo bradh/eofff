@@ -31,8 +31,8 @@ public class UncompressedFrameConfigBoxParser extends ItemFullPropertyParser {
         box.setFlags(parseFlags(parseContext));
         FourCC profile = parseContext.readFourCC();
         box.setProfile(profile);
-        int component_count = parseContext.readUnsignedInt16();
-        for (int i = 0; i < component_count; i++) {
+        long component_count = parseContext.readUnsignedInt32();
+        for (long i = 0; i < component_count; i++) {
             int component_index = parseContext.readUnsignedInt16();
             int component_bit_depth_minus_one = parseContext.readUnsignedInt8();
             int component_format = parseContext.readUnsignedInt8();
@@ -54,7 +54,7 @@ public class UncompressedFrameConfigBoxParser extends ItemFullPropertyParser {
         box.setBlockLittleEndian((bitMask & 0x20) == 0x20);
         box.setBlockReversed((bitMask & 0x10) == 0x10);
         box.setPadUnknown((bitMask & 0x08) == 0x08);
-        box.setPixelSize(parseContext.readUnsignedInt8());
+        box.setPixelSize(parseContext.readUnsignedInt32());
         box.setRowAlignSize(parseContext.readUnsignedInt32());
         box.setTileAlignSize(parseContext.readUnsignedInt32());
         box.setNumTileColumnsMinusOne(parseContext.readUnsignedInt32());

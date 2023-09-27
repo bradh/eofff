@@ -30,6 +30,7 @@ import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropert
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyAssociation;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyContainerBox;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyAssociation;
+import net.frogmouth.rnd.eofff.imagefileformat.items.rgan.InlineMask;
 import net.frogmouth.rnd.eofff.imagefileformat.items.rgan.Rectangle;
 import net.frogmouth.rnd.eofff.imagefileformat.items.rgan.ReferencedMask;
 import net.frogmouth.rnd.eofff.imagefileformat.items.rgan.Region;
@@ -481,13 +482,7 @@ public class CreateSIFFTest extends UncompressedTestSupport {
         for (int i = 0; i < numBanks; i++) {
             totalSize += buffer.getData(i).length;
         }
-        byte[] imageMaskBytes =
-                new byte[(int) (MASK_HEIGHT * MASK_WIDTH * NUM_BYTES_PER_PIXEL_MASK)];
-        for (int row = 2 * IMAGE_HEIGHT / 3; row < IMAGE_HEIGHT; row++) {
-            for (int col = IMAGE_WIDTH / 4; col < 2 * IMAGE_WIDTH / 4; col++) {
-                imageMaskBytes[row * IMAGE_WIDTH + col] = (byte) 0xFF;
-            }
-        }
+        byte[] imageMaskBytes = getImageMaskBytes();
 
         totalSize += imageMaskBytes.length;
         byte[] data = new byte[totalSize];
@@ -499,6 +494,31 @@ public class CreateSIFFTest extends UncompressedTestSupport {
         System.arraycopy(imageMaskBytes, 0, data, destination, imageMaskBytes.length);
         mdat.setData(data);
         return mdat;
+    }
+
+    private byte[] getImageMaskBytes() {
+        byte[] imageMaskBytes =
+                new byte[(int) (MASK_HEIGHT * MASK_WIDTH * NUM_BYTES_PER_PIXEL_MASK)];
+        for (int row = 2 * IMAGE_HEIGHT / 3; row < IMAGE_HEIGHT; row++) {
+            for (int col = IMAGE_WIDTH / 4; col < 2 * IMAGE_WIDTH / 4; col++) {
+                imageMaskBytes[row * IMAGE_WIDTH + col] = (byte) 0xFF;
+            }
+        }
+        return imageMaskBytes;
+    }
+
+    private byte[] getInlineImageMaskBytes() {
+        // TODO: this probably won't work unless NUM_BYTES_PER_PIXEL_MASK == 1
+        byte[] maskData = new byte[IMAGE_WIDTH * IMAGE_HEIGHT / Byte.SIZE];
+        byte[] imageMask = getImageMaskBytes();
+        for (int i = 0; i < imageMask.length / Byte.SIZE; i++) {
+            int b = 0x00;
+            for (int j = 0; j < Byte.SIZE; j++) {
+                b = ((b << 1) + (imageMask[i * Byte.SIZE + j] > 0 ? 1 : 0));
+            }
+            maskData[i] = (byte) b;
+        }
+        return maskData;
     }
 
     private byte[] getRegionAnnotationBytes() throws IOException {
@@ -515,6 +535,9 @@ public class CreateSIFFTest extends UncompressedTestSupport {
         rgan.addRegion(pointRegion);
         Region referenceMaskRegion = new ReferencedMask(0, 0, 0, 0);
         rgan.addRegion(referenceMaskRegion);
+        byte[] maskData = getInlineImageMaskBytes();
+        Region inlineMaskRegion = new InlineMask(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT, maskData);
+        rgan.addRegion(inlineMaskRegion);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
         rgan.writeTo(streamWriter);

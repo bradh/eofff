@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.List;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertiesBox;
@@ -37,7 +39,10 @@ import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteBox;
+import net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampBox;
+import net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampPacket;
 import net.frogmouth.rnd.eofff.uncompressed.sbpm.SensorBadPixelsMapBox;
+import net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoBox;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
@@ -54,7 +59,7 @@ public class UncompressedTestSupport {
     protected static final int IMAGE_HEIGHT = 720;
 
     protected static final int LENGTH_OF_FREEBOX_HEADER = 8;
-    protected static final int MDAT_START = 2000;
+    protected static final int MDAT_START = 118000;
     protected static final int IMAGE_DATA_START = MDAT_START + 8; // assumes mdat header is 8 bytes.
     protected static final Color[] COLOURS =
             new Color[] {
@@ -98,6 +103,26 @@ public class UncompressedTestSupport {
         ispe.setImageHeight(IMAGE_HEIGHT);
         ispe.setImageWidth(IMAGE_WIDTH);
         return ispe;
+    }
+
+    protected TAIClockInfoBox makeTAIClockInfoBox() {
+        TAIClockInfoBox taic = new TAIClockInfoBox();
+        taic.setTimeUncertainty(200 * 1000 * 1000);
+        taic.setReferenceSourceType((byte) 0x01);
+        return taic;
+    }
+
+    protected TAITimeStampBox makeTAITimeStampBox(ZonedDateTime now) {
+        TAITimeStampBox itai = new TAITimeStampBox();
+        TAITimeStampPacket time_stamp_packet = new TAITimeStampPacket();
+        Instant instant = now.toInstant();
+        org.threeten.extra.scale.TaiInstant taiInstant =
+                org.threeten.extra.scale.TaiInstant.of(instant);
+        long nanos = taiInstant.getTaiSeconds() * 1000 * 1000 * 1000 + taiInstant.getNano();
+        time_stamp_packet.setTAITimeStamp(nanos);
+        time_stamp_packet.setStatusBits((byte) 0x02);
+        itai.setTimeStampPacket(time_stamp_packet);
+        return itai;
     }
 
     protected ItemLocationBox makeItemLocationBox_rgba_generic() {
@@ -886,6 +911,8 @@ public class UncompressedTestSupport {
         SensorBadPixelsMapBox sbpm = null;
         UserDescriptionProperty udes = null;
         MaskConfigurationProperty mskC = null;
+        TAIClockInfoBox taic = null;
+        TAITimeStampBox itai = null;
         for (AbstractItemProperty property : properties) {
             if (property instanceof ComponentDefinitionBox componentDefinitionBox) {
                 cmpd = componentDefinitionBox;
@@ -904,6 +931,10 @@ public class UncompressedTestSupport {
                 // TODO
             } else if (property instanceof MaskConfigurationProperty maskConfigurationProperty) {
                 mskC = maskConfigurationProperty;
+            } else if (property instanceof TAIClockInfoBox clockInfoBox) {
+                taic = clockInfoBox;
+            } else if (property instanceof TAITimeStampBox timeStampBox) {
+                itai = timeStampBox;
             } else {
                 fail("TODO: property: " + property.toString());
             }
