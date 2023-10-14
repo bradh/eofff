@@ -8,6 +8,10 @@ public class GroupsListBox extends AbstractContainerBox {
 
     public static final FourCC GRPL_ATOM = new FourCC("grpl");
 
+    public GroupsListBox() {
+        super(GRPL_ATOM);
+    }
+
     public GroupsListBox(FourCC name) {
         super(name);
     }

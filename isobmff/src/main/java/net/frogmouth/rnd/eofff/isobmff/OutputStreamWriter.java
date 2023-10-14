@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 public class OutputStreamWriter {
 
@@ -94,5 +95,12 @@ public class OutputStreamWriter {
 
     public void writeDouble32(float f) throws IOException {
         outputStream.write(floatToBytes(f));
+    }
+
+    public void writeUUID(UUID uuid) throws IOException {
+        ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
+        bb.putLong(uuid.getMostSignificantBits());
+        bb.putLong(uuid.getLeastSignificantBits());
+        this.write(bb.array());
     }
 }

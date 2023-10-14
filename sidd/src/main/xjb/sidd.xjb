@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bindings version="3.0" xmlns="https://jakarta.ee/xml/ns/jaxb" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <bindings schemaLocation="../xsd/SIDD_schema_V2.0.0_2020_06_02.xsd" version="1.0">
+        <schemaBindings>
+            <package name="net.frogmouth.rnd.eofff.sidd.v2.gen"/>
+        </schemaBindings>
+    </bindings>
+    <bindings schemaLocation="../xsd/SFA.xsd" version="1.0">
+        <schemaBindings>
+            <package name="net.frogmouth.rnd.eofff.sidd.sfa.gen"/>
+        </schemaBindings>
+    </bindings>
+    <!--
+    <bindings schemaLocation="../xsd/SICommonTypes.xsd" version="1.0">
+        <schemaBindings>
+            <package name="net.frogmouth.rnd.eofff.sidd.sicommon.v0_1.gen"/>
+        </schemaBindings>
+    </bindings>
+    -->
+    <bindings schemaLocation="../xsd/SICommonTypes_V1.0.xsd" version="1.0">
+        <schemaBindings>
+            <package name="net.frogmouth.rnd.eofff.sidd.sicommon.v1.gen"/>
+        </schemaBindings>
+    </bindings>
+    <bindings schemaLocation="../xsd/external/ISM-v13/Schema/ISM/IC-ISM.xsd" version="1.0">
+        <schemaBindings>
+            <package name="net.frogmouth.rnd.eofff.sidd.ism.v13.gen"/>
+        </schemaBindings>
+    </bindings>
+    <bindings schemaLocation="../xsd/external/ISM-v13/Schema/ISM/CVEGenerated/CVEnumISMClassificationAll.xsd" version="1.0">
+        <schemaBindings>
+            <package name="net.frogmouth.rnd.eofff.sidd.ism.v13.gen.classificationall"/>
+        </schemaBindings>
+    </bindings>
+    <bindings schemaLocation="../xsd/external/ISM-v13/Schema/ISM/CVEGenerated/CVEnumISMCompliesWith.xsd" version="1.0">
+        <schemaBindings>
+            <package name="net.frogmouth.rnd.eofff.sidd.ism.v13.gen.complieswith"/>
+        </schemaBindings>
+    </bindings>
+    <bindings schemaLocation="../xsd/external/ISM-v13/Schema/ISM/CVEGenerated/CVEnumISMDissem.xsd" version="1.0">
+        <schemaBindings>
+            <package name="net.frogmouth.rnd.eofff.sidd.ism.v13.gen.dissem"/>
+        </schemaBindings>
+    </bindings>
+    <bindings schemaLocation="../xsd/external/ISM-v13/Schema/ISM/CVEGenerated/CVEnumISMExemptFrom.xsd" version="1.0">
+        <schemaBindings>
+            <package name="net.frogmouth.rnd.eofff.sidd.ism.v13.gen.exemptfrom"/>
+        </schemaBindings>
+    </bindings>
+    <bindings schemaLocation="../xsd/external/ISM-v13/Schema/ISM/CVEGenerated/CVEnumISMNonUSControls.xsd" version="1.0">
+        <schemaBindings>
+            <package name="net.frogmouth.rnd.eofff.sidd.ism.v13.gen.nonuscontrols"/>
+        </schemaBindings>
+    </bindings>
+    <bindings schemaLocation="../xsd/external/ISM-v13/Schema/ISM/CVEGenerated/CVEnumISMNotice.xsd" version="1.0">
+        <schemaBindings>
+            <package name="net.frogmouth.rnd.eofff.sidd.ism.v13.gen.notice"/>
+        </schemaBindings>
+    </bindings>
+    <bindings schemaLocation="../xsd/external/ISM-v13/Schema/ISM/CVEGenerated/CVEnumISMPocType.xsd" version="1.0">
+        <schemaBindings>
+            <package name="net.frogmouth.rnd.eofff.sidd.ism.v13.gen.poctype"/>
+        </schemaBindings>
+    </bindings>
+</bindings>
+

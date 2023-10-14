@@ -124,7 +124,12 @@ public class ItemInfoEntry extends FullBox {
         }
         size += Byte.BYTES;
         if (this.getItemTypeAsText().equals("mime")) {
-            // TODO
+            size += contentType.getBytes(StandardCharsets.US_ASCII).length;
+            size += Byte.BYTES;
+            if (contentEncoding != null) {
+                size += contentEncoding.getBytes(StandardCharsets.US_ASCII).length;
+            }
+            size += Byte.BYTES;
         } else if (this.getItemTypeAsText().equals("uri ")) {
             size += itemUriType.getBytes(StandardCharsets.US_ASCII).length;
             size += Byte.BYTES;
@@ -151,7 +156,12 @@ public class ItemInfoEntry extends FullBox {
         }
         stream.writeByte(0); // Null terminator for string.
         if (this.getItemTypeAsText().equals("mime")) {
-            // TODO
+            stream.writeNullTerminatedString(contentType);
+            if (contentEncoding != null) {
+                stream.writeNullTerminatedString(contentEncoding);
+            } else {
+                stream.writeByte(0);
+            }
         } else if (this.getItemTypeAsText().equals("uri ")) {
             stream.write(itemUriType.getBytes(StandardCharsets.US_ASCII));
             stream.writeByte(0); // Null terminator for string.

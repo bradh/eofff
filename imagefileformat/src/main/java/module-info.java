@@ -39,4 +39,5 @@ module net.frogmouth.rnd.eofff.imagefileformat {
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.image;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.mski;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.udes;
+    exports net.frogmouth.rnd.eofff.imagefileformat.properties.uuid;
 }

@@ -17,6 +17,7 @@
         <module>yuv</module>
         <module>av1isobmff</module>
         <module>cicp</module>
+        <module>sidd</module>
     </modules>
     <properties>
         <googleformatter.maven.plugin.version>1.7.5</googleformatter.maven.plugin.version>

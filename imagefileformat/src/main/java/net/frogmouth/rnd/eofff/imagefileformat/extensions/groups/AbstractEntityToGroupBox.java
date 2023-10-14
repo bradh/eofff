@@ -1,9 +1,11 @@
 package net.frogmouth.rnd.eofff.imagefileformat.extensions.groups;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 // TODO: move to isobmff module
 public abstract class AbstractEntityToGroupBox extends FullBox {
@@ -49,5 +51,24 @@ public abstract class AbstractEntityToGroupBox extends FullBox {
         }
         sb.append("];");
         return sb.toString();
+    }
+
+    @Override
+    public void writeTo(OutputStreamWriter writer) throws IOException {
+        this.writeBoxHeader(writer);
+        writer.writeUnsignedInt32(this.groupId);
+        writer.writeUnsignedInt32(this.getEntities().size());
+        for (Long entityId : this.getEntities()) {
+            writer.writeUnsignedInt32(entityId);
+        }
+    }
+
+    @Override
+    public long getBodySize() {
+        int size = 0;
+        size += Integer.BYTES;
+        size += Integer.BYTES;
+        size += (this.getEntities().size() * Integer.BYTES);
+        return size;
     }
 }

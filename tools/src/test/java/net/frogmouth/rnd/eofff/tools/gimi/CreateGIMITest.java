@@ -2,6 +2,7 @@ package net.frogmouth.rnd.eofff.tools.gimi;
 
 import static org.testng.Assert.assertTrue;
 
+import jakarta.xml.bind.JAXBException;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -9,10 +10,17 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.UUID;
+import java.util.logging.Level;
+import net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.AlternativesBox;
+import net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.GroupsListBox;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AssociationEntry;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertiesBox;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyAssociation;
@@ -33,9 +41,14 @@ import net.frogmouth.rnd.eofff.isobmff.iloc.ILocItem;
 import net.frogmouth.rnd.eofff.isobmff.iloc.ItemLocationBox;
 import net.frogmouth.rnd.eofff.isobmff.infe.ItemInfoEntry;
 import net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceBox;
+import net.frogmouth.rnd.eofff.isobmff.iref.SingleItemReferenceBox;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
+import net.frogmouth.rnd.eofff.sidd.SIDDParser;
+import net.frogmouth.rnd.eofff.sidd.v2.gen.ImageCornersType;
+import net.frogmouth.rnd.eofff.sidd.v2.gen.ImageCornersType.ICP;
+import net.frogmouth.rnd.eofff.sidd.v2.gen.SIDD;
 import net.frogmouth.rnd.eofff.tools.ItemDataBoxBuilder;
 import net.frogmouth.rnd.eofff.tools.MediaDataBoxBuilder;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
@@ -48,6 +61,7 @@ import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
 import org.codice.imaging.nitf.core.common.NitfFormatException;
 import org.codice.imaging.nitf.core.common.NitfReader;
 import org.codice.imaging.nitf.core.common.impl.NitfInputStreamReader;
+import org.codice.imaging.nitf.core.dataextension.DataExtensionSegment;
 import org.codice.imaging.nitf.core.header.impl.NitfParser;
 import org.codice.imaging.nitf.core.image.ImageSegment;
 import org.codice.imaging.nitf.core.impl.SlottedParseStrategy;
@@ -68,6 +82,11 @@ import org.jmisb.mimd.st1903.MIMD_Version;
 import org.jmisb.mimd.st1903.Security;
 import org.jmisb.mimd.st1903.Security_Classification;
 import org.jmisb.mimd.st1903.Security_ClassifyingMethod;
+import org.jmisb.st0601.FullCornerLatitude;
+import org.jmisb.st0601.FullCornerLongitude;
+import org.jmisb.st0601.IUasDatalinkValue;
+import org.jmisb.st0601.UasDatalinkMessage;
+import org.jmisb.st0601.UasDatalinkTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -76,27 +95,79 @@ public class CreateGIMITest {
 
     private static final Logger LOG = LoggerFactory.getLogger(CreateGIMITest.class);
 
-    private static final long MAIN_ITEM_ID = 0x0076;
-    private static final long FILE_METADATA_ITEM_ID = 0x1902;
+    private static final long MAIN_ITEM_ID = 10;
+    private static final long CONTENT_ID_ITEM_ID = 12;
+    private static final long SECURITY_ITEM_ID = 20;
+    private static final long SECURITY_CONTENT_ID_ITEM_ID = 22;
+    private static final long FAKE_SECURITY_ITEM_ID = 24;
+    private static final long FAKE_SECURITY_CONTENT_ID_ITEM_ID = 26;
+    private static final long SECURITY_GROUP_ID = 29;
+
+    private static final long MIMD_METADATA_ITEM_ID = 30;
+    private static final long MIMD_METADATA_CONTENT_ID_ITEM_ID = 32;
     private static final String MIMD_URI = "urn:nsg:KLV:ul:060E2B34.02050101.0E010504.00000000";
+    private static final long ST0601_METADATA_ITEM_ID = 34;
+    private static final long ST0601_METADATA_CONTENT_ID_ITEM_ID = 36;
+    private static final String ST0601_URI = "urn:nsg:KLV:ul:060E2B34.020B0101.0E010301.01000000";
+
+    private static final UUID IMAGE_CONTENT_ID_UUID = UUID.randomUUID();
+    private static final String IMAGE_CONTENT_ID = "urn:uuid:" + IMAGE_CONTENT_ID_UUID.toString();
+
+    private static final UUID MIMD_METADATA_CONTENT_ID_UUID = UUID.randomUUID();
+    private static final String MIMD_METADATA_CONTENT_ID =
+            "urn:uuid:" + MIMD_METADATA_CONTENT_ID_UUID;
+
+    private static final UUID ST0601_METADATA_CONTENT_ID_UUID = UUID.randomUUID();
+    private static final String ST0601_METADATA_CONTENT_ID =
+            "urn:uuid:" + ST0601_METADATA_CONTENT_ID_UUID;
+
+    private final String CONTENT_ITEM_URI_TYPE = "urn:uuid:aac8ab7d-f519-5437-b7d3-c973d155e253";
+
+    private static final UUID SECURITY_CONTENT_ID_UUID = UUID.randomUUID();
+    private static final String SECURITY_CONTENT_ID = "urn:uuid:" + SECURITY_CONTENT_ID_UUID;
+    private final String ISM_SECURITY_MIME_TYPE = "application/dni-arh+xml";
+    private final String SECURITY_XML =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                    + "<arh:ExternalSecurity ism:ownerProducer=\"USA\" ism:classification=\"U\" ism:resourceElement=\"false\" "
+                    + "xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>";
+
+    private static final UUID FAKE_SECURITY_CONTENT_ID_UUID = UUID.randomUUID();
+    private static final String FAKE_SECURITY_CONTENT_ID =
+            "urn:uuid:" + FAKE_SECURITY_CONTENT_ID_UUID;
+    private final String FAKE_SECURITY_MIME_TYPE = "application/x-fake-security";
+    private final String FAKE_SECURITY_XML =
+            """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <FakeSecurity xmlns="http://www.opengis.net/CodeSprint2023Oct/Security">
+                <FakeLevel>SECRETIVE-ISH</FakeLevel>
+                <FakeCaveat>GOOD IMAGERY</FakeCaveat>
+                <FakeCaveat>CAPELLA</FakeCaveat>
+                <FakeRelTo>UK</FakeRelTo>
+                <FakeRelTo>AU</FakeRelTo>
+                <FakeDeclassOn>2023-10-29</FakeDeclassOn>
+            </FakeSecurity>""";
 
     protected static final int LENGTH_OF_FREEBOX_HEADER = 8;
-    private static final int MDAT_START = 1000;
+    private static final int MDAT_START = 2500;
     private static final int MDAT_START_DATA = MDAT_START + 2 * Integer.BYTES;
+    private SIDD sidd;
 
     private final SlottedParseStrategy parseStrategy;
 
-    public CreateGIMITest() throws FileNotFoundException, NitfFormatException {
+    public CreateGIMITest() throws FileNotFoundException, NitfFormatException, JAXBException {
         parseStrategy = new SlottedParseStrategy(SlottedParseStrategy.ALL_SEGMENT_DATA);
         InputStream instream =
                 new FileInputStream(
                         "/home/bradh/tempdata/CAPELLA_C02_SP_SIDD_HH_20210212074558_20210212074600.ntf");
         NitfReader reader = new NitfInputStreamReader(new BufferedInputStream(instream));
         NitfParser.parse(reader, parseStrategy);
+        String siddXml = getDESXML();
+        SIDDParser siddParser = new SIDDParser();
+        sidd = siddParser.parse(siddXml);
     }
 
     @Test
-    public void writeFile_from_SIDD() throws IOException {
+    public void writeFile_from_SIDD() throws IOException, JAXBException {
         List<Box> boxes = new ArrayList<>();
         FileTypeBox ftyp = createFileTypeBox();
         boxes.add(ftyp);
@@ -157,7 +228,7 @@ public class CreateGIMITest {
         return fileTypeBox;
     }
 
-    private MetaBox createMetaBox() throws IOException {
+    private MetaBox createMetaBox() throws IOException, JAXBException {
         MetaBox meta = new MetaBox();
         List<Box> boxes = new ArrayList<>();
         boxes.add(makeHandlerBox());
@@ -167,6 +238,7 @@ public class CreateGIMITest {
         boxes.add(makeItemDataBox());
         boxes.add(makeItemPropertiesBox());
         boxes.add(makeItemReferenceBox());
+        boxes.add(makeGroupsListBox());
         meta.addNestedBoxes(boxes);
         return meta;
     }
@@ -198,17 +270,97 @@ public class CreateGIMITest {
         {
             ItemInfoEntry infe2 = new ItemInfoEntry();
             infe2.setVersion(2);
-            infe2.setItemID(FILE_METADATA_ITEM_ID);
+            infe2.setItemID(CONTENT_ID_ITEM_ID);
             FourCC uri_fourcc = new FourCC("uri ");
             infe2.setItemType(uri_fourcc.asUnsigned());
-            infe2.setItemUriType(MIMD_URI);
-            infe2.setItemName("File metadata (MIMD)");
+            infe2.setItemUriType(CONTENT_ITEM_URI_TYPE);
+            infe2.setItemName("Main item ContentID");
             iinf.addItem(infe2);
+        }
+        {
+            ItemInfoEntry infe3 = new ItemInfoEntry();
+            infe3.setVersion(2);
+            infe3.setItemID(SECURITY_ITEM_ID);
+            FourCC mime_fourcc = new FourCC("mime");
+            infe3.setItemType(mime_fourcc.asUnsigned());
+            infe3.setContentType(ISM_SECURITY_MIME_TYPE);
+            infe3.setItemName("Security Marking (ISM.XML)");
+            iinf.addItem(infe3);
+        }
+        {
+            ItemInfoEntry infe4 = new ItemInfoEntry();
+            infe4.setVersion(2);
+            infe4.setItemID(SECURITY_CONTENT_ID_ITEM_ID);
+            FourCC uri_fourcc = new FourCC("uri ");
+            infe4.setItemType(uri_fourcc.asUnsigned());
+            infe4.setItemUriType(CONTENT_ITEM_URI_TYPE);
+            infe4.setItemName("Security item ContentID");
+            iinf.addItem(infe4);
+        }
+        {
+            ItemInfoEntry infe5 = new ItemInfoEntry();
+            infe5.setVersion(2);
+            infe5.setItemID(MIMD_METADATA_ITEM_ID);
+            FourCC uri_fourcc = new FourCC("uri ");
+            infe5.setItemType(uri_fourcc.asUnsigned());
+            infe5.setItemUriType(MIMD_URI);
+            infe5.setItemName("General Metadata (MIMD)");
+            iinf.addItem(infe5);
+        }
+        {
+            ItemInfoEntry infe6 = new ItemInfoEntry();
+            infe6.setVersion(2);
+            infe6.setItemID(MIMD_METADATA_CONTENT_ID_ITEM_ID);
+            FourCC uri_fourcc = new FourCC("uri ");
+            infe6.setItemType(uri_fourcc.asUnsigned());
+            infe6.setItemUriType(CONTENT_ITEM_URI_TYPE);
+            infe6.setItemName("General Metadata (MIMD) item ContentID");
+            iinf.addItem(infe6);
+        }
+        {
+            ItemInfoEntry infe7 = new ItemInfoEntry();
+            infe7.setVersion(2);
+            infe7.setItemID(ST0601_METADATA_ITEM_ID);
+            FourCC uri_fourcc = new FourCC("uri ");
+            infe7.setItemType(uri_fourcc.asUnsigned());
+            infe7.setItemUriType(ST0601_URI);
+            infe7.setItemName("General Metadata (ST 0601)");
+            iinf.addItem(infe7);
+        }
+        {
+            ItemInfoEntry infe8 = new ItemInfoEntry();
+            infe8.setVersion(2);
+            infe8.setItemID(ST0601_METADATA_CONTENT_ID_ITEM_ID);
+            FourCC uri_fourcc = new FourCC("uri ");
+            infe8.setItemType(uri_fourcc.asUnsigned());
+            infe8.setItemUriType(CONTENT_ITEM_URI_TYPE);
+            infe8.setItemName("General Metadata (ST 0601) item ContentID");
+            iinf.addItem(infe8);
+        }
+        {
+            ItemInfoEntry infe9 = new ItemInfoEntry();
+            infe9.setVersion(2);
+            infe9.setItemID(FAKE_SECURITY_ITEM_ID);
+            FourCC mime_fourcc = new FourCC("mime");
+            infe9.setItemType(mime_fourcc.asUnsigned());
+            infe9.setContentType(FAKE_SECURITY_MIME_TYPE);
+            infe9.setItemName("Security Marking (Fake XML)");
+            iinf.addItem(infe9);
+        }
+        {
+            ItemInfoEntry infe10 = new ItemInfoEntry();
+            infe10.setVersion(2);
+            infe10.setItemID(FAKE_SECURITY_CONTENT_ID_ITEM_ID);
+            FourCC uri_fourcc = new FourCC("uri ");
+            infe10.setItemType(uri_fourcc.asUnsigned());
+            infe10.setItemUriType(CONTENT_ITEM_URI_TYPE);
+            infe10.setItemName("Fake Security item ContentID");
+            iinf.addItem(infe10);
         }
         return iinf;
     }
 
-    private ItemLocationBox makeItemLocationBox() throws IOException {
+    private ItemLocationBox makeItemLocationBox() throws IOException, JAXBException {
         ItemLocationBox iloc = new ItemLocationBox();
         iloc.setOffsetSize(4);
         iloc.setLengthSize(4);
@@ -227,34 +379,140 @@ public class CreateGIMITest {
             mainItemLocation.addExtent(mainItemExtent);
             iloc.addItem(mainItemLocation);
         }
-        // TODO: more items
+        long offset = 0;
+        {
+            ILocItem contentIdLocation = new ILocItem();
+            contentIdLocation.setConstructionMethod(1);
+            contentIdLocation.setItemId(CONTENT_ID_ITEM_ID);
+            ILocExtent contentIdExtent = new ILocExtent();
+            contentIdExtent.setExtentIndex(0);
+            contentIdExtent.setExtentOffset(offset);
+            contentIdExtent.setExtentLength(getImageContentIdBytes(false).length);
+            offset += contentIdExtent.getExtentLength();
+            contentIdLocation.addExtent(contentIdExtent);
+            iloc.addItem(contentIdLocation);
+        }
+        {
+            ILocItem securityItemLocation = new ILocItem();
+            securityItemLocation.setConstructionMethod(1);
+            securityItemLocation.setItemId(SECURITY_ITEM_ID);
+            ILocExtent securityExtent = new ILocExtent();
+            securityExtent.setExtentIndex(0);
+            securityExtent.setExtentOffset(offset);
+            securityExtent.setExtentLength(getSecurityXMLBytes(false).length);
+            offset += securityExtent.getExtentLength();
+            securityItemLocation.addExtent(securityExtent);
+            iloc.addItem(securityItemLocation);
+        }
+        {
+            ILocItem securityContentIdLocation = new ILocItem();
+            securityContentIdLocation.setConstructionMethod(1);
+            securityContentIdLocation.setItemId(SECURITY_CONTENT_ID_ITEM_ID);
+            ILocExtent contentIdExtent = new ILocExtent();
+            contentIdExtent.setExtentIndex(0);
+            contentIdExtent.setExtentOffset(offset);
+            contentIdExtent.setExtentLength(getSecurityContentIdBytes(false).length);
+            offset += contentIdExtent.getExtentLength();
+            securityContentIdLocation.addExtent(contentIdExtent);
+            iloc.addItem(securityContentIdLocation);
+        }
+        {
+            ILocItem fakeSecurityItemLocation = new ILocItem();
+            fakeSecurityItemLocation.setConstructionMethod(1);
+            fakeSecurityItemLocation.setItemId(FAKE_SECURITY_ITEM_ID);
+            ILocExtent securityExtent = new ILocExtent();
+            securityExtent.setExtentIndex(0);
+            securityExtent.setExtentOffset(offset);
+            securityExtent.setExtentLength(getFakeSecurityXMLBytes(false).length);
+            offset += securityExtent.getExtentLength();
+            fakeSecurityItemLocation.addExtent(securityExtent);
+            iloc.addItem(fakeSecurityItemLocation);
+        }
+        {
+            ILocItem fakeSecurityContentIdLocation = new ILocItem();
+            fakeSecurityContentIdLocation.setConstructionMethod(1);
+            fakeSecurityContentIdLocation.setItemId(FAKE_SECURITY_CONTENT_ID_ITEM_ID);
+            ILocExtent contentIdExtent = new ILocExtent();
+            contentIdExtent.setExtentIndex(0);
+            contentIdExtent.setExtentOffset(offset);
+            contentIdExtent.setExtentLength(getFakeSecurityContentIdBytes(false).length);
+            offset += contentIdExtent.getExtentLength();
+            fakeSecurityContentIdLocation.addExtent(contentIdExtent);
+            iloc.addItem(fakeSecurityContentIdLocation);
+        }
         {
             ILocItem mimdItemLocation = new ILocItem();
             mimdItemLocation.setConstructionMethod(1);
-            mimdItemLocation.setItemId(FILE_METADATA_ITEM_ID);
+            mimdItemLocation.setItemId(MIMD_METADATA_ITEM_ID);
             ILocExtent mimdExtent = new ILocExtent();
             mimdExtent.setExtentIndex(0);
-            mimdExtent.setExtentOffset(0);
-            mimdExtent.setExtentLength(getFileMetadataBytes(false).length);
+            mimdExtent.setExtentOffset(offset);
+            mimdExtent.setExtentLength(getMIMDMetadataBytes(false).length);
+            offset += mimdExtent.getExtentLength();
             mimdItemLocation.addExtent(mimdExtent);
             iloc.addItem(mimdItemLocation);
+        }
+        {
+            ILocItem metadataContentIdLocation = new ILocItem();
+            metadataContentIdLocation.setConstructionMethod(1);
+            metadataContentIdLocation.setItemId(MIMD_METADATA_CONTENT_ID_ITEM_ID);
+            ILocExtent contentIdExtent = new ILocExtent();
+            contentIdExtent.setExtentIndex(0);
+            contentIdExtent.setExtentOffset(offset);
+            contentIdExtent.setExtentLength(getMIMDMetadataContentIdBytes(false).length);
+            offset += contentIdExtent.getExtentLength();
+            metadataContentIdLocation.addExtent(contentIdExtent);
+            iloc.addItem(metadataContentIdLocation);
+        }
+        {
+            ILocItem st0601ItemLocation = new ILocItem();
+            st0601ItemLocation.setConstructionMethod(1);
+            st0601ItemLocation.setItemId(ST0601_METADATA_ITEM_ID);
+            ILocExtent st0601extent = new ILocExtent();
+            st0601extent.setExtentIndex(0);
+            st0601extent.setExtentOffset(offset);
+            st0601extent.setExtentLength(getST0601MetadataBytes(false).length);
+            offset += st0601extent.getExtentLength();
+            st0601ItemLocation.addExtent(st0601extent);
+            iloc.addItem(st0601ItemLocation);
+        }
+        {
+            ILocItem metadataContentIdLocation = new ILocItem();
+            metadataContentIdLocation.setConstructionMethod(1);
+            metadataContentIdLocation.setItemId(ST0601_METADATA_CONTENT_ID_ITEM_ID);
+            ILocExtent contentIdExtent = new ILocExtent();
+            contentIdExtent.setExtentIndex(0);
+            contentIdExtent.setExtentOffset(offset);
+            contentIdExtent.setExtentLength(getST0601MetadataContentIdBytes(false).length);
+            offset += contentIdExtent.getExtentLength();
+            metadataContentIdLocation.addExtent(contentIdExtent);
+            iloc.addItem(metadataContentIdLocation);
         }
         return iloc;
     }
 
-    private ItemDataBox makeItemDataBox() throws IOException {
+    private ItemDataBox makeItemDataBox() throws IOException, JAXBException {
         ItemDataBoxBuilder itemDataBoxBuilder = new ItemDataBoxBuilder();
-        itemDataBoxBuilder.addData(this.getFileMetadataBytes(true));
+        itemDataBoxBuilder.addData(this.getImageContentIdBytes(false));
+        itemDataBoxBuilder.addData(this.getSecurityXMLBytes(false));
+        itemDataBoxBuilder.addData(this.getSecurityContentIdBytes(false));
+        itemDataBoxBuilder.addData(this.getFakeSecurityXMLBytes(false));
+        itemDataBoxBuilder.addData(this.getFakeSecurityContentIdBytes(false));
+        itemDataBoxBuilder.addData(this.getMIMDMetadataBytes(false));
+        itemDataBoxBuilder.addData(this.getMIMDMetadataContentIdBytes(false));
+        itemDataBoxBuilder.addData(this.getST0601MetadataBytes(false));
+        itemDataBoxBuilder.addData(this.getST0601MetadataContentIdBytes(false));
         // TODO: what else?
         return itemDataBoxBuilder.build();
     }
 
     private Box makeItemPropertiesBox() {
         ItemPropertiesBox iprp = new ItemPropertiesBox();
+        ImageSegment is = parseStrategy.getDataSource().getImageSegments().get(0);
         ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
         ipco.addProperty(makeComponentDefinitionBox());
         ipco.addProperty(makeUncompressedFrameConfigBox());
-        ipco.addProperty(makeImageSpatialExtentsProperty());
+        ipco.addProperty(makeImageSpatialExtentsProperty(is));
         iprp.setItemProperties(ipco);
         {
             ItemPropertyAssociation assoc = new ItemPropertyAssociation();
@@ -286,25 +544,63 @@ public class CreateGIMITest {
         return iprp;
     }
 
-    private ImageSpatialExtentsProperty makeImageSpatialExtentsProperty() {
+    private ImageSpatialExtentsProperty makeImageSpatialExtentsProperty(ImageSegment is) {
         ImageSpatialExtentsProperty ispe = new ImageSpatialExtentsProperty();
-        // TODO: parse from NITF image segment
-        ispe.setImageHeight(7885);
-        ispe.setImageWidth(8003);
+        ispe.setImageHeight(is.getNumberOfRows());
+        ispe.setImageWidth(is.getNumberOfColumns());
         return ispe;
     }
 
     private Box makeItemReferenceBox() {
         ItemReferenceBox iref = new ItemReferenceBox();
-        // TODO more needed
-        /*
         {
-            SingleItemReferenceBox timestamp_cdsc = new SingleItemReferenceBox(new FourCC("cdsc"));
-            timestamp_cdsc.setFromItemId(PRIMARY_TIMESTAMP_ITEM_ID);
-            timestamp_cdsc.addReference(MAIN_ITEM_ID);
-            iref.addItem(timestamp_cdsc);
+            SingleItemReferenceBox content_id_cdsc = new SingleItemReferenceBox(new FourCC("cdsc"));
+            content_id_cdsc.setFromItemId(CONTENT_ID_ITEM_ID);
+            content_id_cdsc.addReference(MAIN_ITEM_ID);
+            iref.addItem(content_id_cdsc);
         }
-         */
+        {
+            SingleItemReferenceBox security_content_id_cdsc =
+                    new SingleItemReferenceBox(new FourCC("cdsc"));
+            security_content_id_cdsc.setFromItemId(SECURITY_CONTENT_ID_ITEM_ID);
+            security_content_id_cdsc.addReference(SECURITY_ITEM_ID);
+            iref.addItem(security_content_id_cdsc);
+        }
+        {
+            SingleItemReferenceBox fake_security_content_id_cdsc =
+                    new SingleItemReferenceBox(new FourCC("cdsc"));
+            fake_security_content_id_cdsc.setFromItemId(FAKE_SECURITY_CONTENT_ID_ITEM_ID);
+            fake_security_content_id_cdsc.addReference(FAKE_SECURITY_ITEM_ID);
+            iref.addItem(fake_security_content_id_cdsc);
+        }
+        {
+            SingleItemReferenceBox mimd_metadata_content_id_cdsc =
+                    new SingleItemReferenceBox(new FourCC("cdsc"));
+            mimd_metadata_content_id_cdsc.setFromItemId(MIMD_METADATA_CONTENT_ID_ITEM_ID);
+            mimd_metadata_content_id_cdsc.addReference(MIMD_METADATA_ITEM_ID);
+            iref.addItem(mimd_metadata_content_id_cdsc);
+        }
+        {
+            SingleItemReferenceBox st0601_metadata_content_id_cdsc =
+                    new SingleItemReferenceBox(new FourCC("cdsc"));
+            st0601_metadata_content_id_cdsc.setFromItemId(ST0601_METADATA_CONTENT_ID_ITEM_ID);
+            st0601_metadata_content_id_cdsc.addReference(ST0601_METADATA_ITEM_ID);
+            iref.addItem(st0601_metadata_content_id_cdsc);
+        }
+        {
+            SingleItemReferenceBox st0601_metadata_cdsc =
+                    new SingleItemReferenceBox(new FourCC("cdsc"));
+            st0601_metadata_cdsc.setFromItemId(ST0601_METADATA_ITEM_ID);
+            st0601_metadata_cdsc.addReference(MAIN_ITEM_ID);
+            iref.addItem(st0601_metadata_cdsc);
+        }
+        {
+            SingleItemReferenceBox mimd_metadata_cdsc =
+                    new SingleItemReferenceBox(new FourCC("cdsc"));
+            mimd_metadata_cdsc.setFromItemId(MIMD_METADATA_ITEM_ID);
+            mimd_metadata_cdsc.addReference(MAIN_ITEM_ID);
+            iref.addItem(mimd_metadata_cdsc);
+        }
         return iref;
     }
 
@@ -346,8 +642,42 @@ public class CreateGIMITest {
         return mdatBuilder.build();
     }
 
-    private byte[] getFileMetadataBytes(boolean dump) throws IOException {
-        // TODO: build from NITF
+    private byte[] getImageContentIdBytes(boolean dump) {
+        byte[] contentIdBytes = IMAGE_CONTENT_ID.getBytes(StandardCharsets.UTF_8);
+        return contentIdBytes;
+    }
+
+    private byte[] getSecurityXMLBytes(boolean dump) {
+        byte[] securityXMLBytes = SECURITY_XML.getBytes(StandardCharsets.UTF_8);
+        return securityXMLBytes;
+    }
+
+    private byte[] getFakeSecurityXMLBytes(boolean dump) {
+        byte[] securityXMLBytes = FAKE_SECURITY_XML.getBytes(StandardCharsets.UTF_8);
+        return securityXMLBytes;
+    }
+
+    private byte[] getSecurityContentIdBytes(boolean dump) {
+        byte[] contentIdBytes = SECURITY_CONTENT_ID.getBytes(StandardCharsets.UTF_8);
+        return contentIdBytes;
+    }
+
+    private byte[] getFakeSecurityContentIdBytes(boolean dump) {
+        byte[] contentIdBytes = FAKE_SECURITY_CONTENT_ID.getBytes(StandardCharsets.UTF_8);
+        return contentIdBytes;
+    }
+
+    private byte[] getMIMDMetadataContentIdBytes(boolean dump) {
+        byte[] contentIdBytes = MIMD_METADATA_CONTENT_ID.getBytes(StandardCharsets.UTF_8);
+        return contentIdBytes;
+    }
+
+    private byte[] getST0601MetadataContentIdBytes(boolean dump) {
+        byte[] contentIdBytes = ST0601_METADATA_CONTENT_ID.getBytes(StandardCharsets.UTF_8);
+        return contentIdBytes;
+    }
+
+    private byte[] getMIMDMetadataBytes(boolean dump) throws IOException {
         try {
             MIMD mimd = new MIMD();
             mimd.setVersion(new MIMD_Version(1));
@@ -375,6 +705,24 @@ public class CreateGIMITest {
         } catch (KlvParseException ex) {
             throw new IOException(ex.toString());
         }
+    }
+
+    private String getDESXML() {
+        DataExtensionSegment des = parseStrategy.getDataSource().getDataExtensionSegments().get(0);
+        byte[] desData = new byte[(int) des.getDataLength()];
+        final StringBuilder xml = new StringBuilder();
+        des.consume(
+                (x) -> {
+                    try {
+                        x.readFully(desData);
+                        String s = new String(desData, StandardCharsets.UTF_8);
+                        xml.append(s);
+                    } catch (IOException ex) {
+                        java.util.logging.Logger.getLogger(CreateGIMITest.class.getName())
+                                .log(Level.SEVERE, null, ex);
+                    }
+                });
+        return xml.toString();
     }
 
     private static final int SECURITY_ID_GROUP = 1;
@@ -432,5 +780,81 @@ public class CreateGIMITest {
             System.out.print("\t");
         }
         System.out.println(value.getDisplayName() + ": " + value.getDisplayableValue());
+    }
+
+    private byte[] getST0601MetadataBytes(boolean dump) throws IOException, JAXBException {
+        SortedMap<UasDatalinkTag, IUasDatalinkValue> map = new TreeMap<>();
+        map.put(UasDatalinkTag.UasLdsVersionNumber, new org.jmisb.st0601.ST0601Version((short) 19));
+        ImageCornersType imageCornersType = sidd.getGeoData().getImageCorners();
+        for (ICP corner : imageCornersType.getICP()) {
+            if (corner.getIndex().contains("FRFC")) {
+                map.put(
+                        UasDatalinkTag.CornerLatPt1,
+                        new FullCornerLatitude(corner.getLat(), FullCornerLatitude.CORNER_LAT_1));
+                map.put(
+                        UasDatalinkTag.CornerLonPt1,
+                        new FullCornerLongitude(corner.getLon(), FullCornerLongitude.CORNER_LON_1));
+            }
+            if (corner.getIndex().contains("FRLC")) {
+                map.put(
+                        UasDatalinkTag.CornerLatPt2,
+                        new FullCornerLatitude(corner.getLat(), FullCornerLatitude.CORNER_LAT_2));
+                map.put(
+                        UasDatalinkTag.CornerLonPt2,
+                        new FullCornerLongitude(corner.getLon(), FullCornerLongitude.CORNER_LON_2));
+            }
+            if (corner.getIndex().contains("LRLC")) {
+                map.put(
+                        UasDatalinkTag.CornerLatPt3,
+                        new FullCornerLatitude(corner.getLat(), FullCornerLatitude.CORNER_LAT_3));
+                map.put(
+                        UasDatalinkTag.CornerLonPt3,
+                        new FullCornerLongitude(corner.getLon(), FullCornerLongitude.CORNER_LON_3));
+            }
+            if (corner.getIndex().contains("LRFC")) {
+                map.put(
+                        UasDatalinkTag.CornerLatPt4,
+                        new FullCornerLatitude(corner.getLat(), FullCornerLatitude.CORNER_LAT_4));
+                map.put(
+                        UasDatalinkTag.CornerLonPt4,
+                        new FullCornerLongitude(corner.getLon(), FullCornerLongitude.CORNER_LON_4));
+            }
+        }
+        // TODO: timestamp
+        // TODO: mission id
+        // TODO: sensor lat / lon
+        // TODO: sensor elevation - probably out of range.
+
+        var st0601 = new UasDatalinkMessage(map);
+        if (dump) {
+            dumpMisbMessage(st0601);
+        }
+        byte[] st0601bytes = st0601.frameMessage(false);
+        BerField ber = BerDecoder.decode(st0601bytes, UniversalLabel.LENGTH, false);
+        int lengthOfLength = ber.getLength();
+        byte[] st0601ValueBytes = new byte[ber.getValue()];
+        System.arraycopy(
+                st0601bytes,
+                UniversalLabel.LENGTH + lengthOfLength,
+                st0601ValueBytes,
+                0,
+                st0601ValueBytes.length);
+        return st0601ValueBytes;
+    }
+
+    private GroupsListBox makeGroupsListBox() {
+        GroupsListBox grpl = new GroupsListBox();
+        List<Box> entityGroups = new ArrayList<>();
+        entityGroups.add(makeSecurityAlternativesGroup());
+        grpl.addNestedBoxes(entityGroups);
+        return grpl;
+    }
+
+    private AlternativesBox makeSecurityAlternativesGroup() {
+        AlternativesBox altr = new AlternativesBox();
+        altr.setGroupId(SECURITY_GROUP_ID);
+        altr.addEntity(SECURITY_ITEM_ID);
+        altr.addEntity(FAKE_SECURITY_ITEM_ID);
+        return altr;
     }
 }
