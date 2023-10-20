@@ -8,13 +8,16 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.UUID;
-import mil.nga.tiff.FieldTagType;
 import mil.nga.tiff.FileDirectory;
-import mil.nga.tiff.FileDirectoryEntry;
+import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AssociationEntry;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertiesBox;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyAssociation;
@@ -22,6 +25,7 @@ import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropert
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyAssociation;
 import net.frogmouth.rnd.eofff.imagefileformat.items.grid.GridItem;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageSpatialExtentsProperty;
+import net.frogmouth.rnd.eofff.imagefileformat.properties.udes.UserDescriptionProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.uuid.UUIDProperty;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
@@ -50,6 +54,16 @@ import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
+import org.jmisb.api.klv.BerDecoder;
+import org.jmisb.api.klv.BerField;
+import org.jmisb.api.klv.UniversalLabel;
+import org.jmisb.st0601.FullCornerLatitude;
+import org.jmisb.st0601.FullCornerLongitude;
+import org.jmisb.st0601.IUasDatalinkValue;
+import org.jmisb.st0601.PrecisionTimeStamp;
+import org.jmisb.st0601.UasDatalinkMessage;
+import org.jmisb.st0601.UasDatalinkString;
+import org.jmisb.st0601.UasDatalinkTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -70,7 +84,7 @@ public class CreateGIMIGridTest extends GIMIValidator {
     private static final int NUM_TILE_COLUMNS = 20;
     private final int imageHeight;
     private final int imageWidth;
-    private static final int MDAT_START_GRID = 37000;
+    private static final int MDAT_START_GRID = 27000;
     private static final int MDAT_START_GRID_DATA = MDAT_START_GRID + 2 * Integer.BYTES;
     private final int tileSizeBytes;
 
@@ -93,22 +107,32 @@ public class CreateGIMIGridTest extends GIMIValidator {
                 <FakeDeclassOn>2024-10-01</FakeDeclassOn>
             </FakeSecurity>""";
 
+    private static final long ST0601_METADATA_ITEM_ID = 1300;
+    private static final String ST0601_URI = "urn:smpte:ul:060E2B34.020B0101.0E010301.01000000";
+    private static final UUID ST0601_METADATA_CONTENT_ID_UUID = UUID.randomUUID();
+    private static final String ST0601_METADATA_CONTENT_ID =
+            "urn:uuid:" + ST0601_METADATA_CONTENT_ID_UUID;
+
     private final FileDirectory directory;
+    private final GeoTransform transform;
     private static final UUID CONTENT_ID_UUID =
             UUID.fromString("aac8ab7d-f519-5437-b7d3-c973d155e253");
 
+    private final String path;
+
     public CreateGIMIGridTest() throws IOException {
-        mil.nga.tiff.TIFFImage tiffImage =
-                mil.nga.tiff.TiffReader.readTiff(
-                        new File("/home/bradh/gdal_hacks/ACT2017-epsg4326-trimmed.tif"));
+        path = "/home/bradh/gdal_hacks/ACT2017-epsg4326-trimmed.tif";
+        mil.nga.tiff.TIFFImage tiffImage = mil.nga.tiff.TiffReader.readTiff(new File(path));
         List<mil.nga.tiff.FileDirectory> directories = tiffImage.getFileDirectories();
         directory = directories.get(0);
-        Map<FieldTagType, FileDirectoryEntry> mapping = directory.getFieldTagTypeMapping();
         tileWidth = (int) directory.getTileWidth();
         tileHeight = (int) directory.getTileHeight();
         imageHeight = (int) directory.getImageHeight();
         imageWidth = (int) directory.getImageWidth();
         tileSizeBytes = tileWidth * tileHeight * NUM_BYTES_PER_PIXEL_RGB;
+        List<Double> pixelScale = directory.getModelPixelScale();
+        List<Double> modelTiePoint = directory.getModelTiepoint();
+        transform = new GeoTransform(modelTiePoint, pixelScale);
     }
 
     @Test
@@ -150,7 +174,7 @@ public class CreateGIMIGridTest extends GIMIValidator {
         fileTypeBox.setMinorVersion(0);
         fileTypeBox.addCompatibleBrand(new Brand("mif1"));
         fileTypeBox.addCompatibleBrand(new Brand("mif2"));
-        fileTypeBox.addCompatibleBrand(new Brand("ns01"));
+        fileTypeBox.addCompatibleBrand(new Brand("geo1"));
         fileTypeBox.addCompatibleBrand(new Brand("unif"));
         return fileTypeBox;
     }
@@ -224,6 +248,16 @@ public class CreateGIMIGridTest extends GIMIValidator {
             infe2.setItemName("Security Marking (Fake XML)");
             iinf.addItem(infe2);
         }
+        {
+            ItemInfoEntry infe3 = new ItemInfoEntry();
+            infe3.setVersion(2);
+            infe3.setItemID(ST0601_METADATA_ITEM_ID);
+            FourCC mime_fourcc = new FourCC("uri ");
+            infe3.setItemType(mime_fourcc.asUnsigned());
+            infe3.setItemUriType(ST0601_URI);
+            infe3.setItemName("General Metadata (ST 0601)");
+            iinf.addItem(infe3);
+        }
         return iinf;
     }
 
@@ -262,6 +296,7 @@ public class CreateGIMIGridTest extends GIMIValidator {
             alternateItemLocation.addExtent(alternateItemExtent);
             iloc.addItem(alternateItemLocation);
         }
+        int offset = 0;
         {
             ILocItem gridItemLocation = new ILocItem();
             gridItemLocation.setConstructionMethod(1);
@@ -270,6 +305,7 @@ public class CreateGIMIGridTest extends GIMIValidator {
             gridItemExtent.setExtentIndex(0);
             gridItemExtent.setExtentOffset(0);
             gridItemExtent.setExtentLength(this.getGridItemAsBytes(false).length);
+            offset += gridItemExtent.getExtentLength();
             gridItemLocation.addExtent(gridItemExtent);
             iloc.addItem(gridItemLocation);
         }
@@ -277,13 +313,27 @@ public class CreateGIMIGridTest extends GIMIValidator {
             ILocItem fakeSecurityItemLocation = new ILocItem();
             fakeSecurityItemLocation.setConstructionMethod(1);
             fakeSecurityItemLocation.setItemId(FAKE_SECURITY_ITEM_ID);
-            fakeSecurityItemLocation.setBaseOffset(this.getGridItemAsBytes(false).length);
+            fakeSecurityItemLocation.setBaseOffset(offset);
             ILocExtent securityExtent = new ILocExtent();
             securityExtent.setExtentIndex(0);
             securityExtent.setExtentOffset(0);
             securityExtent.setExtentLength(getFakeSecurityXMLBytes(false).length);
+            offset += securityExtent.getExtentLength();
             fakeSecurityItemLocation.addExtent(securityExtent);
             iloc.addItem(fakeSecurityItemLocation);
+        }
+        {
+            ILocItem st0601MetadataItemLocation = new ILocItem();
+            st0601MetadataItemLocation.setConstructionMethod(1);
+            st0601MetadataItemLocation.setItemId(ST0601_METADATA_ITEM_ID);
+            st0601MetadataItemLocation.setBaseOffset(offset);
+            ILocExtent metadataExtent = new ILocExtent();
+            metadataExtent.setExtentIndex(0);
+            metadataExtent.setExtentOffset(0);
+            metadataExtent.setExtentLength(getST0601MetadataBytes(false).length);
+            offset += metadataExtent.getExtentLength();
+            st0601MetadataItemLocation.addExtent(metadataExtent);
+            iloc.addItem(st0601MetadataItemLocation);
         }
         return iloc;
     }
@@ -297,6 +347,7 @@ public class CreateGIMIGridTest extends GIMIValidator {
         ItemDataBoxBuilder itemDataBoxBuilder = new ItemDataBoxBuilder();
         itemDataBoxBuilder.addData(this.getGridItemAsBytes(true));
         itemDataBoxBuilder.addData(this.getFakeSecurityXMLBytes(true));
+        itemDataBoxBuilder.addData(this.getST0601MetadataBytes(true));
         return itemDataBoxBuilder.build();
     }
 
@@ -310,6 +361,8 @@ public class CreateGIMIGridTest extends GIMIValidator {
         ipco.addProperty(makeUncompressedFrameConfigBox_tiled_item()); // 5
         ipco.addProperty(makeContentIdPropertyGridItem()); // 6
         ipco.addProperty(makeContentIdPropertyFakeSecurity()); // 7
+        ipco.addProperty(makeContentIdST0601Metadata()); // 8
+        ipco.addProperty(makeUserDescription_copyright()); // 9
         iprp.setItemProperties(ipco);
 
         {
@@ -359,6 +412,13 @@ public class CreateGIMIGridTest extends GIMIValidator {
                 associationToContentId.setEssential(false);
                 entry.addAssociation(associationToContentId);
             }
+            {
+                PropertyAssociation associationToCopyrightUserDescription =
+                        new PropertyAssociation();
+                associationToCopyrightUserDescription.setPropertyIndex(9);
+                associationToCopyrightUserDescription.setEssential(false);
+                entry.addAssociation(associationToCopyrightUserDescription);
+            }
             assoc.addEntry(entry);
             iprp.addItemPropertyAssociation(assoc);
         }
@@ -392,6 +452,13 @@ public class CreateGIMIGridTest extends GIMIValidator {
                 associationToContentId.setEssential(false);
                 entry.addAssociation(associationToContentId);
             }
+            {
+                PropertyAssociation associationToCopyrightUserDescription =
+                        new PropertyAssociation();
+                associationToCopyrightUserDescription.setPropertyIndex(9);
+                associationToCopyrightUserDescription.setEssential(false);
+                entry.addAssociation(associationToCopyrightUserDescription);
+            }
             assoc.addEntry(entry);
             iprp.addItemPropertyAssociation(assoc);
         }
@@ -409,8 +476,30 @@ public class CreateGIMIGridTest extends GIMIValidator {
             assoc.addEntry(entry);
             iprp.addItemPropertyAssociation(assoc);
         }
-
+        {
+            ItemPropertyAssociation assoc = new ItemPropertyAssociation();
+            AssociationEntry entry = new AssociationEntry();
+            entry.setItemId(ST0601_METADATA_ITEM_ID);
+            {
+                PropertyAssociation associationToContentId = new PropertyAssociation();
+                associationToContentId.setPropertyIndex(8);
+                associationToContentId.setEssential(false);
+                entry.addAssociation(associationToContentId);
+            }
+            assoc.addEntry(entry);
+            iprp.addItemPropertyAssociation(assoc);
+        }
         return iprp;
+    }
+
+    private AbstractItemProperty makeUserDescription_copyright() {
+        UserDescriptionProperty udes = new UserDescriptionProperty();
+        udes.setLang("en-AU");
+        udes.setDescriptiveName("Copyright Statement");
+        udes.setDescription(
+                "CCBY \"Jacobs Group (Australia) Pty Ltd and Australian Capital Territory\"");
+        udes.setTags("copyright");
+        return udes;
     }
 
     private ImageSpatialExtentsProperty makeImageSpatialExtentsProperty_grid_tile() {
@@ -450,6 +539,18 @@ public class CreateGIMIGridTest extends GIMIValidator {
         {
             SingleItemReferenceBox cdsc = new SingleItemReferenceBox(new FourCC("cdsc"));
             cdsc.setFromItemId(FAKE_SECURITY_ITEM_ID);
+            cdsc.addReference(ALTERNATE_ITEM_ID);
+            iref.addItem(cdsc);
+        }
+        {
+            SingleItemReferenceBox cdsc = new SingleItemReferenceBox(new FourCC("cdsc"));
+            cdsc.setFromItemId(ST0601_METADATA_ITEM_ID);
+            cdsc.addReference(MAIN_ITEM_ID);
+            iref.addItem(cdsc);
+        }
+        {
+            SingleItemReferenceBox cdsc = new SingleItemReferenceBox(new FourCC("cdsc"));
+            cdsc.setFromItemId(ST0601_METADATA_ITEM_ID);
             cdsc.addReference(ALTERNATE_ITEM_ID);
             iref.addItem(cdsc);
         }
@@ -566,5 +667,74 @@ public class CreateGIMIGridTest extends GIMIValidator {
         contentIdProperty.setPayload(FAKE_SECURITY_CONTENT_ID.getBytes(StandardCharsets.UTF_8));
         System.out.println(contentIdProperty.toString());
         return contentIdProperty;
+    }
+
+    private UUIDProperty makeContentIdST0601Metadata() {
+        UUIDProperty contentIdProperty = new UUIDProperty();
+        contentIdProperty.setExtendedType(CONTENT_ID_UUID);
+        contentIdProperty.setPayload(ST0601_METADATA_CONTENT_ID.getBytes(StandardCharsets.UTF_8));
+        System.out.println(contentIdProperty.toString());
+        return contentIdProperty;
+    }
+
+    private byte[] getST0601MetadataBytes(boolean dump) {
+        SortedMap<UasDatalinkTag, IUasDatalinkValue> map = new TreeMap<>();
+        map.put(UasDatalinkTag.UasLdsVersionNumber, new org.jmisb.st0601.ST0601Version((short) 19));
+        map.put(
+                UasDatalinkTag.CornerLatPt1,
+                new FullCornerLatitude(
+                        transform.getLatitude(0, 0), FullCornerLatitude.CORNER_LAT_1));
+        map.put(
+                UasDatalinkTag.CornerLonPt1,
+                new FullCornerLongitude(
+                        transform.getLongitude(0, 0), FullCornerLongitude.CORNER_LON_1));
+        map.put(
+                UasDatalinkTag.CornerLatPt2,
+                new FullCornerLatitude(
+                        transform.getLatitude(imageWidth, 0), FullCornerLatitude.CORNER_LAT_2));
+        map.put(
+                UasDatalinkTag.CornerLonPt2,
+                new FullCornerLongitude(
+                        transform.getLongitude(imageWidth, 0), FullCornerLongitude.CORNER_LON_2));
+        map.put(
+                UasDatalinkTag.CornerLatPt3,
+                new FullCornerLatitude(
+                        transform.getLatitude(imageWidth, imageHeight),
+                        FullCornerLatitude.CORNER_LAT_3));
+        map.put(
+                UasDatalinkTag.CornerLonPt3,
+                new FullCornerLongitude(
+                        transform.getLongitude(imageWidth, imageHeight),
+                        FullCornerLongitude.CORNER_LON_3));
+        map.put(
+                UasDatalinkTag.CornerLatPt4,
+                new FullCornerLatitude(
+                        transform.getLatitude(0, imageHeight), FullCornerLatitude.CORNER_LAT_4));
+        map.put(
+                UasDatalinkTag.CornerLonPt4,
+                new FullCornerLongitude(
+                        transform.getLongitude(0, imageHeight), FullCornerLongitude.CORNER_LON_4));
+        // Pick a rough estimate
+        LocalDateTime ldt = LocalDateTime.of(LocalDate.of(2017, 5, 15), LocalTime.of(2, 0, 0));
+        map.put(UasDatalinkTag.PrecisionTimeStamp, new PrecisionTimeStamp(ldt));
+        map.put(
+                UasDatalinkTag.MissionId,
+                new UasDatalinkString(UasDatalinkString.MISSION_ID, path));
+
+        var st0601 = new UasDatalinkMessage(map);
+        if (dump) {
+            dumpMisbMessage(st0601);
+        }
+        byte[] st0601bytes = st0601.frameMessage(false);
+        BerField ber = BerDecoder.decode(st0601bytes, UniversalLabel.LENGTH, false);
+        int lengthOfLength = ber.getLength();
+        byte[] st0601ValueBytes = new byte[ber.getValue()];
+        System.arraycopy(
+                st0601bytes,
+                UniversalLabel.LENGTH + lengthOfLength,
+                st0601ValueBytes,
+                0,
+                st0601ValueBytes.length);
+        return st0601ValueBytes;
     }
 }

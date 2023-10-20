@@ -39,6 +39,10 @@ public class MetaBox extends FullBox {
         nestedBoxes.addAll(boxes);
     }
 
+    public void addNestedBox(Box box) {
+        nestedBoxes.add(box);
+    }
+
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
         this.writeBoxHeader(stream);

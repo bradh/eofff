@@ -105,10 +105,10 @@ public class CreateGIMITest {
 
     private static final long MIMD_METADATA_ITEM_ID = 30;
     private static final long MIMD_METADATA_CONTENT_ID_ITEM_ID = 32;
-    private static final String MIMD_URI = "urn:nsg:KLV:ul:060E2B34.02050101.0E010504.00000000";
+    private static final String MIMD_URI = "urn:smpte:ul:060E2B34.02050101.0E010504.00000000";
     private static final long ST0601_METADATA_ITEM_ID = 34;
     private static final long ST0601_METADATA_CONTENT_ID_ITEM_ID = 36;
-    private static final String ST0601_URI = "urn:nsg:KLV:ul:060E2B34.020B0101.0E010301.01000000";
+    private static final String ST0601_URI = "urn:smpte:ul:060E2B34.020B0101.0E010301.01000000";
 
     private static final UUID IMAGE_CONTENT_ID_UUID = UUID.randomUUID();
     private static final String IMAGE_CONTENT_ID = "urn:uuid:" + IMAGE_CONTENT_ID_UUID.toString();

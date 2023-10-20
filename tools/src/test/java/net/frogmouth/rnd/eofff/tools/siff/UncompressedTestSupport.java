@@ -84,7 +84,7 @@ public class UncompressedTestSupport {
         fileTypeBox.setMinorVersion(0);
         fileTypeBox.addCompatibleBrand(new Brand("mif1"));
         fileTypeBox.addCompatibleBrand(new Brand("mif2"));
-        fileTypeBox.addCompatibleBrand(new Brand("ns01"));
+        fileTypeBox.addCompatibleBrand(new Brand("geo1"));
         fileTypeBox.addCompatibleBrand(new Brand("unif"));
         return fileTypeBox;
     }
@@ -887,8 +887,9 @@ public class UncompressedTestSupport {
     }
 
     protected void validateFileTypeBox(FileTypeBox ftyp) {
+        // TODO: update requirements
         assertTrue(
-                ftyp.getCompatibleBrands().contains(new Brand("ns01")),
+                ftyp.getCompatibleBrands().contains(new Brand("geo1")),
                 "NGA.STND.0078_0,1-02 SIFF files shall include the ns01 brand");
         // TODO: -03
         assertTrue(

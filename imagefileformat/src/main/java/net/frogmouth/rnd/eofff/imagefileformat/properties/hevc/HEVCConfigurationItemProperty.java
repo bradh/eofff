@@ -1,6 +1,8 @@
 package net.frogmouth.rnd.eofff.imagefileformat.properties.hevc;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
@@ -25,30 +27,44 @@ public class HEVCConfigurationItemProperty extends ItemProperty {
     private int numTemporalLayers;
     private int temporalIdNested;
     private int lengthSizeMinusOne;
-    private int numOfArrays;
-    /*
-    for (j=0; j < numOfArrays; j++) {
-    	bit(1) array_completeness;
-    	unsigned int(1) reserved = 0;
-    	unsigned int(6) NAL_unit_type;
-    	unsigned int(16) numNalus;
-    	for (i=0; i< numNalus; i++) {
-    		unsigned int(16) nalUnitLength;
-    		bit(8*nalUnitLength) nalUnit;
-    	}
-    }
-       */
+    private int numOfArrays; // TODO: remove
+    private final List<HEVCDecoderConfigurationArray> arrays = new ArrayList<>();
 
     @Override
     public long getBodySize() {
-        // TODO: incomplete
-        return 0;
+        int count = 23;
+        for (HEVCDecoderConfigurationArray array : arrays) {
+            count += (array.getNumBytes());
+        }
+        return count;
     }
 
     @Override
     public void writeTo(OutputStreamWriter writer) throws IOException {
         this.writeBoxHeader(writer);
-        // TODO: rest of box
+        writer.writeByte(configurationVersion);
+        int flagBits1 = ((general_profile_space & 0b11) << 6);
+        flagBits1 |= ((general_tier_flag & 0b1) << 5);
+        flagBits1 |= (general_profile_idc & 0b11111);
+        writer.writeByte(flagBits1);
+        writer.write(general_profile_compatibility_flags);
+        writer.write(general_constraint_indicator_flags);
+        writer.writeByte(general_level_idc);
+        writer.writeUnsignedInt16((0b1111 << 12) | min_spatial_segmentation_idc);
+        writer.writeByte((0b111111 << 2) | parallelismType);
+        writer.writeByte((0b111111 << 2) | chromaFormat);
+        writer.writeByte((0b11111 << 3) | bitDepthLumaMinus8);
+        writer.writeByte((0b11111 << 3) | bitDepthChromaMinus8);
+        writer.writeUnsignedInt16(avgFrameRate);
+        int flagBits2 = ((constantFrameRate & 0b11) << 6);
+        flagBits2 |= ((numTemporalLayers & 0b111) << 3);
+        flagBits2 |= ((temporalIdNested & 0b1) << 2);
+        flagBits2 |= (this.lengthSizeMinusOne & 0b11);
+        writer.writeByte(flagBits2);
+        writer.writeByte(numOfArrays);
+        for (HEVCDecoderConfigurationArray array : arrays) {
+            array.writeTo(writer);
+        }
     }
 
     public HEVCConfigurationItemProperty() {
@@ -197,6 +213,14 @@ public class HEVCConfigurationItemProperty extends ItemProperty {
 
     public void setNumOfArrays(int numOfArrays) {
         this.numOfArrays = numOfArrays;
+    }
+
+    public List<HEVCDecoderConfigurationArray> getArrays() {
+        return new ArrayList<>(arrays);
+    }
+
+    public void addArray(HEVCDecoderConfigurationArray array) {
+        this.arrays.add(array);
     }
 
     @Override

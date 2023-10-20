@@ -22,7 +22,7 @@ public class HEVCConfigurationItemPropertyParser implements PropertyParser {
         int temp = parseContext.readByte();
         box.setGeneral_profile_space((temp & 0b11000000) >> 6);
         box.setGeneral_tier_flag((temp & 0b00100000) >> 5);
-        box.setGeneral_profile_idc(temp & 0x00011111);
+        box.setGeneral_profile_idc(temp & 0b00011111);
         byte[] general_profile_compatibility_flags = new byte[4];
         parseContext.readBytes(general_profile_compatibility_flags);
         box.setGeneral_profile_compatibility_flags(general_profile_compatibility_flags);
@@ -48,18 +48,21 @@ public class HEVCConfigurationItemPropertyParser implements PropertyParser {
         box.setLengthSizeMinusOne(temp & 0b00000011);
         box.setNumOfArrays(parseContext.readUnsignedInt8());
         for (int i = 0; i < box.getNumOfArrays(); i++) {
+            HEVCDecoderConfigurationArray array = new HEVCDecoderConfigurationArray();
             temp = parseContext.readByte();
-            // TODO: add these
-            int arrayCompleteness = ((temp & 0b10000000) >> 7);
-            int nalUnitType = temp & 0b00111111;
+            array.setArray_completion(((temp & 0b10000000) != 0));
+            array.setNal_unit_type(temp & 0b00111111);
             int numNalus = parseContext.readUnsignedInt16();
             for (int j = 0; j < numNalus; j++) {
                 int nalUnitLength = parseContext.readUnsignedInt16();
                 byte[] nalUnit = new byte[nalUnitLength];
                 parseContext.readBytes(nalUnit);
+                NALU nalu = new NALU();
+                nalu.setNalUnit(nalUnit);
+                array.addNALU(nalu);
             }
+            box.addArray(array);
         }
-        // parseContext.skipBytes(initialOffset + boxSize - parseContext.getCursorPosition());
         return box;
     }
 }

@@ -827,9 +827,10 @@ class GIMIValidator {
     }
 
     protected void validateFileTypeBox(FileTypeBox ftyp) {
+        // TODO: update requirements text
         assertTrue(
-                ftyp.getCompatibleBrands().contains(new Brand("ns01")),
-                "NGA.STND.0078_0,1-02 SIFF files shall include the ns01 brand");
+                ftyp.getCompatibleBrands().contains(new Brand("geo1")),
+                "NGA.STND.0078_0,1-02 SIFF files shall include the geo1 brand");
         // TODO: -03
         assertTrue(
                 ftyp.getCompatibleBrands().contains(new Brand("mif2")),

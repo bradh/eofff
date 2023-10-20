@@ -167,9 +167,10 @@ public class Validator {
     }
 
     private static void validate_02(FileTypeBox ftyp) {
+        // TODO: we need to update the requirements text
         System.out.println(
                 "NGA.STND.0078_0.1-02 SIFF files compliant with this version of the NGA.STND.0078 profile shall include the ‘ns01’ brand in the compatible brands list inside the FileTypeBox.");
-        if (ftyp.getCompatibleBrands().contains(new Brand("ns01"))) {
+        if (ftyp.getCompatibleBrands().contains(new Brand("geo1"))) {
             System.out.println("\tPASS.");
         } else {
             System.out.println("\tFAIL.");

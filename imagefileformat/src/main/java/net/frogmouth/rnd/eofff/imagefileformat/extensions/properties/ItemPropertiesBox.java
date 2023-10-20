@@ -43,11 +43,26 @@ public class ItemPropertiesBox extends BaseBox {
     }
 
     public List<ItemPropertyAssociation> getItemPropertyAssociations() {
-        return new ArrayList<>(this.propertyAssociations);
+        return this.propertyAssociations;
     }
 
     public void addItemPropertyAssociation(ItemPropertyAssociation association) {
         this.propertyAssociations.add(association);
+    }
+
+    public void addAssociationEntry(AssociationEntry entry) {
+        for (ItemPropertyAssociation association : propertyAssociations) {
+            for (AssociationEntry associationEntry : association.getEntries()) {
+                if (associationEntry.getItemId() == entry.getItemId()) {
+                    associationEntry.addAssociations(entry.getAssociations());
+                    return;
+                }
+            }
+        }
+        // No existing entry, create one
+        ItemPropertyAssociation lastIpma =
+                propertyAssociations.get(propertyAssociations.size() - 1);
+        lastIpma.addEntry(entry);
     }
 
     public List<AbstractItemProperty> getPropertiesForItem(long itemId) {

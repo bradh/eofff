@@ -26,8 +26,15 @@ public class ItemPropertyContainerBox extends BaseBox {
         return new ArrayList<>(properties);
     }
 
-    public void addProperty(AbstractItemProperty property) {
+    /**
+     * Add a property to the property container box.
+     *
+     * @param property the property to add
+     * @return the 1-base property index for the property that was added
+     */
+    public int addProperty(AbstractItemProperty property) {
         properties.add(property);
+        return properties.size();
     }
 
     @Override

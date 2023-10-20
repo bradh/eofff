@@ -23,8 +23,12 @@ public class MetaBoxBuilder {
     }
 
     public MetaBoxBuilder withNestedBox(Box box) {
-        this.nestedBoxes.add(box);
+        addNestedBox(box);
         return this;
+    }
+
+    public void addNestedBox(Box box) {
+        this.nestedBoxes.add(box);
     }
 
     public MetaBox build() {

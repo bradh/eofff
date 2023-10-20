@@ -25,6 +25,10 @@ public class AssociationEntry {
         this.associations.add(association);
     }
 
+    void addAssociations(List<PropertyAssociation> associations) {
+        this.associations.addAll(associations);
+    }
+
     public int getSize(int version, int flags) {
         int size = 0;
         if (version < 1) {

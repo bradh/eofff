@@ -1,9 +1,11 @@
 package net.frogmouth.rnd.eofff.imagefileformat.properties.image;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemFullProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class PixelInformationProperty extends ItemFullProperty {
 
@@ -24,6 +26,20 @@ public class PixelInformationProperty extends ItemFullProperty {
 
     public void addChannel(int bitsPerChannel) {
         this.channels.add(bitsPerChannel);
+    }
+
+    @Override
+    public void writeTo(OutputStreamWriter writer) throws IOException {
+        this.writeBoxHeader(writer);
+        writer.writeByte(channels.size());
+        for (Integer channel : channels) {
+            writer.writeByte(channel);
+        }
+    }
+
+    @Override
+    public long getBodySize() {
+        return Byte.BYTES + channels.size() * Byte.BYTES;
     }
 
     @Override
