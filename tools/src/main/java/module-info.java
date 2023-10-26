@@ -13,11 +13,19 @@ module net.frogmouth.rnd.eofff.tools {
     requires net.frogmouth.rnd.eofff.uncompressed;
     requires org.slf4j;
     requires org.jmisb.api;
+    requires org.jmisb.st0601;
     requires java.desktop;
     requires java.logging;
     requires net.frogmouth.rnd.eofff.yuv;
     requires org.codice.imaging.nitf.core;
+    requires info.picocli;
+    requires org.apache.commons.io;
+    requires tiff;
+    requires org.threeten.extra;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
     uses net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser;
+
+    opens net.frogmouth.rnd.eofff.tools.gimi to
+            info.picocli;
 }

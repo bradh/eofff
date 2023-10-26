@@ -6,10 +6,10 @@ import static org.testng.Assert.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -106,16 +106,28 @@ public class ConvertToGIMITest {
         transform = new GeoTransform(modelTiePoint, pixelScale);
     }
 
-    public List<Box> parseFile() throws IOException {
-        Path testFile =
-                Paths.get(
-                        "/home/bradh/gdal_hacks/ACT Government/Imagery/Aerial Photography/ACT2020_wgs_84_trimmed.heic");
+    // TODO: generalise this so it can generate heif, AV1, AVC, JPEG2000, J2K-HT, or uncompressed
+    public List<Box> parseFile() throws IOException, InterruptedException {
+        String tempPath = "temp.png";
+        Path temp2 = Path.of("temp.heif");
+        ProcessBuilder builder =
+                new ProcessBuilder("/usr/local/bin/gdal_translate", "-of", "PNG", path, tempPath);
+        Process process = builder.start();
+        InputStream errorStream = process.getErrorStream();
+        String errors = new String(errorStream.readAllBytes(), StandardCharsets.UTF_8);
+        System.out.println(errors);
+        builder = new ProcessBuilder("/usr/local/bin/heif-enc", "-o", temp2.toString(), tempPath);
+        process = builder.start();
+        process.waitFor();
+        errorStream = process.getErrorStream();
+        errors = new String(errorStream.readAllBytes(), StandardCharsets.UTF_8);
+        System.out.println(errors);
         FileParser fileParser = new FileParser();
-        return fileParser.parse(testFile);
+        return fileParser.parse(temp2);
     }
 
     @Test
-    public void hackBoxes() throws IOException {
+    public void hackBoxes() throws IOException, InterruptedException {
         List<Box> sourceBoxes = new ArrayList<>();
         sourceBoxes.addAll(parseFile());
         FileTypeBox ftyp = (FileTypeBox) getTopLevelBoxByFourCC(sourceBoxes, "ftyp");
@@ -197,24 +209,10 @@ public class ConvertToGIMITest {
         }
         {
             // copyright statement item
-            int index = iprp.getItemProperties().addProperty(makeUserDescription_copyright());
-            AssociationEntry entry = new AssociationEntry();
-            entry.setItemId(primaryItem);
-            PropertyAssociation association = new PropertyAssociation();
-            association.setEssential(false);
-            association.setPropertyIndex(index);
-            entry.addAssociation(association);
-            iprp.addAssociationEntry(entry);
+            addPropertyFor(iprp, makeUserDescription_copyright(), primaryItem);
         }
         {
-            int index = iprp.getItemProperties().addProperty(makeContentIdPropertyPrimaryItem());
-            AssociationEntry entry = new AssociationEntry();
-            entry.setItemId(primaryItem);
-            PropertyAssociation association = new PropertyAssociation();
-            association.setEssential(false);
-            association.setPropertyIndex(index);
-            entry.addAssociation(association);
-            iprp.addAssociationEntry(entry);
+            addPropertyFor(iprp, makeContentId(PRIMARY_ITEM_CONTENT_ID), primaryItem);
         }
         {
             ItemInfoEntry st0601MetadataItem = new ItemInfoEntry();
@@ -248,26 +246,10 @@ public class ConvertToGIMITest {
             iref.addItem(st0601DescribedPrimaryItem);
         }
         {
-            int index = iprp.getItemProperties().addProperty(makeContentIdPropertySecurityItem());
-            AssociationEntry entry = new AssociationEntry();
-            entry.setItemId(this.fakeSecurityItemId);
-            PropertyAssociation association = new PropertyAssociation();
-            association.setEssential(false);
-            association.setPropertyIndex(index);
-            entry.addAssociation(association);
-            iprp.addAssociationEntry(entry);
+            addPropertyFor(iprp, makeContentId(SECURITY_ITEM_CONTENT_ID), this.fakeSecurityItemId);
         }
         {
-            int index =
-                    iprp.getItemProperties()
-                            .addProperty(makeContentIdPropertyGeneralMetadataItem());
-            AssociationEntry entry = new AssociationEntry();
-            entry.setItemId(this.generalMetadataItemId);
-            PropertyAssociation association = new PropertyAssociation();
-            association.setEssential(false);
-            association.setPropertyIndex(index);
-            entry.addAssociation(association);
-            iprp.addAssociationEntry(entry);
+            addPropertyFor(iprp, makeContentId(ST0601_ITEM_CONTENT_ID), this.generalMetadataItemId);
         }
         metaBoxBuilder.addNestedBox(itemDataBoxBuilder.build());
         MetaBox outputMetaBox = metaBoxBuilder.build();
@@ -279,7 +261,6 @@ public class ConvertToGIMITest {
                 item.setBaseOffset(mdatOffset);
             }
         }
-        System.out.println(iloc.toString());
 
         List<Box> outputBoxes = new ArrayList<>();
         outputBoxes.add(ftyp);
@@ -294,6 +275,20 @@ public class ConvertToGIMITest {
         Files.write(testOut.toPath(), baos.toByteArray(), StandardOpenOption.CREATE);
     }
 
+    // TODO: move to iprp
+    // TODO: maybe re-order and rename arguments
+    private void addPropertyFor(
+            ItemPropertiesBox iprp, AbstractItemProperty property, long targetItem) {
+        int index = iprp.getItemProperties().addProperty(property);
+        AssociationEntry entry = new AssociationEntry();
+        entry.setItemId(targetItem);
+        PropertyAssociation association = new PropertyAssociation();
+        association.setEssential(false);
+        association.setPropertyIndex(index);
+        entry.addAssociation(association);
+        iprp.addAssociationEntry(entry);
+    }
+
     private static Box getTopLevelBoxByFourCC(List<Box> boxes, String fourCC) {
         for (Box box : boxes) {
             if (box.getFourCC().equals(new FourCC(fourCC))) {
@@ -303,26 +298,10 @@ public class ConvertToGIMITest {
         return null;
     }
 
-    private UUIDProperty makeContentIdPropertyPrimaryItem() {
+    private UUIDProperty makeContentId(String contentId) {
         UUIDProperty contentIdProperty = new UUIDProperty();
         contentIdProperty.setExtendedType(CONTENT_ID_UUID);
-        contentIdProperty.setPayload(PRIMARY_ITEM_CONTENT_ID.getBytes(StandardCharsets.UTF_8));
-        System.out.println(contentIdProperty.toString());
-        return contentIdProperty;
-    }
-
-    private UUIDProperty makeContentIdPropertySecurityItem() {
-        UUIDProperty contentIdProperty = new UUIDProperty();
-        contentIdProperty.setExtendedType(CONTENT_ID_UUID);
-        contentIdProperty.setPayload(SECURITY_ITEM_CONTENT_ID.getBytes(StandardCharsets.UTF_8));
-        System.out.println(contentIdProperty.toString());
-        return contentIdProperty;
-    }
-
-    private UUIDProperty makeContentIdPropertyGeneralMetadataItem() {
-        UUIDProperty contentIdProperty = new UUIDProperty();
-        contentIdProperty.setExtendedType(CONTENT_ID_UUID);
-        contentIdProperty.setPayload(ST0601_ITEM_CONTENT_ID.getBytes(StandardCharsets.UTF_8));
+        contentIdProperty.setPayload(contentId.getBytes(StandardCharsets.UTF_8));
         System.out.println(contentIdProperty.toString());
         return contentIdProperty;
     }

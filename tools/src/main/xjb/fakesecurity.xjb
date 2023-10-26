@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bindings version="3.0" xmlns="https://jakarta.ee/xml/ns/jaxb" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <bindings schemaLocation="../xsd/fakesecurity.xsd" version="1.0">
+        <schemaBindings>
+            <package name="net.frogmouth.rnd.eofff.tools.gimi.fakeSecurity.gen"/>
+        </schemaBindings>
+    </bindings>
+</bindings>
+

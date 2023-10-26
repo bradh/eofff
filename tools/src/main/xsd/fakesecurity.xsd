@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+targetNamespace="http://www.opengis.net/CodeSprint2023Oct/Security"
+xmlns:tns="http://www.opengis.net/CodeSprint2023Oct/Security" elementFormDefault="qualified">
+<xs:element name="FakeSecurity">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="FakeLevel">
+<xs:simpleType>
+<xs:restriction base="xs:string">
+<xs:enumeration value="UNRESTRICTED"/>
+<xs:enumeration value="SECRETIVE-ISH"/>
+<xs:enumeration value="TOTALLY SECRET"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:element>
+<xs:element name="FakeCaveat" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="FakeRelTo" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="FakeDeclassOn" type="xs:date"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+</xs:schema>

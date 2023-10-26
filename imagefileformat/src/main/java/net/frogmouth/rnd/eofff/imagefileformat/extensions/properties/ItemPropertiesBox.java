@@ -60,9 +60,15 @@ public class ItemPropertiesBox extends BaseBox {
             }
         }
         // No existing entry, create one
-        ItemPropertyAssociation lastIpma =
-                propertyAssociations.get(propertyAssociations.size() - 1);
-        lastIpma.addEntry(entry);
+        if (propertyAssociations.isEmpty()) {
+            ItemPropertyAssociation association = new ItemPropertyAssociation();
+            association.addEntry(entry);
+            propertyAssociations.add(association);
+        } else {
+            ItemPropertyAssociation lastIpma =
+                    propertyAssociations.get(propertyAssociations.size() - 1);
+            lastIpma.addEntry(entry);
+        }
     }
 
     public List<AbstractItemProperty> getPropertiesForItem(long itemId) {
