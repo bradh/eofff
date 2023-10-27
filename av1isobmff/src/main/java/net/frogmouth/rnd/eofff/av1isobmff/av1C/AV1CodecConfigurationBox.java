@@ -1,7 +1,9 @@
 package net.frogmouth.rnd.eofff.av1isobmff.av1C;
 
+import java.io.IOException;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class AV1CodecConfigurationBox extends ItemProperty {
     private int version;
@@ -14,7 +16,7 @@ public class AV1CodecConfigurationBox extends ItemProperty {
     private boolean chroma_subsampling_x;
     private boolean chroma_subsampling_y;
     private int chroma_sample_position;
-    private int intial_presentation_delay;
+    private int initial_presentation_delay;
     private byte[] obuBytes;
 
     public static final FourCC AV1C_ATOM = new FourCC("av1C");
@@ -108,12 +110,12 @@ public class AV1CodecConfigurationBox extends ItemProperty {
         this.chroma_sample_position = chroma_sample_position;
     }
 
-    public int getIntial_presentation_delay() {
-        return intial_presentation_delay;
+    public int getInitial_presentation_delay() {
+        return initial_presentation_delay;
     }
 
-    public void setIntial_presentation_delay(int intial_presentation_delay) {
-        this.intial_presentation_delay = intial_presentation_delay;
+    public void setInitial_presentation_delay(int initial_presentation_delay) {
+        this.initial_presentation_delay = initial_presentation_delay;
     }
 
     public byte[] getObuBytes() {
@@ -122,5 +124,42 @@ public class AV1CodecConfigurationBox extends ItemProperty {
 
     public void setObuBytes(byte[] obuBytes) {
         this.obuBytes = obuBytes;
+    }
+
+    @Override
+    public void writeTo(OutputStreamWriter writer) throws IOException {
+        this.writeBoxHeader(writer);
+        writer.writeByte(version | 0x80);
+        writer.writeByte((seq_profile << 5) | seq_level_idx_0);
+        int flags = (seq_tier_0 ? 0x80 : 0);
+        flags |= (high_bitdepth ? 0x40 : 0);
+        flags |= (twelve_bit ? 0x20 : 0);
+        flags |= (monochrome ? 0x10 : 0);
+        flags |= (chroma_subsampling_x ? 0x08 : 0);
+        flags |= (chroma_subsampling_y ? 0x04 : 0);
+        flags |= (chroma_sample_position & 0x03);
+        writer.writeByte(flags);
+        if (initial_presentation_delay == 0) {
+            writer.writeByte(0x00);
+        } else {
+            int value = 0x10;
+            value |= ((initial_presentation_delay - 1) & 0x0F);
+            writer.writeByte(value);
+        }
+        writer.write(obuBytes);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString(); // Generated from
+        // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = 0;
+        size += 4;
+        size += obuBytes.length;
+        return size;
     }
 }

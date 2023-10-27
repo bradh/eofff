@@ -25,6 +25,7 @@ module net.frogmouth.rnd.eofff.imagefileformat {
             net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageRotationParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.image
                     .ImageSpatialExtentsPropertyParser,
+            net.frogmouth.rnd.eofff.imagefileformat.properties.colr.ColourInformationPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.image.PixelAspectRatioPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.image.PixelInformationPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.mski.MaskConfigurationPropertyParser,
@@ -35,6 +36,7 @@ module net.frogmouth.rnd.eofff.imagefileformat {
     exports net.frogmouth.rnd.eofff.imagefileformat.extensions.properties;
     exports net.frogmouth.rnd.eofff.imagefileformat.items.grid;
     exports net.frogmouth.rnd.eofff.imagefileformat.items.rgan;
+    exports net.frogmouth.rnd.eofff.imagefileformat.properties.colr;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.hevc;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.image;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.mski;

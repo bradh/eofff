@@ -41,11 +41,13 @@ public class AV1CodecConfigurationBoxParser extends ItemFullPropertyParser {
         box.setChroma_sample_position(flags & 0x03);
         int initial_pres = parseContext.readUnsignedInt8();
         if ((initial_pres & 0x10) == 0x10) {
-            box.setIntial_presentation_delay(initial_pres & 0x0F);
+            box.setInitial_presentation_delay(initial_pres & 0x0F);
         }
         long obuBytesCount = boxSize - 12;
         byte[] obuBytes = new byte[(int) obuBytesCount];
         parseContext.readBytes(obuBytes);
+        box.setObuBytes(obuBytes);
+        /*
         for (int i = 0; i < obuBytes.length; ) {
             int obuHeaderByte = obuBytes[i];
             i += 1;
@@ -107,7 +109,9 @@ public class AV1CodecConfigurationBoxParser extends ItemFullPropertyParser {
                 colour_config(bits, seq_profile);
                 int film_grain_params_present = bits.extractBits(1);
             }
+
         }
+        */
         return box;
     }
 

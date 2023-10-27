@@ -1,3 +1,4 @@
+net.frogmouth.rnd.eofff.imagefileformat.properties.colr.ColourInformationPropertyParser
 net.frogmouth.rnd.eofff.imagefileformat.properties.hevc.HEVCConfigurationItemPropertyParser
 net.frogmouth.rnd.eofff.imagefileformat.properties.image.AuxiliaryTypePropertyParser
 net.frogmouth.rnd.eofff.imagefileformat.properties.image.CleanApertureParser

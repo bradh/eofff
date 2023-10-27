@@ -113,16 +113,31 @@
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>net.frogmouth.rnd.eofff</groupId>
+            <artifactId>jpeg2000</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>net.frogmouth.rnd.eofff</groupId>
+            <artifactId>av1isobmff</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
             <version>4.7.5</version>
             <type>jar</type>
         </dependency>
-<dependency>
-    <groupId>commons-io</groupId>
-    <artifactId>commons-io</artifactId>
-    <version>2.14.0</version>
-</dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.9</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.14.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

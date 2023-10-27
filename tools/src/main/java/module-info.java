@@ -10,7 +10,9 @@ module net.frogmouth.rnd.eofff.tools {
     requires net.frogmouth.rnd.eofff.imagefileformat;
     requires net.frogmouth.rnd.eofff.nalvideo;
     requires net.frogmouth.rnd.eofff.sidd;
+    requires net.frogmouth.rnd.eofff.jpeg2000;
     requires net.frogmouth.rnd.eofff.uncompressed;
+    requires net.frogmouth.rnd.eofff.av1isobmff;
     requires org.slf4j;
     requires org.jmisb.api;
     requires org.jmisb.st0601;

@@ -44,6 +44,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.Brand;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBox;
+import net.frogmouth.rnd.eofff.isobmff.idat.ItemDataBox;
 import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoBox;
 import net.frogmouth.rnd.eofff.isobmff.iloc.ILocExtent;
 import net.frogmouth.rnd.eofff.isobmff.iloc.ILocItem;
@@ -103,6 +104,11 @@ public class GIMISum implements Runnable {
     private String[] caveats;
 
     @Option(
+            names = {"--noCompatibleBrand"},
+            description = "Skip adding geo1 compatible brand")
+    private boolean skipCompatibleBrand = false;
+
+    @Option(
             names = {"--relTo"},
             description = "Releasability for fake security markings (repeatable)")
     private String[] releaseableTos;
@@ -118,6 +124,16 @@ public class GIMISum implements Runnable {
     private boolean skipGeneralMetadata = false;
 
     @Option(
+            names = {"--noContentDescribes"},
+            description = "Skip adding cdsc item references")
+    private boolean skipContentDescribes = false;
+
+    @Option(
+            names = {"--noContentIDs"},
+            description = "Skip adding content IDs")
+    private boolean skipContentIDs = false;
+
+    @Option(
             names = {"--dateTime"},
             description = "Precision Time Stamp date/time")
     private LocalDateTime dateTime;
@@ -126,6 +142,25 @@ public class GIMISum implements Runnable {
             names = {"--missionId"},
             description = "Mission identifier for metadata (defaults to source file name)")
     private String missionId;
+
+    @Option(
+            names = {"--codec"},
+            description = "Coding to use for the image item")
+    private Codec codec = Codec.HEVC;
+
+    @Parameters(
+            paramLabel = "<source file>",
+            arity = "1",
+            description = "the path to the source file",
+            index = "0")
+    private String sourcePath;
+
+    @Parameters(
+            paramLabel = "target file",
+            arity = "0..1",
+            description = "the path to the target file (derived from source if not provided)",
+            index = "1")
+    private String targetPath;
 
     private List<Box> sourceBoxes = new ArrayList<>();
     private final FileTypeBox ftyp = new FileTypeBox(new FourCC("ftyp"));
@@ -145,20 +180,6 @@ public class GIMISum implements Runnable {
     private GeoTransform transform;
     private int imageHeight;
     private int imageWidth;
-
-    @Parameters(
-            paramLabel = "<source file>",
-            arity = "1",
-            description = "the path to the source file",
-            index = "0")
-    private String sourcePath;
-
-    @Parameters(
-            paramLabel = "target file",
-            arity = "0..1",
-            description = "the path to the target file (derived from source if not provided)",
-            index = "1")
-    private String targetPath;
 
     /**
      * @param args the command line arguments
@@ -186,7 +207,10 @@ public class GIMISum implements Runnable {
             if (!skipGeneralMetadata) {
                 addGeneralMetadata();
             }
-            meta.addNestedBox(idatBuilder.build());
+            ItemDataBox idat = idatBuilder.build();
+            if (idat.getData().length > 0) {
+                meta.addNestedBox(idat);
+            }
             writeOutTargetFile();
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(GIMISum.class.getName()).log(Level.SEVERE, null, ex);
@@ -224,9 +248,12 @@ public class GIMISum implements Runnable {
         }
         {
             String heifFile = Files.createTempFile(null, ".heif").toString();
-            // TODO: support alternative codecs
-            ProcessBuilder builder =
-                    new ProcessBuilder("/usr/local/bin/heif-enc", "-o", heifFile, pngFile);
+            ProcessBuilder builder = new ProcessBuilder("/usr/local/bin/heif-enc");
+            builder.command().addAll(Arrays.asList(codec.getArguments()));
+            builder.command().add("-o");
+            builder.command().add(heifFile);
+            builder.command().add(pngFile);
+            // System.out.println(builder.command());
             Process process = builder.start();
             process.waitFor();
             // TODO: better error checks and handling
@@ -240,7 +267,7 @@ public class GIMISum implements Runnable {
     }
 
     private void deriveTargetPath() {
-        targetPath = FilenameUtils.removeExtension(sourcePath) + HEIF_EXTENSION;
+        targetPath = FilenameUtils.removeExtension(sourcePath) + codec.getSuffix();
     }
 
     private void buildTargetData() throws IOException {
@@ -259,11 +286,14 @@ public class GIMISum implements Runnable {
         for (Brand compatibleBrand : sourceFtyp.getCompatibleBrands()) {
             ftyp.addCompatibleBrand(compatibleBrand);
         }
-        ftyp.addCompatibleBrand(new Brand("geo1"));
+        if (!skipCompatibleBrand) {
+            ftyp.addCompatibleBrand(new Brand("geo1"));
+        }
     }
 
     private void buildTargetMetaBox() throws IOException {
         MetaBox sourceMeta = (MetaBox) getTopLevelBoxByFourCC(sourceBoxes, "meta");
+        meta.addNestedBox(makeHandlerBox());
         if (sourceMeta == null) {
             throw new IOException("failed to find source meta box");
         }
@@ -280,7 +310,6 @@ public class GIMISum implements Runnable {
         }
         highestItemId = primaryItemId;
         meta.addNestedBox(makePrimaryItemBox());
-        meta.addNestedBox(makeHandlerBox());
         setupItemInfoBox(sourceIinf);
         meta.addNestedBox(iinf);
         {
@@ -304,7 +333,9 @@ public class GIMISum implements Runnable {
             setupItemPropertiesBox(sourceIprp);
         }
         meta.addNestedBox(iprp);
-        meta.addNestedBox(iref);
+        if (!skipContentDescribes) {
+            meta.addNestedBox(iref);
+        }
     }
 
     private void setupItemInfoBox(ItemInfoBox sourceIinf) throws IOException {
@@ -405,6 +436,9 @@ public class GIMISum implements Runnable {
     }
 
     private void addContentIdForPrimaryImage() {
+        if (skipContentIDs) {
+            return;
+        }
         addPropertyFor(iprp, makeRandomContentId(), primaryItemId);
     }
 
@@ -458,8 +492,12 @@ public class GIMISum implements Runnable {
         try {
             FakeSecurity fakeSecurity = new FakeSecurity();
             fakeSecurity.setFakeLevel(securityLevel.toString());
-            fakeSecurity.getFakeCaveat().addAll(Arrays.asList(caveats));
-            fakeSecurity.getFakeRelTo().addAll(Arrays.asList(releaseableTos));
+            if ((caveats != null) && (caveats.length > 0)) {
+                fakeSecurity.getFakeCaveat().addAll(Arrays.asList(caveats));
+            }
+            if ((releaseableTos != null) && (releaseableTos.length > 0)) {
+                fakeSecurity.getFakeRelTo().addAll(Arrays.asList(releaseableTos));
+            }
             XMLGregorianCalendar xmlGregorianCalendar =
                     DatatypeFactory.newInstance().newXMLGregorianCalendar(declasOnDate.toString());
             fakeSecurity.setFakeDeclassOn(xmlGregorianCalendar);
@@ -468,6 +506,8 @@ public class GIMISum implements Runnable {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             marshaller.marshal(fakeSecurity, baos);
             byte[] securityData = baos.toByteArray();
+            System.out.println("Fake Security data:");
+            System.out.println(new String(securityData, StandardCharsets.UTF_8));
             idatBuilder.addData(securityData);
             long fakeSecurityItemId = getNextItemId();
             {
@@ -493,7 +533,11 @@ public class GIMISum implements Runnable {
                 fakeSecurityItemLocation.addExtent(securityExtent);
                 iloc.addItem(fakeSecurityItemLocation);
             }
-            // and add ContentID prop
+            {
+                if (!skipContentIDs) {
+                    addPropertyFor(iprp, makeRandomContentId(), fakeSecurityItemId);
+                }
+            }
         } catch (JAXBException ex) {
             throw new IOException(ex.toString());
         } catch (DatatypeConfigurationException ex) {
@@ -533,7 +577,7 @@ public class GIMISum implements Runnable {
             st0601MetadataItemLocation.addExtent(metadataExtent);
             iloc.addItem(st0601MetadataItemLocation);
         }
-        {
+        if (!skipContentDescribes) {
             SingleItemReferenceBox st0601DescribedPrimaryItem =
                     new SingleItemReferenceBox(new FourCC("cdsc"));
             st0601DescribedPrimaryItem.setFromItemId(generalMetadataItemId);
@@ -541,7 +585,9 @@ public class GIMISum implements Runnable {
             iref.addItem(st0601DescribedPrimaryItem);
         }
         {
-            addPropertyFor(iprp, makeRandomContentId(), generalMetadataItemId);
+            if (!skipContentIDs) {
+                addPropertyFor(iprp, makeRandomContentId(), generalMetadataItemId);
+            }
         }
     }
 
@@ -612,6 +658,10 @@ public class GIMISum implements Runnable {
     }
 
     private void addTimestampTAI() {
+        if (dateTime == null) {
+            // TODO: we could do an invalid timestamp?
+            return;
+        }
         TAITimeStampBox itai = new TAITimeStampBox();
         TAITimeStampPacket time_stamp_packet = new TAITimeStampPacket();
         Instant instant = dateTime.toInstant(ZoneOffset.UTC);
