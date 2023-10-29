@@ -1,5 +1,9 @@
 package net.frogmouth.rnd.eofff.tools.gimi;
 
+import static net.frogmouth.rnd.eofff.tools.gimi.GIMIUtils.FAKE_SECURITY_MIME_TYPE;
+import static net.frogmouth.rnd.eofff.tools.gimi.GIMIUtils.addPropertyFor;
+import static net.frogmouth.rnd.eofff.tools.gimi.GIMIUtils.makeRandomContentId;
+import static net.frogmouth.rnd.eofff.tools.gimi.GIMIUtils.makeUserDescriptionCopyright;
 import static net.frogmouth.rnd.eofff.tools.gimi.MetadataUtils.dumpMisbMessage;
 
 import jakarta.xml.bind.JAXBContext;
@@ -23,7 +27,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -36,14 +39,12 @@ import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropert
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyAssociation;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyContainerBox;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyAssociation;
-import net.frogmouth.rnd.eofff.imagefileformat.properties.uuid.UUIDProperty;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FileParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.Brand;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
-import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBox;
 import net.frogmouth.rnd.eofff.isobmff.idat.ItemDataBox;
 import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoBox;
 import net.frogmouth.rnd.eofff.isobmff.iloc.ILocExtent;
@@ -81,13 +82,6 @@ import picocli.CommandLine.Parameters;
 
 @Command(name = "GIMISum", version = "GIMISum 0.1", mixinStandardHelpOptions = true)
 public class GIMISum implements Runnable {
-
-    private static final String HEIF_EXTENSION = ".heif";
-    private static final UUID CONTENT_ID_UUID =
-            UUID.fromString("aac8ab7d-f519-5437-b7d3-c973d155e253");
-    private final String FAKE_SECURITY_MIME_TYPE = "application/x.fake-dni-arh+xml";
-    private static final String ST0601_URI = "urn:smpte:ul:060E2B34.020B0101.0E010301.01000000";
-
     @Option(
             names = {"--noSecurity"},
             description = "Skip adding fake security markings")
@@ -137,6 +131,11 @@ public class GIMISum implements Runnable {
             names = {"--dateTime"},
             description = "Precision Time Stamp date/time")
     private LocalDateTime dateTime;
+
+    @Option(
+            names = {"--copyright"},
+            description = "Copyright statement")
+    private String copyright;
 
     @Option(
             names = {"--missionId"},
@@ -189,8 +188,6 @@ public class GIMISum implements Runnable {
         System.exit(exitCode);
     }
 
-    private static final int NANOS_PER_SECOND = 1000 * 1000 * 1000;
-
     @Override
     public void run() {
         try {
@@ -200,6 +197,7 @@ public class GIMISum implements Runnable {
             }
             buildTargetData();
             addContentIdForPrimaryImage();
+            addCopyrightDescription();
             addTimestampTAI();
             if (!skipFakeSecurity) {
                 addFakeSecurity();
@@ -293,7 +291,7 @@ public class GIMISum implements Runnable {
 
     private void buildTargetMetaBox() throws IOException {
         MetaBox sourceMeta = (MetaBox) getTopLevelBoxByFourCC(sourceBoxes, "meta");
-        meta.addNestedBox(makeHandlerBox());
+        meta.addNestedBox(GIMIUtils.makeHandlerBox());
         if (sourceMeta == null) {
             throw new IOException("failed to find source meta box");
         }
@@ -309,7 +307,7 @@ public class GIMISum implements Runnable {
             primaryItemId = sourceIinf.getItems().get(0).getItemID();
         }
         highestItemId = primaryItemId;
-        meta.addNestedBox(makePrimaryItemBox());
+        meta.addNestedBox(GIMIUtils.makePrimaryItemBox(primaryItemId));
         setupItemInfoBox(sourceIinf);
         meta.addNestedBox(iinf);
         {
@@ -344,19 +342,6 @@ public class GIMISum implements Runnable {
             throw new IOException("did not discover primary item infe");
         }
         iinf.addItem(primaryItemItemInfoEntry);
-    }
-
-    private PrimaryItemBox makePrimaryItemBox() {
-        PrimaryItemBox pitm = new PrimaryItemBox();
-        pitm.setItemID(primaryItemId);
-        return pitm;
-    }
-
-    private HandlerBox makeHandlerBox() {
-        HandlerBox hdlr = new HandlerBox();
-        hdlr.setHandlerType("pict");
-        hdlr.setName("");
-        return hdlr;
     }
 
     private void setupItemLocationBox(ILocExtent sourcePrimaryItemExtent) {
@@ -442,27 +427,10 @@ public class GIMISum implements Runnable {
         addPropertyFor(iprp, makeRandomContentId(), primaryItemId);
     }
 
-    // TODO: move to iprp
-    // TODO: maybe re-order and rename arguments
-    private void addPropertyFor(
-            ItemPropertiesBox iprp, AbstractItemProperty property, long targetItem) {
-        int index = iprp.getItemProperties().addProperty(property);
-        AssociationEntry entry = new AssociationEntry();
-        entry.setItemId(targetItem);
-        PropertyAssociation association = new PropertyAssociation();
-        association.setEssential(false);
-        association.setPropertyIndex(index);
-        entry.addAssociation(association);
-        iprp.addAssociationEntry(entry);
-    }
-
-    private UUIDProperty makeRandomContentId() {
-        UUIDProperty contentIdProperty = new UUIDProperty();
-        contentIdProperty.setExtendedType(CONTENT_ID_UUID);
-        final String contentId = "urn:uuid:" + UUID.randomUUID();
-        contentIdProperty.setPayload(contentId.getBytes(StandardCharsets.UTF_8));
-        // System.out.println(contentIdProperty.toString());
-        return contentIdProperty;
+    private void addCopyrightDescription() {
+        if (copyright != null) {
+            addPropertyFor(iprp, makeUserDescriptionCopyright(copyright), primaryItemId);
+        }
     }
 
     private void addPropertiesForPrimaryItem(ItemPropertiesBox sourceIprp) {
@@ -560,7 +528,7 @@ public class GIMISum implements Runnable {
             st0601MetadataItem.setItemID(generalMetadataItemId);
             FourCC mime_fourcc = new FourCC("uri ");
             st0601MetadataItem.setItemType(mime_fourcc.asUnsigned());
-            st0601MetadataItem.setItemUriType(ST0601_URI);
+            st0601MetadataItem.setItemUriType(GIMIUtils.ST0601_URI);
             st0601MetadataItem.setItemName("General Metadata (ST 0601)");
             iinf.addItem(st0601MetadataItem);
         }
@@ -667,17 +635,18 @@ public class GIMISum implements Runnable {
         Instant instant = dateTime.toInstant(ZoneOffset.UTC);
         UtcInstant utcInstant = UtcInstant.of(instant);
         TaiInstant taiInstant = utcInstant.toTaiInstant();
-        long timestamp = NANOS_PER_SECOND * taiInstant.getTaiSeconds() + taiInstant.getNano();
+        long timestamp =
+                GIMIUtils.NANOS_PER_SECOND * taiInstant.getTaiSeconds() + taiInstant.getNano();
         time_stamp_packet.setTAITimeStamp(timestamp);
         time_stamp_packet.setStatusBits((byte) 0x02);
         itai.setTimeStampPacket(time_stamp_packet);
-        this.addPropertyFor(iprp, itai, primaryItemId);
+        addPropertyFor(iprp, itai, primaryItemId);
 
         TAIClockInfoBox taic = new TAIClockInfoBox();
-        taic.setTimeUncertainty(1 * NANOS_PER_SECOND);
+        taic.setTimeUncertainty(1 * GIMIUtils.NANOS_PER_SECOND);
         taic.setCorrectionOffset(0);
         taic.setClockDriftRate(Float.NaN);
         taic.setReferenceSourceType((byte) 0x01);
-        this.addPropertyFor(iprp, taic, primaryItemId);
+        addPropertyFor(iprp, taic, primaryItemId);
     }
 }

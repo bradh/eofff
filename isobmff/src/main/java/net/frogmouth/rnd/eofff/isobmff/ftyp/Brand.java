@@ -104,6 +104,33 @@ public class Brand extends FourCC {
      */
     public static final Brand ISO9 = new Brand("iso9");
 
+    /**
+     * MIF1 Image File Brand.
+     *
+     * <p>This is (@code mif1).
+     *
+     * <p>See ISO/IEC 23008-12:2022(E) Section 10.2.2 for interpretation.
+     */
+    public static Brand MIF1 = new Brand("mif1");
+
+    /**
+     * MIF2 Image File Brand.
+     *
+     * <p>This is (@code mif2).
+     *
+     * <p>See ISO/IEC 23008-12:2022(E) Section 10.2.3 for interpretation.
+     */
+    public static Brand MIF2 = new Brand("mif2");
+
+    /**
+     * MIAF Image File Brand.
+     *
+     * <p>This is (@code miaf).
+     *
+     * <p>See ISO/IEC 23000-22:2019(E) Section 10.1 for interpretation.
+     */
+    public static Brand MIAF = new Brand("miaf");
+
     public Brand(int code) {
         super(code);
     }
