@@ -1,5 +1,4 @@
 module net.frogmouth.rnd.eofff.jpegxl {
-    requires jdk.incubator.foreign;
     requires net.frogmouth.rnd.eofff.isobmff;
     requires java.desktop;
     requires org.slf4j;

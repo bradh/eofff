@@ -1,6 +1,5 @@
 /** Implementation of ISO/IEC 23008-12 "Image File Format". */
 module net.frogmouth.rnd.eofff.imagefileformat {
-    requires jdk.incubator.foreign;
     requires net.frogmouth.rnd.eofff.isobmff;
     requires org.slf4j;
 

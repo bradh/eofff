@@ -1,5 +1,4 @@
 module net.frogmouth.rnd.eofff.av1isobmff {
-    requires jdk.incubator.foreign;
     requires net.frogmouth.rnd.eofff.imagefileformat;
     requires net.frogmouth.rnd.eofff.isobmff;
     requires net.frogmouth.rnd.eofff.cicp;

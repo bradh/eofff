@@ -56,14 +56,14 @@ import org.jmisb.api.klv.UniversalLabel;
 import org.jmisb.api.klv.st0603.NanoPrecisionTimeStamp;
 import org.jmisb.api.klv.st1204.CoreIdentifier;
 import org.jmisb.core.klv.ArrayUtils;
-import org.jmisb.mimd.st1902.MimdId;
-import org.jmisb.mimd.st1902.MimdIdReference;
-import org.jmisb.mimd.st1903.MIMD;
-import org.jmisb.mimd.st1903.MIMD_SecurityOptions;
-import org.jmisb.mimd.st1903.MIMD_Version;
-import org.jmisb.mimd.st1903.Security;
-import org.jmisb.mimd.st1903.Security_Classification;
-import org.jmisb.mimd.st1903.Security_ClassifyingMethod;
+import org.jmisb.mimd.MimdId;
+import org.jmisb.mimd.MimdIdReference;
+import org.jmisb.mimd.v2.st1903.MIMD;
+import org.jmisb.mimd.v2.st1903.MIMD_SecurityOptions;
+import org.jmisb.mimd.v2.st1903.MIMD_Version;
+import org.jmisb.mimd.v2.st1903.Security;
+import org.jmisb.mimd.v2.st1903.Security_Classification;
+import org.jmisb.mimd.v2.st1903.Security_ClassifyingMethod;
 import org.jmisb.st1603.localset.CorrectionMethod;
 import org.jmisb.st1603.localset.ITimeTransferValue;
 import org.jmisb.st1603.localset.ReferenceSource;
@@ -544,9 +544,7 @@ public class CreateSIFFGrid14BitTest extends UncompressedTestSupport {
     private MediaDataBox createMediaDataBox_mono_grid(ByteOrder endian) throws IOException {
         MediaDataBoxBuilder mdatBuilder = new MediaDataBoxBuilder();
         mil.nga.tiff.TIFFImage tiffImage =
-                mil.nga.tiff.TiffReader.readTiff(
-                        new File(
-                                "/home/bradh/coding/eofff-refactor/eofff/tools/landsat9/unc_b8.tif"));
+                mil.nga.tiff.TiffReader.readTiff(new File("landsat9/unc_b8.tif"));
         List<mil.nga.tiff.FileDirectory> directories = tiffImage.getFileDirectories();
         FileDirectory directory = directories.get(0);
         // mil.nga.tiff.Rasters rasters = directory.readRasters();

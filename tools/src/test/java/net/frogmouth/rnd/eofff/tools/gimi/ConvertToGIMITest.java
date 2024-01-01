@@ -111,7 +111,8 @@ public class ConvertToGIMITest {
         String tempPath = "temp.png";
         Path temp2 = Path.of("temp.heif");
         ProcessBuilder builder =
-                new ProcessBuilder("/usr/local/bin/gdal_translate", "-of", "PNG", path, tempPath);
+                new ProcessBuilder(
+                        "/home/bradh/gdal-build/apps/gdal_translate", "-of", "PNG", path, tempPath);
         Process process = builder.start();
         InputStream errorStream = process.getErrorStream();
         String errors = new String(errorStream.readAllBytes(), StandardCharsets.UTF_8);

@@ -1,14 +1,10 @@
 package net.frogmouth.rnd.eofff.tools.gimi;
 
-import static net.frogmouth.rnd.eofff.tools.gimi.GIMIUtils.FAKE_SECURITY_MIME_TYPE;
 import static net.frogmouth.rnd.eofff.tools.gimi.GIMIUtils.addPropertyFor;
 import static net.frogmouth.rnd.eofff.tools.gimi.GIMIUtils.makeRandomContentId;
 import static net.frogmouth.rnd.eofff.tools.gimi.GIMIUtils.makeUserDescriptionCopyright;
 import static net.frogmouth.rnd.eofff.tools.gimi.MetadataUtils.dumpMisbMessage;
 
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Marshaller;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -29,9 +25,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import mil.nga.tiff.FileDirectory;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AssociationEntry;
@@ -57,8 +50,6 @@ import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
 import net.frogmouth.rnd.eofff.tools.ItemDataBoxBuilder;
-import net.frogmouth.rnd.eofff.tools.gimi.fakeSecurity.SecurityLevel;
-import net.frogmouth.rnd.eofff.tools.gimi.fakeSecurity.gen.FakeSecurity;
 import net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampBox;
 import net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampPacket;
 import net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoBox;
@@ -82,15 +73,6 @@ import picocli.CommandLine.Parameters;
 
 @Command(name = "GIMISum", version = "GIMISum 0.1", mixinStandardHelpOptions = true)
 public class GIMISum implements Runnable {
-    @Option(
-            names = {"--noSecurity"},
-            description = "Skip adding fake security markings")
-    private boolean skipFakeSecurity = false;
-
-    @Option(
-            names = {"--securityLevel"},
-            description = "Security Level for fake security markings")
-    private SecurityLevel securityLevel = SecurityLevel.Unrestricted;
 
     @Option(
             names = {"--caveat"},
@@ -199,9 +181,6 @@ public class GIMISum implements Runnable {
             addContentIdForPrimaryImage();
             addCopyrightDescription();
             addTimestampTAI();
-            if (!skipFakeSecurity) {
-                addFakeSecurity();
-            }
             if (!skipGeneralMetadata) {
                 addGeneralMetadata();
             }
@@ -453,63 +432,6 @@ public class GIMISum implements Runnable {
                     iprp.addItemPropertyAssociation(ipma);
                 }
             }
-        }
-    }
-
-    private void addFakeSecurity() throws IOException {
-        try {
-            FakeSecurity fakeSecurity = new FakeSecurity();
-            fakeSecurity.setFakeLevel(securityLevel.toString());
-            if ((caveats != null) && (caveats.length > 0)) {
-                fakeSecurity.getFakeCaveat().addAll(Arrays.asList(caveats));
-            }
-            if ((releaseableTos != null) && (releaseableTos.length > 0)) {
-                fakeSecurity.getFakeRelTo().addAll(Arrays.asList(releaseableTos));
-            }
-            XMLGregorianCalendar xmlGregorianCalendar =
-                    DatatypeFactory.newInstance().newXMLGregorianCalendar(declasOnDate.toString());
-            fakeSecurity.setFakeDeclassOn(xmlGregorianCalendar);
-            JAXBContext context = JAXBContext.newInstance(FakeSecurity.class);
-            Marshaller marshaller = context.createMarshaller();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            marshaller.marshal(fakeSecurity, baos);
-            byte[] securityData = baos.toByteArray();
-            System.out.println("Fake Security data:");
-            System.out.println(new String(securityData, StandardCharsets.UTF_8));
-            idatBuilder.addData(securityData);
-            long fakeSecurityItemId = getNextItemId();
-            {
-                ItemInfoEntry fakeSecurityItem = new ItemInfoEntry();
-                fakeSecurityItem.setVersion(2);
-                fakeSecurityItem.setItemID(fakeSecurityItemId);
-                FourCC mime_fourcc = new FourCC("mime");
-                fakeSecurityItem.setItemType(mime_fourcc.asUnsigned());
-                fakeSecurityItem.setContentType(FAKE_SECURITY_MIME_TYPE);
-                fakeSecurityItem.setItemName("Security Marking (Fake XML)");
-                iinf.addItem(fakeSecurityItem);
-            }
-            {
-                ILocItem fakeSecurityItemLocation = new ILocItem();
-                fakeSecurityItemLocation.setConstructionMethod(1);
-                fakeSecurityItemLocation.setItemId(fakeSecurityItemId);
-                fakeSecurityItemLocation.setBaseOffset(ilocOffset);
-                ILocExtent securityExtent = new ILocExtent();
-                securityExtent.setExtentIndex(0);
-                securityExtent.setExtentOffset(0);
-                securityExtent.setExtentLength(securityData.length);
-                ilocOffset += securityExtent.getExtentLength();
-                fakeSecurityItemLocation.addExtent(securityExtent);
-                iloc.addItem(fakeSecurityItemLocation);
-            }
-            {
-                if (!skipContentIDs) {
-                    addPropertyFor(iprp, makeRandomContentId(), fakeSecurityItemId);
-                }
-            }
-        } catch (JAXBException ex) {
-            throw new IOException(ex.toString());
-        } catch (DatatypeConfigurationException ex) {
-            throw new IOException(ex.toString());
         }
     }
 

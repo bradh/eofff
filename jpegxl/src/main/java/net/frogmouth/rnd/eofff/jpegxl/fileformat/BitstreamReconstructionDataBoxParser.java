@@ -75,22 +75,23 @@ public class BitstreamReconstructionDataBoxParser extends BaseBoxParser {
             case 0xdb -> "Define Quanization Table(s) (DQT)";
             case 0xdd -> "Define Restart Interval (DRI)";
             case 0xe0,
-                    0xe1,
-                    0xe2,
-                    0xe3,
-                    0xe4,
-                    0xe5,
-                    0xe6,
-                    0xe7,
-                    0xe8,
-                    0xe9,
-                    0xea,
-                    0xeb,
-                    0xec,
-                    0xed,
-                    0xee,
-                    0xef,
-                    0xf0 -> "Application specific (APPn)";
+                            0xe1,
+                            0xe2,
+                            0xe3,
+                            0xe4,
+                            0xe5,
+                            0xe6,
+                            0xe7,
+                            0xe8,
+                            0xe9,
+                            0xea,
+                            0xeb,
+                            0xec,
+                            0xed,
+                            0xee,
+                            0xef,
+                            0xf0 ->
+                    "Application specific (APPn)";
             default -> "Unknown / unhandled";
         };
     }

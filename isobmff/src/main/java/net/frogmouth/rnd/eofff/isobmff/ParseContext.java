@@ -1,11 +1,11 @@
 package net.frogmouth.rnd.eofff.isobmff;
 
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
-import jdk.incubator.foreign.MemoryAccess;
-import jdk.incubator.foreign.MemorySegment;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.Brand;
 import net.frogmouth.rnd.eofff.isobmff.tref.TrackReference;
 import net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupType;
@@ -16,6 +16,17 @@ public class ParseContext {
     private static final Logger LOG = LoggerFactory.getLogger(ParseContext.class);
     private final MemorySegment memorySegment;
     private long cursor;
+
+    static final ValueLayout.OfByte BYTE_BIG_ENDIAN =
+            ValueLayout.JAVA_BYTE.withByteAlignment(1).withOrder(ByteOrder.BIG_ENDIAN);
+    static final ValueLayout.OfShort SHORT_BIG_ENDIAN =
+            ValueLayout.JAVA_SHORT.withByteAlignment(1).withOrder(ByteOrder.BIG_ENDIAN);
+    static final ValueLayout.OfInt INT_BIG_ENDIAN =
+            ValueLayout.JAVA_INT.withByteAlignment(1).withOrder(ByteOrder.BIG_ENDIAN);
+    static final ValueLayout.OfLong LONG_BIG_ENDIAN =
+            ValueLayout.JAVA_LONG.withByteAlignment(1).withOrder(ByteOrder.BIG_ENDIAN);
+    static final ValueLayout.OfFloat FLOAT_BIG_ENDIAN =
+            ValueLayout.JAVA_FLOAT.withByteAlignment(1).withOrder(ByteOrder.BIG_ENDIAN);
 
     public ParseContext(MemorySegment memorySegment) {
         this.memorySegment = memorySegment;
@@ -31,47 +42,43 @@ public class ParseContext {
     }
 
     public int readInt16() {
-        int i = MemoryAccess.getShortAtOffset(memorySegment, cursor, ByteOrder.BIG_ENDIAN);
+        int i = memorySegment.get(SHORT_BIG_ENDIAN, cursor);
         cursor += Short.BYTES;
         return i;
     }
 
     public int readInt32() {
-        int i = MemoryAccess.getIntAtOffset(memorySegment, cursor, ByteOrder.BIG_ENDIAN);
+        int i = memorySegment.get(INT_BIG_ENDIAN, cursor);
         cursor += Integer.BYTES;
         return i;
     }
 
     public long readInt64() {
-        long i = MemoryAccess.getLongAtOffset(memorySegment, cursor, ByteOrder.BIG_ENDIAN);
+        long i = memorySegment.get(LONG_BIG_ENDIAN, cursor);
         cursor += Long.BYTES;
         return i;
     }
 
     public int readUnsignedInt8() {
-        int i = MemoryAccess.getByteAtOffset(memorySegment, cursor) & 0x00FF;
+        int i = memorySegment.get(BYTE_BIG_ENDIAN, cursor) & 0x00FF;
         cursor += Byte.BYTES;
         return i;
     }
 
     public int readUnsignedInt16() {
-        int i =
-                MemoryAccess.getShortAtOffset(memorySegment, cursor, ByteOrder.BIG_ENDIAN)
-                        & 0x00FFFF;
+        int i = memorySegment.get(SHORT_BIG_ENDIAN, cursor) & 0x00FFFF;
         cursor += Short.BYTES;
         return i;
     }
 
     public long readUnsignedInt32() {
-        long i =
-                MemoryAccess.getIntAtOffset(memorySegment, cursor, ByteOrder.BIG_ENDIAN)
-                        & 0x00FFFFFFFFl;
+        long i = memorySegment.get(INT_BIG_ENDIAN, cursor) & 0x00FFFFFFFFl;
         cursor += Integer.BYTES;
         return i;
     }
 
     public long readUnsignedInt64() {
-        long i = MemoryAccess.getLongAtOffset(memorySegment, cursor, ByteOrder.BIG_ENDIAN);
+        long i = memorySegment.get(LONG_BIG_ENDIAN, cursor);
         cursor += Long.BYTES;
         return i;
     }
@@ -92,7 +99,7 @@ public class ParseContext {
     }
 
     public float readDouble32() {
-        float f = MemoryAccess.getFloatAtOffset(memorySegment, cursor, ByteOrder.BIG_ENDIAN);
+        float f = memorySegment.get(FLOAT_BIG_ENDIAN, cursor);
         cursor += Float.BYTES;
         return f;
     }
@@ -134,7 +141,7 @@ public class ParseContext {
     }
 
     public byte readByte() {
-        byte b = MemoryAccess.getByteAtOffset(memorySegment, cursor);
+        byte b = memorySegment.get(BYTE_BIG_ENDIAN, cursor);
         cursor += Byte.BYTES;
         return b;
     }
@@ -190,6 +197,6 @@ public class ParseContext {
     public byte[] getBytes(long numBytes) {
         MemorySegment slice = this.memorySegment.asSlice(this.cursor, numBytes);
         cursor += numBytes;
-        return slice.toByteArray();
+        return slice.toArray(ValueLayout.JAVA_BYTE);
     }
 }

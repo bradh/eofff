@@ -21,7 +21,9 @@ public class HEIFTest {
 
     @BeforeTest
     public void parseFile() throws IOException {
-        Path testFile = Path.of("/home/bradh/coding/heif_conformance/conformance_files/C007.heic");
+        Path testFile =
+                Path.of(
+                        "/home/bradh/eofff/imagefileformat/src/test/resources/heif_conformance/conformance_files/C007.heic");
         FileParser fileParser = new FileParser();
         boxes = fileParser.parse(testFile);
         for (Box box : boxes) {

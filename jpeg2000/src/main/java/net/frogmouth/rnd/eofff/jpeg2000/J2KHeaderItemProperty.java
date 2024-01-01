@@ -11,6 +11,7 @@ public class J2KHeaderItemProperty extends ItemProperty {
 
     private J2KChannelDefinition channels;
     private J2KComponentMapping components;
+
     // private J2KPalette palette;
     // private J2KLayers layers;
 

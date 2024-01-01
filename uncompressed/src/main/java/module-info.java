@@ -1,5 +1,4 @@
 module net.frogmouth.rnd.eofff.uncompressed {
-    requires jdk.incubator.foreign;
     requires net.frogmouth.rnd.eofff.imagefileformat;
     requires net.frogmouth.rnd.eofff.isobmff;
     requires org.slf4j;

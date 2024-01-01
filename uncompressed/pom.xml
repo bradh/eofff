@@ -9,10 +9,6 @@
     <groupId>net.frogmouth.rnd.eofff</groupId>
     <artifactId>uncompressed</artifactId>
     <packaging>jar</packaging>
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>net.frogmouth.rnd.eofff</groupId>
@@ -44,11 +40,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <compilerArgument>--add-modules=jdk.incubator.foreign</compilerArgument>
-                    <compilerArgument>-Xlint:unchecked</compilerArgument>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
@@ -77,11 +68,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
-                <configuration>
-                    <!-- ${argLine} if needed-->
-                    <argLine>${argLine} --add-modules=jdk.incubator.foreign</argLine>
-                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -1,8 +1,8 @@
 package net.frogmouth.rnd.eofff.isobmff;
 
+import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.List;
-import jdk.incubator.foreign.MemorySegment;
 
 public class AbstractParser {
 

@@ -2,8 +2,8 @@ package net.frogmouth.rnd.eofff.imagefileformat;
 
 import static org.testng.Assert.*;
 
+import java.lang.foreign.MemorySegment;
 import java.util.List;
-import jdk.incubator.foreign.MemorySegment;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyContainerBox;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyContainerBoxParser;
