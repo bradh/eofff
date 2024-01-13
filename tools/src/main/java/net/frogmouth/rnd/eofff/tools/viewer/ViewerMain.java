@@ -16,7 +16,7 @@ public class ViewerMain {
                     new String[] {
                         // "/home/bradh/Uncompressed Test Files/Uncompressed Test
                         // Files/uncC_3_rgb_interleaved_tiled.heif"
-                        "test_siff_rgb_grid.mp4"
+                        "test_uncompressed_abgr.heif"
                     };
         }
         Parser viewer = new Parser(args);

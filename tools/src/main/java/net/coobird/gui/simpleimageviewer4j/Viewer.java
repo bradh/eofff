@@ -151,10 +151,8 @@ public final class Viewer {
      */
     public void run() {
         SwingUtilities.invokeLater(
-                new Runnable() {
-                    public void run() {
-                        show();
-                    }
+                () -> {
+                    show();
                 });
     }
 }
