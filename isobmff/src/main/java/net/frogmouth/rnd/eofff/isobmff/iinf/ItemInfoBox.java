@@ -74,16 +74,13 @@ public class ItemInfoBox extends FullBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': item_count=");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("item_count=");
         sb.append(getItems().size());
         for (ItemInfoEntry item : getItems()) {
             sb.append("\n");
-            sb.append("\t  ");
+            this.addIndent(nestingLevel + 1, sb);
             sb.append(item.toString());
         }
         return sb.toString();

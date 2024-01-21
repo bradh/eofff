@@ -13,4 +13,6 @@ public interface Box {
     long getBodySize();
 
     public void writeTo(OutputStreamWriter writer) throws IOException;
+
+    public String toString(int nestingLevel);
 }

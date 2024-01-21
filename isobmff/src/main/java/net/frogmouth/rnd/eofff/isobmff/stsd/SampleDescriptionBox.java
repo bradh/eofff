@@ -58,15 +58,12 @@ public class SampleDescriptionBox extends FullBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("':");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
         for (Box item : nestedBoxes) {
             sb.append("\n");
-            sb.append("\t\t\t\t\t SampleEntry=");
+            this.addIndent(nestingLevel + 1, sb);
+            sb.append("SampleEntry:");
             sb.append(item.toString());
         }
         return sb.toString();

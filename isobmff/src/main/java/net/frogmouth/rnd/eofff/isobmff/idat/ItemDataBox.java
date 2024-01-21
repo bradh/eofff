@@ -38,12 +38,9 @@ public class ItemDataBox extends BaseBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': data (length=");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("data (length=");
         sb.append(data.length);
         sb.append(")");
         return sb.toString();

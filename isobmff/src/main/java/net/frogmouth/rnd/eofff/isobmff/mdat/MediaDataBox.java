@@ -48,13 +48,10 @@ public class MediaDataBox extends BaseBox {
     }
 
     @Override
-    public String toString() {
-        return new StringBuilder()
-                .append(getFullName())
-                .append(" '")
-                .append(getFourCC())
-                .append(", length=")
-                .append(data.length)
-                .toString();
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("length=");
+        sb.append(data.length);
+        return sb.toString();
     }
 }

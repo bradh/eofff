@@ -150,9 +150,9 @@ public class AV1CodecConfigurationBox extends ItemProperty {
     }
 
     @Override
-    public String toString() {
-        return super.toString(); // Generated from
-        // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        return sb.toString();
     }
 
     @Override

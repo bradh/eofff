@@ -60,16 +60,13 @@ public class ChunkOffsetBox extends FullBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("':");
-        for (Long item : getEntries()) {
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        for (Long entry : entries) {
             sb.append("\n");
-            sb.append("\t\t\t\t\t  chunk_offset=");
-            sb.append(item.toString());
+            this.addIndent(nestingLevel + 1, sb);
+            sb.append("chunk_offset=");
+            sb.append(entry.toString());
         }
         return sb.toString();
     }

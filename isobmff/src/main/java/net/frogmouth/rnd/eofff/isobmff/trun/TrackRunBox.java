@@ -57,12 +57,9 @@ public class TrackRunBox extends FullBox {
     // TODO: write
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': sample_count=");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("sample_count=");
         sb.append(getSampleCount());
         sb.append(", data_offset=");
         sb.append(getDataOffset());

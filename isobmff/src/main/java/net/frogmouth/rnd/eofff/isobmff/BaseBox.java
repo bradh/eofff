@@ -9,6 +9,7 @@ public class BaseBox implements Box {
     private static final long BYTES_IN_LARGE_BOX_HEADER = Integer.BYTES + FourCC.BYTES + Long.BYTES;
     protected static final int LARGE_SIZE_FLAG = 1;
 
+    private static final String INDENT = "    ";
     // private long size;
     private FourCC boxName;
 
@@ -47,8 +48,26 @@ public class BaseBox implements Box {
     }
 
     @Override
-    public String toString() {
-        return getFullName() + " '" + getFourCC() + "'";
+    public String toString(int nestingLevel) {
+        StringBuilder sb = getBaseStringBuilder(nestingLevel);
+        sb.append("TODO");
+        return sb.toString();
+    }
+
+    protected StringBuilder getBaseStringBuilder(int nestingLevel) {
+        StringBuilder sb = new StringBuilder();
+        addIndent(nestingLevel, sb);
+        sb.append(getFullName());
+        sb.append(" '");
+        sb.append(getFourCC());
+        sb.append("': ");
+        return sb;
+    }
+
+    protected void addIndent(int nestingLevel, StringBuilder sb) {
+        for (int i = 0; i < nestingLevel; i++) {
+            sb.append(INDENT);
+        }
     }
 
     @Override

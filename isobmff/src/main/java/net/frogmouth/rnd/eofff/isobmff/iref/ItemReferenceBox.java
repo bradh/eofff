@@ -51,16 +51,14 @@ public class ItemReferenceBox extends FullBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': item_count=");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("'item_count=");
         sb.append(getItems().size());
         int i = 1;
         for (SingleItemReferenceBox item : getItems()) {
-            sb.append("\n\t   ");
+            sb.append("\n");
+            this.addIndent(nestingLevel + 1, sb);
             sb.append(i);
             sb.append(")");
             sb.append(item.toString());

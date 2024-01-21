@@ -1,0 +1,4 @@
+net.frogmouth.rnd.eofff.gopro.FIRMParser
+net.frogmouth.rnd.eofff.gopro.LENSParser
+net.frogmouth.rnd.eofff.gopro.gpmf.GPMFParser
+net.frogmouth.rnd.eofff.gopro.quicktime.BaseMediaInformationHeaderParser

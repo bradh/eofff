@@ -52,16 +52,12 @@ public class MetaBox extends FullBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("':   (Container)");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("'(Container)");
         for (Box nestedBox : getNestedBoxes()) {
             sb.append("\n");
-            sb.append("\t");
-            sb.append(nestedBox.toString());
+            sb.append(nestedBox.toString(nestingLevel + 1));
         }
         return sb.toString();
     }

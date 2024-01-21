@@ -51,7 +51,7 @@ public abstract class AbstractContainerBox extends BaseBox {
 
     @Override
     public String toString() {
-        return toString(1);
+        return toString(0);
     }
 
     @Override
@@ -71,21 +71,20 @@ public abstract class AbstractContainerBox extends BaseBox {
         }
     }
 
+    @Override
     public String toString(int nestingLevel) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("':   (Container)");
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("(Container)");
         for (Box nestedBox : getNestedBoxes()) {
             sb.append("\n");
-            for (int i = 0; i < nestingLevel; i++) {
-                sb.append("\t");
+            if (nestedBox == null) {
+                sb.append("[NULL BOX]");
+                continue;
             }
             if (nestedBox instanceof AbstractContainerBox abstractContainerBox) {
                 sb.append(abstractContainerBox.toString(nestingLevel + 1));
             } else {
-                sb.append(nestedBox.toString());
+                sb.append(nestedBox.toString(nestingLevel + 1));
             }
         }
         return sb.toString();

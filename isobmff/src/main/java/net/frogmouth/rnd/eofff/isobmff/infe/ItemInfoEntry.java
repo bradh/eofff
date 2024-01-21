@@ -169,11 +169,9 @@ public class ItemInfoEntry extends FullBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': item_id=");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("'item_id=");
         sb.append(getItemID());
         sb.append(", item_name=");
         sb.append(getItemName());

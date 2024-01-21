@@ -64,18 +64,15 @@ public class CompositionOffsetBox extends FullBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("' (version=");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("(version=");
         sb.append(getVersion());
         sb.append("): item_count=");
         sb.append(getEntries().size());
         for (CompositionOffsetBoxEntry item : getEntries()) {
             sb.append("\n");
-            sb.append("\t\t\t\t\t  ");
+            this.addIndent(nestingLevel + 1, sb);
             sb.append(item.toString());
         }
         return sb.toString();

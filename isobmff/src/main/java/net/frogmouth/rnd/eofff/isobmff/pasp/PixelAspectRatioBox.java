@@ -53,12 +53,9 @@ public class PixelAspectRatioBox extends BaseBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append(", hSpacing: ");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("hSpacing: ");
         sb.append(this.hSpacing);
         sb.append(", vSpacing: ");
         sb.append(this.vSpacing);

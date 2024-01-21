@@ -56,19 +56,17 @@ public class DataReferenceBox extends FullBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("' (version=");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("(version=");
         sb.append(getVersion());
         sb.append("): ");
         sb.append(entries.size());
         sb.append(" entry/entries:");
         for (DataEntryBox entry : entries) {
             sb.append("\n");
-            sb.append("\t\t\t\t\t  entry=");
+            this.addIndent(nestingLevel + 1, sb);
+            sb.append("entry=");
             sb.append(entry.toString());
         }
         return sb.toString();

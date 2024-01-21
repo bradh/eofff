@@ -150,11 +150,8 @@ public class MovieHeaderBox extends FullBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
+    public String toString(int nestingLevel) {
+        StringBuilder sb = getBaseStringBuilder(nestingLevel);
         sb.append("': creation_time=");
         sb.append(creationTime);
         sb.append(", modification_time=");

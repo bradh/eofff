@@ -112,12 +112,8 @@ public class SampleAuxiliaryInformationSizesBox extends FullBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("':");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
         if ((getFlags() & 0x01) == 0x01) {
             sb.append("aux_info_type=");
             sb.append(auxInfoType.toString());

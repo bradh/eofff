@@ -56,8 +56,8 @@ public class TrackGroupBoxTest {
         assertEquals(bytes, TRGR_BYTES);
         File testTref = new File("trgr.bin");
         Files.write(testTref.toPath(), bytes, StandardOpenOption.CREATE);
-        assertTrue(box.toString().startsWith("TrackGroupBox 'trgr' : group count=1"));
-        assertTrue(box.toString().endsWith("group_type=msrc, track_group_id=32911"));
+        assertTrue(box.toString(0).startsWith("TrackGroupBox 'trgr': group count=1"));
+        assertTrue(box.toString(0).endsWith("group_type=msrc, track_group_id=32911"));
     }
 
     @Test

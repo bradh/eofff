@@ -77,12 +77,8 @@ public class FileTypeLikeBox extends BaseBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': ");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
         sb.append("major-brand=");
         sb.append(majorBrand);
         sb.append(", compatible-brands='");

@@ -70,11 +70,8 @@ class SegmentIndexBox extends FullBox {
     // TODO: write
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
         sb.append("': reference_ID=");
         sb.append(getReferenceId());
         sb.append(", timescale=");
@@ -85,7 +82,7 @@ class SegmentIndexBox extends FullBox {
         sb.append(getFirstOffset());
         for (SegmentIndexReference reference : getReferences()) {
             sb.append("\n");
-            sb.append("\t\t\t");
+            this.addIndent(nestingLevel + 1, sb);
             sb.append(reference.toString());
         }
         return sb.toString();

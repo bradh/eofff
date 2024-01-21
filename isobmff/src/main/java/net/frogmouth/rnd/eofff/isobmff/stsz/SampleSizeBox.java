@@ -76,12 +76,9 @@ public class SampleSizeBox extends FullBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': sample_size=");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("sample_size=");
         sb.append(getSampleSize());
         if (getSampleSize() == 0) {
             sb.append(" (variable - see entries below)");
@@ -92,7 +89,8 @@ public class SampleSizeBox extends FullBox {
         }
         for (Long item : getEntries()) {
             sb.append("\n");
-            sb.append("\t\t\t\t\t  sample_size=");
+            this.addIndent(nestingLevel + 1, sb);
+            sb.append("sample_size=");
             sb.append(item.toString());
         }
         return sb.toString();

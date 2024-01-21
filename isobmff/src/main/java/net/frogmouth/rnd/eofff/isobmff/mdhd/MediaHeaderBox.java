@@ -110,12 +110,9 @@ public class MediaHeaderBox extends FullBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': creation_time=");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("creation_time=");
         sb.append(getCreationTime());
         sb.append(", modification_time=");
         sb.append(getModificationTime());

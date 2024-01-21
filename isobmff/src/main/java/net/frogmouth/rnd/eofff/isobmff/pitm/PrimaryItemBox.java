@@ -56,14 +56,10 @@ public class PrimaryItemBox extends FullBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': item_ID=");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("'item_ID=");
         sb.append(getItemID());
-        sb.append("");
         return sb.toString();
     }
 }

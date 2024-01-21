@@ -1,3 +1,4 @@
+@SuppressWarnings("module") // That is not a software version number - its the name of the standards
 module net.frogmouth.rnd.eofff.jpeg2000 {
     requires net.frogmouth.rnd.eofff.imagefileformat;
     requires net.frogmouth.rnd.eofff.isobmff;

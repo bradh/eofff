@@ -35,8 +35,8 @@ public class TrackReferenceBoxTest {
         assertEquals(bytes, TREF_CDSC_BYTES);
         File testTref = new File("tref.bin");
         Files.write(testTref.toPath(), bytes, StandardOpenOption.CREATE);
-        assertTrue(box.toString().startsWith("TrackReferenceBox 'tref' : reference count=1"));
-        assertTrue(box.toString().endsWith("reference_type=cdsc, track_IDs=[3, 7]"));
+        assertTrue(box.toString(0).startsWith("TrackReferenceBox 'tref': reference count=1"));
+        assertTrue(box.toString(0).endsWith("reference_type=cdsc, track_IDs=[3, 7]"));
     }
 
     @Test

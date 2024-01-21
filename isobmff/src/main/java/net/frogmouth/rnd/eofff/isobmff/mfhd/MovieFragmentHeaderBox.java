@@ -26,11 +26,8 @@ public class MovieFragmentHeaderBox extends FullBox {
 
     // TODO: write
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
         sb.append("': sequence_number=");
         sb.append(getSequenceNumber());
         return sb.toString();

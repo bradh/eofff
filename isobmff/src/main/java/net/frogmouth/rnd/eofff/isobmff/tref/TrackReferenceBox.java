@@ -51,16 +51,13 @@ public class TrackReferenceBox extends BaseBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("' : reference count=");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("reference count=");
         sb.append(getEntries().size());
         for (TrackReferenceTypeBox item : getEntries()) {
             sb.append("\n");
-            sb.append("\t\t\t");
+            this.addIndent(nestingLevel + 1, sb);
             sb.append(item.toString());
         }
         return sb.toString();
