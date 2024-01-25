@@ -1,11 +1,10 @@
-package net.frogmouth.rnd.eofff.nalvideo;
+package net.frogmouth.rnd.eofff.isobmff.stsd;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
-import net.frogmouth.rnd.eofff.isobmff.stsd.SampleEntry;
 
 /**
  * Visual Sample Entry.
