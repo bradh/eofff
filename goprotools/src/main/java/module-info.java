@@ -6,8 +6,11 @@
  */
 module net.frogmouth.rnd.eofff.tools {
     requires net.frogmouth.rnd.eofff.isobmff;
+    requires net.frogmouth.rnd.eofff.nalvideo;
     requires net.frogmouth.rnd.eofff.gopro;
     requires org.slf4j;
+    requires org.apache.logging.log4j;
+    requires org.apache.logging.log4j.slf4j2.impl;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
 }

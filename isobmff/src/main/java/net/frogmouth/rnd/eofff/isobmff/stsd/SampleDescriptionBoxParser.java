@@ -37,6 +37,8 @@ public class SampleDescriptionBoxParser extends FullBoxParser {
             if (nestedBox instanceof SampleEntry) {
                 sampleEntries.add((SampleEntry) nestedBox);
             } else {
+                String s = nestedBox.getFourCC().toString();
+                System.out.println("Unimplemented SampleEntry box: " + s);
                 LOG.warn(
                         "expected nested box to be a SampleEntry: "
                                 + nestedBox.getFullName()

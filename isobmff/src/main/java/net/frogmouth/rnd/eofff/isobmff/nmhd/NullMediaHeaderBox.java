@@ -36,9 +36,6 @@ public class NullMediaHeaderBox extends FullBox {
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
         return sb.toString();
     }
 }

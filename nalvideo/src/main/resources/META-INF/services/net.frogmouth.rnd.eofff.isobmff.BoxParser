@@ -1,0 +1,5 @@
+net.frogmouth.rnd.eofff.nalvideo.AVCConfigurationBoxParser
+net.frogmouth.rnd.eofff.nalvideo.AVCSampleEntryParser
+net.frogmouth.rnd.eofff.nalvideo.HEVCConfigurationBoxParser
+net.frogmouth.rnd.eofff.nalvideo.HEVCSampleEntryParser
+net.frogmouth.rnd.eofff.nalvideo.btrt.MPEG4BitRateBoxParser

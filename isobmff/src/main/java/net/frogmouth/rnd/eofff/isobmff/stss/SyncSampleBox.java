@@ -52,7 +52,7 @@ public class SyncSampleBox extends FullBox {
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
-        sb.append("': item_count=");
+        sb.append("item_count=");
         sb.append(getEntries().size());
         for (Long item : getEntries()) {
             sb.append("\n");

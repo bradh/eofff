@@ -29,7 +29,7 @@ public class URIMetaSampleEntryBuilder {
         for (Box box : nestedBoxes) {
             size += box.getSize();
         }
-        URIMetaSampleEntry box = new URIMetaSampleEntry(new FourCC("urim"));
+        URIMetaSampleEntry box = new URIMetaSampleEntry();
         box.setDataReferenceIndex(dataReferenceIndex);
         box.addNestedBoxes(nestedBoxes);
         return box;
