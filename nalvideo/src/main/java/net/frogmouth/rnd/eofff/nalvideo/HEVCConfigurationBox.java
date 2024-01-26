@@ -8,9 +8,15 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 public class HEVCConfigurationBox extends BaseBox {
 
     private HEVCDecoderConfigurationRecord hevcConfig;
+    public static final FourCC HVCC_ATOM = new FourCC("hvcC");
 
-    public HEVCConfigurationBox(FourCC name) {
-        super(name);
+    public HEVCConfigurationBox() {
+        super(HVCC_ATOM);
+    }
+
+    @Override
+    public String getFullName() {
+        return "HEVCConfigurationBox";
     }
 
     @Override
@@ -20,7 +26,7 @@ public class HEVCConfigurationBox extends BaseBox {
         return size;
     }
 
-    public HEVCDecoderConfigurationRecord getAvcConfig() {
+    public HEVCDecoderConfigurationRecord getHevcConfig() {
         return hevcConfig;
     }
 
@@ -33,5 +39,12 @@ public class HEVCConfigurationBox extends BaseBox {
         stream.writeInt((int) this.getSize());
         stream.writeFourCC(getFourCC());
         hevcConfig.writeTo(stream);
+    }
+
+    @Override
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        hevcConfig.addToStringBuilder(sb, nestingLevel + 1);
+        return sb.toString();
     }
 }

@@ -60,7 +60,7 @@ public class SampleDescriptionBox extends FullBox {
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
-        for (Box item : nestedBoxes) {
+        for (SampleEntry item : nestedBoxes) {
             sb.append("\n");
             sb.append(item.toString(nestingLevel + 1));
         }

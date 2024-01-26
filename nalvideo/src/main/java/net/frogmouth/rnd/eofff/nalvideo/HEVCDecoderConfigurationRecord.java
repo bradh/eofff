@@ -1,130 +1,293 @@
 package net.frogmouth.rnd.eofff.nalvideo;
 
+import static net.frogmouth.rnd.eofff.nalvideo.FormatUtils.addByteArrayAsHex;
+import static net.frogmouth.rnd.eofff.nalvideo.FormatUtils.addIndent;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
-// TODO: need real definition from 14496-15
+/**
+ * HEVC decoder configuration record.
+ *
+ * <p>See ISO/IEC 14496-15 Section 8.3.3.1.
+ */
 public class HEVCDecoderConfigurationRecord {
 
-    private short configurationVersion;
-    private short avcProfileIndication;
-    private short profileCompatibility;
-    private short avcLevelIndication;
-    private byte lengthSizeMinusOne;
-    private final List<SequenceParameterSetNALUnit> sps = new ArrayList<>();
-    private final List<PictureParameterSetNALUnit> pps = new ArrayList<>();
+    private int configurationVersion;
+    private int general_profile_space;
+    private int general_tier_flag;
+    private int general_profile_idc;
+    private byte[] general_profile_compatibility_flags;
+    private byte[] general_constraint_indicator_flags;
+    private int general_level_idc;
+    private int min_spatial_segmentation_idc;
+    private int parallelismType;
+    private int chromaFormat;
+    private int bitDepthLumaMinus8;
+    private int bitDepthChromaMinus8;
+    private int avgFrameRate;
+    private int constantFrameRate;
+    private int numTemporalLayers;
+    private int temporalIdNested;
+    private int lengthSizeMinusOne;
 
-    public short getConfigurationVersion() {
+    private final List<HEVCDecoderConfigurationArray> arrays = new ArrayList<>();
+
+    public long getSize() {
+        int count = 23;
+        for (HEVCDecoderConfigurationArray array : arrays) {
+            count += (array.getNumBytes());
+        }
+        return count;
+    }
+
+    public void writeTo(OutputStreamWriter writer) throws IOException {
+        writer.writeByte(configurationVersion);
+        int flagBits1 = ((general_profile_space & 0b11) << 6);
+        flagBits1 |= ((general_tier_flag & 0b1) << 5);
+        flagBits1 |= (general_profile_idc & 0b11111);
+        writer.writeByte(flagBits1);
+        writer.write(general_profile_compatibility_flags);
+        writer.write(general_constraint_indicator_flags);
+        writer.writeByte(general_level_idc);
+        writer.writeUnsignedInt16((0b1111 << 12) | min_spatial_segmentation_idc);
+        writer.writeByte((0b111111 << 2) | parallelismType);
+        writer.writeByte((0b111111 << 2) | chromaFormat);
+        writer.writeByte((0b11111 << 3) | bitDepthLumaMinus8);
+        writer.writeByte((0b11111 << 3) | bitDepthChromaMinus8);
+        writer.writeUnsignedInt16(avgFrameRate);
+        int flagBits2 = ((constantFrameRate & 0b11) << 6);
+        flagBits2 |= ((numTemporalLayers & 0b111) << 3);
+        flagBits2 |= ((temporalIdNested & 0b1) << 2);
+        flagBits2 |= (this.lengthSizeMinusOne & 0b11);
+        writer.writeByte(flagBits2);
+        writer.writeByte(arrays.size());
+        for (HEVCDecoderConfigurationArray array : arrays) {
+            array.writeTo(writer);
+        }
+    }
+
+    public int getConfigurationVersion() {
         return configurationVersion;
     }
 
-    public void setConfigurationVersion(short configurationVersion) {
+    public void setConfigurationVersion(int configurationVersion) {
         this.configurationVersion = configurationVersion;
     }
 
-    public short getAvcProfileIndication() {
-        return avcProfileIndication;
+    public int getGeneral_profile_space() {
+        return general_profile_space;
     }
 
-    public void setAvcProfileIndication(short avcProfileIndication) {
-        this.avcProfileIndication = avcProfileIndication;
+    public void setGeneral_profile_space(int general_profile_space) {
+        this.general_profile_space = general_profile_space;
     }
 
-    public short getProfileCompatibility() {
-        return profileCompatibility;
+    public int getGeneral_tier_flag() {
+        return general_tier_flag;
     }
 
-    public void setProfileCompatibility(short profileCompatibility) {
-        this.profileCompatibility = profileCompatibility;
+    public void setGeneral_tier_flag(int general_tier_flag) {
+        this.general_tier_flag = general_tier_flag;
     }
 
-    public short getAvcLevelIndication() {
-        return avcLevelIndication;
+    public int getGeneral_profile_idc() {
+        return general_profile_idc;
     }
 
-    public void setAvcLevelIndication(short avcLevelIndication) {
-        this.avcLevelIndication = avcLevelIndication;
+    public void setGeneral_profile_idc(int general_profile_idc) {
+        this.general_profile_idc = general_profile_idc;
     }
 
-    public byte getLengthSizeMinusOne() {
+    public byte[] getGeneral_profile_compatibility_flags() {
+        return general_profile_compatibility_flags;
+    }
+
+    public void setGeneral_profile_compatibility_flags(byte[] general_profile_compatibility_flags) {
+        this.general_profile_compatibility_flags = general_profile_compatibility_flags;
+    }
+
+    public byte[] getGeneral_constraint_indicator_flags() {
+        return general_constraint_indicator_flags;
+    }
+
+    public void setGeneral_constraint_indicator_flags(byte[] general_constraint_indicator_flags) {
+        this.general_constraint_indicator_flags = general_constraint_indicator_flags;
+    }
+
+    public int getGeneral_level_idc() {
+        return general_level_idc;
+    }
+
+    public void setGeneral_level_idc(int general_level_idc) {
+        this.general_level_idc = general_level_idc;
+    }
+
+    public int getMin_spatial_segmentation_idc() {
+        return min_spatial_segmentation_idc;
+    }
+
+    public void setMin_spatial_segmentation_idc(int min_spatial_segmentation_idc) {
+        this.min_spatial_segmentation_idc = min_spatial_segmentation_idc;
+    }
+
+    public int getParallelismType() {
+        return parallelismType;
+    }
+
+    public void setParallelismType(int parallelismType) {
+        this.parallelismType = parallelismType;
+    }
+
+    public int getChromaFormat() {
+        return chromaFormat;
+    }
+
+    public void setChromaFormat(int chromaFormat) {
+        this.chromaFormat = chromaFormat;
+    }
+
+    public int getBitDepthLumaMinus8() {
+        return bitDepthLumaMinus8;
+    }
+
+    public void setBitDepthLumaMinus8(int bitDepthLumaMinus8) {
+        this.bitDepthLumaMinus8 = bitDepthLumaMinus8;
+    }
+
+    public int getBitDepthChromaMinus8() {
+        return bitDepthChromaMinus8;
+    }
+
+    public void setBitDepthChromaMinus8(int bitDepthChromaMinus8) {
+        this.bitDepthChromaMinus8 = bitDepthChromaMinus8;
+    }
+
+    public int getAvgFrameRate() {
+        return avgFrameRate;
+    }
+
+    public void setAvgFrameRate(int avgFrameRate) {
+        this.avgFrameRate = avgFrameRate;
+    }
+
+    public int getConstantFrameRate() {
+        return constantFrameRate;
+    }
+
+    public void setConstantFrameRate(int constantFrameRate) {
+        this.constantFrameRate = constantFrameRate;
+    }
+
+    public int getNumTemporalLayers() {
+        return numTemporalLayers;
+    }
+
+    public void setNumTemporalLayers(int numTemporalLayers) {
+        this.numTemporalLayers = numTemporalLayers;
+    }
+
+    public int getTemporalIdNested() {
+        return temporalIdNested;
+    }
+
+    public void setTemporalIdNested(int temporalIdNested) {
+        this.temporalIdNested = temporalIdNested;
+    }
+
+    public int getLengthSizeMinusOne() {
         return lengthSizeMinusOne;
     }
 
-    public void setLengthSizeMinusOne(byte lengthSizeMinusOne) {
+    public void setLengthSizeMinusOne(int lengthSizeMinusOne) {
         this.lengthSizeMinusOne = lengthSizeMinusOne;
     }
 
-    public void addSequenceParameterSet(SequenceParameterSetNALUnit nalu) {
-        sps.add(nalu);
+    public List<HEVCDecoderConfigurationArray> getArrays() {
+        return new ArrayList<>(arrays);
     }
 
-    public void addPictureParameterSet(PictureParameterSetNALUnit nalu) {
-        pps.add(nalu);
+    public void addArray(HEVCDecoderConfigurationArray array) {
+        this.arrays.add(array);
     }
 
-    public long getSize() {
-        long size = 6 * Byte.BYTES;
-        for (SequenceParameterSetNALUnit nalu : sps) {
-            size += nalu.getSize();
+    void addToStringBuilder(StringBuilder sb, int nestingLevel) {
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("configurationVersion: ");
+        sb.append(configurationVersion);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("general_profile_space: ");
+        sb.append(general_profile_space);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("general_tier_flag: ");
+        sb.append(general_tier_flag);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("general_profile_idc: ");
+        sb.append(general_profile_idc);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("general_profile_compatibility_flags: ");
+        addByteArrayAsHex(general_profile_compatibility_flags, sb);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("general_constraint_indicator_flags: ");
+        addByteArrayAsHex(general_constraint_indicator_flags, sb);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("general_level_idc: ");
+        sb.append(general_level_idc);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("min_spatial_segmentation_idc: ");
+        sb.append(min_spatial_segmentation_idc);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("parallelismType: ");
+        sb.append(parallelismType);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("chroma_format_idc: ");
+        sb.append(chromaFormat);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("bitDepthLumaMinus8: ");
+        sb.append(bitDepthLumaMinus8);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("bitDepthChromaMinus8: ");
+        sb.append(bitDepthChromaMinus8);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("avgFrameRate: ");
+        sb.append(avgFrameRate);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("constantFrameRate: ");
+        sb.append(constantFrameRate);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("numTemporalLayers: ");
+        sb.append(numTemporalLayers);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("temporalIdNested: ");
+        sb.append(temporalIdNested);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("lengthSizeMinusOne: ");
+        sb.append(lengthSizeMinusOne);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("numOfArrays: ");
+        sb.append(arrays.size());
+        for (HEVCDecoderConfigurationArray array : arrays) {
+            array.addToStringBuilder(nestingLevel, sb);
         }
-        size += Byte.BYTES;
-        for (PictureParameterSetNALUnit nalu : pps) {
-            size += nalu.getSize();
-        }
-        return size;
     }
-
-    public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeByte(configurationVersion);
-        stream.writeByte(avcProfileIndication);
-        stream.writeByte(profileCompatibility);
-        stream.writeByte(avcLevelIndication);
-        stream.writeByte(0b11111100 | lengthSizeMinusOne);
-        stream.writeByte(0b11100000 | sps.size());
-        for (SequenceParameterSetNALUnit nalu : sps) {
-            nalu.writeTo(stream);
-        }
-        stream.writeByte(pps.size());
-        for (PictureParameterSetNALUnit nalu : pps) {
-            nalu.writeTo(stream);
-        }
-    }
-
-    /*
-            aligned(8) class AVCDecoderConfigurationRecord {
-    	unsigned int(8) configurationVersion = 1;
-    	unsigned int(8) AVCProfileIndication;
-    	unsigned int(8) profile_compatibility;
-    	unsigned int(8) AVCLevelIndication;
-    	bit(6) reserved = ‘111111’b;
-    	unsigned int(2) lengthSizeMinusOne;
-    	bit(3) reserved = ‘111’b;
-    	unsigned int(5) numOfSequenceParameterSets;
-    	for (i=0; i< numOfSequenceParameterSets;  i++) {
-    		unsigned int(16) sequenceParameterSetLength ;
-    		bit(8*sequenceParameterSetLength) sequenceParameterSetNALUnit;
-    	}
-    	unsigned int(8) numOfPictureParameterSets;
-    	for (i=0; i< numOfPictureParameterSets;  i++) {
-    		unsigned int(16) pictureParameterSetLength;
-    		bit(8*pictureParameterSetLength) pictureParameterSetNALUnit;
-    	}
-    	if( profile_idc  ==  100  ||  profile_idc  ==  110  ||
-    	    profile_idc  ==  122  ||  profile_idc  ==  144 )
-    	{
-    		bit(6) reserved = ‘111111’b;
-    		unsigned int(2) chroma_format;
-    		bit(5) reserved = ‘11111’b;
-    		unsigned int(3) bit_depth_luma_minus8;
-    		bit(5) reserved = ‘11111’b;
-    		unsigned int(3) bit_depth_chroma_minus8;
-    		unsigned int(8) numOfSequenceParameterSetExt;
-    		for (i=0; i< numOfSequenceParameterSetExt; i++) {
-    			unsigned int(16) sequenceParameterSetExtLength;
-    			bit(8*sequenceParameterSetExtLength) sequenceParameterSetExtNALUnit;
-    		}
-    	}
-    }*/
 }

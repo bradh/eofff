@@ -8,7 +8,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 /**
  * Video Media Header Box.
  *
- * <p>See ISO/IEC 14496-12:2015 Section 12.1.2.
+ * <p>See ISO/IEC 14496-12:2022 Section 12.1.2.
  */
 public class VideoMediaHeaderBox extends FullBox {
     public static final FourCC VMHD_ATOM = new FourCC("vmhd");

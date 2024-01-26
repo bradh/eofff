@@ -14,6 +14,7 @@ public class HEVCSampleEntryParser extends BaseBoxParser {
         return new FourCC("hvc1");
     }
 
+    // TODO: we need to share this
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
         HEVCSampleEntry box = new HEVCSampleEntry(boxName);

@@ -11,9 +11,8 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  *
  * <p>See ISO/IEC 14496-12:2022 Section 12.1.3.
  */
-public abstract class VisualSampleEntry extends SampleEntry {
+public abstract class VisualSampleEntry extends BaseSampleEntry implements SampleEntry {
 
-    private int dataReferenceIndex;
     private int width;
     private int height;
     private long horizontalResolution;
@@ -24,14 +23,6 @@ public abstract class VisualSampleEntry extends SampleEntry {
 
     public VisualSampleEntry(FourCC format) {
         super(format);
-    }
-
-    public int getDataReferenceIndex() {
-        return dataReferenceIndex;
-    }
-
-    public void setDataReferenceIndex(int dataReferenceIndex) {
-        this.dataReferenceIndex = dataReferenceIndex;
     }
 
     public int getWidth() {
@@ -92,12 +83,7 @@ public abstract class VisualSampleEntry extends SampleEntry {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        for (int i = 0; i < 6; i++) {
-            stream.writeByte(0);
-        }
-        stream.writeShort((short) dataReferenceIndex);
+        writeBaseSampleEntryContent(stream);
         stream.writeShort((short) 0); // pre_defined
         stream.writeShort((short) 0); // reserved
         for (int i = 0; i < 3; i++) {
@@ -120,5 +106,56 @@ public abstract class VisualSampleEntry extends SampleEntry {
         for (Box box : nestedBoxes) {
             box.writeTo(stream);
         }
+    }
+
+    @Override
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("data_reference_index: ");
+        sb.append(getDataReferenceIndex());
+        sb.append(", width: ");
+        sb.append(width);
+        sb.append(", height: ");
+        sb.append(height);
+        sb.append(", horizresolution: ");
+        sb.append(horizontalResolution);
+        sb.append(", vertresolution: ");
+        sb.append(verticalResolution);
+        sb.append(", frame_count: ");
+        sb.append(frameCount);
+        sb.append(", compressorname: ");
+        if (compressorName.isBlank()) {
+            sb.append("[None]");
+        } else {
+            sb.append(compressorName);
+        }
+        sb.append(", depth: ");
+        sb.append(depth);
+        for (Box nestedBox : nestedBoxes) {
+            sb.append("\n");
+            sb.append(nestedBox.toString(nestingLevel + 1));
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = getBaseBodySize();
+        size += Short.BYTES;
+        size += Short.BYTES;
+        size += (3 * Integer.BYTES);
+        size += Short.BYTES;
+        size += Short.BYTES;
+        size += Integer.BYTES; // horizresolution
+        size += Integer.BYTES; // vertresolution
+        size += Integer.BYTES; // reserved
+        size += Short.BYTES; // frame_count
+        size += (32 * Byte.BYTES);
+        size += Short.BYTES; // depth
+        size += Short.BYTES; // pre_defined
+        for (Box box : nestedBoxes) {
+            size += box.getSize();
+        }
+        return size;
     }
 }

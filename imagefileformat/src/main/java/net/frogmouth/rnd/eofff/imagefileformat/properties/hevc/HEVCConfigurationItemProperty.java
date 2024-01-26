@@ -7,6 +7,7 @@ import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropert
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
+// TODO: rebuild this using nalvideo implementation
 public class HEVCConfigurationItemProperty extends ItemProperty {
     public static final FourCC HVCC_ATOM = new FourCC("hvcC");
 
