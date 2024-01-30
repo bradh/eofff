@@ -5,7 +5,8 @@ module net.frogmouth.rnd.eofff.mpeg4 {
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
 
-    // provides ?
+    provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
+            net.frogmouth.rnd.eofff.mpeg4.iods.ObjectDescriptorBoxParser;
 
     exports net.frogmouth.rnd.eofff.mpeg4.iods;
 }

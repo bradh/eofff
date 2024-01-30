@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.jpeg2000;
+package net.frogmouth.rnd.eofff.jpeg2000.fileformat.cmap;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,12 +7,12 @@ import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
-public class J2KComponentMapping extends BaseBox {
+public class ComponentMappingBox extends BaseBox {
     public static final FourCC CMAP_ATOM = new FourCC("cmap");
 
-    private List<ComponentMapping> componentMappings = new ArrayList<>();
+    private final List<ComponentMapping> componentMappings = new ArrayList<>();
 
-    public J2KComponentMapping() {
+    public ComponentMappingBox() {
         super(CMAP_ATOM);
     }
 
@@ -45,7 +45,11 @@ public class J2KComponentMapping extends BaseBox {
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
-        // TODO: implement
+        for (ComponentMapping mapping : componentMappings) {
+            sb.append("\n");
+            this.addIndent(nestingLevel + 1, sb);
+            sb.append(mapping.toString());
+        }
         return sb.toString();
     }
 }

@@ -17,7 +17,7 @@ public class AbstractParser {
             if (boxSize == 1) {
                 boxSize = parseContext.readUnsignedInt64();
             } else if (boxSize == 0) {
-                throw new UnsupportedOperationException("We don't do that yet");
+                boxSize = parseContext.getRemainingSizeFrom(offset);
             }
             BoxParser parser = BoxFactoryManager.getParser(boxName);
             Box box = parser.parse(parseContext, offset, boxSize, boxName);

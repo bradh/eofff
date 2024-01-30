@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.jpeg2000;
+package net.frogmouth.rnd.eofff.jpeg2000.fileformat.cmap;
 
 import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
@@ -32,5 +32,10 @@ public class ComponentMapping {
         writer.writeUnsignedInt16(cmp);
         writer.writeByte(mtyp);
         writer.writeByte(pcol);
+    }
+
+    @Override
+    public String toString() {
+        return "CMP=" + cmp + ", MTYP=" + mtyp + ", PCOL=" + pcol;
     }
 }

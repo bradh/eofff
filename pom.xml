@@ -12,16 +12,17 @@
         <module>visualiser</module>
         <module>dash</module>
         <module>nalvideo</module>
-        <module>tools</module>
+        <!-- <module>tools</module> -->
         <module>uncompressed</module>
         <module>yuv</module>
         <module>av1isobmff</module>
         <module>cicp</module>
         <!-- <module>sidd</module> -->
         <module>jpeg2000</module>
-        <module>goprotools</module>
         <module>mpeg4</module>
         <module>gopro</module>
+        <module>goprotools</module>
+        <module>debugtools</module>
     </modules>
     <properties>
         <googleformatter.maven.plugin.version>1.7.5</googleformatter.maven.plugin.version>

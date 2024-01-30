@@ -70,7 +70,7 @@ public class FileTypeLikeBox extends BaseBox {
     public void writeTo(OutputStreamWriter stream) throws IOException {
         this.writeBoxHeader(stream);
         stream.writeFourCC(this.majorBrand);
-        stream.writeInt(minorVersion);
+        stream.writeUnsignedInt32(minorVersion);
         for (FourCC brand : this.compatibleBrands) {
             stream.writeFourCC(brand);
         }
@@ -79,16 +79,15 @@ public class FileTypeLikeBox extends BaseBox {
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
-        sb.append("major-brand=");
+        sb.append("major-brand='");
         sb.append(majorBrand);
-        sb.append(", compatible-brands='");
-        List<String> brands = new ArrayList<>();
+        sb.append("', compatible-brands=");
         compatibleBrands.forEach(
                 brand -> {
-                    brands.add(brand.toString());
+                    sb.append("'");
+                    sb.append(brand.toString());
+                    sb.append("' ");
                 });
-        sb.append(String.join(",", brands));
-        sb.append("'");
         return sb.toString();
     }
 }

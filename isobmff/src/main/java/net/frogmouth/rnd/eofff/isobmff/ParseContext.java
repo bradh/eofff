@@ -37,6 +37,10 @@ public class ParseContext {
         return cursor < memorySegment.byteSize();
     }
 
+    public long getRemainingSizeFrom(long offset) {
+        return memorySegment.byteSize() - offset;
+    }
+
     public boolean hasRemainingUntil(long pos) {
         return cursor < pos;
     }

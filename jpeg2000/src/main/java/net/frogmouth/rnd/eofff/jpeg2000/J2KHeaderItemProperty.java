@@ -4,13 +4,14 @@ import java.io.IOException;
 import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.jpeg2000.fileformat.cmap.ComponentMappingBox;
 
 // TODO: turn into container
 public class J2KHeaderItemProperty extends ItemProperty {
     public static final FourCC J2KH_ATOM = new FourCC("j2kH");
 
     private J2KChannelDefinition channels;
-    private J2KComponentMapping components;
+    private ComponentMappingBox components;
 
     // private J2KPalette palette;
     // private J2KLayers layers;
@@ -27,11 +28,11 @@ public class J2KHeaderItemProperty extends ItemProperty {
         this.channels = channels;
     }
 
-    public J2KComponentMapping getComponents() {
+    public ComponentMappingBox getComponents() {
         return components;
     }
 
-    public void setComponents(J2KComponentMapping components) {
+    public void setComponents(ComponentMappingBox components) {
         this.components = components;
     }
 
