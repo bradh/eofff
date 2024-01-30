@@ -34,11 +34,10 @@ public class SampleDescriptionBoxParser extends FullBoxParser {
         List<Box> nestedBoxes = parseContext.parseNestedBoxes(initialOffset + boxSize);
         List<SampleEntry> sampleEntries = new ArrayList<>();
         for (Box nestedBox : nestedBoxes) {
-            if (nestedBox instanceof SampleEntry) {
-                sampleEntries.add((SampleEntry) nestedBox);
-            } else {
-                String s = nestedBox.getFourCC().toString();
-                System.out.println("Unimplemented SampleEntry box: " + s);
+            if (nestedBox instanceof SampleEntry sampleEntry) {
+                sampleEntries.add(sampleEntry);
+            } else if (nestedBox != null) {
+                System.out.println("no support for " + nestedBox.getFourCC().toString());
                 LOG.warn(
                         "expected nested box to be a SampleEntry: "
                                 + nestedBox.getFullName()

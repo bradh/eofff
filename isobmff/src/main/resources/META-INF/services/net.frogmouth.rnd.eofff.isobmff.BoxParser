@@ -31,6 +31,7 @@ net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBoxParser
 net.frogmouth.rnd.eofff.isobmff.sbgp.SampleToGroupBoxParser
 net.frogmouth.rnd.eofff.isobmff.sgpd.SampleGroupDescriptionBoxParser
 net.frogmouth.rnd.eofff.isobmff.sidx.SegmentIndexBoxParser
+net.frogmouth.rnd.eofff.isobmff.smhd.SoundMediaHeaderBoxParser
 net.frogmouth.rnd.eofff.isobmff.stbl.SampleTableBoxParser
 net.frogmouth.rnd.eofff.isobmff.stco.ChunkOffsetBoxParser
 net.frogmouth.rnd.eofff.isobmff.stsc.SampleToChunkBoxParser
@@ -42,8 +43,8 @@ net.frogmouth.rnd.eofff.isobmff.styp.SegmentTypeBoxParser
 net.frogmouth.rnd.eofff.isobmff.tfdt.TrackFragmentDecodeTimeBoxParser
 net.frogmouth.rnd.eofff.isobmff.tfhd.TrackFragmentHeaderBoxParser
 net.frogmouth.rnd.eofff.isobmff.tkhd.TrackHeaderBoxParser
-net.frogmouth.rnd.eofff.isobmff.traf.TrackFragmentBoxParser
 net.frogmouth.rnd.eofff.isobmff.trak.TrackBoxParser
+net.frogmouth.rnd.eofff.isobmff.traf.TrackFragmentBoxParser
 net.frogmouth.rnd.eofff.isobmff.tref.TrackReferenceBoxParser
 net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupBoxParser
 net.frogmouth.rnd.eofff.isobmff.trun.TrackRunBoxParser

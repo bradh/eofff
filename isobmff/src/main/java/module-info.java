@@ -27,20 +27,21 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.meta.MetaBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mfhd.MovieFragmentHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.moof.MovieFragmentBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.traf.TrackFragmentBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.tfdt.TrackFragmentDecodeTimeBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.tfhd.TrackFragmentHeaderBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.trun.TrackRunBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mdia.MediaBoxParser,
             net.frogmouth.rnd.eofff.isobmff.minf.MediaInformationBoxParser,
             net.frogmouth.rnd.eofff.isobmff.moov.MovieBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mvhd.MovieHeaderBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.stbl.SampleTableBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.trak.TrackBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.tkhd.TrackHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.nmhd.NullMediaHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.pasp.PixelAspectRatioBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.smhd.SoundMediaHeaderBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.stbl.SampleTableBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.traf.TrackFragmentBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.tfdt.TrackFragmentDecodeTimeBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.tfhd.TrackFragmentHeaderBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.trun.TrackRunBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.trak.TrackBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.tkhd.TrackHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sbgp.SampleToGroupBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sgpd.SampleGroupDescriptionBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sidx.SegmentIndexBoxParser,
@@ -87,6 +88,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.saiz;
     exports net.frogmouth.rnd.eofff.isobmff.sbgp;
     exports net.frogmouth.rnd.eofff.isobmff.sidx;
+    exports net.frogmouth.rnd.eofff.isobmff.smhd;
     exports net.frogmouth.rnd.eofff.isobmff.stbl;
     exports net.frogmouth.rnd.eofff.isobmff.stco;
     exports net.frogmouth.rnd.eofff.isobmff.stsc;
