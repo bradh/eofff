@@ -1,6 +1,7 @@
 package net.frogmouth.rnd.eofff.isobmff.stsd;
 
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.sampleentry.MetaDataSampleEntry;
 
 public class URIMetaSampleEntry extends MetaDataSampleEntry {
 

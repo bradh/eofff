@@ -2,6 +2,7 @@ package net.frogmouth.rnd.eofff.isobmff.stsd;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntry;
 
 public class SampleDescriptionBoxBuilder {
 

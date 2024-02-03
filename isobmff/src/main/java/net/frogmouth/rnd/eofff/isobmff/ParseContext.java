@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.Brand;
 import net.frogmouth.rnd.eofff.isobmff.tref.TrackReference;
 import net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupType;
@@ -81,6 +82,12 @@ public class ParseContext {
         return i;
     }
 
+    // Read, but do not advance the cursor
+    public long peekUnsignedInt32() {
+        long i = memorySegment.get(INT_BIG_ENDIAN, cursor) & 0x00FFFFFFFFl;
+        return i;
+    }
+
     public long readUnsignedInt64() {
         long i = memorySegment.get(LONG_BIG_ENDIAN, cursor);
         cursor += Long.BYTES;
@@ -100,6 +107,12 @@ public class ParseContext {
         }
         throw new IllegalArgumentException(
                 String.format("Only reading of 32 and 64 bits is supported, not %d", numBits));
+    }
+
+    public UUID readUUID() {
+        long highBits = this.readUnsignedInt64();
+        long lowBits = this.readUnsignedInt64();
+        return new UUID(highBits, lowBits);
     }
 
     public float readDouble32() {
@@ -202,5 +215,24 @@ public class ParseContext {
         MemorySegment slice = this.memorySegment.asSlice(this.cursor, numBytes);
         cursor += numBytes;
         return slice.toArray(ValueLayout.JAVA_BYTE);
+    }
+
+    public ISO639Language readPackedLanguageCode() {
+        return ISO639Language.readPackedLanguageCode(this);
+    }
+
+    // See ISO/IEC 14496-1 Section 8.3.3.
+    // We could parameterise the maximum number of bytes if needed.
+    public int readLengthVariable() {
+        final int MAX_BYTES = 4;
+        int result = 0;
+        for (int i = 0; i < MAX_BYTES; i++) {
+            int b = this.readUnsignedInt8();
+            result = (result << 7) + (b & 0x7F);
+            if ((b & 0x80) != 0x80) {
+                break;
+            }
+        }
+        return result;
     }
 }

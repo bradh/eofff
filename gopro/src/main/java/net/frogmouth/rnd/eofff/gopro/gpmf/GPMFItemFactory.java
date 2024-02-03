@@ -12,14 +12,14 @@ public class GPMFItemFactory {
             case 0 -> {
                 return new GPMFContainerItem(fourCC, sampleSize * repeat);
             }
-            case 66 -> {
+            case 66 -> { // 'B'
                 if ((sampleSize == Byte.BYTES) && (repeat == 1)) {
                     return new GPMFUnsignedByteItem(fourCC);
                 } else {
                     return new GPMFUnsignedByteMultiItem(fourCC, sampleSize, repeat);
                 }
             }
-            case 70 -> {
+            case 70 -> { // 'F'
                 if ((sampleSize == FourCC.BYTES) && (repeat == 1)) {
                     return new GPMFFourCCItem(fourCC);
                 } else {
@@ -34,29 +34,53 @@ public class GPMFItemFactory {
                     return new GPMFUnsignedLongMultiItem(fourCC, sampleSize, repeat);
                 }
             }
-            case 76 -> {
+            case 76 -> { // L
                 if ((sampleSize == Integer.BYTES) && (repeat == 1)) {
                     return new GPMFUnsignedIntItem(fourCC);
                 } else {
                     return new GPMFUnsignedIntMultiItem(fourCC, sampleSize, repeat);
                 }
             }
-            case 99 -> {
+            case 83 -> { // "S"
+                if ((sampleSize == Short.BYTES) && (repeat == 1)) {
+                    return new GPMFUnsignedShortItem(fourCC);
+                } else {
+                    return new GPMFUnsignedShortMultiItem(fourCC, sampleSize, repeat);
+                }
+            }
+            case 85 -> { // "U"
+                // Should be UTC Date and Time
                 return new GPMFStringItem(fourCC, sampleSize, repeat);
             }
-            case 102 -> {
+            case 98 -> { // 'b'
+                if ((sampleSize == Byte.BYTES) && (repeat == 1)) {
+                    return new GPMFSignedByteItem(fourCC);
+                } else {
+                    return new GPMFSignedByteMultiItem(fourCC, sampleSize, repeat);
+                }
+            }
+            case 99 -> { // 'c'
+                return new GPMFStringItem(fourCC, sampleSize, repeat);
+            }
+            case 102 -> { // 'f'
                 if ((sampleSize == Float.BYTES) && (repeat == 1)) {
                     return new GPMFFloatItem(fourCC);
                 } else {
                     return new GPMFFloatMultiItem(fourCC, sampleSize, repeat);
                 }
             }
-            case 115 -> {
+            case 108 -> { // 'l'
+                if ((sampleSize == Integer.BYTES) && (repeat == 1)) {
+                    return new GPMFSignedIntItem(fourCC);
+                } else {
+                    return new GPMFSignedIntMultiItem(fourCC, sampleSize, repeat);
+                }
+            }
+            case 115 -> { // 's'
                 if ((sampleSize == Short.BYTES) && (repeat == 1)) {
                     return new GPMFSignedShortItem(fourCC);
                 } else {
-                    // Can be added if needed
-                    return new GPMFUnhandledItem(fourCC, sampleSize, repeat);
+                    return new GPMFSignedShortMultiItem(fourCC, sampleSize, repeat);
                 }
             }
             default -> {

@@ -1,5 +1,7 @@
 package net.frogmouth.rnd.eofff.isobmff.mdhd;
 
+import net.frogmouth.rnd.eofff.isobmff.ISO639Language;
+
 public class MediaHeaderBoxBuilder {
 
     private int version;
@@ -56,7 +58,7 @@ public class MediaHeaderBoxBuilder {
         box.setModificationTime(modificationTime);
         box.setTimescale(timescale);
         box.setDuration(duration);
-        box.setLanguage(language);
+        box.setLanguage(new ISO639Language(language));
         return box;
     }
 }

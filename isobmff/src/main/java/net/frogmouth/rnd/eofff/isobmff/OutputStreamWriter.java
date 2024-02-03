@@ -103,4 +103,8 @@ public class OutputStreamWriter {
         bb.putLong(uuid.getLeastSignificantBits());
         this.write(bb.array());
     }
+
+    public void writePackedLanguageCode(ISO639Language language) throws IOException {
+        outputStream.write(language.asPackedBytes());
+    }
 }

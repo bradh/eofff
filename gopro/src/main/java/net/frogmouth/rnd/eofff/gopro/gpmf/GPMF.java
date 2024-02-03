@@ -26,7 +26,6 @@ public class GPMF extends BaseBox {
     public void writeTo(OutputStreamWriter writer) throws IOException {
         this.writeBoxHeader(writer);
         // TODO
-        // writer.write(bytes);
     }
 
     @Override
@@ -37,9 +36,9 @@ public class GPMF extends BaseBox {
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
-        sb.append("\n");
         for (GPMFItem item : items) {
             if (item != null) {
+                sb.append("\n");
                 sb.append(item.toString(nestingLevel + 1));
             }
         }

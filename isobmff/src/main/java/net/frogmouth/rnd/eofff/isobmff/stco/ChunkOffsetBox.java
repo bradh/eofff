@@ -10,7 +10,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 /**
  * Chunk Offset Box.
  *
- * <p>See ISO/IEC 14496-12:2015 Section 8.7.5
+ * <p>See ISO/IEC 14496-12:2022 Section 8.7.5
  */
 public class ChunkOffsetBox extends FullBox {
     public static final FourCC STCO_ATOM = new FourCC("stco");

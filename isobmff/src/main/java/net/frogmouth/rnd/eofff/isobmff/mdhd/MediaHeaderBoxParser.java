@@ -1,9 +1,9 @@
 package net.frogmouth.rnd.eofff.isobmff.mdhd;
 
-import java.nio.charset.StandardCharsets;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
+import net.frogmouth.rnd.eofff.isobmff.ISO639Language;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,11 +40,7 @@ public class MediaHeaderBoxParser extends FullBoxParser {
             box.setTimescale(parseContext.readUnsignedInt32());
             box.setDuration(parseContext.readUnsignedInt32());
         }
-        int packedLanguageBits = parseContext.readUnsignedInt16();
-        byte char0 = (byte) (((packedLanguageBits >> 10) & 0x001F) + 0x60);
-        byte char1 = (byte) (((packedLanguageBits >> 5) & 0x001F) + 0x60);
-        byte char2 = (byte) ((packedLanguageBits & 0x001F) + 0x60);
-        String language = new String(new byte[] {char0, char1, char2}, StandardCharsets.US_ASCII);
+        ISO639Language language = ISO639Language.readPackedLanguageCode(parseContext);
         box.setLanguage(language);
         parseContext.readUnsignedInt16();
         return box;

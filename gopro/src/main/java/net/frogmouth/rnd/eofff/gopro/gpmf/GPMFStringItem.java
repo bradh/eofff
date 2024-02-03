@@ -18,16 +18,23 @@ public class GPMFStringItem extends GPMFItem {
         this.repeat = repeat;
     }
 
+    public String getString() {
+        if (strings.size() > 0) {
+            return strings.get(0);
+        }
+        return null;
+    }
+
     @Override
     void parse(ParseContext context) {
         if ((sampleSize == 1) && (repeat > 1)) {
             byte[] bytes = context.getBytes(repeat);
-            String s = new String(bytes, StandardCharsets.US_ASCII);
+            String s = new String(bytes, StandardCharsets.ISO_8859_1);
             strings.add(s);
         } else {
             for (int r = 0; r < repeat; r++) {
                 byte[] bytes = context.getBytes(sampleSize);
-                String s = new String(bytes, StandardCharsets.US_ASCII);
+                String s = new String(bytes, StandardCharsets.ISO_8859_1);
                 strings.add(s);
             }
         }

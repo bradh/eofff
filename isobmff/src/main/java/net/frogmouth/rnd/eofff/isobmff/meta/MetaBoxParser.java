@@ -20,18 +20,15 @@ public class MetaBoxParser extends FullBoxParser {
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
         MetaBox box = new MetaBox();
-        int version = parseContext.readByte();
-        box.setVersion(version);
-        if (!isSupportedVersion(version)) {
-            LOG.warn("Got unsupported version {}, parsing as base box.", version);
-            return parseAsBaseBox(parseContext, initialOffset, boxSize, boxName);
+        // This is a workaround for an android bug
+        long maybeVersionAndFlags = parseContext.peekUnsignedInt32();
+        if (maybeVersionAndFlags == 0x00000000) {
+            // This has the version and flags (i.e. is correct)
+            parseContext.skipBytes(Integer.BYTES);
         }
-        box.setFlags(parseFlags(parseContext));
+        box.setVersion(0);
+        box.setFlags(0);
         box.addNestedBoxes(parseContext.parseNestedBoxes(initialOffset + boxSize));
         return box;
-    }
-
-    private boolean isSupportedVersion(int version) {
-        return version == 0x00;
     }
 }

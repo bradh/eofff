@@ -46,7 +46,13 @@ public class ObjectDescriptorBoxParser extends FullBoxParser {
         int length = b & 0x7F;
         if ((b & 0x80) == 0x80) {
             // TODO: we should handle this in the parseContext
-            throw new UnsupportedOperationException("We need to do extended length handling");
+            length = length << 7;
+            byte b1 = parseContext.readByte();
+            length = length + (b1 & 0x7f);
+            if ((b1 & 0x80) == 0x80) {
+                // throw new UnsupportedOperationException("We need to do extended length
+                // handling");
+            }
         }
         System.out.println("length: " + length);
         int packed = parseContext.readUnsignedInt16();
@@ -67,8 +73,12 @@ public class ObjectDescriptorBoxParser extends FullBoxParser {
                 int tag = parseContext.readUnsignedInt8();
                 int esLength = parseContext.readUnsignedInt8();
                 if ((esLength & 0x80) == 0x80) {
-                    throw new UnsupportedOperationException(
-                            "We need to do extended length handling");
+                    int esLength1 = parseContext.readUnsignedInt8();
+                    if ((esLength1 & 0x80) == 0x80) {
+                        // throw new UnsupportedOperationException(
+                        //        "We need to do extended length handling");
+                    }
+                    esLength = ((esLength & 0x7f) << 7) + (esLength1 & 0x7f);
                 }
                 if (tag == 0x0E) {
                     long track_ID = parseContext.readUnsignedInt32();

@@ -39,7 +39,8 @@ public class BoxDumper {
     }
 
     protected static void dumpRegularFile(Path p) throws IOException {
-        if ((p.toString().endsWith("jp2") || p.toString().endsWith("jph"))) {
+        if ((p.toString().endsWith("jp2") || p.toString().endsWith("jph"))
+                || p.toString().endsWith("mp4")) {
             try {
                 System.out.println("dumping " + p.toString());
                 BoxParser parser = new BoxParser(p);

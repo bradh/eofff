@@ -4,6 +4,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
 
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
+            net.frogmouth.rnd.eofff.isobmff.co64.ChunkLargeOffsetBoxParser,
             net.frogmouth.rnd.eofff.isobmff.cslg.CompositionToDecodeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.ctts.CompositionOffsetBoxParser,
             net.frogmouth.rnd.eofff.isobmff.dinf.DataInformationBoxParser,
@@ -22,7 +23,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceBoxParser,
             net.frogmouth.rnd.eofff.isobmff.iloc.ItemLocationBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mebx.BoxedMetadataSampleEntryParser,
-            net.frogmouth.rnd.eofff.isobmff.mebx.MetadataKeyTableBoxParser,
+            // net.frogmouth.rnd.eofff.isobmff.mebx.MetadataKeyTableBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.IlistBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.MetaBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mfhd.MovieFragmentHeaderBoxParser,
@@ -58,6 +59,8 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.vmhd.VideoMediaHeaderBoxParser;
 
     exports net.frogmouth.rnd.eofff.isobmff;
+    exports net.frogmouth.rnd.eofff.isobmff.sampleentry;
+    exports net.frogmouth.rnd.eofff.isobmff.co64;
     exports net.frogmouth.rnd.eofff.isobmff.cslg;
     exports net.frogmouth.rnd.eofff.isobmff.ctts;
     exports net.frogmouth.rnd.eofff.isobmff.dinf;

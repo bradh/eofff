@@ -1,7 +1,7 @@
 package net.frogmouth.rnd.eofff.isobmff.mebx;
 
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.stsd.MetaDataSampleEntry;
+import net.frogmouth.rnd.eofff.isobmff.sampleentry.MetaDataSampleEntry;
 
 /**
  * Boxed Metadata Sample Entry.

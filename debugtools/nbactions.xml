@@ -12,7 +12,7 @@
             <properties>
                 <exec.vmArgs>--enable-preview</exec.vmArgs>
                 <exec.args>${exec.vmArgs} -classpath %classpath ${exec.mainClass} ${exec.appArgs}</exec.args>
-                <exec.appArgs>/home/bradh/Downloads/JPEG2000TestFiles/T.803-15444-4-Ed3_Codestreams_20210901/</exec.appArgs>
+                <exec.appArgs>/home/bradh/Desktop/20240202_195220.mp4</exec.appArgs>
                 <exec.mainClass>${packageClassName}</exec.mainClass>
                 <exec.executable>java</exec.executable>
             </properties>
@@ -29,7 +29,7 @@
             <properties>
                 <exec.vmArgs>--enable-preview -agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address}</exec.vmArgs>
                 <exec.args>${exec.vmArgs} -classpath %classpath ${exec.mainClass} ${exec.appArgs}</exec.args>
-                <exec.appArgs>/home/bradh/Downloads/JPEG2000TestFiles/T.803-15444-4-Ed3_Codestreams_20210901/</exec.appArgs>
+                <exec.appArgs>/home/bradh/Desktop/20240202_195220.mp4</exec.appArgs>
                 <exec.mainClass>${packageClassName}</exec.mainClass>
                 <exec.executable>java</exec.executable>
                 <jpda.listen>true</jpda.listen>
@@ -49,7 +49,7 @@
                 <exec.args>${exec.vmArgs} -classpath %classpath ${exec.mainClass} ${exec.appArgs}</exec.args>
                 <exec.mainClass>${packageClassName}</exec.mainClass>
                 <exec.executable>java</exec.executable>
-                <exec.appArgs>/home/bradh/Downloads/JPEG2000TestFiles/T.803-15444-4-Ed3_Codestreams_20210901/</exec.appArgs>
+                <exec.appArgs>/home/bradh/Desktop/20240202_195220.mp4</exec.appArgs>
             </properties>
         </action>
     </actions>

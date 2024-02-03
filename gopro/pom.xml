@@ -8,7 +8,6 @@
     </parent>
     <groupId>net.frogmouth.rnd.eofff</groupId>
     <artifactId>gopro</artifactId>
-    <packaging>jar</packaging>
     <dependencies>
         <dependency>
             <groupId>net.frogmouth.rnd.eofff</groupId>

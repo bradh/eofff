@@ -1,6 +1,7 @@
 package net.frogmouth.rnd.eofff.isobmff.mdat;
 
 import java.io.IOException;
+import java.util.Arrays;
 import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
@@ -53,5 +54,11 @@ public class MediaDataBox extends BaseBox {
         sb.append("length=");
         sb.append(data.length);
         return sb.toString();
+    }
+
+    public byte[] getDataAt(long offset, long size) {
+        int relativeOffsetStart = (int) (offset - initialOffset);
+        int relativeOffsetEnd = (int) (relativeOffsetStart + size);
+        return Arrays.copyOfRange(data, relativeOffsetStart, relativeOffsetEnd);
     }
 }

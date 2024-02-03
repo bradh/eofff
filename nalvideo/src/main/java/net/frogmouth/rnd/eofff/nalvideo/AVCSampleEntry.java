@@ -1,7 +1,7 @@
 package net.frogmouth.rnd.eofff.nalvideo;
 
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.stsd.VisualSampleEntry;
+import net.frogmouth.rnd.eofff.isobmff.sampleentry.VisualSampleEntry;
 
 public class AVCSampleEntry extends VisualSampleEntry {
 

@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.isobmff.stsd;
+package net.frogmouth.rnd.eofff.isobmff.sampleentry;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
