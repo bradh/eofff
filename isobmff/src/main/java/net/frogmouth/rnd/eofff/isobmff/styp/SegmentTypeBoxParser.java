@@ -1,10 +1,12 @@
 package net.frogmouth.rnd.eofff.isobmff.styp;
 
+import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeLikeBoxParser;
 
+@AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
 public class SegmentTypeBoxParser extends FileTypeLikeBoxParser {
 
     public SegmentTypeBoxParser() {}

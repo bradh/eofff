@@ -1,13 +1,14 @@
 package net.frogmouth.rnd.eofff.isobmff.co64;
 
+import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
-import net.frogmouth.rnd.eofff.isobmff.stco.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
 public class ChunkLargeOffsetBoxParser extends FullBoxParser {
     private static final Logger LOG = LoggerFactory.getLogger(ChunkLargeOffsetBoxParser.class);
 

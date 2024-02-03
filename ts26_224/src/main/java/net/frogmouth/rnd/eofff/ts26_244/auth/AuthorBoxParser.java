@@ -30,7 +30,10 @@ public class AuthorBoxParser extends FullBoxParser {
             return parseAsBaseBox(parseContext, initialOffset, boxSize, boxName);
         }
         box.setFlags(parseFlags(parseContext));
-        // TODO
+        box.setLanguage(parseContext.readPackedLanguageCode());
+        box.setAuthor(
+                parseContext.readNullDelimitedString(
+                        boxSize - (parseContext.getCursorPosition() - initialOffset)));
         return box;
     }
 

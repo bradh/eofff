@@ -5,6 +5,7 @@ import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
+// @AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
 public class MetadataKeyTableBoxParser extends BaseBoxParser {
     public MetadataKeyTableBoxParser() {}
 

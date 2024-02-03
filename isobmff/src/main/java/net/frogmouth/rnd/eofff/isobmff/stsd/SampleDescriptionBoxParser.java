@@ -1,5 +1,6 @@
 package net.frogmouth.rnd.eofff.isobmff.stsd;
 
+import com.google.auto.service.AutoService;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.Box;
@@ -10,6 +11,7 @@ import net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
 public class SampleDescriptionBoxParser extends FullBoxParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(SampleDescriptionBoxParser.class);

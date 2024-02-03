@@ -3,6 +3,7 @@ package net.frogmouth.rnd.eofff.isobmff.infe;
 import static net.frogmouth.rnd.eofff.isobmff.infe.ItemInfoEntry.MIME;
 import static net.frogmouth.rnd.eofff.isobmff.infe.ItemInfoEntry.URI;
 
+import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
@@ -10,6 +11,7 @@ import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
 public class ItemInfoEntryParser extends FullBoxParser {
     private static final Logger LOG = LoggerFactory.getLogger(ItemInfoEntryParser.class);
 

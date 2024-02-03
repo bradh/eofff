@@ -1,5 +1,6 @@
 module net.frogmouth.rnd.eofff.isobmff {
     requires org.slf4j;
+    requires com.google.auto.service;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
 
