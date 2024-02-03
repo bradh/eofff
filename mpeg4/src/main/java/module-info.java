@@ -1,6 +1,7 @@
 @SuppressWarnings("module") // That is not a software version number - its the MPEG version
 module net.frogmouth.rnd.eofff.mpeg4 {
     requires net.frogmouth.rnd.eofff.isobmff;
+    requires com.google.auto.service;
     requires org.slf4j;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;

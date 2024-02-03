@@ -1,5 +1,6 @@
 package net.frogmouth.rnd.eofff.gopro;
 
+import com.google.auto.service.AutoService;
 import java.nio.charset.StandardCharsets;
 import net.frogmouth.rnd.eofff.isobmff.BaseBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
@@ -7,6 +8,7 @@ import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
 public class FIRMParser extends BaseBoxParser {
 
     private static final long BYTES_IN_BOX_HEADER = Integer.BYTES + FourCC.BYTES;

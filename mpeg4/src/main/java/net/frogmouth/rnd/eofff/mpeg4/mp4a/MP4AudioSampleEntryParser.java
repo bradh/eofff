@@ -1,11 +1,13 @@
 package net.frogmouth.rnd.eofff.mpeg4.mp4a;
 
+import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import net.frogmouth.rnd.eofff.isobmff.sampleentry.AudioSampleEntry;
 import net.frogmouth.rnd.eofff.isobmff.sampleentry.AudioSampleEntryParser;
 
+@AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
 public class MP4AudioSampleEntryParser extends AudioSampleEntryParser {
 
     public MP4AudioSampleEntryParser() {}
