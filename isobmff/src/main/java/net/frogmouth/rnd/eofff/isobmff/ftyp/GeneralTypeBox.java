@@ -7,25 +7,19 @@ import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
-public class FileTypeLikeBox extends BaseBox {
+/**
+ * General Type Box.
+ *
+ * <p>See ISO/IEC 14496-12:2022 Section 4.3.
+ */
+public abstract class GeneralTypeBox extends BaseBox {
 
     protected Brand majorBrand;
     protected int minorVersion;
     protected final List<Brand> compatibleBrands = new ArrayList<>();
 
-    public FileTypeLikeBox(FourCC name) {
+    public GeneralTypeBox(FourCC name) {
         super(name);
-    }
-
-    // @Override
-    public long getSize() {
-        long size =
-                Integer.BYTES
-                        + FourCC.BYTES
-                        + FourCC.BYTES
-                        + Integer.BYTES
-                        + FourCC.BYTES * compatibleBrands.size();
-        return size;
     }
 
     @Override

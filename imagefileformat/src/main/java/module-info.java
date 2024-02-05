@@ -4,6 +4,7 @@ module net.frogmouth.rnd.eofff.imagefileformat {
     requires org.slf4j;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
+    uses net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser;
     uses net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser;
 
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with

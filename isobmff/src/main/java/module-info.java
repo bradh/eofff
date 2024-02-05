@@ -3,6 +3,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     requires com.google.auto.service;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
+    uses net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser;
 
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
             net.frogmouth.rnd.eofff.isobmff.co64.ChunkLargeOffsetBoxParser,
@@ -58,6 +59,10 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupBoxParser,
             net.frogmouth.rnd.eofff.isobmff.udta.UserDataBoxParser,
             net.frogmouth.rnd.eofff.isobmff.vmhd.VideoMediaHeaderBoxParser;
+    provides net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser with
+            net.frogmouth.rnd.eofff.isobmff.dref.DataEntryImdaBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.dref.DataEntryUrlBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.dref.DataEntryUrnBoxParser;
 
     exports net.frogmouth.rnd.eofff.isobmff;
     exports net.frogmouth.rnd.eofff.isobmff.sampleentry;

@@ -4,6 +4,7 @@ module net.frogmouth.rnd.eofff.gopro {
     requires org.slf4j;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
+    uses net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser;
 
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
             net.frogmouth.rnd.eofff.gopro.BCIDParser,

@@ -6,7 +6,7 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
 @AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
-public class FileTypeBoxParser extends FileTypeLikeBoxParser {
+public class FileTypeBoxParser extends GeneralTypeBoxParser {
 
     public FileTypeBoxParser() {}
 

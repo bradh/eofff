@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.isobmff.idat;
+package net.frogmouth.rnd.eofff.isobmff.imda;
 
 import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.BaseBox;
@@ -6,26 +6,35 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
- * Item data box.
+ * Identified media data box.
  *
- * <p>See ISO/IEC 14496-12:2022 Section 8.11.11.
+ * <p>See ISO/IEC 14496-12:2022 Section 8.1.4
  */
-public class ItemDataBox extends BaseBox {
-    public static final FourCC IDAT_ATOM = new FourCC("idat");
+public class IdentifiedMediaDataBox extends BaseBox {
+    public static final FourCC IMDA_ATOM = new FourCC("imda");
+    private long imda_identifier;
     private byte[] data;
 
-    public ItemDataBox() {
-        super(IDAT_ATOM);
+    public IdentifiedMediaDataBox() {
+        super(IMDA_ATOM);
     }
 
     @Override
     public String getFullName() {
-        return "ItemDataBox";
+        return "IdentifiedMediaDataBox";
     }
 
     @Override
     public long getBodySize() {
         return data.length;
+    }
+
+    public long getIdentifier() {
+        return imda_identifier;
+    }
+
+    public void setIdentifier(long imdaIdentifier) {
+        this.imda_identifier = imdaIdentifier;
     }
 
     public byte[] getData() {
@@ -39,13 +48,16 @@ public class ItemDataBox extends BaseBox {
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
         this.writeBoxHeader(stream);
+        stream.writeUnsignedInt32(imda_identifier);
         stream.write(data);
     }
 
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
-        sb.append("data (length=");
+        sb.append("imda_identifier: ");
+        sb.append(imda_identifier);
+        sb.append(", data (length=");
         sb.append(data.length);
         sb.append(")");
         return sb.toString();

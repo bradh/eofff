@@ -10,14 +10,11 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 /**
  * Data Reference Box.
  *
- * <p>Declares source(s) of media data in track (in media information container - minf) or sources
- * of metadata items (in data information box - dinf).
- *
- * <p>See ISO/IEC 14496-12 Section 8.7.2.
+ * <p>See ISO/IEC 14496-12:2022 Section 8.7.2.
  */
 public class DataReferenceBox extends FullBox {
     public static final FourCC DREF_ATOM = new FourCC("dref");
-    private final List<DataEntryBox> entries = new ArrayList<>();
+    private final List<DataEntryBaseBox> entries = new ArrayList<>();
 
     public DataReferenceBox() {
         super(DREF_ATOM);
@@ -27,7 +24,7 @@ public class DataReferenceBox extends FullBox {
     public long getBodySize() {
         long size = 0;
         size += Integer.BYTES;
-        for (DataEntryBox entry : entries) {
+        for (DataEntryBaseBox entry : entries) {
             size += entry.getSize();
         }
         return size;
@@ -38,11 +35,11 @@ public class DataReferenceBox extends FullBox {
         return "DataReferenceBox";
     }
 
-    void addDataEntryBox(DataEntryBox dataEntryBox) {
+    void addDataReference(DataEntryBaseBox dataEntryBox) {
         entries.add(dataEntryBox);
     }
 
-    public List<DataEntryBox> getEntries() {
+    public List<DataEntryBaseBox> getEntries() {
         return new ArrayList<>(entries);
     }
 
@@ -50,7 +47,7 @@ public class DataReferenceBox extends FullBox {
     public void writeTo(OutputStreamWriter stream) throws IOException {
         this.writeBoxHeader(stream);
         stream.writeInt(entries.size());
-        for (DataEntryBox box : entries) {
+        for (DataEntryBaseBox box : entries) {
             box.writeTo(stream);
         }
     }
@@ -63,11 +60,9 @@ public class DataReferenceBox extends FullBox {
         sb.append("): ");
         sb.append(entries.size());
         sb.append(" entry/entries:");
-        for (DataEntryBox entry : entries) {
+        for (DataEntryBaseBox entry : entries) {
             sb.append("\n");
-            this.addIndent(nestingLevel + 1, sb);
-            sb.append("entry=");
-            sb.append(entry.toString());
+            sb.append(entry.toString(nestingLevel + 1));
         }
         return sb.toString();
     }

@@ -5,6 +5,7 @@ import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
+// @AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
 public class BaseMediaInformationHeaderParser extends BaseBoxParser {
     public BaseMediaInformationHeaderParser() {}
 

@@ -14,7 +14,7 @@ public class BoxFactoryManager {
     private BoxFactoryManager() {
         loader = ServiceLoader.load(BoxParser.class);
         for (BoxParser factory : loader) {
-            LOG.debug("Loading parser for {}", factory.getFourCC().toString());
+            LOG.debug("Loading box parser for {}", factory.getFourCC().toString());
             boxFactories.put(factory.getFourCC(), factory);
         }
     }

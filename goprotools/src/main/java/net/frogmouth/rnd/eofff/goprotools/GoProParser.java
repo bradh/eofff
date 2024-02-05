@@ -3,6 +3,7 @@ package net.frogmouth.rnd.eofff.goprotools;
 import java.io.File;
 import java.io.IOException;
 import java.lang.foreign.MemorySegment;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -167,6 +168,10 @@ class GoProParser {
             Long offset = offsets.get(i);
             Long size = sizes.get(i);
             byte[] chunk = mdat.getDataAt(offset, size);
+            if (chunk.length == 4) {
+                ByteBuffer bb = ByteBuffer.wrap(chunk);
+                System.out.println("Four bytes: " + bb.asIntBuffer().get(0));
+            }
             File f = new File(String.format("chunk%03d.%s", i, suffix));
             Files.write(f.toPath(), chunk);
         }

@@ -6,6 +6,11 @@ import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
+/**
+ * Media Data Box.
+ *
+ * <p>See ISO/IEC 14496-12:2022 Section 8.1.1
+ */
 public class MediaDataBox extends BaseBox {
 
     public static final FourCC MDAT_ATOM = new FourCC("mdat");

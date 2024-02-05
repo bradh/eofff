@@ -5,22 +5,27 @@ import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
-public class FreeSpaceBox extends BaseBox {
+/**
+ * Free Space Box.
+ *
+ * <p>See ISO/IEC 14496-12:2022 Section 8.1.2
+ */
+public abstract class FreeSpaceBox extends BaseBox {
 
     protected byte[] data;
 
-    protected FreeSpaceBox(FourCC name) {
-        super(name);
+    /**
+     * Constructor
+     *
+     * @param free_type the fourCC - `free` or `skip`
+     */
+    protected FreeSpaceBox(FourCC free_type) {
+        super(free_type);
     }
 
     @Override
     public String getFullName() {
         return "Free Space Box";
-    }
-
-    // @Override
-    public long getSize() {
-        return Integer.BYTES + FourCC.BYTES + data.length;
     }
 
     @Override

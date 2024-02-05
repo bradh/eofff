@@ -32,10 +32,8 @@ public class DataReferenceBoxParser extends FullBoxParser {
         box.setFlags(parseFlags(parseContext));
         long entryCount = parseContext.readUnsignedInt32();
         for (int i = 0; i < entryCount; i++) {
-            Box childBox = parseDataEntryBox(parseContext);
-            if (childBox instanceof DataEntryBox dataEntryBox) {
-                box.addDataEntryBox(dataEntryBox);
-            }
+            DataEntryBaseBox dataEntryBox = parseDataEntry(parseContext);
+            box.addDataReference(dataEntryBox);
         }
         return box;
     }
@@ -44,34 +42,13 @@ public class DataReferenceBoxParser extends FullBoxParser {
         return version == 0x00;
     }
 
-    private Box parseDataEntryBox(ParseContext parseContext) {
-        long initialOffset = parseContext.getCursorPosition();
+    private DataEntryBaseBox parseDataEntry(ParseContext parseContext) {
+        long offset = parseContext.getCursorPosition();
         long boxSize = parseContext.readUnsignedInt32();
-        FourCC boxName = parseContext.readFourCC();
-        int version = parseContext.readByte();
-        DataEntryBox box;
-        if (boxName.toString().equals("url ")) {
-            box = new DataEntryUrlBox();
-        } else if (boxName.toString().equals("urn ")) {
-            box = new DataEntryUrnBox();
-        } else {
-            LOG.warn("Got unsupported DataEntryBox {}, parsing as base box.", boxName);
-            return parseAsBaseBox(parseContext, initialOffset, boxSize, boxName);
-        }
-        box.setVersion(version);
-        if (!box.isSupportedVersion(version)) {
-            LOG.warn("Got unsupported version {}, parsing as base box.", version);
-            return parseAsBaseBox(parseContext, initialOffset, boxSize, boxName);
-        }
-        box.setFlags(parseFlags(parseContext));
-        if (!box.isFlagSet(DataEntryBox.MEDIA_DATA_IN_SAME_FILE_FLAG)) {
-            if (box instanceof DataEntryUrlBox dataEntryUrlBox) {
-                dataEntryUrlBox.setLocation(parseContext.readNullDelimitedString(boxSize));
-            } else if (box instanceof DataEntryUrnBox dataEntryUrnBox) {
-                dataEntryUrnBox.setName(parseContext.readNullDelimitedString(boxSize));
-                dataEntryUrnBox.setLocation(parseContext.readNullDelimitedString(boxSize));
-            }
-        }
-        return box;
+        FourCC entry_type = parseContext.readFourCC();
+        DataReferenceParser parser = DataReferenceFactoryManager.getParser(entry_type);
+        DataEntryBaseBox dataReference = parser.parse(parseContext, offset, boxSize, entry_type);
+        parseContext.setCursorPosition(offset + boxSize);
+        return dataReference;
     }
 }

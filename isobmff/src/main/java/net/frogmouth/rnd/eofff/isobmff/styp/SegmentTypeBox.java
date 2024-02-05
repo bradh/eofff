@@ -1,14 +1,14 @@
 package net.frogmouth.rnd.eofff.isobmff.styp;
 
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeLikeBox;
+import net.frogmouth.rnd.eofff.isobmff.ftyp.GeneralTypeBox;
 
 /**
  * Segment Type Box.
  *
- * <p>See ISO/IEC 14496-12:2015 Section 8.16.2.
+ * <p>See ISO/IEC 14496-12:2022 Section 8.16.2.
  */
-public class SegmentTypeBox extends FileTypeLikeBox {
+public class SegmentTypeBox extends GeneralTypeBox {
     public static final FourCC STYP_ATOM = new FourCC("styp");
 
     public SegmentTypeBox() {

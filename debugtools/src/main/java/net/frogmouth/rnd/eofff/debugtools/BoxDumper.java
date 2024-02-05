@@ -40,7 +40,12 @@ public class BoxDumper {
 
     protected static void dumpRegularFile(Path p) throws IOException {
         if ((p.toString().endsWith("jp2") || p.toString().endsWith("jph"))
+                || p.toString().endsWith("heic")
                 || p.toString().endsWith("mp4")) {
+            if (p.toString().endsWith("video_2500000bps_0.mp4")) {
+                // https://github.com/MPEGGroup/FileFormatConformance/issues/131
+                return;
+            }
             try {
                 System.out.println("dumping " + p.toString());
                 BoxParser parser = new BoxParser(p);

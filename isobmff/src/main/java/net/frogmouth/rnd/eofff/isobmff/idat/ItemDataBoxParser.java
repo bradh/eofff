@@ -13,16 +13,14 @@ public class ItemDataBoxParser extends BoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("idat");
+        return ItemDataBox.IDAT_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
         ItemDataBox box = new ItemDataBox();
         int dataLen = (int) (initialOffset + boxSize - parseContext.getCursorPosition());
-        byte[] data = new byte[dataLen];
-        parseContext.readBytes(data);
-        box.setData(data);
+        box.setData(parseContext.getBytes(dataLen));
         return box;
     }
 }
