@@ -1,8 +1,15 @@
 package net.frogmouth.rnd.eofff.isobmff.mfhd;
 
+import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
+/**
+ * Movie Fragment Header Box.
+ *
+ * <p>See ISO/IEC 14496-12:2022 Section 8.8.5.
+ */
 public class MovieFragmentHeaderBox extends FullBox {
     public static final FourCC MFHD_ATOM = new FourCC("mfhd");
     private long sequenceNumber;
@@ -13,7 +20,7 @@ public class MovieFragmentHeaderBox extends FullBox {
 
     @Override
     public String getFullName() {
-        return "Movie Fragment Header Box";
+        return "MovieFragmentHeaderBox";
     }
 
     public long getSequenceNumber() {
@@ -24,7 +31,17 @@ public class MovieFragmentHeaderBox extends FullBox {
         this.sequenceNumber = sequenceNumber;
     }
 
-    // TODO: write
+    @Override
+    public long getBodySize() {
+        return Integer.BYTES;
+    }
+
+    @Override
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        this.writeBoxHeader(stream);
+        stream.writeUnsignedInt32(sequenceNumber);
+    }
+
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);

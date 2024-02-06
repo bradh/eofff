@@ -7,6 +7,11 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
+/**
+ * Sample Description Box.
+ *
+ * <p>See ISO/IEC 14496-12:2022 Section 8.6.1.2.
+ */
 public class TimeToSampleBox extends FullBox {
     public static final FourCC STTS_ATOM = new FourCC("stts");
     private final List<TimeToSampleEntry> entries = new ArrayList<>();

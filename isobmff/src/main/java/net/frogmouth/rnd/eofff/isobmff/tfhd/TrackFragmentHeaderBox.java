@@ -3,6 +3,11 @@ package net.frogmouth.rnd.eofff.isobmff.tfhd;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 
+/**
+ * Track Fragment Header Box.
+ *
+ * <p>See ISO/IEC 14496-12:2022 Section 8.8.7.
+ */
 public class TrackFragmentHeaderBox extends FullBox {
 
     public static final FourCC TFHD_ATOM = new FourCC("tfhd");

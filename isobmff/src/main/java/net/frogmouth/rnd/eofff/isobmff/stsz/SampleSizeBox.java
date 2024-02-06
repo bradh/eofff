@@ -10,7 +10,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 /**
  * Sample Size Box.
  *
- * <p>See ISO/IEC 14496-12:2015 Section 8.7.3.
+ * <p>See ISO/IEC 14496-12:2022 Section 8.7.3.2.
  */
 public class SampleSizeBox extends FullBox {
 

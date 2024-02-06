@@ -12,7 +12,7 @@ public class TrackFragmentBoxParser extends BaseBoxParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("traf");
+        return TrackFragmentBox.TRAF_ATOM;
     }
 
     @Override

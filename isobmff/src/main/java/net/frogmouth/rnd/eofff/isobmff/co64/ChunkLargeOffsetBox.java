@@ -6,7 +6,6 @@ import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
-import net.frogmouth.rnd.eofff.isobmff.stco.*;
 
 /**
  * Chunk Offset Box.

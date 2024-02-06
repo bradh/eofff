@@ -10,7 +10,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 /**
  * Edit List Box.
  *
- * <p>See ISO/IEC 14496-12:2015 Section 8.6.6.
+ * <p>See ISO/IEC 14496-12:2022 Section 8.6.6.
  */
 public class EditListBox extends FullBox {
 
