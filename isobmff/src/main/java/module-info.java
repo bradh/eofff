@@ -28,6 +28,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             // net.frogmouth.rnd.eofff.isobmff.mebx.MetadataKeyTableBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.IlistBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.MetaBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.mehd.MovieExtendsHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mfhd.MovieFragmentHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.moof.MovieFragmentBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mdia.MediaBoxParser,
