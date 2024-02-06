@@ -40,26 +40,27 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.pasp.PixelAspectRatioBoxParser,
             net.frogmouth.rnd.eofff.isobmff.pdin.ProgressiveDownloadInfoBoxParser,
             net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.smhd.SoundMediaHeaderBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.stbl.SampleTableBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.traf.TrackFragmentBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.tfdt.TrackFragmentDecodeTimeBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.tfhd.TrackFragmentHeaderBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.trun.TrackRunBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.trak.TrackBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.tkhd.TrackHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sbgp.SampleToGroupBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sgpd.SampleGroupDescriptionBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sidx.SegmentIndexBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.stco.ChunkOffsetBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.smhd.SoundMediaHeaderBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.stbl.SampleTableBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stsc.SampleToChunkBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stsd.SampleDescriptionBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.stco.ChunkOffsetBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stss.SyncSampleBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stsz.SampleSizeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stts.TimeToSampleBoxParser,
             net.frogmouth.rnd.eofff.isobmff.styp.SegmentTypeBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.stz2.CompactSampleSizeBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.traf.TrackFragmentBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.tfdt.TrackFragmentDecodeTimeBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.tfhd.TrackFragmentHeaderBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.tkhd.TrackHeaderBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.trak.TrackBoxParser,
             net.frogmouth.rnd.eofff.isobmff.tref.TrackReferenceBoxParser,
             net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.trun.TrackRunBoxParser,
             net.frogmouth.rnd.eofff.isobmff.udta.UserDataBoxParser,
             net.frogmouth.rnd.eofff.isobmff.vmhd.VideoMediaHeaderBoxParser;
 
@@ -116,6 +117,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.stsz;
     exports net.frogmouth.rnd.eofff.isobmff.stts;
     exports net.frogmouth.rnd.eofff.isobmff.styp;
+    exports net.frogmouth.rnd.eofff.isobmff.stz2;
     exports net.frogmouth.rnd.eofff.isobmff.tkhd;
     exports net.frogmouth.rnd.eofff.isobmff.trak;
     exports net.frogmouth.rnd.eofff.isobmff.tref;

@@ -29,6 +29,9 @@ public class SampleSizeBox extends FullBox {
         long size = 0;
         size += Integer.BYTES;
         size += Integer.BYTES;
+        if (sampleSize == 0) {
+            size += (Integer.BYTES * entries.size());
+        }
         return size;
     }
 
@@ -66,9 +69,9 @@ public class SampleSizeBox extends FullBox {
         this.writeBoxHeader(stream);
         stream.writeInt((int) this.sampleSize);
         if (sampleSize == 0) {
-            stream.writeInt(this.entries.size());
+            stream.writeUnsignedInt32(this.entries.size());
             for (long entry : entries) {
-                stream.writeInt((int) entry);
+                stream.writeUnsignedInt32((int) entry);
             }
         } else {
             stream.writeInt((int) this.sampleCount);
