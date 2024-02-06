@@ -7,15 +7,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import org.testng.annotations.Test;
 
 public class FtypBoxTest {
     @Test
     public void checkFullName() {
-        FileTypeBox box = new FileTypeBox(new FourCC("ftyp"));
-        assertEquals(box.getFullName(), "File Type Box");
+        FileTypeBox box = new FileTypeBox();
+        assertEquals(box.getFullName(), "FileTypeBox");
     }
 
     @Test

@@ -9,12 +9,14 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
  */
 public class FileTypeBox extends GeneralTypeBox {
 
-    public FileTypeBox(FourCC name) {
-        super(name);
+    public static final FourCC FTYP_ATOM = new FourCC("ftyp");
+
+    public FileTypeBox() {
+        super(FTYP_ATOM);
     }
 
     @Override
     public String getFullName() {
-        return "File Type Box";
+        return "FileTypeBox";
     }
 }

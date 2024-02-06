@@ -2,7 +2,6 @@ package net.frogmouth.rnd.eofff.isobmff.ftyp;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 public class FileTypeBoxBuilder {
 
@@ -28,7 +27,7 @@ public class FileTypeBoxBuilder {
     }
 
     public FileTypeBox build() {
-        FileTypeBox box = new FileTypeBox(new FourCC("ftyp"));
+        FileTypeBox box = new FileTypeBox();
         box.setMajorBrand(this.majorBrand);
         box.setMinorVersion(this.minorVersion);
         for (Brand brand : this.compatibleBrands) {
