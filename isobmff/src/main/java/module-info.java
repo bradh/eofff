@@ -33,6 +33,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.mdia.MediaBoxParser,
             net.frogmouth.rnd.eofff.isobmff.minf.MediaInformationBoxParser,
             net.frogmouth.rnd.eofff.isobmff.moov.MovieBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.mvex.MovieExtendsBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mvhd.MovieHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.nmhd.NullMediaHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.pasp.PixelAspectRatioBoxParser,
@@ -95,6 +96,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.minf;
     exports net.frogmouth.rnd.eofff.isobmff.moof;
     exports net.frogmouth.rnd.eofff.isobmff.moov;
+    exports net.frogmouth.rnd.eofff.isobmff.mvex;
     exports net.frogmouth.rnd.eofff.isobmff.mvhd;
     exports net.frogmouth.rnd.eofff.isobmff.nmhd;
     exports net.frogmouth.rnd.eofff.isobmff.pasp;
