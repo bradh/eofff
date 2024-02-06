@@ -26,7 +26,7 @@ public class IdentifiedMediaDataBox extends BaseBox {
 
     @Override
     public long getBodySize() {
-        return data.length;
+        return Integer.BYTES + data.length;
     }
 
     public long getIdentifier() {
