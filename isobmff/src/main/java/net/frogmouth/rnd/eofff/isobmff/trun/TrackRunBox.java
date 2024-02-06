@@ -5,6 +5,11 @@ import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 
+/**
+ * Track Run Box.
+ *
+ * <p>See ISO/IEC 14496-12:2022 Section 8.8.8.
+ */
 public class TrackRunBox extends FullBox {
     public static final FourCC TRUN_ATOM = new FourCC("trun");
 

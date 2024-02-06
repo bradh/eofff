@@ -4,7 +4,7 @@ import net.frogmouth.rnd.eofff.isobmff.AbstractContainerBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 /**
- * MediaBox.
+ * Media Box.
  *
  * <p>See ISO/IEC 14496-12:2022 Section 8.4.1
  */
