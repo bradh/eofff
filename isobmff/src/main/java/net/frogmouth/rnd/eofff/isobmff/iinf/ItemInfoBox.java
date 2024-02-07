@@ -80,8 +80,7 @@ public class ItemInfoBox extends FullBox {
         sb.append(getItems().size());
         for (ItemInfoEntry item : getItems()) {
             sb.append("\n");
-            this.addIndent(nestingLevel + 1, sb);
-            sb.append(item.toString());
+            sb.append(item.toString(nestingLevel + 1));
         }
         return sb.toString();
     }

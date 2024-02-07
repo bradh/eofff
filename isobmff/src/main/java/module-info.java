@@ -74,6 +74,13 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.dref.DataEntryUrlBoxParser,
             net.frogmouth.rnd.eofff.isobmff.dref.DataEntryUrnBoxParser;
 
+    uses net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceFactory;
+
+    provides net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceFactory with
+            net.frogmouth.rnd.eofff.isobmff.iref.FileDeliveryReferenceFactory,
+            net.frogmouth.rnd.eofff.isobmff.iref.FontReferenceFactory,
+            net.frogmouth.rnd.eofff.isobmff.iref.ItemLocationReferenceFactory;
+
     exports net.frogmouth.rnd.eofff.isobmff;
     exports net.frogmouth.rnd.eofff.isobmff.sampleentry;
     exports net.frogmouth.rnd.eofff.isobmff.co64;

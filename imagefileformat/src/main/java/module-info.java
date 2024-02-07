@@ -1,11 +1,10 @@
 /** Implementation of ISO/IEC 23008-12 "Image File Format". */
 module net.frogmouth.rnd.eofff.imagefileformat {
+    requires com.google.auto.service;
     requires net.frogmouth.rnd.eofff.isobmff;
     requires org.slf4j;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
-    uses net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser;
-    uses net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser;
 
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
             net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.AlternativesParser,
@@ -16,6 +15,26 @@ module net.frogmouth.rnd.eofff.imagefileformat {
                     .ItemPropertyContainerBoxParser,
             net.frogmouth.rnd.eofff.imagefileformat.extensions.properties
                     .ItemPropertyAssociationParser;
+
+    uses net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceFactory;
+
+    provides net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceFactory with
+            net.frogmouth.rnd.eofff.imagefileformat.itemreferences.AuxiliaryImageFactory,
+            net.frogmouth.rnd.eofff.imagefileformat.itemreferences.BaseImageFactory,
+            net.frogmouth.rnd.eofff.imagefileformat.itemreferences.ContentDescribesFactory,
+            net.frogmouth.rnd.eofff.imagefileformat.itemreferences.DerivedImageFactory,
+            net.frogmouth.rnd.eofff.imagefileformat.itemreferences.DependentCodingFactory,
+            net.frogmouth.rnd.eofff.imagefileformat.itemreferences.RegionReferenceFactory,
+            net.frogmouth.rnd.eofff.imagefileformat.itemreferences.EVCSliceReferenceFactory,
+            net.frogmouth.rnd.eofff.imagefileformat.itemreferences.ScalableImageFactory,
+            net.frogmouth.rnd.eofff.imagefileformat.itemreferences.MaskReferenceFactory,
+            net.frogmouth.rnd.eofff.imagefileformat.itemreferences.DataIntegrityReferenceFactory,
+            net.frogmouth.rnd.eofff.imagefileformat.itemreferences.PredictivelyCodedFactory,
+            net.frogmouth.rnd.eofff.imagefileformat.itemreferences.TileBasisFactory,
+            net.frogmouth.rnd.eofff.imagefileformat.itemreferences.ThumbnailFactory;
+
+    uses net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser;
+
     provides net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser with
             net.frogmouth.rnd.eofff.imagefileformat.properties.hevc
                     .HEVCConfigurationItemPropertyParser,
@@ -31,11 +50,14 @@ module net.frogmouth.rnd.eofff.imagefileformat {
             net.frogmouth.rnd.eofff.imagefileformat.properties.mski.MaskConfigurationPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.udes.UserDescriptionPropertyParser;
 
+    uses net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser;
+
     exports net.frogmouth.rnd.eofff.imagefileformat.brands;
     exports net.frogmouth.rnd.eofff.imagefileformat.extensions.groups;
     exports net.frogmouth.rnd.eofff.imagefileformat.extensions.properties;
     exports net.frogmouth.rnd.eofff.imagefileformat.items.grid;
     exports net.frogmouth.rnd.eofff.imagefileformat.items.rgan;
+    exports net.frogmouth.rnd.eofff.imagefileformat.itemreferences;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.colr;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.hevc;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.image;

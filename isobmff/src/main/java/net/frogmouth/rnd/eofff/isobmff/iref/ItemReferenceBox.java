@@ -10,7 +10,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 /**
  * Item Reference Box.
  *
- * <p>See ISO/IEC 14496-12:2015 Section 8.11.12.
+ * <p>See ISO/IEC 14496-12:2022 Section 8.11.12.
  */
 public class ItemReferenceBox extends FullBox {
     public static final FourCC IREF_ATOM = new FourCC("iref");

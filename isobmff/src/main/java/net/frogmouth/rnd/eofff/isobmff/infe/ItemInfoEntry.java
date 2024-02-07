@@ -8,6 +8,11 @@ import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoExtension;
 
+/**
+ * Item data box.
+ *
+ * <p>See ISO/IEC 14496-12:2022 Section 8.11.6.
+ */
 public class ItemInfoEntry extends FullBox {
     public static final FourCC INFE_ATOM = new FourCC("infe");
     public static final int MIME = 0x6d696d65;

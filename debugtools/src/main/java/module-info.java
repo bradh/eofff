@@ -8,6 +8,7 @@ module net.frogmouth.rnd.eofff.tools {
     requires net.frogmouth.rnd.eofff.imagefileformat;
     requires net.frogmouth.rnd.eofff.isobmff;
     requires net.frogmouth.rnd.eofff.jpeg2000;
+    requires net.frogmouth.rnd.eofff.miaf;
     requires net.frogmouth.rnd.eofff.nalvideo;
     requires net.frogmouth.rnd.eofff.ts26_244;
     requires org.slf4j;

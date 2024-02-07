@@ -6,7 +6,7 @@ import net.frogmouth.rnd.eofff.isobmff.FullBox;
 /**
  * Composition Time to Sample Box.
  *
- * <p>See ISO/IEC 14496-12:2015 Section 8.6.1.4.
+ * <p>See ISO/IEC 14496-12:2022 Section 8.6.1.4.
  */
 public class CompositionToDecodeBox extends FullBox {
 

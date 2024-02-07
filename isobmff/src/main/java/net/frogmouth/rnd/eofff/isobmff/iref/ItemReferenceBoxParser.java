@@ -31,8 +31,11 @@ public class ItemReferenceBoxParser extends FullBoxParser {
         box.setFlags(parseFlags(parseContext));
         while (parseContext.hasRemainingUntil(initialOffset + boxSize)) {
             long refBoxSize = parseContext.readUnsignedInt32();
-            FourCC refBoxName = parseContext.readFourCC();
-            SingleItemReferenceBox refBox = new SingleItemReferenceBox(refBoxName);
+            FourCC referenceType = parseContext.readFourCC();
+            // SingleItemReferenceBox refBox = new SingleItemReferenceBox(refBoxName);
+            ItemReferenceFactory referenceFactory =
+                    ItemReferenceFactoryManager.getFactory(referenceType);
+            SingleItemReferenceBox refBox = referenceFactory.makeItemReference(referenceType);
             if (version == 0x00) {
                 refBox.setFromItemId(parseContext.readUnsignedInt16());
                 int refCount = parseContext.readUnsignedInt16();

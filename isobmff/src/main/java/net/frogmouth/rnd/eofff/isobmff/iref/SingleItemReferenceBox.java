@@ -7,7 +7,14 @@ import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
-public class SingleItemReferenceBox extends BaseBox {
+/**
+ * Single Item Type Reference Box.
+ *
+ * <p>Note that this structure also covers Single Item Type Reference Box Large requirements.
+ *
+ * <p>See ISO/IEC 14496-12:2022 Section 8.11.12 for both box definitions.
+ */
+public abstract class SingleItemReferenceBox extends BaseBox {
 
     private static final long BYTES_IN_BOX_HEADER = Integer.BYTES + FourCC.BYTES;
 
@@ -19,31 +26,7 @@ public class SingleItemReferenceBox extends BaseBox {
     }
 
     @Override
-    public String getFullName() {
-        if (this.getFourCC().equals(new FourCC("auxl"))) {
-            return "Auxiliary image";
-        }
-        if (this.getFourCC().equals(new FourCC("base"))) {
-            return "Pre-derived image base";
-        }
-        if (this.getFourCC().equals(new FourCC("cdsc"))) {
-            return "Content Describes";
-        }
-        if (this.getFourCC().equals(new FourCC("dimg"))) {
-            return "Derived image";
-        }
-        if (this.getFourCC().equals(new FourCC("font"))) {
-            return "Font item reference";
-        }
-        if (this.getFourCC().equals(new FourCC("grid"))) {
-            return "Grid reference image";
-        }
-        if (this.getFourCC().equals(new FourCC("thmb"))) {
-            return "Thumbnail";
-        }
-
-        return "(Unknown)";
-    }
+    public abstract String getFullName();
 
     public long getFromItemId() {
         return fromItemId;
@@ -100,7 +83,9 @@ public class SingleItemReferenceBox extends BaseBox {
         StringBuilder sb = new StringBuilder();
         sb.append(" Reference: ");
         sb.append(this.getFourCC().toString());
-        sb.append(", from item_id=");
+        sb.append(" (");
+        sb.append(this.getFullName());
+        sb.append(") from item_id=");
         sb.append(this.getFromItemId());
         sb.append(" to ");
         for (int i = 0; i < references.size() - 1; i++) {

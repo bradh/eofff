@@ -19,6 +19,7 @@
         <module>cicp</module>
         <!-- <module>sidd</module> -->
         <module>jpeg2000</module>
+        <module>miaf</module>
         <module>mpeg4</module>
         <module>ts26_224</module>
         <module>gopro</module>

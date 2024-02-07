@@ -8,7 +8,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 /**
  * Pixel Aspect Ratio Box.
  *
- * <p>See ISO/IEC 14496-12:2015 Section 12.1.4.
+ * <p>See ISO/IEC 14496-12:2022 Section 12.1.4.
  */
 public class PixelAspectRatioBox extends BaseBox {
     public static final FourCC PASP_ATOM = new FourCC("pasp");

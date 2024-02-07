@@ -52,6 +52,11 @@ public class MetaBox extends FullBox {
     }
 
     @Override
+    public String toString() {
+        return toString(0);
+    }
+
+    @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
         sb.append("'(Container)");
