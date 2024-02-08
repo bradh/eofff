@@ -9,6 +9,11 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
+/**
+ * Item property association box.
+ *
+ * <p>See ISO/IEC 14496-12:2022 Section 8.11.14.
+ */
 public class ItemPropertyAssociation extends FullBox {
     public static final FourCC IPMA_ATOM = new FourCC("ipma");
     private final List<AssociationEntry> entries = new ArrayList<>();

@@ -17,7 +17,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  * implicitly indexed list of item properties, and one or more ItemPropertyAssociation boxes that
  * associate items with item properties.
  *
- * <p>Refer to ISO/IEC 23008-12:2017(E) Section 9.3 "Item Properties Box".
+ * <p>Refer to ISO/IEC 14496-12:2022 Section 8.11.14.
  */
 public class ItemPropertiesBox extends BaseBox {
     private ItemPropertyContainerBox itemProperties;

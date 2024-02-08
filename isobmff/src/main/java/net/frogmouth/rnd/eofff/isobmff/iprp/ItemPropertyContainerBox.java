@@ -7,6 +7,11 @@ import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
+/**
+ * Item properties container box.
+ *
+ * <p>See ISO/IEC 14496-12:2022 Section 8.11.14.
+ */
 public class ItemPropertyContainerBox extends BaseBox {
 
     public static FourCC IPCO_ATOM = new FourCC("ipco");
