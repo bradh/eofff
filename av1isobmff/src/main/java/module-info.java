@@ -1,5 +1,6 @@
 module net.frogmouth.rnd.eofff.av1isobmff {
     requires net.frogmouth.rnd.eofff.isobmff;
+    requires com.google.auto.service;
     requires net.frogmouth.rnd.eofff.cicp;
     requires org.slf4j;
 

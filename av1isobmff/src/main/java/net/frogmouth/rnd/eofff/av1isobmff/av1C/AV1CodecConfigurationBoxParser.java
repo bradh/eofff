@@ -1,5 +1,6 @@
 package net.frogmouth.rnd.eofff.av1isobmff.av1C;
 
+import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.cicp.ColourPrimary;
 import net.frogmouth.rnd.eofff.cicp.MatrixCoefficients;
 import net.frogmouth.rnd.eofff.cicp.TransferCharacteristics;
@@ -9,6 +10,7 @@ import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullPropertyParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@AutoService(net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser.class)
 public class AV1CodecConfigurationBoxParser extends ItemFullPropertyParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(AV1CodecConfigurationBoxParser.class);
