@@ -3,9 +3,9 @@ package net.frogmouth.rnd.eofff.av1isobmff.av1C;
 import net.frogmouth.rnd.eofff.cicp.ColourPrimary;
 import net.frogmouth.rnd.eofff.cicp.MatrixCoefficients;
 import net.frogmouth.rnd.eofff.cicp.TransferCharacteristics;
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemFullPropertyParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
+import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullPropertyParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

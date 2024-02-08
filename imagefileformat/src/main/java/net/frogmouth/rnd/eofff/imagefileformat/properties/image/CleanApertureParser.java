@@ -1,9 +1,9 @@
 package net.frogmouth.rnd.eofff.imagefileformat.properties.image;
 
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
+import net.frogmouth.rnd.eofff.isobmff.iprp.AbstractItemProperty;
+import net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser;
 
 public class CleanApertureParser implements PropertyParser {
 

@@ -18,11 +18,6 @@
         </dependency>
         <dependency>
             <groupId>net.frogmouth.rnd.eofff</groupId>
-            <artifactId>imagefileformat</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.frogmouth.rnd.eofff</groupId>
             <artifactId>cicp</artifactId>
             <version>${project.version}</version>
         </dependency>

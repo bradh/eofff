@@ -2,9 +2,9 @@ package net.frogmouth.rnd.eofff.imagefileformat.properties.udes;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemFullProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullProperty;
 
 public class UserDescriptionProperty extends ItemFullProperty {
     public static final FourCC UDES_ATOM = new FourCC("udes");

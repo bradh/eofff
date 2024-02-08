@@ -1,8 +1,8 @@
 package net.frogmouth.rnd.eofff.uncompressed.cmpd;
 
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
+import net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

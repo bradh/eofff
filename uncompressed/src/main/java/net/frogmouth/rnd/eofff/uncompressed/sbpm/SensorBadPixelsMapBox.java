@@ -3,9 +3,9 @@ package net.frogmouth.rnd.eofff.uncompressed.sbpm;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemFullProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullProperty;
 
 /**
  * Sensor Bad Pixel Map Box.

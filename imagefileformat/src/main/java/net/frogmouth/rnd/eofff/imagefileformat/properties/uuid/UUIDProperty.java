@@ -3,9 +3,9 @@ package net.frogmouth.rnd.eofff.imagefileformat.properties.uuid;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.iprp.ItemProperty;
 
 public class UUIDProperty extends ItemProperty {
     public static final FourCC UUID_ATOM = new FourCC("uuid");

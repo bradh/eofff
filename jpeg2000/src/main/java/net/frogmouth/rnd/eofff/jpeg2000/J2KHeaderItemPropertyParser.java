@@ -1,9 +1,11 @@
 package net.frogmouth.rnd.eofff.jpeg2000;
 
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser;
+import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
+import net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser;
 
+@AutoService(net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser.class)
 public class J2KHeaderItemPropertyParser implements PropertyParser {
 
     @Override

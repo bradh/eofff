@@ -1,9 +1,9 @@
 package net.frogmouth.rnd.eofff.uncompressed.cloc;
 
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemFullPropertyParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
+import net.frogmouth.rnd.eofff.isobmff.iprp.AbstractItemProperty;
+import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullPropertyParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

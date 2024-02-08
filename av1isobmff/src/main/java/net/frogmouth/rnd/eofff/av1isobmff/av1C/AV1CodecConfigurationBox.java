@@ -1,9 +1,9 @@
 package net.frogmouth.rnd.eofff.av1isobmff.av1C;
 
 import java.io.IOException;
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.iprp.ItemProperty;
 
 public class AV1CodecConfigurationBox extends ItemProperty {
     private int version;

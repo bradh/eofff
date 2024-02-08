@@ -4,9 +4,9 @@ import static org.testng.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.iprp.AbstractItemProperty;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.PropertyTestSupport;
 import org.testng.annotations.Test;
 

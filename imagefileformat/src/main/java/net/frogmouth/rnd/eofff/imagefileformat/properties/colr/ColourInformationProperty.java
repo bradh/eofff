@@ -1,9 +1,9 @@
 package net.frogmouth.rnd.eofff.imagefileformat.properties.colr;
 
 import java.io.IOException;
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.iprp.ItemProperty;
 
 public class ColourInformationProperty extends ItemProperty {
     public static final FourCC COLR_ATOM = new FourCC("colr");

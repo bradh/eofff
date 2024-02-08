@@ -1,9 +1,9 @@
 package net.frogmouth.rnd.eofff.imagefileformat.properties.mski;
 
 import java.io.IOException;
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemFullProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullProperty;
 
 public class MaskConfigurationProperty extends ItemFullProperty {
     public static final FourCC MSKC_ATOM = new FourCC("mskC");

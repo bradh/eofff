@@ -1,9 +1,9 @@
 package net.frogmouth.rnd.eofff.jpeg2000;
 
 import java.io.IOException;
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.iprp.ItemProperty;
 import net.frogmouth.rnd.eofff.jpeg2000.fileformat.cmap.ComponentMappingBox;
 
 // TODO: turn into container

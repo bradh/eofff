@@ -1,5 +1,6 @@
-package net.frogmouth.rnd.eofff.imagefileformat.extensions.properties;
+package net.frogmouth.rnd.eofff.isobmff.iprp;
 
+import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
@@ -7,6 +8,7 @@ import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
 public class ItemPropertyAssociationParser extends FullBoxParser {
     private static final Logger LOG = LoggerFactory.getLogger(ItemPropertyAssociationParser.class);
 

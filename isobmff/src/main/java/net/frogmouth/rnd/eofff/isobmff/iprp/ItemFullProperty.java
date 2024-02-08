@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.imagefileformat.extensions.properties;
+package net.frogmouth.rnd.eofff.isobmff.iprp;
 
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;

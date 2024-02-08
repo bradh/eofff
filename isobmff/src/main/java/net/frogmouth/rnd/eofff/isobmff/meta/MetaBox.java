@@ -8,6 +8,11 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
+/**
+ * Track Reference Box.
+ *
+ * <p>See ISO/IEC 14496-12:2022 Section 8.11.1.
+ */
 public class MetaBox extends FullBox {
     public static final FourCC META_ATOM = new FourCC("meta");
 

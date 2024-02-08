@@ -9,12 +9,7 @@ module net.frogmouth.rnd.eofff.imagefileformat {
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
             net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.AlternativesParser,
             net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.AlbumCollectionParser,
-            net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.GroupsListBoxParser,
-            net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertiesBoxParser,
-            net.frogmouth.rnd.eofff.imagefileformat.extensions.properties
-                    .ItemPropertyContainerBoxParser,
-            net.frogmouth.rnd.eofff.imagefileformat.extensions.properties
-                    .ItemPropertyAssociationParser;
+            net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.GroupsListBoxParser;
 
     uses net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceFactory;
 
@@ -33,9 +28,9 @@ module net.frogmouth.rnd.eofff.imagefileformat {
             net.frogmouth.rnd.eofff.imagefileformat.itemreferences.TileBasisFactory,
             net.frogmouth.rnd.eofff.imagefileformat.itemreferences.ThumbnailFactory;
 
-    uses net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser;
+    uses net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser;
 
-    provides net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.PropertyParser with
+    provides net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser with
             net.frogmouth.rnd.eofff.imagefileformat.properties.hevc
                     .HEVCConfigurationItemPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.image.AuxiliaryTypePropertyParser,
@@ -54,7 +49,6 @@ module net.frogmouth.rnd.eofff.imagefileformat {
 
     exports net.frogmouth.rnd.eofff.imagefileformat.brands;
     exports net.frogmouth.rnd.eofff.imagefileformat.extensions.groups;
-    exports net.frogmouth.rnd.eofff.imagefileformat.extensions.properties;
     exports net.frogmouth.rnd.eofff.imagefileformat.items.grid;
     exports net.frogmouth.rnd.eofff.imagefileformat.items.rgan;
     exports net.frogmouth.rnd.eofff.imagefileformat.itemreferences;

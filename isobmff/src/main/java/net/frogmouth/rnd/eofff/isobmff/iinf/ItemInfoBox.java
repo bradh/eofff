@@ -11,7 +11,7 @@ import net.frogmouth.rnd.eofff.isobmff.infe.ItemInfoEntry;
 /**
  * Item Information Box.
  *
- * <p>See ISO/IEC 14496-12:2015 Section 8.11.6.
+ * <p>See ISO/IEC 14496-12:2022 Section 8.11.6.
  */
 public class ItemInfoBox extends FullBox {
     public static final FourCC IINF_ATOM = new FourCC("iinf");

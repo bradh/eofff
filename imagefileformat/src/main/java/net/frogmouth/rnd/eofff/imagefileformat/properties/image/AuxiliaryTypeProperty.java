@@ -1,7 +1,7 @@
 package net.frogmouth.rnd.eofff.imagefileformat.properties.image;
 
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemFullProperty;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullProperty;
 
 public class AuxiliaryTypeProperty extends ItemFullProperty {
 

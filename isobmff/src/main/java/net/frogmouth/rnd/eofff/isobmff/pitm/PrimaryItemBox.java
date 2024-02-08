@@ -8,7 +8,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 /**
  * Primary Item Box.
  *
- * <p>See ISO/IEC 14496-12:2015 Section 8.11.4.
+ * <p>See ISO/IEC 14496-12:2022 Section 8.11.4.
  */
 public class PrimaryItemBox extends FullBox {
     public static final FourCC PITM_ATOM = new FourCC("pitm");

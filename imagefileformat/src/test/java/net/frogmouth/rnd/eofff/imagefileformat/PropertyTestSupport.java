@@ -4,11 +4,11 @@ import static org.testng.Assert.*;
 
 import java.lang.foreign.MemorySegment;
 import java.util.List;
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.AbstractItemProperty;
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyContainerBox;
-import net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyContainerBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
+import net.frogmouth.rnd.eofff.isobmff.iprp.AbstractItemProperty;
+import net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertyContainerBox;
+import net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertyContainerBoxParser;
 
 public class PropertyTestSupport {
 

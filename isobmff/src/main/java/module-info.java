@@ -25,6 +25,9 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.infe.ItemInfoEntryParser,
             net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceBoxParser,
             net.frogmouth.rnd.eofff.isobmff.iloc.ItemLocationBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertyContainerBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertyAssociationParser,
+            net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertiesBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mebx.BoxedMetadataSampleEntryParser,
             // net.frogmouth.rnd.eofff.isobmff.mebx.MetadataKeyTableBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.IlistBoxParser,
@@ -81,6 +84,8 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.iref.FontReferenceFactory,
             net.frogmouth.rnd.eofff.isobmff.iref.ItemLocationReferenceFactory;
 
+    uses net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser;
+
     exports net.frogmouth.rnd.eofff.isobmff;
     exports net.frogmouth.rnd.eofff.isobmff.sampleentry;
     exports net.frogmouth.rnd.eofff.isobmff.co64;
@@ -99,6 +104,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.iloc;
     exports net.frogmouth.rnd.eofff.isobmff.imda;
     exports net.frogmouth.rnd.eofff.isobmff.infe;
+    exports net.frogmouth.rnd.eofff.isobmff.iprp;
     exports net.frogmouth.rnd.eofff.isobmff.iref;
     exports net.frogmouth.rnd.eofff.isobmff.mdat;
     exports net.frogmouth.rnd.eofff.isobmff.mdhd;

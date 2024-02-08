@@ -1,6 +1,3 @@
 net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.AlternativesParser
 net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.AlbumCollectionParser
 net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.GroupsListBoxParser
-net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertiesBoxParser
-net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyContainerBoxParser
-net.frogmouth.rnd.eofff.imagefileformat.extensions.properties.ItemPropertyAssociationParser
