@@ -2,6 +2,7 @@ package net.frogmouth.rnd.eofff.imagefileformat.properties.colr;
 
 import static net.frogmouth.rnd.eofff.imagefileformat.properties.colr.ColourInformationProperty.COLR_ATOM;
 
+import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import net.frogmouth.rnd.eofff.isobmff.iprp.AbstractItemProperty;
@@ -9,6 +10,7 @@ import net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@AutoService(net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser.class)
 public class ColourInformationPropertyParser implements PropertyParser {
 
     private static final Logger LOG =

@@ -1,10 +1,12 @@
 package net.frogmouth.rnd.eofff.imagefileformat.properties.image;
 
+import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import net.frogmouth.rnd.eofff.isobmff.iprp.AbstractItemProperty;
 import net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser;
 
+@AutoService(net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser.class)
 public class PixelAspectRatioPropertyParser implements PropertyParser {
 
     @Override
