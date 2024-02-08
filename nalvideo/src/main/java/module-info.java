@@ -21,6 +21,7 @@
  */
 module net.frogmouth.rnd.eofff.nalvideo {
     requires net.frogmouth.rnd.eofff.isobmff;
+    requires com.google.auto.service;
     requires org.slf4j;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;

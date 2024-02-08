@@ -1,9 +1,11 @@
 package net.frogmouth.rnd.eofff.nalvideo.btrt;
 
+import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.BaseBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
+@AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
 public class MPEG4BitRateBoxParser extends BaseBoxParser {
     public MPEG4BitRateBoxParser() {}
 
