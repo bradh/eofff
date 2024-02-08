@@ -1,5 +1,0 @@
-net.frogmouth.rnd.eofff.jpeg2000.fileformat.JP2HeaderBoxParser
-net.frogmouth.rnd.eofff.jpeg2000.fileformat.SignatureBoxParser
-net.frogmouth.rnd.eofff.jpeg2000.fileformat.cmap.ComponentMappingBoxParser
-net.frogmouth.rnd.eofff.jpeg2000.fileformat.ihdr.ImageHeaderBoxParser
-net.frogmouth.rnd.eofff.jpeg2000.fileformat.jp2c.ContiguousCodestreamBoxParser

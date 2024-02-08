@@ -5,7 +5,6 @@ module net.frogmouth.rnd.eofff.jpeg2000 {
     requires org.slf4j;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
-    uses net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser;
 
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
             net.frogmouth.rnd.eofff.jpeg2000.fileformat.JP2HeaderBoxParser,
@@ -13,6 +12,9 @@ module net.frogmouth.rnd.eofff.jpeg2000 {
             net.frogmouth.rnd.eofff.jpeg2000.fileformat.cmap.ComponentMappingBoxParser,
             net.frogmouth.rnd.eofff.jpeg2000.fileformat.ihdr.ImageHeaderBoxParser,
             net.frogmouth.rnd.eofff.jpeg2000.fileformat.jp2c.ContiguousCodestreamBoxParser;
+
+    uses net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser;
+
     provides net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser with
             net.frogmouth.rnd.eofff.jpeg2000.J2KHeaderItemPropertyParser;
 

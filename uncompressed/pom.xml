@@ -16,9 +16,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>net.frogmouth.rnd.eofff</groupId>
-            <artifactId>imagefileformat</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service-annotations</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

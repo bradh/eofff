@@ -1,9 +1,7 @@
 module net.frogmouth.rnd.eofff.uncompressed {
-    requires net.frogmouth.rnd.eofff.imagefileformat;
     requires net.frogmouth.rnd.eofff.isobmff;
+    requires com.google.auto.service;
     requires org.slf4j;
-    // TODO: this is only for a test, so remove it
-    requires java.desktop;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
 
@@ -12,6 +10,7 @@ module net.frogmouth.rnd.eofff.uncompressed {
             net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBoxParser,
             net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteBoxParser,
             net.frogmouth.rnd.eofff.uncompressed.depi.DepthInfoBoxParser,
+            net.frogmouth.rnd.eofff.uncompressed.disi.DisparityInformationBoxParser,
             net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampBoxParser,
             net.frogmouth.rnd.eofff.uncompressed.sbpm.SensorBadPixelsMapBoxParser,
             net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoBoxParser,

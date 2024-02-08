@@ -1,8 +1,0 @@
-net.frogmouth.rnd.eofff.uncompressed.cloc.ChromaLocationBoxParser
-net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBoxParser
-net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteBoxParser
-net.frogmouth.rnd.eofff.uncompressed.depi.DepthInfoBoxParser
-net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampBoxParser
-net.frogmouth.rnd.eofff.uncompressed.sbpm.SensorBadPixelsMapBoxParser
-net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoBoxParser
-net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBoxParser

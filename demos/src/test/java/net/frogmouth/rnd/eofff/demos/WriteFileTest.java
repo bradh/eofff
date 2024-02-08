@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.uncompressed;
+package net.frogmouth.rnd.eofff.demos;
 
 import java.awt.Color;
 import java.awt.Graphics2D;

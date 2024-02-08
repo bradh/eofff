@@ -7,12 +7,9 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
     <groupId>net.frogmouth.rnd.eofff</groupId>
-    <artifactId>debugtools</artifactId>
+    <artifactId>demos</artifactId>
     <packaging>jar</packaging>
-    <properties>
-        <exec.mainClass>net.frogmouth.rnd.eofff.debugtools.BoxDumper</exec.mainClass>
-    </properties>
-    <dependencies>
+        <dependencies>
         <dependency>
             <groupId>net.frogmouth.rnd.eofff</groupId>
             <artifactId>isobmff</artifactId>
@@ -49,8 +46,18 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>net.frogmouth.rnd.eofff</groupId>
+            <artifactId>uncompressed</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j2-impl</artifactId>
+        </dependency>
+                <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -81,7 +88,7 @@
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>${exec.mainClass}</mainClass>
                                 </transformer>
-<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/services/net.frogmouth.rnd.eofff.isobmff.BoxParser</resource>
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
