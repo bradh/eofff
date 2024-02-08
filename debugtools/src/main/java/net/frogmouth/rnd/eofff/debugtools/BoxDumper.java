@@ -44,6 +44,7 @@ public class BoxDumper {
                 || p.toString().endsWith("heic")
                 || p.toString().endsWith("3gp")
                 || p.toString().endsWith("uvvu")
+                || p.toString().endsWith("paf")
                 || p.toString().endsWith("mp4")) {
             if (p.toString().endsWith("video_2500000bps_0.mp4")) {
                 // https://github.com/MPEGGroup/FileFormatConformance/issues/131
