@@ -1,6 +1,8 @@
 package net.frogmouth.rnd.eofff.isobmff.saio;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
@@ -15,8 +17,7 @@ public class SampleAuxiliaryInformationOffsetsBox extends FullBox {
 
     private FourCC auxInfoType;
     private long auxInfoTypeParameter;
-    private long entryCount;
-    private long[] offsets;
+    private List<Long> offsets = new ArrayList<>();
 
     public SampleAuxiliaryInformationOffsetsBox() {
         super(SAIO_ATOM);
@@ -36,9 +37,9 @@ public class SampleAuxiliaryInformationOffsetsBox extends FullBox {
         }
         size += Integer.BYTES;
         if (getVersion() == 0) {
-            size += (offsets.length * Integer.BYTES);
+            size += (offsets.size() * Integer.BYTES);
         } else {
-            size += (offsets.length * Long.BYTES);
+            size += (offsets.size() * Long.BYTES);
         }
         return size;
     }
@@ -59,20 +60,12 @@ public class SampleAuxiliaryInformationOffsetsBox extends FullBox {
         this.auxInfoTypeParameter = auxInfoTypeParameter;
     }
 
-    public long getEntryCount() {
-        return entryCount;
+    public List<Long> getOffsets() {
+        return offsets;
     }
 
-    public void setEntryCount(long entryCount) {
-        this.entryCount = entryCount;
-    }
-
-    public long[] getOffsets() {
-        return offsets.clone();
-    }
-
-    public void setOffsets(long[] offsets) {
-        this.offsets = offsets;
+    public void addOffset(Long offset) {
+        offsets.add(offset);
     }
 
     @Override
@@ -82,10 +75,10 @@ public class SampleAuxiliaryInformationOffsetsBox extends FullBox {
             stream.writeFourCC(auxInfoType);
             stream.writeInt((int) auxInfoTypeParameter);
         }
-        stream.writeInt((int) entryCount);
+        stream.writeUnsignedInt32(offsets.size());
         if (this.getVersion() == 0) {
             for (long l : offsets) {
-                stream.writeInt((int) l);
+                stream.writeUnsignedInt32((int) l);
             }
         } else {
             for (long l : offsets) {
@@ -102,8 +95,21 @@ public class SampleAuxiliaryInformationOffsetsBox extends FullBox {
             sb.append(auxInfoType.toString());
             sb.append(", aux_info_type_parameter=");
             sb.append(auxInfoTypeParameter);
+            sb.append(", ");
         }
-        // TODO: entry_count and offset[]
+        sb.append("entry_count=");
+        sb.append(offsets.size());
+        if (offsets.size() == 1) {
+            sb.append(", offset=");
+            sb.append(offsets.get(0));
+        } else {
+            sb.append(", offsets=");
+            for (Long offset : offsets) {
+                sb.append("\n");
+                addIndent(nestingLevel + 1, sb);
+                sb.append(offset);
+            }
+        }
         return sb.toString();
     }
 }

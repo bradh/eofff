@@ -43,6 +43,8 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.nmhd.NullMediaHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.pasp.PixelAspectRatioBoxParser,
             net.frogmouth.rnd.eofff.isobmff.pdin.ProgressiveDownloadInfoBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.saio.SampleAuxiliaryInformationOffsetsBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.saiz.SampleAuxiliaryInformationSizesBoxParser,
             net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sbgp.SampleToGroupBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sgpd.SampleGroupDescriptionBoxParser,

@@ -1,7 +1,8 @@
 package net.frogmouth.rnd.eofff.isobmff.saiz;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
@@ -17,9 +18,9 @@ public class SampleAuxiliaryInformationSizesBox extends FullBox {
 
     private FourCC auxInfoType;
     private long auxInfoTypeParameter;
-    private String theURI;
-    private long defaultSampleInfoSize;
+    private int defaultSampleInfoSize;
     private long sampleCount;
+    private final List<Integer> sampleInfoSizes = new ArrayList<>();
 
     public SampleAuxiliaryInformationSizesBox() {
         super(SAIZ_ATOM);
@@ -37,15 +38,10 @@ public class SampleAuxiliaryInformationSizesBox extends FullBox {
             size += FourCC.BYTES;
             size += Integer.BYTES;
         }
-        if (auxInfoType.equals(new FourCC("misb"))) {
-            size += theURI.getBytes(StandardCharsets.UTF_8).length;
-            size += Byte.BYTES; // null terminator
-            // TODO: per parameters
-            size += Byte.BYTES;
-            size += Integer.BYTES;
-            // TODO: sample_info_size array
-        } else {
-            // TODO
+        size += Byte.BYTES; // default_sample_info_size
+        size += Integer.BYTES; // sample_count
+        if (defaultSampleInfoSize == 0) {
+            size += (Byte.BYTES * sampleInfoSizes.size());
         }
         return size;
     }
@@ -66,28 +62,32 @@ public class SampleAuxiliaryInformationSizesBox extends FullBox {
         this.auxInfoTypeParameter = auxInfoTypeParameter;
     }
 
-    public String getTheURI() {
-        return theURI;
-    }
-
-    public void setTheURI(String theURI) {
-        this.theURI = theURI;
-    }
-
-    public long getDefaultSampleInfoSize() {
+    public int getDefaultSampleInfoSize() {
         return defaultSampleInfoSize;
     }
 
-    public void setDefaultSampleInfoSize(long defaultSampleInfoSize) {
+    public void setDefaultSampleInfoSize(int defaultSampleInfoSize) {
         this.defaultSampleInfoSize = defaultSampleInfoSize;
     }
 
-    public long getSampleCount() {
-        return sampleCount;
+    public List<Integer> getSampleInfoSizes() {
+        return sampleInfoSizes;
     }
 
-    public void setSampleCount(long sampleCount) {
-        this.sampleCount = sampleCount;
+    public void appendSampleInfoSize(int size) {
+        this.sampleInfoSizes.add(size);
+    }
+
+    public long getSampleCount() {
+        if (defaultSampleInfoSize == 0) {
+            return sampleInfoSizes.size();
+        } else {
+            return sampleCount;
+        }
+    }
+
+    public void setSampleCount(long count) {
+        this.sampleCount = count;
     }
 
     @Override
@@ -97,17 +97,12 @@ public class SampleAuxiliaryInformationSizesBox extends FullBox {
             stream.writeFourCC(auxInfoType);
             stream.writeInt((int) auxInfoTypeParameter);
         }
-        if (((getFlags() & 0x01) == 0x01) && (auxInfoType.equals(new FourCC("misb")))) {
-            stream.writeNullTerminatedString(theURI);
-            // TODO: larger sizes
-            stream.writeByte((int) defaultSampleInfoSize);
-            stream.writeInt((int) sampleCount);
-            // TODO: sample_info_size array
-        } else {
-            // TODO: larger sizes
-            stream.writeByte((int) defaultSampleInfoSize);
-            stream.writeInt((int) sampleCount);
-            // TODO: sample_info_size array
+        stream.writeUnsignedInt8(this.defaultSampleInfoSize);
+        stream.writeUnsignedInt32(getSampleCount());
+        if (this.defaultSampleInfoSize == 0) {
+            for (int size : sampleInfoSizes) {
+                stream.writeUnsignedInt8(size);
+            }
         }
     }
 
@@ -119,6 +114,19 @@ public class SampleAuxiliaryInformationSizesBox extends FullBox {
             sb.append(auxInfoType.toString());
             sb.append(", aux_info_type_parameter=");
             sb.append(auxInfoTypeParameter);
+            sb.append(", ");
+        }
+        sb.append("default_sample_info_size=");
+        sb.append(defaultSampleInfoSize);
+        sb.append(", sample_count=");
+        sb.append(getSampleCount());
+        if (defaultSampleInfoSize == 0) {
+            sb.append(", sample sizes=");
+            for (int i = 0; i < this.sampleInfoSizes.size(); i++) {
+                sb.append("\n");
+                this.addIndent(nestingLevel + 1, sb);
+                sb.append(sampleInfoSizes.get(i));
+            }
         }
         return sb.toString();
     }
