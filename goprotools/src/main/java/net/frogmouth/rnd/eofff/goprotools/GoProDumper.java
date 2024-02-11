@@ -14,5 +14,6 @@ public class GoProDumper {
         parser.dumpGPMF();
         parser.dumpTimingTrack();
         parser.findMetadataTrack();
+        parser.writeOutFile("dump_gopro.mp4");
     }
 }

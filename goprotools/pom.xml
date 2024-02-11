@@ -70,6 +70,12 @@
                                     <resource>META-INF/services/net.frogmouth.rnd.eofff.isobmff.BoxParser</resource>
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/services/net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/services/net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/services/net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceFactory</resource>
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">

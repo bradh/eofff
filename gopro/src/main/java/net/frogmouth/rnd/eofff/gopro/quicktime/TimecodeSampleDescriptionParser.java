@@ -1,13 +1,15 @@
 package net.frogmouth.rnd.eofff.gopro.quicktime;
 
 import com.google.auto.service.AutoService;
-import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import net.frogmouth.rnd.eofff.isobmff.sampleentry.BaseSampleEntryParser;
+import net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntry;
+import net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser;
 
-@AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
-public class TimecodeSampleDescriptionParser extends BaseSampleEntryParser {
+@AutoService(net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser.class)
+public class TimecodeSampleDescriptionParser extends BaseSampleEntryParser
+        implements SampleEntryParser {
 
     public TimecodeSampleDescriptionParser() {}
 
@@ -16,7 +18,9 @@ public class TimecodeSampleDescriptionParser extends BaseSampleEntryParser {
         return TimecodeSampleDescription.TMCD_ATOM;
     }
 
-    public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
+    @Override
+    public SampleEntry parse(
+            ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
         TimecodeSampleDescription box = new TimecodeSampleDescription();
         parseBaseSampleEntry(parseContext, box);
         long res = parseContext.readUnsignedInt32(); // reserved

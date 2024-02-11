@@ -1,6 +1,8 @@
 package net.frogmouth.rnd.eofff.gopro.gpmf;
 
+import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
 public class GPMFUnhandledItem extends GPMFItem {
@@ -30,5 +32,25 @@ public class GPMFUnhandledItem extends GPMFItem {
         StringBuilder sb = getStringBuilder(nestingLevel);
         sb.append("--[UNHANDLED]--");
         return sb.toString();
+    }
+
+    @Override
+    void writeTo(OutputStreamWriter writer) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    protected int getType() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    protected int getSampleSize() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    protected int getRepeat() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

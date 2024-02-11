@@ -4,7 +4,6 @@ module net.frogmouth.rnd.eofff.gopro {
     requires org.slf4j;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
-    uses net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser;
 
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
             net.frogmouth.rnd.eofff.gopro.BCIDParser,
@@ -17,7 +16,22 @@ module net.frogmouth.rnd.eofff.gopro {
             net.frogmouth.rnd.eofff.gopro.SETTParser,
             net.frogmouth.rnd.eofff.gopro.XYZPositionParser,
             net.frogmouth.rnd.eofff.gopro.gpmf.GPMFParser,
-            net.frogmouth.rnd.eofff.gopro.quicktime.BaseMediaInformationHeaderParser;
+            net.frogmouth.rnd.eofff.gopro.quicktime.BaseMediaInfoAtomParser,
+            net.frogmouth.rnd.eofff.gopro.quicktime.BaseMediaInformationHeaderParser,
+            net.frogmouth.rnd.eofff.gopro.quicktime.GoProMetaDataBoxParser,
+            net.frogmouth.rnd.eofff.gopro.quicktime.TimeCodeContainerBoxParser,
+            net.frogmouth.rnd.eofff.gopro.quicktime.TimeCodeMediaInformationAtomParser;
+
+    uses net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser;
+
+    provides net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser with
+            net.frogmouth.rnd.eofff.gopro.quicktime.DataEntryAliasBoxParser;
+
+    uses net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser;
+
+    provides net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser with
+            net.frogmouth.rnd.eofff.gopro.quicktime.GoProMetadataSampleEntryParser,
+            net.frogmouth.rnd.eofff.gopro.quicktime.TimecodeSampleDescriptionParser;
 
     exports net.frogmouth.rnd.eofff.gopro;
     exports net.frogmouth.rnd.eofff.gopro.gpmf;

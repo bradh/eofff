@@ -1,8 +1,10 @@
 package net.frogmouth.rnd.eofff.gopro.gpmf;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
 public class GPMFComplexItem extends GPMFItem {
@@ -71,5 +73,26 @@ public class GPMFComplexItem extends GPMFItem {
         StringBuilder sb = getStringBuilder(nestingLevel);
         sb.append(entries);
         return sb.toString();
+    }
+
+    @Override
+    void writeTo(OutputStreamWriter writer) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from
+        // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    protected int getType() {
+        return 63; // '?'
+    }
+
+    @Override
+    protected int getSampleSize() {
+        return sampleSize;
+    }
+
+    @Override
+    protected int getRepeat() {
+        return repeat;
     }
 }

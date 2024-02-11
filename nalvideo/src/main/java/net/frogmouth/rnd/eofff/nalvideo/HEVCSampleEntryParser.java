@@ -2,24 +2,25 @@ package net.frogmouth.rnd.eofff.nalvideo;
 
 import com.google.auto.service.AutoService;
 import java.nio.charset.StandardCharsets;
-import net.frogmouth.rnd.eofff.isobmff.BaseBoxParser;
-import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
+import net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntry;
+import net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser;
 
-@AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
-public class HEVCSampleEntryParser extends BaseBoxParser {
+@AutoService(net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser.class)
+public class HEVCSampleEntryParser implements SampleEntryParser {
     public HEVCSampleEntryParser() {}
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("hvc1");
+        return HEVCSampleEntry.HVC1_ATOM;
     }
 
     // TODO: we need to share this
     @Override
-    public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        HEVCSampleEntry box = new HEVCSampleEntry(boxName);
+    public SampleEntry parse(
+            ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
+        HEVCSampleEntry box = new HEVCSampleEntry();
         parseContext.getBytes(6);
         int data_reference_index = parseContext.readUnsignedInt16();
         box.setDataReferenceIndex(data_reference_index);

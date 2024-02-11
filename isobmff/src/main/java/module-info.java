@@ -87,6 +87,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.iref.ItemLocationReferenceFactory;
 
     uses net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser;
+    uses net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser;
 
     exports net.frogmouth.rnd.eofff.isobmff;
     exports net.frogmouth.rnd.eofff.isobmff.sampleentry;

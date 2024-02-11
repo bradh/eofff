@@ -31,6 +31,16 @@ public abstract class BaseSampleEntry extends AbstractContainerBox implements Sa
     }
 
     @Override
+    public long getSize() {
+        long bodySize = getBodySize();
+        if (needLargeSize(bodySize)) {
+            return bodySize + BYTES_IN_LARGE_BOX_HEADER;
+        } else {
+            return bodySize + BYTES_IN_BOX_HEADER;
+        }
+    }
+
+    @Override
     public long getBodySize() {
         long size = getBaseBodySize();
         for (Box box : nestedBoxes) {

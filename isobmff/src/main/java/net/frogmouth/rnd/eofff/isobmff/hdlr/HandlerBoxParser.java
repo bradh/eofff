@@ -34,9 +34,16 @@ public class HandlerBoxParser extends FullBoxParser {
         box.setReserved0(parseContext.readInt32());
         box.setReserved1(parseContext.readInt32());
         box.setReserved2(parseContext.readInt32());
-        box.setName(
-                parseContext.readNullDelimitedString(
-                        (initialOffset + boxSize) - parseContext.getCursorPosition()));
+        final long remainingBytesInBox =
+                (initialOffset + boxSize) - parseContext.getCursorPosition();
+        if ((box.getPreDefined() == new FourCC("mhlr").asUnsigned())
+                || (box.getPreDefined() == new FourCC("dhlr").asUnsigned())) {
+            // This is probably old QT MOV code, like GoPro uses
+            box.setName(parseContext.getCountedString(remainingBytesInBox));
+        } else {
+            // This is valid ISO/IEC 14496-12 hdlr approach
+            box.setName(parseContext.readNullDelimitedString(remainingBytesInBox));
+        }
         return box;
     }
 

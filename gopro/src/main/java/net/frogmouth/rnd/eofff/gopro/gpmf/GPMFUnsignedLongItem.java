@@ -1,6 +1,8 @@
 package net.frogmouth.rnd.eofff.gopro.gpmf;
 
+import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
 public class GPMFUnsignedLongItem extends GPMFItem {
@@ -25,5 +27,26 @@ public class GPMFUnsignedLongItem extends GPMFItem {
     @Override
     void parse(ParseContext context) {
         value = context.readUnsignedInt64();
+    }
+
+    @Override
+    void writeTo(OutputStreamWriter writer) throws IOException {
+        this.writeBase(writer);
+        writer.writeLong(value);
+    }
+
+    @Override
+    protected int getType() {
+        return 74; // "J"
+    }
+
+    @Override
+    protected int getSampleSize() {
+        return Long.BYTES;
+    }
+
+    @Override
+    protected int getRepeat() {
+        return 1;
     }
 }

@@ -1,6 +1,8 @@
 package net.frogmouth.rnd.eofff.gopro.gpmf;
 
+import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
 public class GPMFSignedShortItem extends GPMFItem {
@@ -26,5 +28,27 @@ public class GPMFSignedShortItem extends GPMFItem {
     void parse(ParseContext context) {
         value = context.readInt16();
         context.skipBytes(Integer.BYTES - Short.BYTES);
+    }
+
+    @Override
+    void writeTo(OutputStreamWriter writer) throws IOException {
+        this.writeBase(writer);
+        writer.writeShort((short) value);
+        writer.writeUnsignedInt16(0); // padding
+    }
+
+    @Override
+    protected int getType() {
+        return 115; // 's'
+    }
+
+    @Override
+    protected int getSampleSize() {
+        return Short.BYTES;
+    }
+
+    @Override
+    protected int getRepeat() {
+        return 1;
     }
 }

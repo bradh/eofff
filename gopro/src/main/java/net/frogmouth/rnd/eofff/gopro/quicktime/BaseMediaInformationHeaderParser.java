@@ -1,11 +1,12 @@
 package net.frogmouth.rnd.eofff.gopro.quicktime;
 
+import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.BaseBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
-// @AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
+@AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
 public class BaseMediaInformationHeaderParser extends BaseBoxParser {
     public BaseMediaInformationHeaderParser() {}
 

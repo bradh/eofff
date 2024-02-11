@@ -1,5 +1,6 @@
 package net.frogmouth.rnd.eofff.goprotools;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.foreign.MemorySegment;
@@ -7,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.gopro.gpmf.GPMF;
@@ -15,16 +17,21 @@ import net.frogmouth.rnd.eofff.isobmff.AbstractContainerBox;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FileParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBox;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.mdia.MediaBox;
 import net.frogmouth.rnd.eofff.isobmff.minf.MediaInformationBox;
 import net.frogmouth.rnd.eofff.isobmff.moov.MovieBox;
+import net.frogmouth.rnd.eofff.isobmff.sampleentry.AudioSampleEntry;
+import net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntry;
 import net.frogmouth.rnd.eofff.isobmff.stbl.SampleTableBox;
 import net.frogmouth.rnd.eofff.isobmff.stco.ChunkOffsetBox;
+import net.frogmouth.rnd.eofff.isobmff.stsd.SampleDescriptionBox;
 import net.frogmouth.rnd.eofff.isobmff.stsz.SampleSizeBox;
 import net.frogmouth.rnd.eofff.isobmff.trak.TrackBox;
+import net.frogmouth.rnd.eofff.mpeg4.esds.ESDBox;
 
 class GoProParser {
 
@@ -233,6 +240,132 @@ class GoProParser {
                     }
                 }
             }
+        }
+    }
+
+    void writeOutFile(String filename) throws IOException {
+        List<Box> cleanBoxes = new ArrayList<>();
+        for (Box box : boxes) {
+            Box cleanBox;
+            switch (box.getFourCC().toString()) {
+                case "moov":
+                    cleanBox = cleanMoov((MovieBox) box);
+                default:
+                    cleanBox = box;
+            }
+            cleanBoxes.add(cleanBox);
+        }
+        writeBoxes(cleanBoxes, filename);
+    }
+
+    protected void writeBoxes(List<Box> cleanBoxes, String outputPathName) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
+        for (Box box : cleanBoxes) {
+            box.writeTo(streamWriter);
+        }
+        File testOut = new File(outputPathName);
+        Files.write(testOut.toPath(), baos.toByteArray(), StandardOpenOption.CREATE);
+    }
+
+    private Box cleanMoov(MovieBox moov) {
+        MovieBox cleanMoov = new MovieBox();
+        for (Box box : moov.getNestedBoxes()) {
+            if (box.getFourCC().toString().equals("iods")) {
+                continue;
+            }
+            if (box.getFourCC().toString().equals("udta")) {
+                // TODO: we do want udta
+                continue;
+            }
+            if (box.getFourCC().toString().equals("trak")) {
+                // TODO: we do want trak
+                continue;
+            }
+            Box cleanBox =
+                    switch (box.getFourCC().toString()) {
+                        case "trak" -> cleanTrak((TrackBox) box);
+                        default -> box;
+                    };
+            cleanMoov.appendNestedBox(cleanBox);
+        }
+        return cleanMoov;
+    }
+
+    private Box cleanTrak(TrackBox trak) {
+        TrackBox cleanTrak = new TrackBox();
+        for (Box box : trak.getNestedBoxes()) {
+            Box cleanBox =
+                    switch (box.getFourCC().toString()) {
+                        case "mdia" -> cleanMdia((MediaBox) box);
+                        default -> box;
+                    };
+            cleanTrak.appendNestedBox(cleanBox);
+        }
+        return cleanTrak;
+    }
+
+    private Box cleanMdia(MediaBox mdia) {
+        MediaBox cleanMdia = new MediaBox();
+        for (Box box : mdia.getNestedBoxes()) {
+            Box cleanBox =
+                    switch (box.getFourCC().toString()) {
+                        case "minf" -> cleanMinf((MediaInformationBox) box);
+                        default -> box;
+                    };
+            cleanMdia.appendNestedBox(cleanBox);
+        }
+        return cleanMdia;
+    }
+
+    private Box cleanMinf(MediaInformationBox minf) {
+        MediaInformationBox cleanMinf = new MediaInformationBox();
+        for (Box box : minf.getNestedBoxes()) {
+            Box cleanBox =
+                    switch (box.getFourCC().toString()) {
+                            // TODO
+                            // case "dinf" -> cleanDinf((DataInformationBox)box);
+                        case "stbl" -> cleanStbl((SampleTableBox) box);
+                        default -> box;
+                    };
+            cleanMinf.appendNestedBox(cleanBox);
+        }
+        return cleanMinf;
+    }
+
+    private Box cleanStbl(SampleTableBox stbl) {
+        SampleTableBox cleanStbl = new SampleTableBox();
+        for (Box box : stbl.getNestedBoxes()) {
+            Box cleanBox =
+                    switch (box.getFourCC().toString()) {
+                        case "stsd" -> cleanStsd((SampleDescriptionBox) box);
+                        default -> box;
+                    };
+            cleanStbl.appendNestedBox(cleanBox);
+        }
+        return cleanStbl;
+    }
+
+    private Box cleanStsd(SampleDescriptionBox dirty) {
+        var clean = new SampleDescriptionBox();
+        for (SampleEntry entry : dirty.getSampleEntries()) {
+            SampleEntry cleanEntry = cleanSampleEntry(entry);
+            clean.appendSampleEntry(cleanEntry);
+        }
+        return clean;
+    }
+
+    private SampleEntry cleanSampleEntry(SampleEntry dirty) {
+        if (dirty instanceof AudioSampleEntry audioDirty) {
+            AudioSampleEntry clean = audioDirty;
+            for (Box child : clean.getNestedBoxes()) {
+                if (child instanceof ESDBox ugly) {
+                    clean.removeNestedBox(ugly);
+                }
+            }
+            return clean;
+        } else {
+            return dirty;
         }
     }
 }

@@ -1,6 +1,8 @@
 package net.frogmouth.rnd.eofff.gopro.gpmf;
 
+import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
 public class GPMFFourCCItem extends GPMFItem {
@@ -25,5 +27,26 @@ public class GPMFFourCCItem extends GPMFItem {
     @Override
     void parse(ParseContext context) {
         value = context.readFourCC();
+    }
+
+    @Override
+    void writeTo(OutputStreamWriter writer) throws IOException {
+        this.writeBase(writer);
+        writer.writeFourCC(value);
+    }
+
+    @Override
+    protected int getType() {
+        return 70; // 'F'
+    }
+
+    @Override
+    protected int getSampleSize() {
+        return FourCC.BYTES;
+    }
+
+    @Override
+    protected int getRepeat() {
+        return 1;
     }
 }

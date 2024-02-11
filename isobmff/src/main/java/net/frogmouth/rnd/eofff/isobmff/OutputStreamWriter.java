@@ -110,6 +110,6 @@ public class OutputStreamWriter {
     }
 
     public void writePackedLanguageCode(ISO639Language language) throws IOException {
-        outputStream.write(language.asPackedBytes());
+        this.writeUnsignedInt16(language.asPackedBytes());
     }
 }

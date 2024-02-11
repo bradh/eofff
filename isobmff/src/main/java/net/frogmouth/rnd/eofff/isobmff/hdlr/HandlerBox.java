@@ -31,21 +31,6 @@ public class HandlerBox extends FullBox {
         return "HandlerBox";
     }
 
-    // @Override
-    public long getSize() {
-        long size =
-                Integer.BYTES
-                        + FourCC.BYTES
-                        + 1
-                        + 3
-                        + Integer.BYTES
-                        + FourCC.BYTES
-                        + 3 * Integer.BYTES
-                        + name.getBytes(StandardCharsets.US_ASCII).length
-                        + 1;
-        return size;
-    }
-
     @Override
     public long getBodySize() {
         long size =
@@ -108,7 +93,7 @@ public class HandlerBox extends FullBox {
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
         this.writeBoxHeader(stream);
-        stream.writeInt(this.preDefined);
+        stream.writeInt(0); // predefined
         stream.write(this.handlerType.getBytes(StandardCharsets.US_ASCII));
         stream.writeInt(this.reserved0);
         stream.writeInt(this.reserved1);

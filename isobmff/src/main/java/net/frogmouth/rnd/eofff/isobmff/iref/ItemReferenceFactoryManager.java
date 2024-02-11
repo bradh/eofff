@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.dref.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

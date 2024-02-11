@@ -102,7 +102,7 @@ public class MediaHeaderBox extends FullBox {
             stream.writeInt((int) this.duration);
         }
         stream.writePackedLanguageCode(language);
-        stream.writeShort((short) 0);
+        stream.writeUnsignedInt16(0);
     }
 
     @Override

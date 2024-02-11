@@ -1,8 +1,10 @@
 package net.frogmouth.rnd.eofff.gopro.gpmf;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
 public class GPMFContainerItem extends GPMFItem {
@@ -118,5 +120,28 @@ public class GPMFContainerItem extends GPMFItem {
             // TODO: gps5
         }
         return sb.toString();
+    }
+
+    @Override
+    void writeTo(OutputStreamWriter writer) throws IOException {
+        this.writeBase(writer);
+        for (GPMFItem item : items) {
+            item.writeTo(writer);
+        }
+    }
+
+    @Override
+    protected int getType() {
+        return 0;
+    }
+
+    @Override
+    protected int getSampleSize() {
+        return Byte.BYTES;
+    }
+
+    @Override
+    protected int getRepeat() {
+        return length;
     }
 }

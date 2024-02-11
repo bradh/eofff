@@ -38,14 +38,14 @@ public class FullBox extends BaseBox {
     @Override
     public long getSize() {
         long bodySize = getBodySize();
-        if (needLargeSize(bodySize)) {
+        if (needLargeSizeFullBox(bodySize)) {
             return bodySize + BYTES_IN_LARGE_FULL_BOX_HEADER;
         } else {
             return bodySize + BYTES_IN_FULL_BOX_HEADER;
         }
     }
 
-    private boolean needLargeSize(long bodySize) {
+    private boolean needLargeSizeFullBox(long bodySize) {
         return 0xFFFFFFFFL < bodySize + BYTES_IN_FULL_BOX_HEADER;
     }
 

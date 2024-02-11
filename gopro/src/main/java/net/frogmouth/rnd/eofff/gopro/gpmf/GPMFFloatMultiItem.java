@@ -1,8 +1,10 @@
 package net.frogmouth.rnd.eofff.gopro.gpmf;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
 public class GPMFFloatMultiItem extends GPMFItem {
@@ -33,5 +35,28 @@ public class GPMFFloatMultiItem extends GPMFItem {
                 values.add(f);
             }
         }
+    }
+
+    @Override
+    void writeTo(OutputStreamWriter writer) throws IOException {
+        this.writeBase(writer);
+        for (float f : values) {
+            writer.writeDouble32(f);
+        }
+    }
+
+    @Override
+    protected int getType() {
+        return 102; // 'f'
+    }
+
+    @Override
+    protected int getSampleSize() {
+        return sampleSize;
+    }
+
+    @Override
+    protected int getRepeat() {
+        return repeat;
     }
 }

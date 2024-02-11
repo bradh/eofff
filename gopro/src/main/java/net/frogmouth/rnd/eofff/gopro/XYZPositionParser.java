@@ -24,7 +24,14 @@ public class XYZPositionParser extends BaseBoxParser {
         XYZPosition box = new XYZPosition();
         // TODO: fix parsing
         byte[] bytes = parseContext.getBytes(boxSize - BYTES_IN_BOX_HEADER);
-        box.setValue(new String(bytes, StandardCharsets.US_ASCII));
+        int length = bytes[0];
+        int offset = 1;
+        if (length == 0) {
+            length = bytes[offset];
+            offset++;
+        }
+        String substring = new String(bytes, offset, length, StandardCharsets.ISO_8859_1);
+        box.setValue(substring);
         return box;
     }
 }

@@ -4,6 +4,7 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -202,7 +203,18 @@ public class ParseContext {
             }
             len += 1;
         }
-        return new String(bytes, 0, len);
+        return new String(bytes, 0, len, StandardCharsets.UTF_8);
+    }
+
+    public String getCountedString(long maxLength) {
+        if ((maxLength < 0) || (maxLength > Integer.MAX_VALUE)) {
+            throw new IllegalArgumentException(
+                    "There is no way this code can produce a string that long.");
+        }
+        int count = readByte();
+        count = Math.min(count, (int) (maxLength - 1));
+        byte[] bytes = getBytes(count);
+        return new String(bytes, StandardCharsets.US_ASCII);
     }
 
     public ByteBuffer getByteBuffer(long offset, long length) {

@@ -18,7 +18,7 @@ public class SampleDescriptionBox extends FullBox {
 
     public static final FourCC STSD_ATOM = new FourCC("stsd");
 
-    private final List<SampleEntry> nestedBoxes = new ArrayList<>();
+    private final List<SampleEntry> sampleEntries = new ArrayList<>();
 
     public SampleDescriptionBox() {
         super(STSD_ATOM);
@@ -33,18 +33,18 @@ public class SampleDescriptionBox extends FullBox {
     public long getBodySize() {
         long size = 0;
         size += Integer.BYTES;
-        for (SampleEntry box : nestedBoxes) {
+        for (SampleEntry box : sampleEntries) {
             size += box.getSize();
         }
         return size;
     }
 
-    public List<Box> getNestedBoxes() {
-        return new ArrayList<>(nestedBoxes);
+    public List<SampleEntry> getSampleEntries() {
+        return new ArrayList<>(sampleEntries);
     }
 
-    public void addSampleEntries(List<SampleEntry> boxes) {
-        nestedBoxes.addAll(boxes);
+    public void appendSampleEntry(SampleEntry sampleEntry) {
+        sampleEntries.add(sampleEntry);
     }
 
     @Override
@@ -52,8 +52,8 @@ public class SampleDescriptionBox extends FullBox {
         stream.writeInt((int) this.getSize());
         stream.writeFourCC(getFourCC());
         stream.write(getVersionAndFlagsAsBytes());
-        stream.writeInt(nestedBoxes.size());
-        for (Box entry : nestedBoxes) {
+        stream.writeInt(sampleEntries.size());
+        for (Box entry : sampleEntries) {
             entry.writeTo(stream);
         }
     }
@@ -61,7 +61,7 @@ public class SampleDescriptionBox extends FullBox {
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
-        for (SampleEntry item : nestedBoxes) {
+        for (SampleEntry item : sampleEntries) {
             sb.append("\n");
             sb.append(item.toString(nestingLevel + 1));
         }

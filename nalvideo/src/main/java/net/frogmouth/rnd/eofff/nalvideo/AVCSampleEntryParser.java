@@ -2,13 +2,13 @@ package net.frogmouth.rnd.eofff.nalvideo;
 
 import com.google.auto.service.AutoService;
 import java.nio.charset.StandardCharsets;
-import net.frogmouth.rnd.eofff.isobmff.BaseBoxParser;
-import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
+import net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntry;
+import net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser;
 
-@AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
-public class AVCSampleEntryParser extends BaseBoxParser {
+@AutoService(net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser.class)
+public class AVCSampleEntryParser implements SampleEntryParser {
     public AVCSampleEntryParser() {}
 
     @Override
@@ -17,7 +17,8 @@ public class AVCSampleEntryParser extends BaseBoxParser {
     }
 
     @Override
-    public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
+    public SampleEntry parse(
+            ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
         AVCSampleEntry box = new AVCSampleEntry(boxName);
         parseContext.getBytes(6);
         int data_reference_index = parseContext.readUnsignedInt16();

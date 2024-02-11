@@ -5,8 +5,9 @@ import net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupBox;
 
 public class BaseBox implements Box {
 
-    private static final long BYTES_IN_BOX_HEADER = Integer.BYTES + FourCC.BYTES;
-    private static final long BYTES_IN_LARGE_BOX_HEADER = Integer.BYTES + FourCC.BYTES + Long.BYTES;
+    protected static final long BYTES_IN_BOX_HEADER = Integer.BYTES + FourCC.BYTES;
+    protected static final long BYTES_IN_LARGE_BOX_HEADER =
+            Integer.BYTES + FourCC.BYTES + Long.BYTES;
     protected static final int LARGE_SIZE_FLAG = 1;
 
     private static final String INDENT = "    ";
@@ -75,7 +76,7 @@ public class BaseBox implements Box {
         System.out.println("need writeTo() implementation for " + boxName.toString());
     }
 
-    private boolean needLargeSize(long bodySize) {
+    protected boolean needLargeSize(long bodySize) {
         return 0xFFFFFFFFL < bodySize + BYTES_IN_BOX_HEADER;
     }
 

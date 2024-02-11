@@ -2,20 +2,22 @@ package net.frogmouth.rnd.eofff.gopro.gpmf;
 
 import static org.testng.Assert.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.ByteArrayParser;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import org.testng.annotations.Test;
 
-/** Unit test for TrackGroupBox. */
+/** Unit test for GPMF. */
 public class GPMFBoxTest {
     private static final byte[] GPMF_BYTES =
             new byte[] {
                 0x00,
                 0x00,
                 0x04,
-                (byte) 0xde,
+                (byte) 0xe0,
                 0x47,
                 0x50,
                 0x4d,
@@ -64,7 +66,7 @@ public class GPMFBoxTest {
                 0x67,
                 0x73,
                 0x00,
-                0x56,
+                0x56, // offset 52
                 0x45,
                 0x52,
                 0x53,
@@ -171,7 +173,7 @@ public class GPMFBoxTest {
                 0x32,
                 0x30,
                 0x00,
-                0x00,
+                0x00, // 159
                 0x4d,
                 0x49,
                 0x4e,
@@ -453,9 +455,9 @@ public class GPMFBoxTest {
                 0x00,
                 0x09,
                 0x00,
-                0x55,
-                0x54,
-                0x4f,
+                0x00, // element 441 - was 0x55
+                0x00, // element 442 - was 0x54
+                0x00, // element 443 - was 0x4f
                 0x00,
                 0x00,
                 0x00,
@@ -1101,7 +1103,7 @@ public class GPMFBoxTest {
                 0x00,
                 0x00,
                 0x72,
-                0x31,
+                0x31, // offset 1089
                 0x00,
                 0x00,
                 0x00,
@@ -1257,11 +1259,13 @@ public class GPMFBoxTest {
                 0x67,
                 0x68,
                 0x74,
-                0x73
+                0x73,
+                0x00,
+                0x00
             };
 
     /*
-        @Test
+    @Test
         public void checkWrite() throws IOException {
             TrackGroupBox box =
                     new TrackGroupBoxBuilder()
@@ -1289,5 +1293,10 @@ public class GPMFBoxTest {
         GPMF gpmf = (GPMF) box;
         assertTrue(gpmf.getFourCC().toString().equals("GPMF"));
         // TODO: check entries
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
+        box.writeTo(streamWriter);
+        byte[] bytes = baos.toByteArray();
+        assertEquals(bytes, GPMF_BYTES);
     }
 }

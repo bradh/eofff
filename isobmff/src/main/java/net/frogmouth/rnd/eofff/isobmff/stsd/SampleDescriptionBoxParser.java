@@ -1,13 +1,13 @@
 package net.frogmouth.rnd.eofff.isobmff.stsd;
 
 import com.google.auto.service.AutoService;
-import java.util.ArrayList;
-import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntry;
+import net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryFactoryManager;
+import net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,25 +34,24 @@ public class SampleDescriptionBoxParser extends FullBoxParser {
         }
         box.setFlags(parseFlags(parseContext));
         long entryCount = parseContext.readUnsignedInt32();
-        List<Box> nestedBoxes = parseContext.parseNestedBoxes(initialOffset + boxSize);
-        List<SampleEntry> sampleEntries = new ArrayList<>();
-        for (Box nestedBox : nestedBoxes) {
-            if (nestedBox instanceof SampleEntry sampleEntry) {
-                sampleEntries.add(sampleEntry);
-            } else if (nestedBox != null) {
-                System.out.println("no support for " + nestedBox.getFourCC().toString());
-                LOG.warn(
-                        "expected nested box to be a SampleEntry: "
-                                + nestedBox.getFullName()
-                                + ", "
-                                + nestedBox.getFourCC().toString());
-            }
+        for (int i = 0; i < entryCount; i++) {
+            SampleEntry sampleEntry = parseSampleEntry(parseContext);
+            box.appendSampleEntry(sampleEntry);
         }
-        box.addSampleEntries(sampleEntries);
         return box;
     }
 
     private boolean isSupportedVersion(int version) {
         return version == 0x00;
+    }
+
+    private SampleEntry parseSampleEntry(ParseContext parseContext) {
+        long offset = parseContext.getCursorPosition();
+        long boxSize = parseContext.readUnsignedInt32();
+        FourCC entry_type = parseContext.readFourCC();
+        SampleEntryParser parser = SampleEntryFactoryManager.getParser(entry_type);
+        SampleEntry sampleEntry = parser.parse(parseContext, offset, boxSize, entry_type);
+        parseContext.setCursorPosition(offset + boxSize);
+        return sampleEntry;
     }
 }

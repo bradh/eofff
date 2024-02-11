@@ -27,7 +27,7 @@ public class GPMFItemFactory {
                     return new GPMFUnhandledItem(fourCC, sampleSize, repeat);
                 }
             }
-            case 74 -> {
+            case 74 -> { // 'J'
                 if ((sampleSize == Long.BYTES) && (repeat == 1)) {
                     return new GPMFUnsignedLongItem(fourCC);
                 } else {
