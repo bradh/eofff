@@ -44,4 +44,13 @@ abstract class GPMFItem {
     protected abstract int getSampleSize();
 
     protected abstract int getRepeat();
+
+    public long getBodySize() {
+        int size = getSampleSize() * getRepeat();
+        int residual = size % Integer.BYTES;
+        if (residual != 0) {
+            size += (Integer.BYTES - residual); // padding
+        }
+        return size;
+    }
 }

@@ -1,6 +1,5 @@
 package net.frogmouth.rnd.eofff.gopro.gpmf;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,20 +49,20 @@ public class GPMF extends BaseBox {
 
     @Override
     public long getBodySize() {
-        // TODO - implement properly
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
+        long size = 0;
         for (GPMFItem item : items) {
-            try {
-                item.writeTo(streamWriter);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            size += FourCC.BYTES; // key
+            size += Integer.BYTES; // length
+            size += item.getBodySize();
         }
-        return baos.toByteArray().length;
+        return size;
     }
 
     public void addItem(GPMFItem item) {
         items.add(item);
+    }
+
+    public List<GPMFItem> getItems() {
+        return items;
     }
 }
