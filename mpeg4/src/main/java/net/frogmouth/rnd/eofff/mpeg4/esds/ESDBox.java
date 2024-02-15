@@ -5,13 +5,17 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
+/**
+ * ES Descriptor Box.
+ *
+ * <p>See ISO/IEC 14496-14:2020 Section 6.7.2.
+ */
 public class ESDBox extends FullBox {
 
     private int tag = 0x03;
     private int length;
     private int es_id;
     private DecoderConfigurationDescriptor decConfigDescr;
-    private byte[] bytes;
     public static final FourCC ESDS_ATOM = new FourCC("esds");
 
     public ESDBox() {
@@ -55,14 +59,6 @@ public class ESDBox extends FullBox {
         this.decConfigDescr = decConfigDescr;
     }
 
-    public byte[] getBytes() {
-        return bytes;
-    }
-
-    public void setBytes(byte[] bytes) {
-        this.bytes = bytes;
-    }
-
     @Override
     public void writeTo(OutputStreamWriter writer) throws IOException {
         this.writeBoxHeader(writer);
@@ -70,7 +66,6 @@ public class ESDBox extends FullBox {
         // TODO: we need to write variable length integer properly
         writer.writeByte(length);
         writer.writeUnsignedInt16(es_id);
-        writer.write(bytes);
     }
 
     @Override
@@ -92,7 +87,6 @@ public class ESDBox extends FullBox {
         // TODO: we need to do variable length handling here
         size += Byte.BYTES;
         size += Short.BYTES;
-        size += bytes.length;
         return size;
     }
 }

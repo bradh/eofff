@@ -247,12 +247,11 @@ class GoProParser {
         List<Box> cleanBoxes = new ArrayList<>();
         for (Box box : boxes) {
             Box cleanBox;
-            switch (box.getFourCC().toString()) {
-                case "moov":
-                    cleanBox = cleanMoov((MovieBox) box);
-                default:
-                    cleanBox = box;
-            }
+            cleanBox =
+                    switch (box.getFourCC().toString()) {
+                        case "moov" -> cleanMoov((MovieBox) box);
+                        default -> box;
+                    };
             cleanBoxes.add(cleanBox);
         }
         writeBoxes(cleanBoxes, filename);
@@ -276,10 +275,6 @@ class GoProParser {
             }
             if (box.getFourCC().toString().equals("udta")) {
                 // TODO: we do want udta
-                continue;
-            }
-            if (box.getFourCC().toString().equals("trak")) {
-                // TODO: we do want trak
                 continue;
             }
             Box cleanBox =

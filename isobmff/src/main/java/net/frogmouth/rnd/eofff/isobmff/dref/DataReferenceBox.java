@@ -35,7 +35,7 @@ public class DataReferenceBox extends FullBox {
         return "DataReferenceBox";
     }
 
-    void addDataReference(DataEntryBaseBox dataEntryBox) {
+    public void addDataReference(DataEntryBaseBox dataEntryBox) {
         entries.add(dataEntryBox);
     }
 

@@ -60,6 +60,9 @@
                                 <transformer>
                                     <resource>META-INF/services/net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser</resource>
                                 </transformer>
+                                <transformer>
+                                    <resource>META-INF/services/net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser</resource>
+                                </transformer>
                             </transformers>
                         </configuration>
                     </execution>

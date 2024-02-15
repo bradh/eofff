@@ -2,10 +2,12 @@ package net.frogmouth.rnd.eofff.mpeg4.esds;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.ByteArrayParser;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -76,5 +78,11 @@ public class ESDBoxTest {
         assertTrue(box instanceof ESDBox);
         ESDBox esds = (ESDBox) box;
         assertTrue(esds.getFourCC().toString().equals("esds"));
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
+        box.writeTo(streamWriter);
+        byte[] bytes = baos.toByteArray();
+        // TODO
+        // assertEquals(bytes, ESDS_BYTES);
     }
 }

@@ -21,9 +21,7 @@ public class HEVCConfigurationBox extends BaseBox {
 
     @Override
     public long getBodySize() {
-        long size = Integer.BYTES + FourCC.BYTES;
-        size += hevcConfig.getSize();
-        return size;
+        return hevcConfig.getSize();
     }
 
     public HEVCDecoderConfigurationRecord getHevcConfig() {

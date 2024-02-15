@@ -3,7 +3,6 @@ package net.frogmouth.rnd.eofff.isobmff.stsd;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
@@ -49,11 +48,9 @@ public class SampleDescriptionBox extends FullBox {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeInt((int) this.getSize());
-        stream.writeFourCC(getFourCC());
-        stream.write(getVersionAndFlagsAsBytes());
+        this.writeBoxHeader(stream);
         stream.writeInt(sampleEntries.size());
-        for (Box entry : sampleEntries) {
+        for (SampleEntry entry : sampleEntries) {
             entry.writeTo(stream);
         }
     }

@@ -9,7 +9,7 @@
     <groupId>net.frogmouth.rnd.eofff</groupId>
     <artifactId>demos</artifactId>
     <packaging>jar</packaging>
-        <dependencies>
+    <dependencies>
         <dependency>
             <groupId>net.frogmouth.rnd.eofff</groupId>
             <artifactId>isobmff</artifactId>
@@ -51,10 +51,15 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>mil.nga</groupId>
+            <artifactId>tiff</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j2-impl</artifactId>
         </dependency>
-                <dependency>
+        <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <scope>test</scope>
@@ -96,6 +101,9 @@
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/services/net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/services/net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser</resource>
                                 </transformer>
                             </transformers>
                         </configuration>

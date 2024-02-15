@@ -6,18 +6,20 @@ import net.frogmouth.rnd.eofff.isobmff.idat.ItemDataBox;
 
 public class ItemDataBoxBuilder {
 
-    private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    private final ByteArrayOutputStream arrayBuilder = new ByteArrayOutputStream();
 
     public ItemDataBoxBuilder() {}
 
     public ItemDataBoxBuilder addData(byte[] data) throws IOException {
-        baos.write(data);
+        arrayBuilder.write(data);
         return this;
     }
 
     public ItemDataBox build() {
+        byte[] bytes = arrayBuilder.toByteArray();
+
         ItemDataBox box = new ItemDataBox();
-        box.setData(baos.toByteArray());
+        box.setData(bytes);
         return box;
     }
 }

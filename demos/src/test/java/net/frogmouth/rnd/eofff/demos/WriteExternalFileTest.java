@@ -27,19 +27,15 @@ import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.dinf.DataInformationBox;
-import net.frogmouth.rnd.eofff.isobmff.dref.DataEntryImdaBox;
+import net.frogmouth.rnd.eofff.isobmff.dref.DataEntryUrlBox;
 import net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceBox;
-import net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceBoxBuilder;
-import net.frogmouth.rnd.eofff.isobmff.free.FreeBox;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.Brand;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBox;
-import net.frogmouth.rnd.eofff.isobmff.idat.ItemDataBox;
 import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoBox;
 import net.frogmouth.rnd.eofff.isobmff.iloc.ILocExtent;
 import net.frogmouth.rnd.eofff.isobmff.iloc.ILocItem;
 import net.frogmouth.rnd.eofff.isobmff.iloc.ItemLocationBox;
-import net.frogmouth.rnd.eofff.isobmff.imda.IdentifiedMediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.infe.ItemInfoEntry;
 import net.frogmouth.rnd.eofff.isobmff.iprp.AssociationEntry;
 import net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertiesBox;
@@ -47,7 +43,6 @@ import net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertyAssociation;
 import net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertyContainerBox;
 import net.frogmouth.rnd.eofff.isobmff.iprp.PropertyAssociation;
 import net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceBox;
-import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
@@ -60,64 +55,25 @@ import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
 import org.testng.annotations.Test;
 
 /** Write file. */
-public class WriteFileTest {
+public class WriteExternalFileTest {
 
     private static final long MAIN_ITEM_ID = 10;
-    private static final int MAIN_ITEM_IMDA_ID = 70;
-    private static final int LENGTH_OF_FREEBOX_HEADER = 8;
     protected static final int IMAGE_WIDTH = 128;
     protected static final int IMAGE_HEIGHT = 72;
-    private static final int MDAT_START = 1024;
     protected static final int NUM_BYTES_PER_PIXEL_RGB = 3;
 
-    private static final int IMAGE_DATA_START = MDAT_START + 8; // assumes mdat header is 8 bytes.
-
-    public WriteFileTest() {}
+    public WriteExternalFileTest() {}
 
     @Test
     public void rgb() throws IOException {
+        String dataFileName = "rgb_component_data.bin";
         List<Box> boxes = new ArrayList<>();
         FileTypeBox ftyp = createFileTypeBox();
         boxes.add(ftyp);
-        MetaBox meta = createMetaBox_rgb_component();
+        MetaBox meta = createMetaBox_rgb_component(dataFileName);
         boxes.add(meta);
-        long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
-        long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
-        FreeBox free = new FreeBox();
-        free.setData(new byte[(int) numberOfFillBytes]);
-        boxes.add(free);
-        MediaDataBox mdat = createMediaDataBox_rgb_component();
-        boxes.add(mdat);
-        writeBoxes(boxes, "rgb_component.heif");
-    }
-
-    @Test
-    public void rgb_iloc_self() throws IOException {
-        List<Box> boxes = new ArrayList<>();
-        FileTypeBox ftyp = createFileTypeBox();
-        boxes.add(ftyp);
-        MetaBox meta = createMetaBox_rgb_component_iloc_self();
-        boxes.add(meta);
-        long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
-        long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
-        FreeBox free = new FreeBox();
-        free.setData(new byte[(int) numberOfFillBytes]);
-        boxes.add(free);
-        MediaDataBox mdat = createMediaDataBox_rgb_component();
-        boxes.add(mdat);
-        writeBoxes(boxes, "rgb_component_iloc_self.heif");
-    }
-
-    @Test
-    public void rgb_imda() throws IOException {
-        List<Box> boxes = new ArrayList<>();
-        FileTypeBox ftyp = createFileTypeBox();
-        boxes.add(ftyp);
-        MetaBox meta = createMetaBox_rgb_component_imda();
-        boxes.add(meta);
-        IdentifiedMediaDataBox imda = createIdentifiedMediaDataBox_rgb_component();
-        boxes.add(imda);
-        writeBoxes(boxes, "rgb_component_imda.heif");
+        createDataFileContent(dataFileName);
+        writeBoxes(boxes, "rgb_component_external.heif");
     }
 
     protected FileTypeBox createFileTypeBox() {
@@ -130,43 +86,14 @@ public class WriteFileTest {
         return fileTypeBox;
     }
 
-    private MetaBox createMetaBox_rgb_component() throws IOException {
+    private MetaBox createMetaBox_rgb_component(String dataFileName) throws IOException {
         MetaBox meta = new MetaBox();
         List<Box> boxes = new ArrayList<>();
         boxes.add(makeHandlerBox());
         boxes.add(makePrimaryItemBox());
+        boxes.add(makeDataInformationBox(dataFileName));
         boxes.add(makeItemInfoBox());
         boxes.add(makeItemLocationBox_rgb_component());
-        boxes.add(makeItemDataBox());
-        boxes.add(makeItemPropertiesBox_rgb_component());
-        boxes.add(makeItemReferenceBox());
-        meta.addNestedBoxes(boxes);
-        return meta;
-    }
-
-    private MetaBox createMetaBox_rgb_component_iloc_self() throws IOException {
-        MetaBox meta = new MetaBox();
-        List<Box> boxes = new ArrayList<>();
-        boxes.add(makeHandlerBox());
-        boxes.add(makePrimaryItemBox());
-        boxes.add(makeItemInfoBox());
-        boxes.add(makeItemLocationBox_rgb_component_self());
-        boxes.add(makeItemDataBox());
-        boxes.add(makeItemPropertiesBox_rgb_component());
-        boxes.add(makeItemReferenceBox());
-        meta.addNestedBoxes(boxes);
-        return meta;
-    }
-
-    private MetaBox createMetaBox_rgb_component_imda() throws IOException {
-        MetaBox meta = new MetaBox();
-        List<Box> boxes = new ArrayList<>();
-        boxes.add(makeHandlerBox());
-        boxes.add(makePrimaryItemBox());
-        boxes.add(makeItemInfoBox());
-        boxes.add(makeDataInfoBox());
-        boxes.add(makeItemLocationBox_rgb_component_imda());
-        boxes.add(makeItemDataBox());
         boxes.add(makeItemPropertiesBox_rgb_component());
         boxes.add(makeItemReferenceBox());
         meta.addNestedBoxes(boxes);
@@ -186,6 +113,17 @@ public class WriteFileTest {
         return pitm;
     }
 
+    protected DataInformationBox makeDataInformationBox(String dataFileName) {
+        DataInformationBox dinf = new DataInformationBox();
+        DataReferenceBox dref = new DataReferenceBox();
+        DataEntryUrlBox url = new DataEntryUrlBox();
+        // url.setFlags(DataEntryBaseBox.MEDIA_DATA_IN_SAME_FILE_FLAG);
+        url.setLocation(dataFileName);
+        dref.addDataReference(url);
+        dinf.appendNestedBox(dref);
+        return dinf;
+    }
+
     protected ItemInfoBox makeItemInfoBox() {
         ItemInfoBox iinf = new ItemInfoBox();
         ItemInfoEntry infe0 = new ItemInfoEntry();
@@ -198,60 +136,12 @@ public class WriteFileTest {
         return iinf;
     }
 
-    protected DataInformationBox makeDataInfoBox() {
-        DataInformationBox dinf = new DataInformationBox();
-        DataEntryImdaBox imdt = new DataEntryImdaBox();
-        imdt.setImdaRefIdentifier(MAIN_ITEM_IMDA_ID);
-        DataReferenceBox dref = new DataReferenceBoxBuilder().withDataReference(imdt).build();
-        dinf.appendNestedBox(dref);
-        return dinf;
-    }
-
     private ItemLocationBox makeItemLocationBox_rgb_component() throws IOException {
         ItemLocationBox iloc = makeItemLocationBox_rgb3();
         return iloc;
     }
 
     private ItemLocationBox makeItemLocationBox_rgb3() {
-        ItemLocationBox iloc = new ItemLocationBox();
-        iloc.setOffsetSize(4);
-        iloc.setLengthSize(4);
-        iloc.setBaseOffsetSize(4);
-        iloc.setIndexSize(4);
-        iloc.setVersion(1);
-        ILocItem mainItemLocation = new ILocItem();
-        mainItemLocation.setConstructionMethod(0);
-        mainItemLocation.setItemId(MAIN_ITEM_ID);
-        ILocExtent mainItemExtent = new ILocExtent();
-        mainItemExtent.setExtentIndex(0);
-        mainItemExtent.setExtentOffset(IMAGE_DATA_START);
-        mainItemExtent.setExtentLength(IMAGE_HEIGHT * IMAGE_WIDTH * NUM_BYTES_PER_PIXEL_RGB);
-        mainItemLocation.addExtent(mainItemExtent);
-        iloc.addItem(mainItemLocation);
-        return iloc;
-    }
-
-    private ItemLocationBox makeItemLocationBox_rgb_component_self() {
-        ItemLocationBox iloc = new ItemLocationBox();
-        iloc.setOffsetSize(4);
-        iloc.setLengthSize(4);
-        iloc.setBaseOffsetSize(4);
-        iloc.setIndexSize(4);
-        iloc.setVersion(1);
-        ILocItem mainItemLocation = new ILocItem();
-        mainItemLocation.setConstructionMethod(2);
-        mainItemLocation.setDataReferenceIndex(0);
-        mainItemLocation.setItemId(MAIN_ITEM_ID);
-        ILocExtent mainItemExtent = new ILocExtent();
-        mainItemExtent.setExtentIndex(0);
-        mainItemExtent.setExtentOffset(IMAGE_DATA_START);
-        mainItemExtent.setExtentLength(IMAGE_HEIGHT * IMAGE_WIDTH * NUM_BYTES_PER_PIXEL_RGB);
-        mainItemLocation.addExtent(mainItemExtent);
-        iloc.addItem(mainItemLocation);
-        return iloc;
-    }
-
-    private ItemLocationBox makeItemLocationBox_rgb_component_imda() {
         ItemLocationBox iloc = new ItemLocationBox();
         iloc.setOffsetSize(4);
         iloc.setLengthSize(4);
@@ -269,11 +159,6 @@ public class WriteFileTest {
         mainItemLocation.addExtent(mainItemExtent);
         iloc.addItem(mainItemLocation);
         return iloc;
-    }
-
-    private ItemDataBox makeItemDataBox() throws IOException {
-        ItemDataBoxBuilder itemDataBoxBuilder = new ItemDataBoxBuilder();
-        return itemDataBoxBuilder.build();
     }
 
     private Box makeItemPropertiesBox_rgb_component() {
@@ -357,19 +242,10 @@ public class WriteFileTest {
         return iref;
     }
 
-    private MediaDataBox createMediaDataBox_rgb_component() throws IOException {
-        MediaDataBox mdat = new MediaDataBox();
+    private void createDataFileContent(String dataFileName) throws IOException {
         byte[] data = createMediaDataBoxContent();
-        mdat.setData(data);
-        return mdat;
-    }
-
-    private IdentifiedMediaDataBox createIdentifiedMediaDataBox_rgb_component() throws IOException {
-        IdentifiedMediaDataBox imda = new IdentifiedMediaDataBox();
-        imda.setIdentifier(MAIN_ITEM_IMDA_ID);
-        byte[] data = createMediaDataBoxContent();
-        imda.setData(data);
-        return imda;
+        File testOut = new File(dataFileName);
+        Files.write(testOut.toPath(), data, StandardOpenOption.CREATE);
     }
 
     private byte[] createMediaDataBoxContent() throws IOException {

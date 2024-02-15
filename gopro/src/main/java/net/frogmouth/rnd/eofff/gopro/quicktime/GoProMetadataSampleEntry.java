@@ -32,6 +32,7 @@ public class GoProMetadataSampleEntry extends BaseBox implements SampleEntry {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
+        this.writeBoxHeader(stream);
         stream.writeUnsignedInt32(value);
     }
 
