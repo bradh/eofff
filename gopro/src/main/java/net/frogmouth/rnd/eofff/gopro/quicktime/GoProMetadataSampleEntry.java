@@ -1,12 +1,12 @@
 package net.frogmouth.rnd.eofff.gopro.quicktime;
 
 import java.io.IOException;
-import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.sampleentry.BaseSampleEntry;
 import net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntry;
 
-public class GoProMetadataSampleEntry extends BaseBox implements SampleEntry {
+public class GoProMetadataSampleEntry extends BaseSampleEntry implements SampleEntry {
 
     // No description for what this actually is. Assuming 4 bytes
     private long value;
@@ -32,13 +32,15 @@ public class GoProMetadataSampleEntry extends BaseBox implements SampleEntry {
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
-        this.writeBoxHeader(stream);
+        writeBaseSampleEntryContent(stream);
         stream.writeUnsignedInt32(value);
     }
 
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("data_reference_index: ");
+        sb.append(getDataReferenceIndex());
         sb.append("value: ");
         sb.append(value);
         return sb.toString();
@@ -46,6 +48,8 @@ public class GoProMetadataSampleEntry extends BaseBox implements SampleEntry {
 
     @Override
     public long getBodySize() {
-        return Integer.BYTES;
+        long size = getBaseBodySize();
+        size += Integer.BYTES;
+        return size;
     }
 }

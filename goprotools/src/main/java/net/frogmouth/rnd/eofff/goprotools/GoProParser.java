@@ -19,6 +19,10 @@ import net.frogmouth.rnd.eofff.isobmff.FileParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
+import net.frogmouth.rnd.eofff.isobmff.dinf.DataInformationBox;
+import net.frogmouth.rnd.eofff.isobmff.dref.DataEntryBaseBox;
+import net.frogmouth.rnd.eofff.isobmff.dref.DataEntryUrlBox;
+import net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBox;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.mdia.MediaBox;
@@ -273,10 +277,6 @@ class GoProParser {
             if (box.getFourCC().toString().equals("iods")) {
                 continue;
             }
-            if (box.getFourCC().toString().equals("udta")) {
-                // TODO: we do want udta
-                continue;
-            }
             Box cleanBox =
                     switch (box.getFourCC().toString()) {
                         case "trak" -> cleanTrak((TrackBox) box);
@@ -318,14 +318,48 @@ class GoProParser {
         for (Box box : minf.getNestedBoxes()) {
             Box cleanBox =
                     switch (box.getFourCC().toString()) {
-                            // TODO
-                            // case "dinf" -> cleanDinf((DataInformationBox)box);
+                        case "dinf" -> cleanDinf((DataInformationBox) box);
                         case "stbl" -> cleanStbl((SampleTableBox) box);
                         default -> box;
                     };
             cleanMinf.appendNestedBox(cleanBox);
         }
         return cleanMinf;
+    }
+
+    private Box cleanDinf(DataInformationBox dinf) {
+        DataInformationBox cleanDinf = new DataInformationBox();
+        for (Box box : dinf.getNestedBoxes()) {
+            Box cleanBox =
+                    switch (box.getFourCC().toString()) {
+                        case "dref" -> cleanDref((DataReferenceBox) box);
+                        default -> box;
+                    };
+            cleanDinf.appendNestedBox(cleanBox);
+        }
+        return cleanDinf;
+    }
+
+    private DataReferenceBox cleanDref(DataReferenceBox dref) {
+        DataReferenceBox cleanDref = new DataReferenceBox();
+        for (DataEntryBaseBox dataRef : dref.getEntries()) {
+            DataEntryBaseBox cleanRef = cleanDataReference(dataRef);
+            cleanDref.addDataReference(cleanRef);
+        }
+        return cleanDref;
+    }
+
+    private DataEntryBaseBox cleanDataReference(DataEntryBaseBox dataRef) {
+        return switch (dataRef.getFourCC().toString()) {
+            case "alis" -> sameFileDataReference();
+            default -> dataRef;
+        };
+    }
+
+    private DataEntryBaseBox sameFileDataReference() {
+        DataEntryUrlBox url = new DataEntryUrlBox();
+        url.setFlags(DataEntryUrlBox.MEDIA_DATA_IN_SAME_FILE_FLAG);
+        return url;
     }
 
     private Box cleanStbl(SampleTableBox stbl) {

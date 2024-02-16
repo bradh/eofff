@@ -61,7 +61,12 @@ public class TimecodeSampleDescription extends BaseSampleEntry implements Sample
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
         writeBaseSampleEntryContent(stream);
-        // TODO
+        stream.writeUnsignedInt32(0);
+        stream.writeUnsignedInt32(this.timecodeFlags);
+        stream.writeUnsignedInt32(this.timeScale);
+        stream.writeUnsignedInt32(this.frameDuration);
+        stream.writeUnsignedInt8(this.numberOfFrames);
+        stream.writeUnsignedInt8(0);
         for (Box box : nestedBoxes) {
             box.writeTo(stream);
         }
@@ -90,7 +95,12 @@ public class TimecodeSampleDescription extends BaseSampleEntry implements Sample
     @Override
     public long getBodySize() {
         long size = getBaseBodySize();
-        // TODO
+        size += Integer.BYTES;
+        size += Integer.BYTES; // timecode flags
+        size += Integer.BYTES; // timescale
+        size += Integer.BYTES; // frame duration
+        size += Byte.BYTES; // number of frames
+        size += Byte.BYTES; // reserved
         for (Box box : nestedBoxes) {
             size += box.getSize();
         }

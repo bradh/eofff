@@ -11,9 +11,9 @@ public class GoProDumper {
         GoProParser parser = new GoProParser(args[0]);
         parser.dumpBoxes();
         // parser.dumpH265Files();
-        parser.dumpGPMF();
-        parser.dumpTimingTrack();
-        parser.findMetadataTrack();
+        // parser.dumpGPMF();
+        // parser.dumpTimingTrack();
+        // parser.findMetadataTrack();
         parser.writeOutFile("dump_gopro.mp4");
     }
 }

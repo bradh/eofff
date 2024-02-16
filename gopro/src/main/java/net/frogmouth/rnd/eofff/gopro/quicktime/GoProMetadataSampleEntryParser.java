@@ -22,6 +22,9 @@ public class GoProMetadataSampleEntryParser extends BaseSampleEntryParser
     public SampleEntry parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
         GoProMetadataSampleEntry box = new GoProMetadataSampleEntry();
+        parseContext.getBytes(6);
+        int data_reference_index = parseContext.readUnsignedInt16();
+        box.setDataReferenceIndex(data_reference_index);
         box.setValue(parseContext.readUnsignedInt32());
         return box;
     }
