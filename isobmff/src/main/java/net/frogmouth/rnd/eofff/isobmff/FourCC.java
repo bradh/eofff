@@ -13,7 +13,7 @@ public class FourCC {
     }
 
     public FourCC(String string) {
-        byte[] bytes = string.getBytes(StandardCharsets.US_ASCII);
+        byte[] bytes = string.getBytes(StandardCharsets.ISO_8859_1);
         integerCode = ByteBuffer.wrap(bytes).getInt();
     }
 
@@ -25,7 +25,7 @@ public class FourCC {
     public String toString() {
         ByteBuffer bb = ByteBuffer.allocate(Integer.BYTES);
         bb.putInt(integerCode);
-        return new String(bb.array(), StandardCharsets.US_ASCII);
+        return new String(bb.array(), StandardCharsets.ISO_8859_1);
     }
 
     @Override

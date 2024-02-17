@@ -22,16 +22,11 @@ public class XYZPositionParser extends BaseBoxParser {
     public XYZPosition parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
         XYZPosition box = new XYZPosition();
-        // TODO: fix parsing
-        byte[] bytes = parseContext.getBytes(boxSize - BYTES_IN_BOX_HEADER);
-        int length = bytes[0];
-        int offset = 1;
-        if (length == 0) {
-            length = bytes[offset];
-            offset++;
-        }
-        String substring = new String(bytes, offset, length, StandardCharsets.ISO_8859_1);
-        box.setValue(substring);
+        int length = parseContext.readUnsignedInt16();
+        box.setLanguage(parseContext.readPackedLanguageCode());
+        byte[] bytes = parseContext.getBytes(length);
+        String value = new String(bytes, StandardCharsets.ISO_8859_1);
+        box.setValue(value);
         return box;
     }
 }

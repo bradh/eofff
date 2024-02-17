@@ -26,7 +26,7 @@ public class GUMI extends BaseBox {
 
     @Override
     public String getFullName() {
-        return "GoPro GUMI";
+        return "GoPro Globally Unique Media Information";
     }
 
     @Override

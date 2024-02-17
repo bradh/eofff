@@ -45,6 +45,11 @@
         </dependency>
         <dependency>
             <groupId>net.frogmouth.rnd.eofff</groupId>
+            <artifactId>gopro</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.frogmouth.rnd.eofff</groupId>
             <artifactId>ts26_244</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -89,6 +94,12 @@
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/services/net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/services/net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/services/net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser</resource>
                                 </transformer>
                             </transformers>
                         </configuration>

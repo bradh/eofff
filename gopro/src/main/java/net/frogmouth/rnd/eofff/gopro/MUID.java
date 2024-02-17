@@ -19,7 +19,7 @@ public class MUID extends BaseBox {
 
     @Override
     public String getFullName() {
-        return "GoPro MUID";
+        return "GoPro Media Unique ID";
     }
 
     public List<Long> getValues() {

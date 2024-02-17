@@ -6,6 +6,7 @@ module net.frogmouth.rnd.eofff.isobmff {
 
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
             net.frogmouth.rnd.eofff.isobmff.co64.ChunkLargeOffsetBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.colr.ColourInformationBoxParser,
             net.frogmouth.rnd.eofff.isobmff.cprt.CopyrightBoxParser,
             net.frogmouth.rnd.eofff.isobmff.cslg.CompositionToDecodeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.ctts.CompositionOffsetBoxParser,
@@ -92,6 +93,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff;
     exports net.frogmouth.rnd.eofff.isobmff.sampleentry;
     exports net.frogmouth.rnd.eofff.isobmff.co64;
+    exports net.frogmouth.rnd.eofff.isobmff.colr;
     exports net.frogmouth.rnd.eofff.isobmff.cprt;
     exports net.frogmouth.rnd.eofff.isobmff.cslg;
     exports net.frogmouth.rnd.eofff.isobmff.ctts;
