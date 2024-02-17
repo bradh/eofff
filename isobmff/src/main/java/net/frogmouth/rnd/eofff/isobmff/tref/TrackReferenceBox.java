@@ -10,7 +10,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 /**
  * Track Reference Box.
  *
- * <p>See ISO/IEC 14496-12:2015 Section 8.3.3.
+ * <p>See ISO/IEC 14496-12:2022 Section 8.3.3.
  */
 public class TrackReferenceBox extends BaseBox {
     public static final FourCC TREF_FOURCC = new FourCC("tref");

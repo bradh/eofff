@@ -8,7 +8,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 /**
  * Track Header Box.
  *
- * <p>See ISO/IEC 14496-12:2015 Section 8.3.2.
+ * <p>See ISO/IEC 14496-12:2022 Section 8.3.2.
  */
 public class TrackHeaderBox extends FullBox {
 
@@ -206,7 +206,16 @@ public class TrackHeaderBox extends FullBox {
         sb.append(getTrackId());
         sb.append(", duration=");
         sb.append(getDuration());
-        sb.append(", TODO");
+        sb.append(", layer=");
+        sb.append(layer);
+        sb.append(", alternate_group=");
+        sb.append(alternateGroup);
+        sb.append(", volume=");
+        sb.append(volume);
+        sb.append(", width=");
+        sb.append(width);
+        sb.append(", height=");
+        sb.append(height);
         return sb.toString();
     }
 }
