@@ -13,6 +13,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.dinf.DataInformationBoxParser,
             net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceBoxParser,
             net.frogmouth.rnd.eofff.isobmff.edts.EditBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.elng.ExtendedLanguageBoxParser,
             net.frogmouth.rnd.eofff.isobmff.elst.EditListBoxParser,
             net.frogmouth.rnd.eofff.isobmff.free.FreeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.free.SkipBoxParser,
@@ -107,6 +108,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.dinf;
     exports net.frogmouth.rnd.eofff.isobmff.dref;
     exports net.frogmouth.rnd.eofff.isobmff.edts;
+    exports net.frogmouth.rnd.eofff.isobmff.elng;
     exports net.frogmouth.rnd.eofff.isobmff.elst;
     exports net.frogmouth.rnd.eofff.isobmff.free;
     exports net.frogmouth.rnd.eofff.isobmff.ftyp;
