@@ -19,6 +19,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.free.SkipBoxParser,
             net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.hmhd.HintMediaHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mdhd.MediaHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.idat.ItemDataBoxParser,
@@ -113,6 +114,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.free;
     exports net.frogmouth.rnd.eofff.isobmff.ftyp;
     exports net.frogmouth.rnd.eofff.isobmff.hdlr;
+    exports net.frogmouth.rnd.eofff.isobmff.hmhd;
     exports net.frogmouth.rnd.eofff.isobmff.idat;
     exports net.frogmouth.rnd.eofff.isobmff.iinf;
     exports net.frogmouth.rnd.eofff.isobmff.iloc;

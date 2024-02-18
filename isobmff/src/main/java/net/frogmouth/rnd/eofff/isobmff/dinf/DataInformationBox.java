@@ -13,6 +13,6 @@ public class DataInformationBox extends AbstractContainerBox {
 
     @Override
     public String getFullName() {
-        return "Data Information Box";
+        return "DataInformationBox";
     }
 }
