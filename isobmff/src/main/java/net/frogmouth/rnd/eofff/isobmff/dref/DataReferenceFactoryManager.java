@@ -26,7 +26,7 @@ public class DataReferenceFactoryManager {
                 boxFactories.getOrDefault(fourcc, new DataEntryBaseBoxParser());
         LOG.trace("Providing parser: {}", boxParser.toString());
         if (boxParser.getClass().equals(DataEntryBaseBoxParser.class)) {
-            LOG.warn("Failed to find data entry parser for " + fourcc.toString());
+            LOG.warn("Failed to find data reference parser for " + fourcc.toString());
         }
         return boxParser;
     }

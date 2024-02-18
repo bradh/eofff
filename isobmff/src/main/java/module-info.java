@@ -87,6 +87,12 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.iref.FontReferenceFactory,
             net.frogmouth.rnd.eofff.isobmff.iref.ItemLocationReferenceFactory;
 
+    uses net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupTypeParser;
+
+    provides net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupTypeParser with
+            net.frogmouth.rnd.eofff.isobmff.trgr.MultiSourcePresentationTrackGroupParser,
+            net.frogmouth.rnd.eofff.isobmff.trgr.StereoVideoGroupBoxParser;
+
     uses net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser;
     uses net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser;
 

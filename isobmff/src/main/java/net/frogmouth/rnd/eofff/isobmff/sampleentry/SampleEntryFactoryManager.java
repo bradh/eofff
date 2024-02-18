@@ -26,7 +26,7 @@ public class SampleEntryFactoryManager {
                 boxFactories.getOrDefault(fourcc, new SampleEntryBaseBoxParser());
         LOG.trace("Providing parser: {}", boxParser.toString());
         if (boxParser.getClass().equals(SampleEntryBaseBoxParser.class)) {
-            LOG.warn("Failed to find data entry parser for " + fourcc.toString());
+            LOG.warn("Failed to find sample entry parser for " + fourcc.toString());
         }
         return boxParser;
     }

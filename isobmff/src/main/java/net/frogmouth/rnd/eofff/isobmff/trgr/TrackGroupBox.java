@@ -10,6 +10,8 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 /**
  * Track Group Box.
  *
+ * <p>This is the container for the track group type boxes.
+ *
  * <p>See ISO/IEC 14496-12:2022 Section 8.3.4.
  */
 public class TrackGroupBox extends BaseBox {
@@ -58,8 +60,7 @@ public class TrackGroupBox extends BaseBox {
         sb.append(getEntries().size());
         for (TrackGroupTypeBox item : getEntries()) {
             sb.append("\n");
-            sb.append("\t\t\t");
-            sb.append(item.toString());
+            sb.append(item.toString(nestingLevel + 1));
         }
         return sb.toString();
     }

@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.UUID;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.Brand;
 import net.frogmouth.rnd.eofff.isobmff.tref.TrackReference;
-import net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,14 +126,10 @@ public class ParseContext {
         return new Brand(i);
     }
 
+    // TODO: we should not do this...
     public TrackReference readTrackReference() {
         int i = readInt32();
         return new TrackReference(i);
-    }
-
-    public TrackGroupType readTrackGroupType() {
-        int i = readInt32();
-        return new TrackGroupType(i);
     }
 
     public FourCC readFourCC() {

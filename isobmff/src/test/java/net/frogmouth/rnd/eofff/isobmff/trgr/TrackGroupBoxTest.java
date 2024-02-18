@@ -3,13 +3,11 @@ package net.frogmouth.rnd.eofff.isobmff.trgr;
 import static org.testng.Assert.*;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.ByteArrayParser;
+import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import org.testng.annotations.Test;
 
@@ -45,19 +43,22 @@ public class TrackGroupBoxTest {
 
     @Test
     public void checkWrite() throws IOException {
-        TrackGroupBox box =
-                new TrackGroupBoxBuilder()
-                        .withGroup(new TrackGroupTypeBox(TrackGroupType.MSRC, 32911))
-                        .build();
+        TrackGroupBox box = new TrackGroupBox();
+        MultiSourcePresentationTrackGroup msrc = new MultiSourcePresentationTrackGroup();
+        msrc.setTrackGroupId(32911);
+        box.addEntry(msrc);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
         box.writeTo(streamWriter);
         byte[] bytes = baos.toByteArray();
         assertEquals(bytes, TRGR_BYTES);
-        File testTref = new File("trgr.bin");
-        Files.write(testTref.toPath(), bytes, StandardOpenOption.CREATE);
+        // File testTref = new File("trgr.bin");
+        // Files.write(testTref.toPath(), bytes, StandardOpenOption.CREATE);
         assertTrue(box.toString(0).startsWith("TrackGroupBox 'trgr': group count=1"));
-        assertTrue(box.toString(0).endsWith("group_type=msrc, track_group_id=32911"));
+        assertTrue(
+                box.toString(0)
+                        .endsWith(
+                                "MultiSourcePresentationTrackGroup 'msrc': track_group_id=32911"));
     }
 
     @Test
@@ -71,7 +72,9 @@ public class TrackGroupBoxTest {
         assertTrue(trgr.getFourCC().toString().equals("trgr"));
         assertEquals(trgr.getEntries().size(), 1);
         TrackGroupTypeBox child = trgr.getEntries().get(0);
-        assertEquals(child.groupType(), TrackGroupType.MSRC);
-        assertEquals(child.groupID(), 32911);
+        assertTrue(child instanceof MultiSourcePresentationTrackGroup);
+        MultiSourcePresentationTrackGroup msrc = (MultiSourcePresentationTrackGroup) child;
+        assertEquals(msrc.getFourCC(), new FourCC("msrc"));
+        assertEquals(msrc.getTrackGroupId(), 32911);
     }
 }
