@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.imagefileformat.extensions.groups;
+package net.frogmouth.rnd.eofff.isobmff.grpl;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,8 +7,7 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
-// TODO: move to isobmff module
-public abstract class AbstractEntityToGroupBox extends FullBox {
+public abstract class AbstractEntityToGroupBox extends FullBox implements EntityToGroup {
 
     private long groupId;
     private final List<Long> entityIds = new ArrayList<>();
@@ -37,23 +36,6 @@ public abstract class AbstractEntityToGroupBox extends FullBox {
     public abstract String getFullName();
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': group_id=");
-        sb.append(this.groupId);
-        sb.append(", entity_id=[");
-        for (Long entityId : this.getEntities()) {
-            sb.append(entityId);
-            sb.append(",");
-        }
-        sb.append("];");
-        return sb.toString();
-    }
-
-    @Override
     public void writeTo(OutputStreamWriter writer) throws IOException {
         this.writeBoxHeader(writer);
         writer.writeUnsignedInt32(this.groupId);
@@ -70,5 +52,15 @@ public abstract class AbstractEntityToGroupBox extends FullBox {
         size += Integer.BYTES;
         size += (this.getEntities().size() * Integer.BYTES);
         return size;
+    }
+
+    @Override
+    public String toString(int nestingLevel) {
+        StringBuilder sb = getBaseStringBuilder(nestingLevel);
+        sb.append("group_id=");
+        sb.append(groupId);
+        sb.append(", entity_ids=");
+        sb.append(entityIds);
+        return sb.toString();
     }
 }

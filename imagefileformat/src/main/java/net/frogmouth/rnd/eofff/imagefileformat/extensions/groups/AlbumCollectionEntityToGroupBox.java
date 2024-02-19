@@ -1,12 +1,15 @@
 package net.frogmouth.rnd.eofff.imagefileformat.extensions.groups;
 
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.grpl.AbstractEntityToGroupBox;
+import net.frogmouth.rnd.eofff.isobmff.grpl.EntityToGroup;
 
-public class AlbumCollection extends AbstractEntityToGroupBox {
+public class AlbumCollectionEntityToGroupBox extends AbstractEntityToGroupBox
+        implements EntityToGroup {
 
     public static final FourCC ALBC_ATOM = new FourCC("albc");
 
-    public AlbumCollection() {
+    public AlbumCollectionEntityToGroupBox() {
         super(ALBC_ATOM);
     }
 

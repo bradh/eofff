@@ -1,23 +1,21 @@
-package net.frogmouth.rnd.eofff.imagefileformat.extensions.groups;
+package net.frogmouth.rnd.eofff.isobmff.grpl;
 
-import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO: move to isobmff module
-public abstract class AbstractEntityToGroupBoxParser extends FullBoxParser {
+public abstract class AbstractEntityToGroupBoxParser implements EntityToGroupParser {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(AlbumCollectionParser.class);
+    protected static final Logger LOG =
+            LoggerFactory.getLogger(AbstractEntityToGroupBoxParser.class);
 
     public AbstractEntityToGroupBoxParser() {}
 
     @Override
     public abstract FourCC getFourCC();
 
-    protected Box parseEntityToGroupBox(
+    public EntityToGroup parseEntityToGroupBox(
             ParseContext parseContext,
             AbstractEntityToGroupBox box,
             long initialOffset,
@@ -25,10 +23,6 @@ public abstract class AbstractEntityToGroupBoxParser extends FullBoxParser {
             FourCC boxName) {
         int version = parseContext.readByte();
         box.setVersion(version);
-        if (!isSupportedVersion(version)) {
-            LOG.warn("Got unsupported version {}, parsing as base box.", version);
-            return parseAsBaseBox(parseContext, initialOffset, boxSize, boxName);
-        }
         box.setFlags(parseFlags(parseContext));
         box.setGroupId(parseContext.readUnsignedInt32());
         long numEntitiesInGroup = parseContext.readUnsignedInt32();
@@ -39,7 +33,9 @@ public abstract class AbstractEntityToGroupBoxParser extends FullBoxParser {
         return box;
     }
 
-    protected boolean isSupportedVersion(int version) {
-        return version == 0x00;
+    protected int parseFlags(ParseContext parseContext) {
+        byte[] flags = new byte[3];
+        parseContext.readBytes(flags);
+        return ((flags[0] & 0xFF) << 16) | ((flags[1] & 0xFF) << 8) | (flags[2] & 0xFF);
     }
 }

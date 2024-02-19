@@ -18,6 +18,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.free.FreeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.free.SkipBoxParser,
             net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.grpl.GroupsListBoxParser,
             net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBoxParser,
             net.frogmouth.rnd.eofff.isobmff.hinf.HintStatisticsBoxParser,
             net.frogmouth.rnd.eofff.isobmff.hmhd.HintMediaHeaderBoxParser,
@@ -75,7 +76,8 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.trun.TrackRunBoxParser,
             net.frogmouth.rnd.eofff.isobmff.ttyp.TrackTypeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.udta.UserDataBoxParser,
-            net.frogmouth.rnd.eofff.isobmff.vmhd.VideoMediaHeaderBoxParser;
+            net.frogmouth.rnd.eofff.isobmff.vmhd.VideoMediaHeaderBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.xml.XMLBoxParser;
 
     uses net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser;
 
@@ -84,6 +86,11 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.dref.DataEntrySeqNumImdaBoxParser,
             net.frogmouth.rnd.eofff.isobmff.dref.DataEntryUrlBoxParser,
             net.frogmouth.rnd.eofff.isobmff.dref.DataEntryUrnBoxParser;
+
+    uses net.frogmouth.rnd.eofff.isobmff.grpl.EntityToGroupParser;
+
+    provides net.frogmouth.rnd.eofff.isobmff.grpl.EntityToGroupParser with
+            net.frogmouth.rnd.eofff.isobmff.grpl.AlternativesEntityToGroupBoxParser;
 
     uses net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceFactory;
 
@@ -115,6 +122,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.elst;
     exports net.frogmouth.rnd.eofff.isobmff.free;
     exports net.frogmouth.rnd.eofff.isobmff.ftyp;
+    exports net.frogmouth.rnd.eofff.isobmff.grpl;
     exports net.frogmouth.rnd.eofff.isobmff.hdlr;
     exports net.frogmouth.rnd.eofff.isobmff.hinf;
     exports net.frogmouth.rnd.eofff.isobmff.hmhd;
@@ -162,4 +170,5 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.ttyp;
     exports net.frogmouth.rnd.eofff.isobmff.udta;
     exports net.frogmouth.rnd.eofff.isobmff.vmhd;
+    exports net.frogmouth.rnd.eofff.isobmff.xml;
 }

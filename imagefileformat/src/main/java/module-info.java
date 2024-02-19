@@ -7,10 +7,15 @@ module net.frogmouth.rnd.eofff.imagefileformat {
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
 
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
-            net.frogmouth.rnd.eofff.imagefileformat.ccst.CodingConstraintsBoxParser,
-            net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.AlternativesParser,
-            net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.AlbumCollectionParser,
-            net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.GroupsListBoxParser;
+            net.frogmouth.rnd.eofff.imagefileformat.ccst.CodingConstraintsBoxParser;
+
+    uses net.frogmouth.rnd.eofff.isobmff.grpl.EntityToGroupParser;
+
+    provides net.frogmouth.rnd.eofff.isobmff.grpl.EntityToGroupParser with
+            net.frogmouth.rnd.eofff.imagefileformat.extensions.groups
+                    .AlbumCollectionEntityToGroupBoxParser,
+            net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.BurstEntityToGroupBoxParser,
+            net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.StereoEntityToGroupBoxParser;
 
     uses net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceFactory;
 
