@@ -7,6 +7,7 @@ module net.frogmouth.rnd.eofff.imagefileformat {
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
 
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
+            net.frogmouth.rnd.eofff.imagefileformat.ccst.CodingConstraintsBoxParser,
             net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.AlternativesParser,
             net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.AlbumCollectionParser,
             net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.GroupsListBoxParser;
@@ -48,6 +49,7 @@ module net.frogmouth.rnd.eofff.imagefileformat {
     uses net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser;
 
     exports net.frogmouth.rnd.eofff.imagefileformat.brands;
+    exports net.frogmouth.rnd.eofff.imagefileformat.ccst;
     exports net.frogmouth.rnd.eofff.imagefileformat.extensions.groups;
     exports net.frogmouth.rnd.eofff.imagefileformat.items.grid;
     exports net.frogmouth.rnd.eofff.imagefileformat.items.rgan;

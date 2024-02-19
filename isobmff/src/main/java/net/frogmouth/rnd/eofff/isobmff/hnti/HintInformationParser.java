@@ -1,24 +1,24 @@
-package net.frogmouth.rnd.eofff.imagefileformat.extensions.groups;
+package net.frogmouth.rnd.eofff.isobmff.hnti;
 
 import com.google.auto.service.AutoService;
+import net.frogmouth.rnd.eofff.isobmff.BaseBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
-// TODO: move to isobmff module
 @AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
-public class AlternativesParser extends AbstractEntityToGroupBoxParser {
-
-    public AlternativesParser() {}
+public class HintInformationParser extends BaseBoxParser {
+    public HintInformationParser() {}
 
     @Override
     public FourCC getFourCC() {
-        return AlternativesBox.ALTR_ATOM;
+        return HintInformation.HNTI_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        AlternativesBox box = new AlternativesBox();
-        return parseEntityToGroupBox(parseContext, box, initialOffset, boxSize, boxName);
+        HintInformation box = new HintInformation();
+        box.addNestedBoxes(parseContext.parseNestedBoxes(initialOffset + boxSize));
+        return box;
     }
 }
