@@ -21,6 +21,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.grpl.GroupsListBoxParser,
             net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBoxParser,
             net.frogmouth.rnd.eofff.isobmff.hinf.HintStatisticsBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.hinf.HintTotalBytesSentParser,
             net.frogmouth.rnd.eofff.isobmff.hmhd.HintMediaHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.hnti.HintInformationParser,
             net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBoxParser,
