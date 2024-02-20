@@ -47,6 +47,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.mvex.MovieExtendsBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mvhd.MovieHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.nmhd.NullMediaHeaderBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.padb.PaddingBitsBoxParser,
             net.frogmouth.rnd.eofff.isobmff.pasp.PixelAspectRatioBoxParser,
             net.frogmouth.rnd.eofff.isobmff.pdin.ProgressiveDownloadInfoBoxParser,
             net.frogmouth.rnd.eofff.isobmff.saio.SampleAuxiliaryInformationOffsetsBoxParser,
@@ -145,6 +146,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.mvex;
     exports net.frogmouth.rnd.eofff.isobmff.mvhd;
     exports net.frogmouth.rnd.eofff.isobmff.nmhd;
+    exports net.frogmouth.rnd.eofff.isobmff.padb;
     exports net.frogmouth.rnd.eofff.isobmff.pasp;
     exports net.frogmouth.rnd.eofff.isobmff.pdin;
     exports net.frogmouth.rnd.eofff.isobmff.pitm;
