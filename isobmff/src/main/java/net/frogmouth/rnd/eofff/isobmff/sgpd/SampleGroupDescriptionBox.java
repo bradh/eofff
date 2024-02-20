@@ -12,6 +12,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  *
  * <p>See ISO/IEC 14496-12:2022 Section 8.9.3.
  */
+// TODO: this needs to treat sample group description entries as a namespace
 public class SampleGroupDescriptionBox extends FullBox {
 
     public static final FourCC SGPD_ATOM = new FourCC("sgpd");

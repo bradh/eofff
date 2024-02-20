@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
+// TODO: incomplete - needs a custom factory
 public class SampleGroupDescriptionBoxParser extends FullBoxParser {
     private static final Logger LOG =
             LoggerFactory.getLogger(SampleGroupDescriptionBoxParser.class);

@@ -34,6 +34,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertyContainerBoxParser,
             net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertyAssociationParser,
             net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertiesBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.kind.KindBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mebx.BoxedMetadataSampleEntryParser,
             // net.frogmouth.rnd.eofff.isobmff.mebx.MetadataKeyTableBoxParser,
             net.frogmouth.rnd.eofff.isobmff.meta.IlistBoxParser,
@@ -135,6 +136,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.infe;
     exports net.frogmouth.rnd.eofff.isobmff.iprp;
     exports net.frogmouth.rnd.eofff.isobmff.iref;
+    exports net.frogmouth.rnd.eofff.isobmff.kind;
     exports net.frogmouth.rnd.eofff.isobmff.mdat;
     exports net.frogmouth.rnd.eofff.isobmff.mdhd;
     exports net.frogmouth.rnd.eofff.isobmff.mdia;

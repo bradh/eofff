@@ -1,9 +1,11 @@
 package net.frogmouth.rnd.eofff.isobmff.sbgp;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class SampleToGroupBox extends FullBox {
     public static final FourCC SBGP_ATOM = new FourCC("sbgp");
@@ -45,7 +47,21 @@ public class SampleToGroupBox extends FullBox {
         this.entries.add(entry);
     }
 
-    // TODO: write
+    @Override
+    public void writeTo(OutputStreamWriter writer) throws IOException {
+        if (groupingTypeParameter != null) {
+            setVersion(1);
+        }
+        this.writeBoxHeader(writer);
+        writer.writeUnsignedInt32(groupingType);
+        if (groupingTypeParameter != null) {
+            writer.writeUnsignedInt32(groupingTypeParameter);
+        }
+        writer.writeUnsignedInt32(entries.size());
+        for (SampleToGroupBoxEntry item : entries) {
+            item.writeTo(writer);
+        }
+    }
 
     @Override
     public String toString(int nestingLevel) {
