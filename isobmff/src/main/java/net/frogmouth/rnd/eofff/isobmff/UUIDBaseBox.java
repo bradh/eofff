@@ -1,19 +1,22 @@
 package net.frogmouth.rnd.eofff.isobmff;
 
 import java.io.IOException;
+import java.util.UUID;
 
-public class BaseBox implements Box {
+public class UUIDBaseBox implements Box {
 
-    protected static final long BYTES_IN_BOX_HEADER = Integer.BYTES + FourCC.BYTES;
+    private static final long UUID_BYTES = 16;
+
+    protected static final long BYTES_IN_BOX_HEADER = Integer.BYTES + FourCC.BYTES + UUID_BYTES;
     protected static final long BYTES_IN_LARGE_BOX_HEADER =
-            Integer.BYTES + FourCC.BYTES + Long.BYTES;
+            Integer.BYTES + FourCC.BYTES + Long.BYTES + UUID_BYTES;
     protected static final int LARGE_SIZE_FLAG = 1;
 
     private static final String INDENT = "    ";
-    // private long size;
     private FourCC boxName;
+    private UUID uuid;
 
-    public BaseBox(FourCC name) {
+    public UUIDBaseBox(FourCC name) {
         setBoxName(name);
     }
 
@@ -42,9 +45,17 @@ public class BaseBox implements Box {
         this.boxName = name;
     }
 
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
     @Override
     public String getFullName() {
-        return "Unimplemented Box";
+        return "Unimplemented UUID Box";
     }
 
     @Override
@@ -60,7 +71,9 @@ public class BaseBox implements Box {
         sb.append(getFullName());
         sb.append(" '");
         sb.append(getFourCC());
-        sb.append("': ");
+        sb.append("' [");
+        sb.append(uuid.toString());
+        sb.append("]: ");
         return sb;
     }
 
@@ -91,5 +104,6 @@ public class BaseBox implements Box {
             stream.writeUnsignedInt32(boxSize);
             stream.writeFourCC(this.getFourCC());
         }
+        stream.writeUUID(uuid);
     }
 }
