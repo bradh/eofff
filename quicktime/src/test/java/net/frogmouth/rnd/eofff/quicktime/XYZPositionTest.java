@@ -1,11 +1,10 @@
-package net.frogmouth.rnd.eofff.gopro.gpmf;
+package net.frogmouth.rnd.eofff.quicktime;
 
 import static org.testng.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
-import net.frogmouth.rnd.eofff.gopro.XYZPosition;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.ByteArrayParser;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;

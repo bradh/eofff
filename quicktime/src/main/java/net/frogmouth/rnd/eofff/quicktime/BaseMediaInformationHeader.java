@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.gopro.quicktime;
+package net.frogmouth.rnd.eofff.quicktime;
 
 import net.frogmouth.rnd.eofff.isobmff.AbstractContainerBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;

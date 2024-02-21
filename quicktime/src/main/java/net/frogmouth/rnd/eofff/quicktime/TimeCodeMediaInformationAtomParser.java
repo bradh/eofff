@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.gopro.quicktime;
+package net.frogmouth.rnd.eofff.quicktime;
 
 import com.google.auto.service.AutoService;
 import java.nio.charset.StandardCharsets;

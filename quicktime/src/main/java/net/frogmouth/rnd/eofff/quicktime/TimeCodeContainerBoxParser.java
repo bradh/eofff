@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.gopro.quicktime;
+package net.frogmouth.rnd.eofff.quicktime;
 
 import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.BaseBoxParser;

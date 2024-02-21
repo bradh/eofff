@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.gopro.gpmf;
+package net.frogmouth.rnd.eofff.quicktime;
 
 import static org.testng.Assert.*;
 

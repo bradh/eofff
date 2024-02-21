@@ -35,6 +35,11 @@
         </dependency>
         <dependency>
             <groupId>net.frogmouth.rnd.eofff</groupId>
+            <artifactId>quicktime</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.frogmouth.rnd.eofff</groupId>
             <artifactId>uncompressed</artifactId>
             <version>${project.version}</version>
         </dependency>

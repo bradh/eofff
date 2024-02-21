@@ -8,8 +8,6 @@
     <modules>
         <module>isobmff</module>
         <module>imagefileformat</module>
-        <module>jpegxl</module>
-        <module>visualiser</module>
         <module>dash</module>
         <module>nalvideo</module>
         <!-- <module>tools</module> -->
@@ -17,12 +15,15 @@
         <module>yuv</module>
         <module>av1isobmff</module>
         <module>cicp</module>
+        <module>gopro</module>
         <!-- <module>sidd</module> -->
         <module>jpeg2000</module>
+        <module>jpegxl</module>
         <module>miaf</module>
         <module>mpeg4</module>
         <module>ts26_224</module>
-        <module>gopro</module>
+        <module>quicktime</module>
+        <module>visualiser</module>
         <module>goprotools</module>
         <module>debugtools</module>
         <module>demos</module>

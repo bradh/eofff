@@ -14,26 +14,14 @@ module net.frogmouth.rnd.eofff.gopro {
             net.frogmouth.rnd.eofff.gopro.LENSParser,
             net.frogmouth.rnd.eofff.gopro.MUIDParser,
             net.frogmouth.rnd.eofff.gopro.SETTParser,
-            net.frogmouth.rnd.eofff.gopro.XYZPositionParser,
             net.frogmouth.rnd.eofff.gopro.gpmf.GPMFParser,
-            net.frogmouth.rnd.eofff.gopro.quicktime.BaseMediaInfoAtomParser,
-            net.frogmouth.rnd.eofff.gopro.quicktime.BaseMediaInformationHeaderParser,
-            net.frogmouth.rnd.eofff.gopro.quicktime.GoProMetaDataBoxParser,
-            net.frogmouth.rnd.eofff.gopro.quicktime.TimeCodeContainerBoxParser,
-            net.frogmouth.rnd.eofff.gopro.quicktime.TimeCodeMediaInformationAtomParser;
-
-    uses net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser;
-
-    provides net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser with
-            net.frogmouth.rnd.eofff.gopro.quicktime.DataEntryAliasBoxParser;
+            net.frogmouth.rnd.eofff.gopro.GoProMetaDataBoxParser;
 
     uses net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser;
 
     provides net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser with
-            net.frogmouth.rnd.eofff.gopro.quicktime.GoProMetadataSampleEntryParser,
-            net.frogmouth.rnd.eofff.gopro.quicktime.TimecodeSampleDescriptionParser;
+            net.frogmouth.rnd.eofff.gopro.GoProMetadataSampleEntryParser;
 
     exports net.frogmouth.rnd.eofff.gopro;
     exports net.frogmouth.rnd.eofff.gopro.gpmf;
-    exports net.frogmouth.rnd.eofff.gopro.quicktime;
 }

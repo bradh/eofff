@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.gopro.quicktime;
+package net.frogmouth.rnd.eofff.quicktime;
 
 import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;

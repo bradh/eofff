@@ -1,26 +1,30 @@
-package net.frogmouth.rnd.eofff.gopro.quicktime;
+package net.frogmouth.rnd.eofff.gopro;
 
 import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
-import net.frogmouth.rnd.eofff.isobmff.dref.DataEntryBaseBox;
 
 /**
- * Data entry (aka data reference) alias box.
+ * GoPro Metadata box.
  *
- * <p>This content is inferred, not documented.
+ * <p>This box structure is assumed, not actually defined.
  */
-public class DataEntryAliasBox extends DataEntryBaseBox {
+public class GoProMetaDataBox extends FullBox {
+    public static final FourCC GPMD_ATOM = new FourCC("gpmd");
 
-    public static final FourCC ALIS_ATOM = new FourCC("alis");
-
-    public DataEntryAliasBox() {
-        super(ALIS_ATOM);
+    public GoProMetaDataBox() {
+        super(GPMD_ATOM);
     }
 
     @Override
     public String getFullName() {
-        return "DataEntryAliasBox";
+        return "GoPro Metadata";
+    }
+
+    @Override
+    public long getBodySize() {
+        return 0;
     }
 
     @Override
@@ -32,10 +36,5 @@ public class DataEntryAliasBox extends DataEntryBaseBox {
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
         return sb.toString();
-    }
-
-    @Override
-    public long getBodySize() {
-        return 0;
     }
 }
