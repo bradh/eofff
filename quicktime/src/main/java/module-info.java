@@ -10,7 +10,9 @@ module net.frogmouth.rnd.eofff.quicktime {
             net.frogmouth.rnd.eofff.quicktime.BaseMediaInfoAtomParser,
             net.frogmouth.rnd.eofff.quicktime.BaseMediaInformationHeaderParser,
             net.frogmouth.rnd.eofff.quicktime.TimeCodeContainerBoxParser,
-            net.frogmouth.rnd.eofff.quicktime.TimeCodeMediaInformationAtomParser;
+            net.frogmouth.rnd.eofff.quicktime.TimeCodeMediaInformationAtomParser,
+            net.frogmouth.rnd.eofff.quicktime.ilst.MetadataItemListAtomParser,
+            net.frogmouth.rnd.eofff.quicktime.keys.MetadataItemKeysAtomParser;
 
     uses net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser;
 
@@ -23,4 +25,6 @@ module net.frogmouth.rnd.eofff.quicktime {
             net.frogmouth.rnd.eofff.quicktime.TimecodeSampleDescriptionParser;
 
     exports net.frogmouth.rnd.eofff.quicktime;
+    exports net.frogmouth.rnd.eofff.quicktime.ilst;
+    exports net.frogmouth.rnd.eofff.quicktime.keys;
 }

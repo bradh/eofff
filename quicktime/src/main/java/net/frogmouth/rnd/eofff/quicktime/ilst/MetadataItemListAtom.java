@@ -1,15 +1,20 @@
-package net.frogmouth.rnd.eofff.isobmff.meta;
+package net.frogmouth.rnd.eofff.quicktime.ilst;
 
 import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
-public class IlstBox extends BaseBox {
+/**
+ * Metadata item list atom.
+ *
+ * <p>See https://developer.apple.com/documentation/quicktime-file-format/metadata_item_list_atom
+ */
+public class MetadataItemListAtom extends BaseBox {
     // TODO: this looks woeful.
     private byte[] data;
 
-    public IlstBox(FourCC name) {
+    public MetadataItemListAtom(FourCC name) {
         super(name);
     }
 
