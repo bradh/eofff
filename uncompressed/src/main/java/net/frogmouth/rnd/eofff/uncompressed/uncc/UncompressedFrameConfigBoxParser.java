@@ -1,5 +1,11 @@
 package net.frogmouth.rnd.eofff.uncompressed.uncc;
 
+import static net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox.BLOCK_LITTLE_ENDIAN;
+import static net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox.BLOCK_PAD_LSB_FLAG;
+import static net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox.BLOCK_REVERSED_FLAG;
+import static net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox.COMPONENTS_LITTLE_ENDIAN_FLAG;
+import static net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox.PAD_UNKNOWN_FLAG;
+
 import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
@@ -51,11 +57,12 @@ public class UncompressedFrameConfigBoxParser extends ItemFullPropertyParser {
         box.setInterleaveType(Interleaving.lookup(parseContext.readUnsignedInt8()));
         box.setBlockSize(parseContext.readUnsignedInt8());
         int bitMask = parseContext.readUnsignedInt8();
-        box.setComponentLittleEndian((bitMask & 0x80) == 0x80);
-        box.setBlockPadLSB((bitMask & 0x40) == 0x40);
-        box.setBlockLittleEndian((bitMask & 0x20) == 0x20);
-        box.setBlockReversed((bitMask & 0x10) == 0x10);
-        box.setPadUnknown((bitMask & 0x08) == 0x08);
+        box.setComponentLittleEndian(
+                (bitMask & COMPONENTS_LITTLE_ENDIAN_FLAG) == COMPONENTS_LITTLE_ENDIAN_FLAG);
+        box.setBlockPadLSB((bitMask & BLOCK_PAD_LSB_FLAG) == BLOCK_PAD_LSB_FLAG);
+        box.setBlockLittleEndian((bitMask & BLOCK_LITTLE_ENDIAN) == BLOCK_LITTLE_ENDIAN);
+        box.setBlockReversed((bitMask & BLOCK_REVERSED_FLAG) == BLOCK_REVERSED_FLAG);
+        box.setPadUnknown((bitMask & PAD_UNKNOWN_FLAG) == PAD_UNKNOWN_FLAG);
         box.setPixelSize(parseContext.readUnsignedInt32());
         box.setRowAlignSize(parseContext.readUnsignedInt32());
         box.setTileAlignSize(parseContext.readUnsignedInt32());

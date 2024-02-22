@@ -16,6 +16,12 @@ public class UncompressedFrameConfigBox extends ItemFullProperty {
 
     public static final FourCC UNCC_ATOM = new FourCC("uncC");
 
+    public static final int COMPONENTS_LITTLE_ENDIAN_FLAG = 0x80;
+    public static final int BLOCK_PAD_LSB_FLAG = 0x40;
+    public static final int BLOCK_LITTLE_ENDIAN = 0x20;
+    public static final int BLOCK_REVERSED_FLAG = 0x10;
+    public static final int PAD_UNKNOWN_FLAG = 0x08;
+
     private FourCC profile;
     private final List<Component> components = new ArrayList<>();
     private SamplingType samplingType;
@@ -191,21 +197,20 @@ public class UncompressedFrameConfigBox extends ItemFullProperty {
         stream.writeByte(interleaveType.getEncodedValue());
         stream.writeByte(blockSize);
         int bitMask = 0;
-        // TODO: define constants for these bit flag masks
         if (this.isComponentLittleEndian()) {
-            bitMask |= 0x80;
+            bitMask |= COMPONENTS_LITTLE_ENDIAN_FLAG;
         }
         if (this.isBlockPadLSB()) {
-            bitMask |= 0x40;
+            bitMask |= BLOCK_PAD_LSB_FLAG;
         }
         if (this.isBlockLittleEndian()) {
-            bitMask |= 0x20;
+            bitMask |= BLOCK_LITTLE_ENDIAN;
         }
         if (this.isBlockReversed()) {
-            bitMask |= 0x10;
+            bitMask |= BLOCK_REVERSED_FLAG;
         }
         if (this.isPadUnknown()) {
-            bitMask |= 0x08;
+            bitMask |= PAD_UNKNOWN_FLAG;
         }
         stream.writeByte(bitMask);
         stream.writeUnsignedInt32(pixelSize);
