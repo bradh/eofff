@@ -89,6 +89,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.trex.TrackExtendsBoxParser,
             net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupBoxParser,
             net.frogmouth.rnd.eofff.isobmff.trun.TrackRunBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.tsel.TrackSelectionBoxParser,
             net.frogmouth.rnd.eofff.isobmff.ttyp.TrackTypeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.udta.UserDataBoxParser,
             net.frogmouth.rnd.eofff.isobmff.vmhd.VideoMediaHeaderBoxParser,
@@ -184,6 +185,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.tref;
     exports net.frogmouth.rnd.eofff.isobmff.trex;
     exports net.frogmouth.rnd.eofff.isobmff.trgr;
+    exports net.frogmouth.rnd.eofff.isobmff.tsel;
     exports net.frogmouth.rnd.eofff.isobmff.ttyp;
     exports net.frogmouth.rnd.eofff.isobmff.udta;
     exports net.frogmouth.rnd.eofff.isobmff.vmhd;
