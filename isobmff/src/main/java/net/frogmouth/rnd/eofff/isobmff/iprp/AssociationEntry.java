@@ -8,6 +8,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 public class AssociationEntry {
     private long itemId;
     private final List<PropertyAssociation> associations = new ArrayList<>();
+    private static final String INDENT = "    ";
 
     public long getItemId() {
         return itemId;
@@ -43,14 +44,22 @@ public class AssociationEntry {
         return size;
     }
 
-    @Override
-    public String toString() {
+    public String toString(int nestingLevel) {
         StringBuilder sb = new StringBuilder();
-        sb.append("\titem_id=").append(itemId);
+        addIndent(nestingLevel, sb);
+        sb.append("item_id=").append(itemId);
         for (PropertyAssociation association : this.associations) {
-            sb.append("\n\t\t\t").append(association.toString());
+            sb.append("\n");
+            this.addIndent(nestingLevel + 1, sb);
+            sb.append(association.toString());
         }
         return sb.toString();
+    }
+
+    private void addIndent(int nestingLevel, StringBuilder sb) {
+        for (int i = 0; i < nestingLevel; i++) {
+            sb.append(INDENT);
+        }
     }
 
     void writeTo(OutputStreamWriter writer, int version, int flags) throws IOException {

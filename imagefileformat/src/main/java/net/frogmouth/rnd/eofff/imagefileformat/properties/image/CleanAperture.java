@@ -110,12 +110,9 @@ public class CleanAperture extends ItemProperty {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': cleanApertureWidthN=");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("cleanApertureWidthN=");
         sb.append(this.getCleanApertureWidthN());
         sb.append(", cleanApertureWidthD=");
         sb.append(this.getCleanApertureWidthD());

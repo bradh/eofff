@@ -51,4 +51,35 @@ public class HEVCDecoderConfigurationArray {
             nalu.writeTo(writer);
         }
     }
+
+    private static final String INDENT = "    ";
+
+    public static void addIndent(int nestingLevel, StringBuilder sb) {
+        for (int i = 0; i < nestingLevel; i++) {
+            sb.append(INDENT);
+        }
+    }
+
+    void addToStringBuilder(int nestingLevel, StringBuilder sb) {
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("Array:");
+        sb.append("\n");
+        addIndent(nestingLevel + 1, sb);
+        sb.append("array_completeness: ");
+        sb.append(this.array_completion);
+        sb.append("\n");
+        addIndent(nestingLevel + 1, sb);
+        sb.append("NAL_unit_type: ");
+        sb.append(nal_unit_type);
+        sb.append("\n");
+        addIndent(nestingLevel + 1, sb);
+        sb.append("numNalus: ");
+        sb.append(nalus.size());
+        for (NALU nalu : nalus) {
+            sb.append("\n");
+            addIndent(nestingLevel + 1, sb);
+            nalu.addToStringBuilder(nestingLevel + 1, sb);
+        }
+    }
 }

@@ -12,4 +12,6 @@ public interface AbstractItemProperty {
     public String getFullName();
 
     FourCC getFourCC();
+
+    public String toString(int nestingLevel);
 }

@@ -43,12 +43,9 @@ public class PixelInformationProperty extends ItemFullProperty {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': [");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("'[");
         for (Integer bitsPerChannel : channels) {
             sb.append(bitsPerChannel);
             sb.append(", ");

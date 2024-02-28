@@ -25,19 +25,15 @@ public class ImageMirror extends ItemProperty {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': axis=");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("axis=");
         sb.append(getAxis());
         if (getAxis() == 0x01) {
             sb.append(" (horizontal)");
         } else {
             sb.append(" (vertical)");
         }
-        sb.append(";");
         return sb.toString();
     }
 }

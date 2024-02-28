@@ -48,16 +48,12 @@ public class ImageSpatialExtentsProperty extends ItemFullProperty {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': image_width=");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("image_width=");
         sb.append(getImageWidth());
         sb.append(", image_height=");
         sb.append(getImageHeight());
-        sb.append(";");
         return sb.toString();
     }
 }

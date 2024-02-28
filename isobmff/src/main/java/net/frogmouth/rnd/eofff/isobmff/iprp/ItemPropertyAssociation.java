@@ -55,15 +55,11 @@ public class ItemPropertyAssociation extends FullBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': ");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
         for (AssociationEntry entry : entries) {
-            sb.append("\n\t");
-            sb.append(entry.toString());
+            sb.append("\n");
+            sb.append(entry.toString(nestingLevel + 1));
         }
         return sb.toString();
     }

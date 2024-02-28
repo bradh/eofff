@@ -107,17 +107,13 @@ public class ItemPropertiesBox extends BaseBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': ");
-        sb.append("\n\t  ");
-        sb.append(itemProperties.toString());
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("\n");
+        sb.append(itemProperties.toString(nestingLevel + 1));
         for (ItemPropertyAssociation itemPropertyAssociation : propertyAssociations) {
-            sb.append("\n\t");
-            sb.append(itemPropertyAssociation.toString());
+            sb.append("\n");
+            sb.append(itemPropertyAssociation.toString(nestingLevel + 1));
         }
         return sb.toString();
     }

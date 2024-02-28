@@ -60,23 +60,16 @@ public class ItemPropertyContainerBox extends BaseBox {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("':");
-        int i = 1;
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
         for (AbstractItemProperty property : properties) {
-            sb.append("\n\t\t");
-            sb.append(i);
-            sb.append(".\t");
+            sb.append("\n");
             if (property == null) {
+                this.addIndent(nestingLevel + 1, sb);
                 sb.append("[Unhandled property]");
             } else {
-                sb.append(property.toString());
+                sb.append(property.toString(nestingLevel + 1));
             }
-            i += 1;
         }
         return sb.toString();
     }

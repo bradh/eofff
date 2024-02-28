@@ -23,4 +23,10 @@ public class NALU {
         writer.writeUnsignedInt16(nalUnit.length);
         writer.write(nalUnit);
     }
+
+    public void addToStringBuilder(int i, StringBuilder sb) {
+        sb.append("NALU: ");
+        sb.append(nalUnit.length);
+        sb.append(" bytes");
+    }
 }

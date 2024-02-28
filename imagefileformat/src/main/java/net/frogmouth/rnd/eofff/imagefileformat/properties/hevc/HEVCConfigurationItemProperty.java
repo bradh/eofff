@@ -2,6 +2,7 @@ package net.frogmouth.rnd.eofff.imagefileformat.properties.hevc;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
@@ -227,5 +228,99 @@ public class HEVCConfigurationItemProperty extends ItemProperty {
     @Override
     public String getFullName() {
         return "HEVCConfigurationItemProperty";
+    }
+
+    @Override
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        this.addToStringBuilder(sb, nestingLevel + 1);
+        return sb.toString();
+    }
+
+    // TODO: we may not need this after alignment with nalvideo impl.
+
+    private static final String INDENT = "    ";
+
+    public static void addByteArrayAsHex(byte[] bytes, StringBuilder sb) {
+        String hexString = HexFormat.ofDelimiter(" ").withPrefix("0x").formatHex(bytes);
+        sb.append(hexString);
+    }
+
+    void addToStringBuilder(StringBuilder sb, int nestingLevel) {
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("configurationVersion: ");
+        sb.append(configurationVersion);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("general_profile_space: ");
+        sb.append(general_profile_space);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("general_tier_flag: ");
+        sb.append(general_tier_flag);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("general_profile_idc: ");
+        sb.append(general_profile_idc);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("general_profile_compatibility_flags: ");
+        addByteArrayAsHex(general_profile_compatibility_flags, sb);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("general_constraint_indicator_flags: ");
+        addByteArrayAsHex(general_constraint_indicator_flags, sb);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("general_level_idc: ");
+        sb.append(general_level_idc);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("min_spatial_segmentation_idc: ");
+        sb.append(min_spatial_segmentation_idc);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("parallelismType: ");
+        sb.append(parallelismType);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("chroma_format_idc: ");
+        sb.append(chromaFormat);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("bitDepthLumaMinus8: ");
+        sb.append(bitDepthLumaMinus8);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("bitDepthChromaMinus8: ");
+        sb.append(bitDepthChromaMinus8);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("avgFrameRate: ");
+        sb.append(avgFrameRate);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("constantFrameRate: ");
+        sb.append(constantFrameRate);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("numTemporalLayers: ");
+        sb.append(numTemporalLayers);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("temporalIdNested: ");
+        sb.append(temporalIdNested);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("lengthSizeMinusOne: ");
+        sb.append(lengthSizeMinusOne);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("numOfArrays: ");
+        sb.append(arrays.size());
+        for (HEVCDecoderConfigurationArray array : arrays) {
+            array.addToStringBuilder(nestingLevel, sb);
+        }
     }
 }
