@@ -42,6 +42,12 @@ public class BoxDumper {
         if (p.toString().endsWith("json")) {
             return;
         }
+        if (p.toString().endsWith("README.md")) {
+            return;
+        }
+        if (p.toString().endsWith(".cfignore")) {
+            return;
+        }
         if (p.toString().endsWith("video_2500000bps_0.mp4")) {
             // https://github.com/MPEGGroup/FileFormatConformance/issues/131
             return;
