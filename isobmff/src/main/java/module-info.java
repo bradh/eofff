@@ -72,6 +72,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.sidx.SegmentIndexBoxParser,
             net.frogmouth.rnd.eofff.isobmff.smhd.SoundMediaHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stbl.SampleTableBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.sthd.SubtitleMediaHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stsc.SampleToChunkBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stsd.SampleDescriptionBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stco.ChunkOffsetBoxParser,
@@ -173,6 +174,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.smhd;
     exports net.frogmouth.rnd.eofff.isobmff.stbl;
     exports net.frogmouth.rnd.eofff.isobmff.stco;
+    exports net.frogmouth.rnd.eofff.isobmff.sthd;
     exports net.frogmouth.rnd.eofff.isobmff.stsc;
     exports net.frogmouth.rnd.eofff.isobmff.stsd;
     exports net.frogmouth.rnd.eofff.isobmff.stss;
