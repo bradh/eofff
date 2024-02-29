@@ -1,15 +1,19 @@
 package net.frogmouth.rnd.eofff.demos;
 
-import static org.testng.Assert.*;
-
+import io.jhdf.HdfFile;
+import io.jhdf.api.Attribute;
+import io.jhdf.api.Dataset;
+import io.jhdf.api.dataset.ContiguousDataset;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageSpatialExtentsProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.uuid.UUIDProperty;
@@ -52,17 +56,59 @@ public class WrapHDF5ImageTest {
     private static final String PRIMARY_ITEM_CONTENT_ID =
             "urn:uuid:" + PRIMARY_ITEM_CONTENT_ID_UUID;
 
-    private static final int IMAGE_WIDTH = 4032;
-    private static final int IMAGE_HEIGHT = 3024;
-    private static final int NUM_BYTES_PER_PIXEL = 3;
-
     private static final UUID CONTENT_ID_UUID =
             UUID.fromString("aac8ab7d-f519-5437-b7d3-c973d155e253");
+
+    private long width = -1;
+    private long height = -1;
+    private long components = 1;
+    private long offset;
+    private long storageSize;
+
+    private void decodeSourceFile(String dataFileName) {
+        try (HdfFile hdfFile = new HdfFile(Paths.get(dataFileName))) {
+            // TODO: modify this so it adds multiple files.
+            hdfFile.forEach(
+                    node -> {
+                        if (node instanceof Dataset dataset) {
+                            Map<String, Attribute> attributes = dataset.getAttributes();
+                            Attribute classAttr = attributes.get("CLASS");
+                            String clazz = (String) classAttr.getData();
+                            if (clazz.equals("IMAGE")) {
+                                if (attributes.get("IMAGE_VERSION").getData().equals("1.2")
+                                        && attributes
+                                                .get("IMAGE_SUBCLASS")
+                                                .getData()
+                                                .equals("IMAGE_TRUECOLOR")
+                                        && attributes
+                                                .get("INTERLACE_MODE")
+                                                .getData()
+                                                .equals("INTERLACE_PIXEL")) {
+                                    int[] dims = dataset.getDimensions();
+                                    if (dims.length == 3) {
+                                        height = dims[0];
+                                        width = dims[1];
+                                        components = dims[2];
+                                    } else if (dims.length == 2) {
+                                        height = dims[0];
+                                        width = dims[1];
+                                    }
+                                }
+                                ContiguousDataset contiguousDataset = (ContiguousDataset) dataset;
+                                offset = contiguousDataset.getDataAddress();
+                                storageSize = contiguousDataset.getStorageInBytes();
+                                System.out.println(dataset.getName());
+                            }
+                        }
+                    });
+        }
+    }
 
     @Test
     public void wrapHDF() throws IOException {
         String sourceFile = "demo_image2.h5";
         String wrapFile = "h5_wrap.heif";
+        decodeSourceFile(sourceFile);
         doWrapping(sourceFile, wrapFile);
     }
 
@@ -92,7 +138,7 @@ public class WrapHDF5ImageTest {
         boxes.add(makePrimaryItemBox());
         boxes.add(makeDataInformationBox(sourceFile));
         boxes.add(makeItemInfoBox());
-        boxes.add(makeItemLocationBox());
+        boxes.add(makeItemLocationBox(sourceFile));
         boxes.add(makeItemPropertiesBox());
         boxes.add(makeItemReferenceBox());
         meta.addNestedBoxes(boxes);
@@ -134,7 +180,7 @@ public class WrapHDF5ImageTest {
         return iinf;
     }
 
-    private ItemLocationBox makeItemLocationBox() {
+    private ItemLocationBox makeItemLocationBox(String dataFileName) {
         ItemLocationBox iloc = new ItemLocationBox();
         iloc.setOffsetSize(4);
         iloc.setLengthSize(4);
@@ -145,11 +191,11 @@ public class WrapHDF5ImageTest {
         mainItemLocation.setConstructionMethod(2);
         mainItemLocation.setDataReferenceIndex(1);
         mainItemLocation.setItemId(MAIN_ITEM_ID);
-        mainItemLocation.setBaseOffset(1400);
+        mainItemLocation.setBaseOffset(0);
         ILocExtent mainItemExtent = new ILocExtent();
         mainItemExtent.setExtentIndex(0);
-        mainItemExtent.setExtentOffset(0);
-        mainItemExtent.setExtentLength(IMAGE_HEIGHT * IMAGE_WIDTH * NUM_BYTES_PER_PIXEL);
+        mainItemExtent.setExtentOffset(offset);
+        mainItemExtent.setExtentLength(storageSize);
         mainItemLocation.addExtent(mainItemExtent);
         iloc.addItem(mainItemLocation);
         return iloc;
@@ -229,8 +275,8 @@ public class WrapHDF5ImageTest {
 
     protected ImageSpatialExtentsProperty makeImageSpatialExtentsProperty() {
         ImageSpatialExtentsProperty ispe = new ImageSpatialExtentsProperty();
-        ispe.setImageHeight(IMAGE_HEIGHT);
-        ispe.setImageWidth(IMAGE_WIDTH);
+        ispe.setImageHeight(height);
+        ispe.setImageWidth(width);
         return ispe;
     }
 
