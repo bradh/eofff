@@ -57,6 +57,8 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.moof.MovieFragmentBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mdia.MediaBoxParser,
             net.frogmouth.rnd.eofff.isobmff.minf.MediaInformationBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.mfra.MovieFragmentRandomAccessBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.mfro.MovieFragmentRandomAccessOffsetBoxParser,
             net.frogmouth.rnd.eofff.isobmff.moov.MovieBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mvex.MovieExtendsBoxParser,
             net.frogmouth.rnd.eofff.isobmff.mvhd.MovieHeaderBoxParser,
@@ -93,6 +95,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.tsel.TrackSelectionBoxParser,
             net.frogmouth.rnd.eofff.isobmff.ttyp.TrackTypeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.udta.UserDataBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.uuid.UUIDBoxParser,
             net.frogmouth.rnd.eofff.isobmff.vmhd.VideoMediaHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.xml.XMLBoxParser;
 
@@ -156,7 +159,11 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.mdhd;
     exports net.frogmouth.rnd.eofff.isobmff.mdia;
     exports net.frogmouth.rnd.eofff.isobmff.mebx;
+    exports net.frogmouth.rnd.eofff.isobmff.mehd;
     exports net.frogmouth.rnd.eofff.isobmff.meta;
+    exports net.frogmouth.rnd.eofff.isobmff.mfhd;
+    exports net.frogmouth.rnd.eofff.isobmff.mfra;
+    exports net.frogmouth.rnd.eofff.isobmff.mfro;
     exports net.frogmouth.rnd.eofff.isobmff.minf;
     exports net.frogmouth.rnd.eofff.isobmff.moof;
     exports net.frogmouth.rnd.eofff.isobmff.moov;
@@ -170,6 +177,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.saio;
     exports net.frogmouth.rnd.eofff.isobmff.saiz;
     exports net.frogmouth.rnd.eofff.isobmff.sbgp;
+    exports net.frogmouth.rnd.eofff.isobmff.sgpd;
     exports net.frogmouth.rnd.eofff.isobmff.sidx;
     exports net.frogmouth.rnd.eofff.isobmff.smhd;
     exports net.frogmouth.rnd.eofff.isobmff.stbl;
@@ -182,14 +190,19 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.stts;
     exports net.frogmouth.rnd.eofff.isobmff.styp;
     exports net.frogmouth.rnd.eofff.isobmff.stz2;
+    exports net.frogmouth.rnd.eofff.isobmff.tfdt;
+    exports net.frogmouth.rnd.eofff.isobmff.tfhd;
     exports net.frogmouth.rnd.eofff.isobmff.tkhd;
+    exports net.frogmouth.rnd.eofff.isobmff.traf;
     exports net.frogmouth.rnd.eofff.isobmff.trak;
     exports net.frogmouth.rnd.eofff.isobmff.tref;
     exports net.frogmouth.rnd.eofff.isobmff.trex;
     exports net.frogmouth.rnd.eofff.isobmff.trgr;
+    exports net.frogmouth.rnd.eofff.isobmff.trun;
     exports net.frogmouth.rnd.eofff.isobmff.tsel;
     exports net.frogmouth.rnd.eofff.isobmff.ttyp;
     exports net.frogmouth.rnd.eofff.isobmff.udta;
+    exports net.frogmouth.rnd.eofff.isobmff.uuid;
     exports net.frogmouth.rnd.eofff.isobmff.vmhd;
     exports net.frogmouth.rnd.eofff.isobmff.xml;
 }
