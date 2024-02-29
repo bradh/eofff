@@ -48,6 +48,9 @@ public class BoxDumper {
         if (p.toString().endsWith(".cfignore")) {
             return;
         }
+        if (p.toString().endsWith(".xml")) {
+            return;
+        }
         if (p.toString().endsWith(".zip")) {
             // Maybe unzip it.
             return;
