@@ -70,6 +70,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.saiz.SampleAuxiliaryInformationSizesBoxParser,
             net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sbgp.SampleToGroupBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.sdp.RTPTrackSDPHintInformationParser,
             net.frogmouth.rnd.eofff.isobmff.sgpd.SampleGroupDescriptionBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sidx.SegmentIndexBoxParser,
             net.frogmouth.rnd.eofff.isobmff.smhd.SoundMediaHeaderBoxParser,
@@ -177,6 +178,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.saio;
     exports net.frogmouth.rnd.eofff.isobmff.saiz;
     exports net.frogmouth.rnd.eofff.isobmff.sbgp;
+    exports net.frogmouth.rnd.eofff.isobmff.sdp;
     exports net.frogmouth.rnd.eofff.isobmff.sgpd;
     exports net.frogmouth.rnd.eofff.isobmff.sidx;
     exports net.frogmouth.rnd.eofff.isobmff.smhd;
