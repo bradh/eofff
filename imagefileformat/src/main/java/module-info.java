@@ -48,7 +48,9 @@ module net.frogmouth.rnd.eofff.imagefileformat {
             net.frogmouth.rnd.eofff.imagefileformat.properties.colr.ColourInformationPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.image.PixelAspectRatioPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.image.PixelInformationPropertyParser,
+            net.frogmouth.rnd.eofff.imagefileformat.properties.lsel.LayerSelectorPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.mski.MaskConfigurationPropertyParser,
+            net.frogmouth.rnd.eofff.imagefileformat.properties.tols.TargetOlsPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.udes.UserDescriptionPropertyParser;
 
     uses net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser;
@@ -62,7 +64,9 @@ module net.frogmouth.rnd.eofff.imagefileformat {
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.colr;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.hevc;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.image;
+    exports net.frogmouth.rnd.eofff.imagefileformat.properties.lsel;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.mski;
+    exports net.frogmouth.rnd.eofff.imagefileformat.properties.tols;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.udes;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.uuid;
 }

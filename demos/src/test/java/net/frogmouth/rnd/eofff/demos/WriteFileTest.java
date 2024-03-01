@@ -259,7 +259,7 @@ public class WriteFileTest {
         iloc.setIndexSize(4);
         iloc.setVersion(1);
         ILocItem mainItemLocation = new ILocItem();
-        mainItemLocation.setConstructionMethod(2);
+        mainItemLocation.setConstructionMethod(0);
         mainItemLocation.setDataReferenceIndex(1);
         mainItemLocation.setItemId(MAIN_ITEM_ID);
         ILocExtent mainItemExtent = new ILocExtent();
