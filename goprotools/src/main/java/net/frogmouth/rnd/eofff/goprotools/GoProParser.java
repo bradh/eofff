@@ -37,6 +37,7 @@ import net.frogmouth.rnd.eofff.isobmff.mdia.MediaBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.minf.MediaInformationBox;
 import net.frogmouth.rnd.eofff.isobmff.moov.MovieBox;
+import net.frogmouth.rnd.eofff.isobmff.nmhd.NullMediaHeaderBox;
 import net.frogmouth.rnd.eofff.isobmff.sampleentry.AudioSampleEntry;
 import net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntry;
 import net.frogmouth.rnd.eofff.isobmff.stbl.SampleTableBox;
@@ -478,6 +479,7 @@ class GoProParser {
                     switch (box.getFourCC().toString()) {
                         case "dinf" -> cleanDinf((DataInformationBox) box);
                         case "stbl" -> cleanStbl((SampleTableBox) box);
+                        case "gmhd" -> new NullMediaHeaderBox();
                         default -> box;
                     };
             cleanMinf.appendNestedBox(cleanBox);
