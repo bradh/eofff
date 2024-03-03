@@ -51,6 +51,12 @@ public class BoxDumper {
         if (p.toString().endsWith(".xml")) {
             return;
         }
+        if (p.toString().endsWith(".dat")) {
+            return;
+        }
+        if (p.toString().endsWith(".txt")) {
+            return;
+        }
         if (p.toString().endsWith(".zip")) {
             // Maybe unzip it.
             return;
