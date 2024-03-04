@@ -8,12 +8,16 @@ import java.io.IOException;
 public class GoProDumper {
 
     public static void main(String[] args) throws IOException {
+        /*
         GoProParser parser = new GoProParser(args[0]);
         parser.dumpBoxes();
-        // parser.dumpH265Files();
+        parser.dumpH265Files();
         parser.dumpGPMF();
-        // parser.dumpTimingTrack();
-        // parser.findMetadataTrack();
-        parser.writeOutFile("dump_gopro.mp4");
+        parser.dumpTimingTrack();
+        parser.findMetadataTrack();
+        */
+        GoProCleaner cleaner = new GoProCleaner(args[0]);
+        cleaner.cleanFile();
+        cleaner.writeOutFile("dump_gopro.mp4");
     }
 }
