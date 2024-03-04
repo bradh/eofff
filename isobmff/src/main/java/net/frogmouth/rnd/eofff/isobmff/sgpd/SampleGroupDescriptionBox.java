@@ -51,7 +51,14 @@ public class SampleGroupDescriptionBox extends FullBox {
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
-        sb.append("TODO");
+        for (var entry : entries) {
+            sb.append("\n");
+            if (entry == null) {
+                sb.append("[null box - need to add]");
+            } else {
+                sb.append(entry.toString(nestingLevel + 1));
+            }
+        }
         return sb.toString();
     }
 }

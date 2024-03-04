@@ -5,6 +5,7 @@ import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
+// TODO: move to isobmff
 public class MPEG4BitRateBox extends BaseBox {
 
     private long bufferSizeDB;
@@ -13,6 +14,11 @@ public class MPEG4BitRateBox extends BaseBox {
 
     public MPEG4BitRateBox(FourCC name) {
         super(name);
+    }
+
+    @Override
+    public String getFullName() {
+        return "BitRateBox";
     }
 
     /**
@@ -90,5 +96,17 @@ public class MPEG4BitRateBox extends BaseBox {
         stream.writeUnsignedInt32((int) bufferSizeDB);
         stream.writeUnsignedInt32((int) maxBitrate);
         stream.writeUnsignedInt32((int) avgBitrate);
+    }
+
+    @Override
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("bufferSizeDB=");
+        sb.append(bufferSizeDB);
+        sb.append(", maxBitrate=");
+        sb.append(maxBitrate);
+        sb.append(", avgBitrate=");
+        sb.append(avgBitrate);
+        return sb.toString();
     }
 }

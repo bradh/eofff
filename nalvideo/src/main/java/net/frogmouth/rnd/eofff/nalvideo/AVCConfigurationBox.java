@@ -14,6 +14,11 @@ public class AVCConfigurationBox extends BaseBox {
     }
 
     @Override
+    public String getFullName() {
+        return "AVCConfigurationBox";
+    }
+
+    @Override
     public long getSize() {
         long size = Integer.BYTES + FourCC.BYTES;
         size += avcConfig.getSize();
