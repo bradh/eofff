@@ -9,6 +9,9 @@
     <groupId>net.frogmouth.rnd.eofff</groupId>
     <artifactId>demos</artifactId>
     <packaging>jar</packaging>
+    <properties>
+        <maven.javadoc.skip>true</maven.javadoc.skip> 
+    </properties>
     <dependencies>
         <dependency>
             <groupId>net.frogmouth.rnd.eofff</groupId>

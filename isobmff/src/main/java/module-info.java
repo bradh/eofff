@@ -79,6 +79,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.strk.SubTrackBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stsc.SampleToChunkBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stsd.SampleDescriptionBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.stsh.ShadowSyncSampleBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stco.ChunkOffsetBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stss.SyncSampleBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stsz.SampleSizeBoxParser,
@@ -96,6 +97,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.trun.TrackRunBoxParser,
             net.frogmouth.rnd.eofff.isobmff.tsel.TrackSelectionBoxParser,
             net.frogmouth.rnd.eofff.isobmff.ttyp.TrackTypeBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.txtC.TextConfigBoxParser,
             net.frogmouth.rnd.eofff.isobmff.udta.UserDataBoxParser,
             net.frogmouth.rnd.eofff.isobmff.uuid.UUIDBoxParser,
             net.frogmouth.rnd.eofff.isobmff.vmhd.VideoMediaHeaderBoxParser,
@@ -129,6 +131,10 @@ module net.frogmouth.rnd.eofff.isobmff {
 
     uses net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser;
     uses net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser;
+
+    provides net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser with
+            net.frogmouth.rnd.eofff.isobmff.sampleentry.SimpleTextSampleEntryParser,
+            net.frogmouth.rnd.eofff.isobmff.sampleentry.XMLMetaDataSampleEntryParser;
 
     exports net.frogmouth.rnd.eofff.isobmff;
     exports net.frogmouth.rnd.eofff.isobmff.sampleentry;
@@ -189,6 +195,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.strk;
     exports net.frogmouth.rnd.eofff.isobmff.stsc;
     exports net.frogmouth.rnd.eofff.isobmff.stsd;
+    exports net.frogmouth.rnd.eofff.isobmff.stsh;
     exports net.frogmouth.rnd.eofff.isobmff.stss;
     exports net.frogmouth.rnd.eofff.isobmff.stsz;
     exports net.frogmouth.rnd.eofff.isobmff.stts;
@@ -205,6 +212,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.trun;
     exports net.frogmouth.rnd.eofff.isobmff.tsel;
     exports net.frogmouth.rnd.eofff.isobmff.ttyp;
+    exports net.frogmouth.rnd.eofff.isobmff.txtC;
     exports net.frogmouth.rnd.eofff.isobmff.udta;
     exports net.frogmouth.rnd.eofff.isobmff.uuid;
     exports net.frogmouth.rnd.eofff.isobmff.vmhd;

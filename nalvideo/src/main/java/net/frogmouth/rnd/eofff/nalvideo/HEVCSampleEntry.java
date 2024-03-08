@@ -6,7 +6,7 @@ import net.frogmouth.rnd.eofff.isobmff.sampleentry.VisualSampleEntry;
 /**
  * HEVC Sample Entry.
  *
- * <p>See ISO/IEC 14496-15 Section 8.4.1.1.
+ * <p>See ISO/IEC 14496-15:2022 Section 8.4.1.1.
  */
 public class HEVCSampleEntry extends VisualSampleEntry {
 

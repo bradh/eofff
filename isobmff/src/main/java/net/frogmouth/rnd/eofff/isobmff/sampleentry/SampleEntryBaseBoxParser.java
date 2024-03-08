@@ -2,7 +2,6 @@ package net.frogmouth.rnd.eofff.isobmff.sampleentry;
 
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
-import net.frogmouth.rnd.eofff.isobmff.dref.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

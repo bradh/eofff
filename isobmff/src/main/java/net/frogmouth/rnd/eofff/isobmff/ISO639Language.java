@@ -7,8 +7,6 @@ import java.nio.charset.StandardCharsets;
  *
  * <p>This is a packed representation used in ISO/IEC 14496-12, and borrowed for other uses (e.g.
  * 3GPP).
- *
- * @see MediaHeaderBox.
  */
 public class ISO639Language {
 

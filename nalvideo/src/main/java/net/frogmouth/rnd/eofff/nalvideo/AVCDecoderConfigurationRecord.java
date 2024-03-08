@@ -1,10 +1,17 @@
 package net.frogmouth.rnd.eofff.nalvideo;
 
+import static net.frogmouth.rnd.eofff.nalvideo.FormatUtils.addIndent;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
+/**
+ * AVC decoder configuration record.
+ *
+ * <p>See ISO/IEC 14496-15:2022 Section 5.3.1.
+ */
 public class AVCDecoderConfigurationRecord {
 
     private short configurationVersion;
@@ -75,6 +82,40 @@ public class AVCDecoderConfigurationRecord {
         return size;
     }
 
+    public void addToStringBuilder(StringBuilder sb, int nestingLevel) {
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("configurationVersion=");
+        sb.append(configurationVersion);
+        sb.append(", AVCProfileIndication=");
+        sb.append(avcProfileIndication);
+        sb.append(", profile_compatibility=");
+        sb.append(profileCompatibility);
+        sb.append(", AVCLevelIndication=");
+        sb.append(avcLevelIndication);
+        sb.append(", lengthSizeMinusOne=");
+        sb.append(lengthSizeMinusOne);
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("numOfSequenceParameterSets=");
+        sb.append(sps.size());
+        for (SequenceParameterSetNALUnit nalu : sps) {
+            sb.append("\n");
+            addIndent(nestingLevel + 1, sb);
+            nalu.addToStringBuffer(sb);
+        }
+        sb.append("\n");
+        addIndent(nestingLevel, sb);
+        sb.append("numOfPictureParameterSets=");
+        sb.append(pps.size());
+        for (PictureParameterSetNALUnit nalu : pps) {
+            sb.append("\n");
+            addIndent(nestingLevel + 1, sb);
+            nalu.addToStringBuffer(sb);
+        }
+        // TODO: special case for if (AVCProfileIndication...
+    }
+
     public void writeTo(OutputStreamWriter stream) throws IOException {
         stream.writeByte(configurationVersion);
         stream.writeByte(avcProfileIndication);
@@ -90,41 +131,4 @@ public class AVCDecoderConfigurationRecord {
             nalu.writeTo(stream);
         }
     }
-
-    /*
-            aligned(8) class AVCDecoderConfigurationRecord {
-    	unsigned int(8) configurationVersion = 1;
-    	unsigned int(8) AVCProfileIndication;
-    	unsigned int(8) profile_compatibility;
-    	unsigned int(8) AVCLevelIndication;
-    	bit(6) reserved = ‘111111’b;
-    	unsigned int(2) lengthSizeMinusOne;
-    	bit(3) reserved = ‘111’b;
-    	unsigned int(5) numOfSequenceParameterSets;
-    	for (i=0; i< numOfSequenceParameterSets;  i++) {
-    		unsigned int(16) sequenceParameterSetLength ;
-    		bit(8*sequenceParameterSetLength) sequenceParameterSetNALUnit;
-    	}
-    	unsigned int(8) numOfPictureParameterSets;
-    	for (i=0; i< numOfPictureParameterSets;  i++) {
-    		unsigned int(16) pictureParameterSetLength;
-    		bit(8*pictureParameterSetLength) pictureParameterSetNALUnit;
-    	}
-    	if( profile_idc  ==  100  ||  profile_idc  ==  110  ||
-    	    profile_idc  ==  122  ||  profile_idc  ==  144 )
-    	{
-    		bit(6) reserved = ‘111111’b;
-    		unsigned int(2) chroma_format;
-    		bit(5) reserved = ‘11111’b;
-    		unsigned int(3) bit_depth_luma_minus8;
-    		bit(5) reserved = ‘11111’b;
-    		unsigned int(3) bit_depth_chroma_minus8;
-    		unsigned int(8) numOfSequenceParameterSetExt;
-    		for (i=0; i< numOfSequenceParameterSetExt; i++) {
-    			unsigned int(16) sequenceParameterSetExtLength;
-    			bit(8*sequenceParameterSetExtLength) sequenceParameterSetExtNALUnit;
-    		}
-    	}
-    }*/
-
 }

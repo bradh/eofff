@@ -3,9 +3,7 @@ package net.frogmouth.rnd.eofff.isobmff.sampleentry;
 import net.frogmouth.rnd.eofff.isobmff.BaseBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
-public class BaseSampleEntryParser extends BaseBoxParser {
-
-    public BaseSampleEntryParser() {}
+public abstract class BaseSampleEntryParser extends BaseBoxParser {
 
     protected void parseBaseSampleEntry(ParseContext parseContext, BaseSampleEntry box) {
         byte[] bytes = parseContext.getBytes(6);

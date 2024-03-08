@@ -8,19 +8,19 @@ import net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser;
 import net.frogmouth.rnd.eofff.isobmff.sampleentry.VisualSampleEntryParser;
 
 @AutoService(net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser.class)
-public class HEVCSampleEntryParser extends VisualSampleEntryParser implements SampleEntryParser {
-    public HEVCSampleEntryParser() {}
+public class AVC2SampleEntryParser extends VisualSampleEntryParser implements SampleEntryParser {
+    public AVC2SampleEntryParser() {}
 
     @Override
     public FourCC getFourCC() {
-        return HEVCSampleEntry.HVC1_ATOM;
+        return AVC2SampleEntry.AVC2_ATOM;
     }
 
     @Override
     public SampleEntry parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        HEVCSampleEntry box = new HEVCSampleEntry();
-        parseVisualSampleEntry(parseContext, box);
+        AVC2SampleEntry box = new AVC2SampleEntry();
+        this.parseVisualSampleEntry(parseContext, box);
         // The AVCConfigurationBox is nested in here.
         box.addNestedBoxes(parseContext.parseNestedBoxes(initialOffset + boxSize));
         return box;

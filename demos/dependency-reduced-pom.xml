@@ -8,6 +8,9 @@
     </parent>
     <groupId>net.frogmouth.rnd.eofff</groupId>
     <artifactId>demos</artifactId>
+    <properties>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.testng</groupId>

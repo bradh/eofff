@@ -2,7 +2,7 @@ package net.frogmouth.rnd.eofff.isobmff.sampleentry;
 
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
-public abstract class AudioSampleEntryParser extends BaseSampleEntryParser {
+public abstract class PlainTextSampleEntryParser extends BaseSampleEntryParser {
 
     protected SampleEntry parse(ParseContext parseContext, long limit, AudioSampleEntry box) {
         parseBaseSampleEntry(parseContext, box);

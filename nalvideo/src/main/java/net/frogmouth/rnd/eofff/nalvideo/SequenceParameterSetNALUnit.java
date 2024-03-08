@@ -23,4 +23,9 @@ public class SequenceParameterSetNALUnit {
         stream.writeShort((short) naluBytes.length);
         stream.write(naluBytes);
     }
+
+    void addToStringBuffer(StringBuilder sb) {
+        sb.append("SPS NALU: ");
+        FormatUtils.addByteArrayAsHex(naluBytes, sb);
+    }
 }

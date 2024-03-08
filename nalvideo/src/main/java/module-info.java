@@ -18,6 +18,7 @@
  *       <p>That building block was previously called the AVC File Format, but is now called
  *       “Carriage of NAL unit structured video in the ISO Base Media File Format” (ISO/IEC
  *       14496-15). That standard is partly implemented by this module.
+ * </ul>
  */
 module net.frogmouth.rnd.eofff.nalvideo {
     requires net.frogmouth.rnd.eofff.isobmff;
@@ -34,7 +35,7 @@ module net.frogmouth.rnd.eofff.nalvideo {
     uses net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser;
 
     provides net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser with
-            net.frogmouth.rnd.eofff.nalvideo.AVCSampleEntryParser,
+            net.frogmouth.rnd.eofff.nalvideo.AVC1SampleEntryParser,
             net.frogmouth.rnd.eofff.nalvideo.HEVCSampleEntryParser;
 
     exports net.frogmouth.rnd.eofff.nalvideo;
