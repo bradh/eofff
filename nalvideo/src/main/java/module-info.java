@@ -36,7 +36,10 @@ module net.frogmouth.rnd.eofff.nalvideo {
 
     provides net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser with
             net.frogmouth.rnd.eofff.nalvideo.AVC1SampleEntryParser,
-            net.frogmouth.rnd.eofff.nalvideo.HEVCSampleEntryParser;
+            net.frogmouth.rnd.eofff.nalvideo.HEV1SampleEntryParser,
+            net.frogmouth.rnd.eofff.nalvideo.HEV2SampleEntryParser,
+            net.frogmouth.rnd.eofff.nalvideo.HVC1SampleEntryParser,
+            net.frogmouth.rnd.eofff.nalvideo.HVC2SampleEntryParser;
 
     exports net.frogmouth.rnd.eofff.nalvideo;
     exports net.frogmouth.rnd.eofff.nalvideo.btrt;

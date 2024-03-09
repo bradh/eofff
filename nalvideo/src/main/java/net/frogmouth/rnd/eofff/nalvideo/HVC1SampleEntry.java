@@ -8,21 +8,16 @@ import net.frogmouth.rnd.eofff.isobmff.sampleentry.VisualSampleEntry;
  *
  * <p>See ISO/IEC 14496-15:2022 Section 8.4.1.1.
  */
-public class HEVCSampleEntry extends VisualSampleEntry {
+public class HVC1SampleEntry extends VisualSampleEntry {
 
     public static final FourCC HVC1_ATOM = new FourCC("hvc1");
 
-    public HEVCSampleEntry() {
+    public HVC1SampleEntry() {
         super(HVC1_ATOM);
     }
 
     @Override
     public String getFullName() {
         return "HEVCSampleEntry";
-    }
-
-    @Override
-    public long getBodySize() {
-        return super.getBodySize();
     }
 }
