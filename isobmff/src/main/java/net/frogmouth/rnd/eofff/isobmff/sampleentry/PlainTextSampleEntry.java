@@ -1,6 +1,5 @@
 package net.frogmouth.rnd.eofff.isobmff.sampleentry;
 
-import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 /**
@@ -12,17 +11,5 @@ public abstract class PlainTextSampleEntry extends BaseSampleEntry implements Sa
 
     public PlainTextSampleEntry(FourCC format) {
         super(format);
-    }
-
-    @Override
-    public String toString(int nestingLevel) {
-        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
-        sb.append("data_reference_index: ");
-        sb.append(getDataReferenceIndex());
-        for (Box nestedBox : nestedBoxes) {
-            sb.append("\n");
-            sb.append(nestedBox.toString(nestingLevel + 1));
-        }
-        return sb.toString();
     }
 }

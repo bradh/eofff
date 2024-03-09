@@ -135,7 +135,8 @@ module net.frogmouth.rnd.eofff.isobmff {
 
     provides net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser with
             net.frogmouth.rnd.eofff.isobmff.sampleentry.SimpleTextSampleEntryParser,
-            net.frogmouth.rnd.eofff.isobmff.sampleentry.XMLMetaDataSampleEntryParser;
+            net.frogmouth.rnd.eofff.isobmff.sampleentry.XMLMetaDataSampleEntryParser,
+            net.frogmouth.rnd.eofff.isobmff.sampleentry.XMLSubtitleSampleEntryParser;
 
     exports net.frogmouth.rnd.eofff.isobmff;
     exports net.frogmouth.rnd.eofff.isobmff.sampleentry;
