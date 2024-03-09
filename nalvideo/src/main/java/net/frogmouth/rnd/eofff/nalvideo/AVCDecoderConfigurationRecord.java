@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
 /**
  * AVC decoder configuration record.
@@ -13,6 +14,54 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
  * <p>See ISO/IEC 14496-15:2022 Section 5.3.1.
  */
 public class AVCDecoderConfigurationRecord {
+
+    public static AVCDecoderConfigurationRecord parseFrom(ParseContext parseContext, long limit) {
+        AVCDecoderConfigurationRecord record = new AVCDecoderConfigurationRecord();
+        record.setConfigurationVersion(parseContext.readByte());
+        byte avcProfileIndication = parseContext.readByte();
+        record.setAvcProfileIndication(avcProfileIndication);
+        record.setProfileCompatibility(parseContext.readByte());
+        record.setAvcLevelIndication(parseContext.readByte());
+        record.setLengthSizeMinusOne((byte) (parseContext.readByte() & 0x03));
+        int numberOfSequenceParameterSets = (parseContext.readByte() & 0x1F);
+        for (int i = 0; i < numberOfSequenceParameterSets; i++) {
+            record.addSequenceParameterSet(parseSPSNALU(parseContext));
+        }
+        int numberOfPictureParameterSets = parseContext.readByte();
+        for (int i = 0; i < numberOfPictureParameterSets; i++) {
+            record.addPictureParameterSet(parsePPSNALU(parseContext));
+        }
+        if (parseContext.hasRemainingUntil(limit)) {
+            if ((avcProfileIndication != 66)
+                    && (avcProfileIndication != 77)
+                    && (avcProfileIndication != 88)) {
+                byte chromaFormat = (byte) (parseContext.readByte() & 0x03);
+                byte bitDepthLumaMinus8 = (byte) (parseContext.readByte() & 0x07);
+                byte bitDepthChromaMinus8 = (byte) (parseContext.readByte() & 0x07);
+                int numOfSequenceParameterSetExt = parseContext.readUnsignedInt8();
+                for (int i = 0; i < numOfSequenceParameterSetExt; i++) {
+                    int sequenceParameterSetExtLength = parseContext.readUnsignedInt16();
+                    byte[] sequenceParameterSetExtNALUnit =
+                            parseContext.getBytes(sequenceParameterSetExtLength);
+                }
+            }
+        }
+        return record;
+    }
+
+    private static SequenceParameterSetNALUnit parseSPSNALU(ParseContext parseContext) {
+        SequenceParameterSetNALUnit nalu = new SequenceParameterSetNALUnit();
+        int sequenceParameterSetLength = parseContext.readUnsignedInt16();
+        nalu.setNaluBytes(parseContext.getBytes(sequenceParameterSetLength));
+        return nalu;
+    }
+
+    private static PictureParameterSetNALUnit parsePPSNALU(ParseContext parseContext) {
+        PictureParameterSetNALUnit nalu = new PictureParameterSetNALUnit();
+        int pictureParameterSetLength = parseContext.readUnsignedInt16();
+        nalu.setNaluBytes(parseContext.getBytes(pictureParameterSetLength));
+        return nalu;
+    }
 
     private short configurationVersion;
     private short avcProfileIndication;

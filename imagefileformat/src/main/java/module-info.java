@@ -2,6 +2,7 @@
 module net.frogmouth.rnd.eofff.imagefileformat {
     requires com.google.auto.service;
     requires net.frogmouth.rnd.eofff.isobmff;
+    requires net.frogmouth.rnd.eofff.nalvideo;
     requires org.slf4j;
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;

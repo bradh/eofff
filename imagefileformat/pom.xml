@@ -16,6 +16,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>net.frogmouth.rnd.eofff</groupId>
+            <artifactId>nalvideo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.auto.service</groupId>
             <artifactId>auto-service-annotations</artifactId>
         </dependency>

@@ -1,26 +1,18 @@
-package net.frogmouth.rnd.eofff.nalvideo;
+package net.frogmouth.rnd.eofff.imagefileformat.properties.avcC;
 
 import java.io.IOException;
-import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.iprp.ItemProperty;
+import net.frogmouth.rnd.eofff.nalvideo.AVCDecoderConfigurationRecord;
 
-/**
- * AVC Configuration Box(avcC).
- *
- * <p>See ISO/IEC 14496-15:2022 Section 5.3.1 and 5.4.2.
- */
-public class AVCConfigurationBox extends BaseBox {
+public class AVCConfigurationItemProperty extends ItemProperty {
+    public static final FourCC AVCC_ATOM = new FourCC("avcC");
 
     private AVCDecoderConfigurationRecord avcConfig;
 
-    public AVCConfigurationBox(FourCC name) {
-        super(name);
-    }
-
-    @Override
-    public String getFullName() {
-        return "AVCConfigurationBox";
+    public AVCConfigurationItemProperty() {
+        super(AVCC_ATOM);
     }
 
     @Override
@@ -47,5 +39,10 @@ public class AVCConfigurationBox extends BaseBox {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
         avcConfig.addToStringBuilder(sb, nestingLevel + 1);
         return sb.toString();
+    }
+
+    @Override
+    public String getFullName() {
+        return "AVCConfigurationItemProperty";
     }
 }

@@ -96,6 +96,10 @@ public class ParseContext {
 
     public long readUnsignedInt(int numBits) {
         switch (numBits) {
+            case Byte.SIZE:
+                return readUnsignedInt8();
+            case Short.SIZE:
+                return readUnsignedInt16();
             case Integer.SIZE:
                 return readUnsignedInt32();
             case Long.SIZE:
@@ -106,7 +110,8 @@ public class ParseContext {
                 break;
         }
         throw new IllegalArgumentException(
-                String.format("Only reading of 32 and 64 bits is supported, not %d", numBits));
+                String.format(
+                        "Only reading of 0, 8, 16, 32 and 64 bits is supported, not %d", numBits));
     }
 
     public UUID readUUID() {
