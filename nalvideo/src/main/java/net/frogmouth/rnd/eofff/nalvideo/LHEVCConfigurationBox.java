@@ -5,43 +5,43 @@ import net.frogmouth.rnd.eofff.isobmff.BaseBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
-public class HEVCConfigurationBox extends BaseBox {
+public class LHEVCConfigurationBox extends BaseBox {
 
-    private HEVCDecoderConfigurationRecord hevcConfig;
-    public static final FourCC HVCC_ATOM = new FourCC("hvcC");
+    private LHEVCDecoderConfigurationRecord lhevcConfig;
+    public static final FourCC LHVC_ATOM = new FourCC("lhvC");
 
-    public HEVCConfigurationBox() {
-        super(HVCC_ATOM);
+    public LHEVCConfigurationBox() {
+        super(LHVC_ATOM);
     }
 
     @Override
     public String getFullName() {
-        return "HEVCConfigurationBox";
+        return "LHEVCConfigurationBox";
     }
 
     @Override
     public long getBodySize() {
-        return hevcConfig.getSize();
+        return lhevcConfig.getSize();
     }
 
-    public HEVCDecoderConfigurationRecord getHevcConfig() {
-        return hevcConfig;
+    public LHEVCDecoderConfigurationRecord getLhevcConfig() {
+        return lhevcConfig;
     }
 
-    public void setHevcConfig(HEVCDecoderConfigurationRecord avcConfig) {
-        this.hevcConfig = avcConfig;
+    public void setLhevcConfig(LHEVCDecoderConfigurationRecord lhevcConfig) {
+        this.lhevcConfig = lhevcConfig;
     }
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
         this.writeBoxHeader(stream);
-        hevcConfig.writeTo(stream);
+        lhevcConfig.writeTo(stream);
     }
 
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
-        hevcConfig.addToStringBuilder(sb, nestingLevel + 1);
+        lhevcConfig.addToStringBuilder(sb, nestingLevel + 1);
         return sb.toString();
     }
 }
