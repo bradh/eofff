@@ -56,7 +56,7 @@ public class TAIClockInfoItemPropertyTest extends PropertyTestSupport {
         assertEquals(taic.getFullName(), "TAIClockInfoItemProperty");
         assertTrue(taic.getFourCC().toString().equals("taic"));
         assertEquals(
-                taic.toString(),
+                taic.toString(0),
                 "TAIClockInfoItemProperty 'taic': time_uncertainty: unknown, correction_offset: unknown, clock_drift_rate: unknown, reference_source_type: unknown");
     }
 

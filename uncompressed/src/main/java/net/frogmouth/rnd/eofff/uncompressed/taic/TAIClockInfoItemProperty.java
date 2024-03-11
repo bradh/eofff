@@ -80,12 +80,8 @@ public class TAIClockInfoItemProperty extends ItemFullProperty {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': ");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = getBaseStringBuilder(nestingLevel);
         sb.append("time_uncertainty: ");
         if (time_uncertainty == TIME_UNCERTAINTY_UNKNOWN) {
             sb.append("unknown");

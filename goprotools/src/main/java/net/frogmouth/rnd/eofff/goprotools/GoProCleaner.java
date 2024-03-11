@@ -60,6 +60,7 @@ import net.frogmouth.rnd.eofff.nalvideo.HEVCConfigurationBox;
 import net.frogmouth.rnd.eofff.nalvideo.HEVCDecoderConfigurationRecord;
 import net.frogmouth.rnd.eofff.nalvideo.HVC1SampleEntry;
 import net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoBox;
+import net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoItemProperty;
 
 class GoProCleaner {
 
@@ -279,6 +280,7 @@ class GoProCleaner {
                 imageItem.setItemID(IMAGE_ITEM_ID + i);
                 FourCC hvc1_fourcc = new FourCC("hvc1");
                 imageItem.setItemType(hvc1_fourcc.asUnsigned());
+                // TODO: it would be nice to flag the frame number
                 imageItem.setItemName("Still image (HEVC)");
                 iinf.addItem(imageItem);
             }
@@ -295,8 +297,14 @@ class GoProCleaner {
         ImageSpatialExtentsProperty ispe = new ImageSpatialExtentsProperty();
         ispe.setImageHeight(2988);
         ispe.setImageWidth(5312);
-        ipco.addProperty(ispe);
-        iprp.setItemProperties(ipco); // prop = 2
+        ipco.addProperty(ispe); // prop = 2
+
+        TAIClockInfoItemProperty taic = new TAIClockInfoItemProperty();
+        taic.setReferenceSourceType((byte) 2);
+        ipco.addProperty(taic); // prop = 3
+
+        iprp.setItemProperties(ipco);
+
         for (int i = 0; i < numImages; i++) {
             ItemPropertyAssociation assoc = new ItemPropertyAssociation();
             AssociationEntry entry = new AssociationEntry();
@@ -312,6 +320,12 @@ class GoProCleaner {
                 associationToISPE.setPropertyIndex(2);
                 associationToISPE.setEssential(false);
                 entry.addAssociation(associationToISPE);
+            }
+            {
+                PropertyAssociation associationToTAIC = new PropertyAssociation();
+                associationToTAIC.setPropertyIndex(3);
+                associationToTAIC.setEssential(false);
+                entry.addAssociation(associationToTAIC);
             }
             assoc.addEntry(entry);
             iprp.addItemPropertyAssociation(assoc);

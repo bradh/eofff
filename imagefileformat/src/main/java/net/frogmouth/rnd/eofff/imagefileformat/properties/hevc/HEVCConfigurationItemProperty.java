@@ -17,6 +17,11 @@ public class HEVCConfigurationItemProperty extends ItemProperty {
     }
 
     @Override
+    public String getFullName() {
+        return "HEVCConfigurationItemProperty";
+    }
+
+    @Override
     public long getBodySize() {
         return hevcConfig.getSize();
     }
