@@ -198,10 +198,7 @@ public class TrackHeaderBox extends FullBox {
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
-        sb.append("creation_time=");
-        sb.append(getCreationTime());
-        sb.append(", modification_time=");
-        sb.append(getModificationTime());
+        addTimingToStringBuilder(creationTime, modificationTime, sb);
         sb.append(", track_ID=");
         sb.append(getTrackId());
         sb.append(", duration=");

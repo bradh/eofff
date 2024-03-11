@@ -152,10 +152,7 @@ public class MovieHeaderBox extends FullBox {
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = getBaseStringBuilder(nestingLevel);
-        sb.append("creation_time=");
-        sb.append(creationTime);
-        sb.append(", modification_time=");
-        sb.append(modificationTime);
+        addTimingToStringBuilder(creationTime, modificationTime, sb);
         sb.append(", timescale=");
         sb.append(timescale);
         sb.append(", duration=");
