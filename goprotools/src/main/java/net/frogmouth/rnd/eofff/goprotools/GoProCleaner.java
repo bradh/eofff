@@ -52,6 +52,7 @@ import net.frogmouth.rnd.eofff.isobmff.sampleentry.VisualSampleEntry;
 import net.frogmouth.rnd.eofff.isobmff.stbl.SampleTableBox;
 import net.frogmouth.rnd.eofff.isobmff.stco.ChunkOffsetBox;
 import net.frogmouth.rnd.eofff.isobmff.stsd.SampleDescriptionBox;
+import net.frogmouth.rnd.eofff.isobmff.stss.SyncSampleBox;
 import net.frogmouth.rnd.eofff.isobmff.stsz.SampleSizeBox;
 import net.frogmouth.rnd.eofff.isobmff.trak.TrackBox;
 import net.frogmouth.rnd.eofff.mpeg4.esds.ESDBox;
@@ -224,6 +225,7 @@ class GoProCleaner {
         iloc.setLengthSize(4);
         iloc.setBaseOffsetSize(4);
         iloc.setIndexSize(4);
+        int numImages = 0;
         long ilocOffset = 0;
         {
             {
@@ -240,16 +242,22 @@ class GoProCleaner {
                 iloc.addItem(securityItemLocation);
             }
             {
-                // TODO: read these from stco / stsz in a loop
                 SampleTableBox stbl = this.findSampleTableBox();
                 ChunkOffsetBox stco = (ChunkOffsetBox) findChildBox(stbl, "stco");
                 SampleSizeBox stsz = (SampleSizeBox) findChildBox(stbl, "stsz");
+                SyncSampleBox stss = (SyncSampleBox) findChildBox(stbl, "stss");
                 // There should be a SampleToChunkBox check, but GoPro is always 1:1, so hack for
-                // now
-                long offset = stco.getEntries().get(0);
-                long length = stsz.getEntries().get(0);
-                ILocItem imageLocation = makeImageLocationItem(offset, length);
-                iloc.addItem(imageLocation);
+                // now, TODO later
+                List<Long> syncSamples = stss.getEntries();
+                for (int i = 1; i <= stco.getEntries().size(); i++) {
+                    if (syncSamples.contains((long) i)) {
+                        long offset = stco.getEntries().get(i - 1);
+                        long length = stsz.getEntries().get(i - 1);
+                        ILocItem imageLocation = makeImageLocationItem(offset, length, numImages);
+                        numImages += 1;
+                        iloc.addItem(imageLocation);
+                    }
+                }
             }
         }
         meta.addNestedBox(iloc);
@@ -265,10 +273,10 @@ class GoProCleaner {
                 fakeSecurityItem.setItemName("Security Marking (Fake XML)");
                 iinf.addItem(fakeSecurityItem);
             }
-            {
+            for (int i = 0; i < numImages; i++) {
                 ItemInfoEntry imageItem = new ItemInfoEntry();
                 imageItem.setVersion(2);
-                imageItem.setItemID(IMAGE_ITEM_ID);
+                imageItem.setItemID(IMAGE_ITEM_ID + i);
                 FourCC hvc1_fourcc = new FourCC("hvc1");
                 imageItem.setItemType(hvc1_fourcc.asUnsigned());
                 imageItem.setItemName("Still image (HEVC)");
@@ -282,17 +290,17 @@ class GoProCleaner {
         HEVCConfigurationItemProperty hvcC = new HEVCConfigurationItemProperty();
         HEVCDecoderConfigurationRecord config = findHEVCDecderConfigurationRecord();
         hvcC.setHevcConfig(config);
-        ipco.addProperty(hvcC);
+        ipco.addProperty(hvcC); // prop = 1
 
         ImageSpatialExtentsProperty ispe = new ImageSpatialExtentsProperty();
         ispe.setImageHeight(2988);
         ispe.setImageWidth(5312);
         ipco.addProperty(ispe);
-        iprp.setItemProperties(ipco);
-        {
+        iprp.setItemProperties(ipco); // prop = 2
+        for (int i = 0; i < numImages; i++) {
             ItemPropertyAssociation assoc = new ItemPropertyAssociation();
             AssociationEntry entry = new AssociationEntry();
-            entry.setItemId(IMAGE_ITEM_ID);
+            entry.setItemId(IMAGE_ITEM_ID + i);
             {
                 PropertyAssociation associationToHVCCProperty = new PropertyAssociation();
                 associationToHVCCProperty.setPropertyIndex(1);
@@ -319,10 +327,10 @@ class GoProCleaner {
         return meta;
     }
 
-    private ILocItem makeImageLocationItem(long offset, long length) {
+    private ILocItem makeImageLocationItem(long offset, long length, int imageNumber) {
         ILocItem imageLocation = new ILocItem();
         imageLocation.setConstructionMethod(0);
-        imageLocation.setItemId(IMAGE_ITEM_ID);
+        imageLocation.setItemId(IMAGE_ITEM_ID + imageNumber);
         imageLocation.setBaseOffset(0);
         ILocExtent imageExtent = new ILocExtent();
         imageExtent.setExtentIndex(0);
