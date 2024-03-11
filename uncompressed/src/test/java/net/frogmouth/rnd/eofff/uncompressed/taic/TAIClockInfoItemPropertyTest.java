@@ -9,8 +9,8 @@ import net.frogmouth.rnd.eofff.isobmff.iprp.AbstractItemProperty;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.PropertyTestSupport;
 import org.testng.annotations.Test;
 
-/** Unit tests for TAIClockInfoBox. */
-public class TAIClockInfoBoxTest extends PropertyTestSupport {
+/** Unit tests for TAIClockInfoItemProperty */
+public class TAIClockInfoItemPropertyTest extends PropertyTestSupport {
     private static final byte[] TAIC_BYTES =
             new byte[] {
                 0x00,
@@ -51,19 +51,19 @@ public class TAIClockInfoBoxTest extends PropertyTestSupport {
     @Test
     public void checkParse() throws IOException {
         AbstractItemProperty prop = parseBytesToSingleProperty(TAIC_BYTES);
-        assertTrue(prop instanceof TAIClockInfoBox);
-        TAIClockInfoBox taic = (TAIClockInfoBox) prop;
-        assertEquals(taic.getFullName(), "TAIClockInfoBox");
+        assertTrue(prop instanceof TAIClockInfoItemProperty);
+        TAIClockInfoItemProperty taic = (TAIClockInfoItemProperty) prop;
+        assertEquals(taic.getFullName(), "TAIClockInfoItemProperty");
         assertTrue(taic.getFourCC().toString().equals("taic"));
         assertEquals(
                 taic.toString(),
-                "TAIClockInfoBox 'taic': time_uncertainty: unknown, correction_offset: unknown, clock_drift_rate: unknown, reference_source_type: unknown");
+                "TAIClockInfoItemProperty 'taic': time_uncertainty: unknown, correction_offset: unknown, clock_drift_rate: unknown, reference_source_type: unknown");
     }
 
     @Test
     public void checkWrite() throws IOException {
-        TAIClockInfoBox box = new TAIClockInfoBox();
-        assertEquals(box.getFullName(), "TAIClockInfoBox");
+        TAIClockInfoItemProperty box = new TAIClockInfoItemProperty();
+        assertEquals(box.getFullName(), "TAIClockInfoItemProperty");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
         box.writeTo(streamWriter);

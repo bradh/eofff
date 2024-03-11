@@ -2,15 +2,15 @@ package net.frogmouth.rnd.eofff.uncompressed.taic;
 
 import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullProperty;
 
 /**
  * TAI Clock Info.
  *
  * <p>This is currently Technology under Consideration for 23001-17.
  */
-public class TAIClockInfoBox extends FullBox {
+public class TAIClockInfoItemProperty extends ItemFullProperty {
 
     public static final FourCC TAIC_ATOM = new FourCC("taic");
 
@@ -24,13 +24,13 @@ public class TAIClockInfoBox extends FullBox {
     private float clock_drift_rate = CLOCK_DRIFT_RATE_UNKNOWN;
     private byte reference_source_type = REFERENCE_SOURCE_TYPE_UNKNOWN;
 
-    public TAIClockInfoBox() {
+    public TAIClockInfoItemProperty() {
         super(TAIC_ATOM);
     }
 
     @Override
     public String getFullName() {
-        return "TAIClockInfoBox";
+        return "TAIClockInfoItemProperty";
     }
 
     @Override
@@ -80,8 +80,12 @@ public class TAIClockInfoBox extends FullBox {
     }
 
     @Override
-    public String toString(int nestingLevel) {
-        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getFullName());
+        sb.append(" '");
+        sb.append(getFourCC());
+        sb.append("': ");
         sb.append("time_uncertainty: ");
         if (time_uncertainty == TIME_UNCERTAINTY_UNKNOWN) {
             sb.append("unknown");

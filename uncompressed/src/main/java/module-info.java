@@ -5,6 +5,11 @@ module net.frogmouth.rnd.eofff.uncompressed {
 
     uses net.frogmouth.rnd.eofff.isobmff.BoxParser;
 
+    provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
+            net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoBoxParser;
+
+    uses net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser;
+
     provides net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser with
             net.frogmouth.rnd.eofff.uncompressed.cloc.ChromaLocationBoxParser,
             net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBoxParser,
@@ -13,7 +18,7 @@ module net.frogmouth.rnd.eofff.uncompressed {
             net.frogmouth.rnd.eofff.uncompressed.disi.DisparityInformationBoxParser,
             net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampBoxParser,
             net.frogmouth.rnd.eofff.uncompressed.sbpm.SensorBadPixelsMapBoxParser,
-            net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoBoxParser,
+            net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoItemPropertyParser,
             net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBoxParser;
 
     exports net.frogmouth.rnd.eofff.uncompressed.cloc;

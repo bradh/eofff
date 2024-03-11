@@ -1,18 +1,18 @@
 package net.frogmouth.rnd.eofff.uncompressed.taic;
 
 import com.google.auto.service.AutoService;
-import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
+import net.frogmouth.rnd.eofff.isobmff.iprp.AbstractItemProperty;
+import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullPropertyParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
-public class TAIClockInfoBoxParser extends FullBoxParser {
-    private static final Logger LOG = LoggerFactory.getLogger(TAIClockInfoBoxParser.class);
+@AutoService(net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser.class)
+public class TAIClockInfoItemPropertyParser extends ItemFullPropertyParser {
+    private static final Logger LOG = LoggerFactory.getLogger(TAIClockInfoItemPropertyParser.class);
 
-    public TAIClockInfoBoxParser() {}
+    public TAIClockInfoItemPropertyParser() {}
 
     @Override
     public FourCC getFourCC() {
@@ -20,13 +20,14 @@ public class TAIClockInfoBoxParser extends FullBoxParser {
     }
 
     @Override
-    public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        TAIClockInfoBox box = new TAIClockInfoBox();
+    public AbstractItemProperty parse(
+            ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
+        TAIClockInfoItemProperty box = new TAIClockInfoItemProperty();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
             LOG.warn("Got unsupported version {}, parsing as base box.", version);
-            return parseAsBaseBox(parseContext, initialOffset, boxSize, boxName);
+            return parseAsUnknownProperty(parseContext, initialOffset, boxSize, boxName);
         }
         box.setFlags(parseFlags(parseContext));
         box.setTimeUncertainty(parseContext.readUnsignedInt64());
