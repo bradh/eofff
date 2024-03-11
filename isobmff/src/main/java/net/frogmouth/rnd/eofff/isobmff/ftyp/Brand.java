@@ -185,6 +185,15 @@ public class Brand extends FourCC {
      */
     public static Brand MIAF = new Brand("miaf");
 
+    /**
+     * HEVC Image File Brand.
+     *
+     * <p>This is (@code heic).
+     *
+     * <p>See ISO/IEC 23008-12:2022(E) Section B.4.1 for interpretation.
+     */
+    public static Brand HEIC = new Brand("heic");
+
     public Brand(int code) {
         super(code);
     }
