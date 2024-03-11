@@ -6,6 +6,7 @@
  */
 module net.frogmouth.rnd.eofff.tools {
     requires net.frogmouth.rnd.eofff.gopro;
+    requires net.frogmouth.rnd.eofff.imagefileformat;
     requires net.frogmouth.rnd.eofff.isobmff;
     requires net.frogmouth.rnd.eofff.mpeg4;
     requires net.frogmouth.rnd.eofff.nalvideo;
