@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 
 public class OutputStreamWriter {
@@ -111,5 +112,10 @@ public class OutputStreamWriter {
 
     public void writePackedLanguageCode(ISO639Language language) throws IOException {
         this.writeUnsignedInt16(language.asPackedBytes());
+    }
+
+    public void writeUtf8List(List<String> list) throws IOException {
+        String spacePaddedString = String.join(" ", list);
+        this.writeNullTerminatedString(spacePaddedString);
     }
 }
