@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.hevc.HEVCConfigurationItemProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageSpatialExtentsProperty;
+import net.frogmouth.rnd.eofff.imagefileformat.properties.uuid.UUIDProperty;
 import net.frogmouth.rnd.eofff.isobmff.AbstractContainerBox;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FileParser;
@@ -66,8 +67,9 @@ class GoProCleaner {
 
     private static final int SECURITY_ITEM_ID = 20;
     private static final int IMAGE_ITEM_ID = 30;
-    private static final String CONTENT_ID_UUID_URI =
-            "urn:uuid:aac8ab7d-f519-5437-b7d3-c973d155e253";
+    private static final UUID CONTENT_ID_UUID =
+            UUID.fromString("aac8ab7d-f519-5437-b7d3-c973d155e253");
+    private static final String CONTENT_ID_UUID_URI = "urn:uuid:" + CONTENT_ID_UUID.toString();
 
     private final String SECURITY_MIME_TYPE = "application/x.fake-dni-arh+xml";
     // TODO: we should have a proper XML implementation for this
@@ -303,6 +305,9 @@ class GoProCleaner {
         taic.setReferenceSourceType((byte) 2);
         ipco.addProperty(taic); // prop = 3
 
+        for (int i = 0; i < numImages; i++) {
+            ipco.addProperty(makeContentIdProperty()); // props 4 through 3 + numImages
+        }
         iprp.setItemProperties(ipco);
 
         for (int i = 0; i < numImages; i++) {
@@ -326,6 +331,12 @@ class GoProCleaner {
                 associationToTAIC.setPropertyIndex(3);
                 associationToTAIC.setEssential(false);
                 entry.addAssociation(associationToTAIC);
+            }
+            {
+                PropertyAssociation associationToContentID = new PropertyAssociation();
+                associationToContentID.setPropertyIndex(4 + i);
+                associationToContentID.setEssential(false);
+                entry.addAssociation(associationToContentID);
             }
             assoc.addEntry(entry);
             iprp.addItemPropertyAssociation(assoc);
@@ -352,6 +363,16 @@ class GoProCleaner {
         imageExtent.setExtentLength(length);
         imageLocation.addExtent(imageExtent);
         return imageLocation;
+    }
+
+    private UUIDProperty makeContentIdProperty() {
+        UUIDProperty contentIdProperty = new UUIDProperty();
+        contentIdProperty.setExtendedType(CONTENT_ID_UUID);
+        UUID generatedUUID = UUID.randomUUID();
+        String contentId = "urn:uuid:" + generatedUUID;
+        contentIdProperty.setPayload(contentId.getBytes(StandardCharsets.UTF_8));
+        System.out.println(contentIdProperty.toString());
+        return contentIdProperty;
     }
 
     protected void writeBoxes(List<Box> cleanBoxes, String outputPathName) throws IOException {
