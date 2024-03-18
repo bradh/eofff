@@ -7,7 +7,6 @@ import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
-import net.frogmouth.rnd.eofff.isobmff.meta.*;
 
 /**
  * Track Extension Properties Box (trep).
