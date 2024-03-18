@@ -10,6 +10,8 @@ public class FullBox extends BaseBox {
     private static final long BYTES_IN_FULL_BOX_HEADER = Integer.BYTES + FourCC.BYTES + 1 + 3;
     private static final long BYTES_IN_LARGE_FULL_BOX_HEADER =
             Integer.BYTES + FourCC.BYTES + Long.BYTES + 1 + 3;
+    public static final ZonedDateTime ISOBMFF_EPOCH =
+            ZonedDateTime.of(1904, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
 
     protected static void addTimingToStringBuilder(
             long creationTime, long modificationTime, StringBuilder sb) {
@@ -26,8 +28,7 @@ public class FullBox extends BaseBox {
     }
 
     protected static ZonedDateTime timeToZonedDateTime(long t) {
-        ZonedDateTime epoch = ZonedDateTime.of(1904, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
-        ZonedDateTime creationZDT = epoch.plusSeconds(t);
+        ZonedDateTime creationZDT = ISOBMFF_EPOCH.plusSeconds(t);
         return creationZDT;
     }
 

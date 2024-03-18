@@ -93,6 +93,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.tkhd.TrackHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.trak.TrackBoxParser,
             net.frogmouth.rnd.eofff.isobmff.tref.TrackReferenceBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.trep.TrackExtensionPropertiesBoxParser,
             net.frogmouth.rnd.eofff.isobmff.trex.TrackExtendsBoxParser,
             net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupBoxParser,
             net.frogmouth.rnd.eofff.isobmff.trun.TrackRunBoxParser,
@@ -134,6 +135,8 @@ module net.frogmouth.rnd.eofff.isobmff {
     uses net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser;
 
     provides net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser with
+            net.frogmouth.rnd.eofff.isobmff.sampleentry.hint.FDHintSampleEntryParser,
+            net.frogmouth.rnd.eofff.isobmff.sampleentry.hint.ReceivedRtpSampleEntryParser,
             net.frogmouth.rnd.eofff.isobmff.sampleentry.SimpleTextSampleEntryParser,
             net.frogmouth.rnd.eofff.isobmff.sampleentry.XMLMetaDataSampleEntryParser,
             net.frogmouth.rnd.eofff.isobmff.sampleentry.XMLSubtitleSampleEntryParser;
@@ -211,6 +214,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.tref;
     exports net.frogmouth.rnd.eofff.isobmff.trex;
     exports net.frogmouth.rnd.eofff.isobmff.tfra;
+    exports net.frogmouth.rnd.eofff.isobmff.trep;
     exports net.frogmouth.rnd.eofff.isobmff.trgr;
     exports net.frogmouth.rnd.eofff.isobmff.trun;
     exports net.frogmouth.rnd.eofff.isobmff.tsel;
