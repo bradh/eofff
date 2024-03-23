@@ -18,7 +18,7 @@ import net.frogmouth.rnd.eofff.nalvideo.NALU;
  */
 public class LHEVCDecoderConfigurationRecord {
 
-    static LHEVCDecoderConfigurationRecord parseFrom(ParseContext parseContext, long l) {
+    public static LHEVCDecoderConfigurationRecord parseFrom(ParseContext parseContext, long l) {
         LHEVCDecoderConfigurationRecord box = new LHEVCDecoderConfigurationRecord();
         box.setConfigurationVersion(parseContext.readUnsignedInt8());
         box.setMinSpatialSegmentationIDC(parseContext.readUnsignedInt16() & 0x7FF);
@@ -137,7 +137,7 @@ public class LHEVCDecoderConfigurationRecord {
         this.arrays.add(array);
     }
 
-    void addToStringBuilder(StringBuilder sb, int nestingLevel) {
+    public void addToStringBuilder(StringBuilder sb, int nestingLevel) {
         sb.append("\n");
         addIndent(nestingLevel, sb);
         sb.append("configurationVersion=");
