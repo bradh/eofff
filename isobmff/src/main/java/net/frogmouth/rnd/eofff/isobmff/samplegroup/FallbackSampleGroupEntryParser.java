@@ -12,13 +12,13 @@ public class FallbackSampleGroupEntryParser implements SampleGroupEntryParser {
 
     @Override
     public FourCC getFourCC() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from
-        // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException(
+                "getFourCC() should not be called for the falllback sample groun entry parser");
     }
 
     @Override
     public SampleGroupEntry parse(ParseContext parseContext, long descriptionLength) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from
-        // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        parseContext.skipBytes(descriptionLength);
+        return null;
     }
 }

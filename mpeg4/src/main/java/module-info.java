@@ -9,9 +9,13 @@ module net.frogmouth.rnd.eofff.mpeg4 {
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
             net.frogmouth.rnd.eofff.mpeg4.esds.ESDBoxParser,
             net.frogmouth.rnd.eofff.mpeg4.iods.ObjectDescriptorBoxParser,
-            net.frogmouth.rnd.eofff.mpeg4.mp4a.MP4AudioSampleEntryParser;
+            net.frogmouth.rnd.eofff.mpeg4.mp4a.MP4AudioSampleEntryParser,
+            net.frogmouth.rnd.eofff.mpeg4.mp4s.MpegSampleEntryParser,
+            net.frogmouth.rnd.eofff.mpeg4.mp4v.MP4VisualSampleEntryParser;
 
     exports net.frogmouth.rnd.eofff.mpeg4.esds;
     exports net.frogmouth.rnd.eofff.mpeg4.iods;
     exports net.frogmouth.rnd.eofff.mpeg4.mp4a;
+    exports net.frogmouth.rnd.eofff.mpeg4.mp4s;
+    exports net.frogmouth.rnd.eofff.mpeg4.mp4v;
 }
