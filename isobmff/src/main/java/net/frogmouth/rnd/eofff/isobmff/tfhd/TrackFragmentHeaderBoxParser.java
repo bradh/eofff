@@ -15,7 +15,7 @@ public class TrackFragmentHeaderBoxParser extends FullBoxParser {
     private static final int SAMPLE_DESCRIPTION_INDEX_PRESENT_FLAG = 0x000002;
     private static final int DEFAULT_SAMPLE_DURATION_PRESENT_FLAG = 0x000008;
     private static final int DEFAULT_SAMPLE_SIZE_PRESENT_FLAG = 0x000010;
-    private static final int DEFAULT_SAMPLE_FLAGS_PRESENT_FLAG = 0x000010;
+    private static final int DEFAULT_SAMPLE_FLAGS_PRESENT_FLAG = 0x000020;
 
     public TrackFragmentHeaderBoxParser() {}
 
