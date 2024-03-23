@@ -18,7 +18,7 @@ public class GroupsListBoxParser extends BaseBoxParser {
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
         GroupsListBox box = new GroupsListBox(boxName);
-        long offset = parseContext.getCursorPosition();
+        // long offset = parseContext.getCursorPosition();
         while (parseContext.getCursorPosition() < (initialOffset + boxSize)) {
             long childOffset = parseContext.getCursorPosition();
             long childSize = parseContext.readUnsignedInt32();
@@ -28,7 +28,7 @@ public class GroupsListBoxParser extends BaseBoxParser {
                     parser.parse(parseContext, childOffset, childSize, grouping_type);
             box.addGrouping(entityToGroup);
         }
-        parseContext.setCursorPosition(offset + boxSize);
+        parseContext.setCursorPosition(initialOffset + boxSize);
         return box;
     }
 }
