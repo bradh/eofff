@@ -54,7 +54,7 @@ public class HEVCDecoderConfigurationArray {
         }
     }
 
-    void addToStringBuilder(int nestingLevel, StringBuilder sb) {
+    public void addToStringBuilder(int nestingLevel, StringBuilder sb) {
         sb.append("\n");
         addIndent(nestingLevel, sb);
         sb.append("Array:");

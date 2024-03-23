@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.nalvideo;
+package net.frogmouth.rnd.eofff.nalvideo.lhevc;
 
 import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.BaseBoxParser;

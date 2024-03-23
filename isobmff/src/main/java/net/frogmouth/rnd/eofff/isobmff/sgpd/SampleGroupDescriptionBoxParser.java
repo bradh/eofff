@@ -1,10 +1,10 @@
 package net.frogmouth.rnd.eofff.isobmff.sgpd;
 
 import com.google.auto.service.AutoService;
-import net.frogmouth.rnd.eofff.isobmff.Box;
-import net.frogmouth.rnd.eofff.isobmff.FourCC;
-import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
-import net.frogmouth.rnd.eofff.isobmff.ParseContext;
+import net.frogmouth.rnd.eofff.isobmff.*;
+import net.frogmouth.rnd.eofff.isobmff.samplegroup.SampleGroupEntry;
+import net.frogmouth.rnd.eofff.isobmff.samplegroup.SampleGroupEntryFactoryManager;
+import net.frogmouth.rnd.eofff.isobmff.samplegroup.SampleGroupEntryParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,12 +42,15 @@ public class SampleGroupDescriptionBoxParser extends FullBoxParser {
         }
         long entryCount = parseContext.readUnsignedInt32();
         for (long i = 0; i < entryCount; i++) {
+            long description_length = default_length;
             if (version >= 1) {
                 if (default_length == 0) {
-                    long description_length = parseContext.readUnsignedInt32();
+                    description_length = parseContext.readUnsignedInt32();
                 }
             }
-            SampleGroupDescriptionEntry entry = parseSampleGroupDescriptionEntry(parseContext);
+            SampleGroupEntry entry =
+                    parseSampleGroupDescriptionEntry(
+                            parseContext, grouping_type, description_length);
             box.addEntry(entry);
         }
         return box;
@@ -57,9 +60,9 @@ public class SampleGroupDescriptionBoxParser extends FullBoxParser {
         return ((version == 0x00) || (version == 0x01) || (version == 0x02));
     }
 
-    private SampleGroupDescriptionEntry parseSampleGroupDescriptionEntry(
-            ParseContext parseContext) {
-        // TODO: implement
-        return null;
+    private SampleGroupEntry parseSampleGroupDescriptionEntry(
+            ParseContext parseContext, FourCC grouping_type, long description_length) {
+        SampleGroupEntryParser parser = SampleGroupEntryFactoryManager.getParser(grouping_type);
+        return parser.parse(parseContext, description_length);
     }
 }

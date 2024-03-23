@@ -6,6 +6,7 @@ import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.samplegroup.SampleGroupEntry;
 
 /**
  * Sample Group Description Box Box.
@@ -17,7 +18,7 @@ public class SampleGroupDescriptionBox extends FullBox {
 
     public static final FourCC SGPD_ATOM = new FourCC("sgpd");
 
-    private final List<SampleGroupDescriptionEntry> entries = new ArrayList<>();
+    private final List<SampleGroupEntry> entries = new ArrayList<>();
 
     public SampleGroupDescriptionBox() {
         super(SGPD_ATOM);
@@ -34,11 +35,11 @@ public class SampleGroupDescriptionBox extends FullBox {
         return "SampleGroupDescriptionBox";
     }
 
-    public List<SampleGroupDescriptionEntry> getEntries() {
+    public List<SampleGroupEntry> getEntries() {
         return new ArrayList<>(this.entries);
     }
 
-    public void addEntry(SampleGroupDescriptionEntry entry) {
+    public void addEntry(SampleGroupEntry entry) {
         this.entries.add(entry);
     }
 

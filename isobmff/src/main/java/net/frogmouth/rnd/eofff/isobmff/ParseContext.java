@@ -153,8 +153,18 @@ public class ParseContext {
         cursor = l;
     }
 
+    public void setCursorPosition(long l, FourCC boxName) {
+        if (cursor != l) {
+            LOG.warn(
+                    "Adjusting cursor by {} for {} which might mean missing parsing",
+                    l - cursor,
+                    boxName.toString());
+        }
+        cursor = l;
+    }
+
     public void skipBytes(long l) {
-        LOG.debug("skipping {}", l);
+        // LOG.debug("skipping {}", l);
         cursor += l;
     }
 
@@ -184,7 +194,7 @@ public class ParseContext {
         FourCC boxName = readFourCC();
         BoxParser parser = BoxFactoryManager.getParser(boxName);
         Box box = parser.parse(this, offset, boxSize, boxName);
-        setCursorPosition(offset + boxSize);
+        setCursorPosition(offset + boxSize, box.getFourCC());
         return box;
     }
 

@@ -142,9 +142,12 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.sampleentry.XMLMetaDataSampleEntryParser,
             net.frogmouth.rnd.eofff.isobmff.sampleentry.XMLSubtitleSampleEntryParser;
 
+    uses net.frogmouth.rnd.eofff.isobmff.samplegroup.SampleGroupEntryParser;
+
     exports net.frogmouth.rnd.eofff.isobmff;
     exports net.frogmouth.rnd.eofff.isobmff.sampleentry;
     exports net.frogmouth.rnd.eofff.isobmff.sampleentry.hint;
+    exports net.frogmouth.rnd.eofff.isobmff.samplegroup;
     exports net.frogmouth.rnd.eofff.isobmff.co64;
     exports net.frogmouth.rnd.eofff.isobmff.colr;
     exports net.frogmouth.rnd.eofff.isobmff.cprt;

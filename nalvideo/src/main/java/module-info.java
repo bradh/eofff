@@ -30,7 +30,7 @@ module net.frogmouth.rnd.eofff.nalvideo {
     provides net.frogmouth.rnd.eofff.isobmff.BoxParser with
             net.frogmouth.rnd.eofff.nalvideo.AVCConfigurationBoxParser,
             net.frogmouth.rnd.eofff.nalvideo.HEVCConfigurationBoxParser,
-            net.frogmouth.rnd.eofff.nalvideo.LHEVCConfigurationBoxParser,
+            net.frogmouth.rnd.eofff.nalvideo.lhevc.LHEVCConfigurationBoxParser,
             net.frogmouth.rnd.eofff.nalvideo.btrt.MPEG4BitRateBoxParser;
 
     uses net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser;
@@ -45,4 +45,6 @@ module net.frogmouth.rnd.eofff.nalvideo {
 
     exports net.frogmouth.rnd.eofff.nalvideo;
     exports net.frogmouth.rnd.eofff.nalvideo.btrt;
+    exports net.frogmouth.rnd.eofff.nalvideo.lhevc;
+    exports net.frogmouth.rnd.eofff.nalvideo.lhevc.oinf;
 }

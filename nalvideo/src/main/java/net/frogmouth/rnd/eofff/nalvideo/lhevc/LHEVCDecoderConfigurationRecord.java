@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.nalvideo;
+package net.frogmouth.rnd.eofff.nalvideo.lhevc;
 
 // import static net.frogmouth.rnd.eofff.nalvideo.FormatUtils.addByteArrayAsHex;
 import static net.frogmouth.rnd.eofff.nalvideo.FormatUtils.addIndent;
@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
+import net.frogmouth.rnd.eofff.nalvideo.HEVCDecoderConfigurationArray;
+import net.frogmouth.rnd.eofff.nalvideo.NALU;
 
 /**
  * L-HEVC decoder configuration record.

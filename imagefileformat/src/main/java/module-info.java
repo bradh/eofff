@@ -51,8 +51,16 @@ module net.frogmouth.rnd.eofff.imagefileformat {
             net.frogmouth.rnd.eofff.imagefileformat.properties.image.PixelInformationPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.lsel.LayerSelectorPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.mski.MaskConfigurationPropertyParser,
+            net.frogmouth.rnd.eofff.imagefileformat.properties.oinf
+                    .OperatingPointsInformationPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.tols.TargetOlsPropertyParser,
             net.frogmouth.rnd.eofff.imagefileformat.properties.udes.UserDescriptionPropertyParser;
+
+    uses net.frogmouth.rnd.eofff.isobmff.samplegroup.SampleGroupEntryParser;
+
+    provides net.frogmouth.rnd.eofff.isobmff.samplegroup.SampleGroupEntryParser with
+            net.frogmouth.rnd.eofff.imagefileformat.samplegroups.refs
+                    .DirectReferenceSamplesListParser;
 
     uses net.frogmouth.rnd.eofff.isobmff.dref.DataReferenceParser;
 
@@ -62,12 +70,15 @@ module net.frogmouth.rnd.eofff.imagefileformat {
     exports net.frogmouth.rnd.eofff.imagefileformat.items.grid;
     exports net.frogmouth.rnd.eofff.imagefileformat.items.rgan;
     exports net.frogmouth.rnd.eofff.imagefileformat.itemreferences;
+    exports net.frogmouth.rnd.eofff.imagefileformat.properties.avcC;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.colr;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.hevc;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.image;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.lsel;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.mski;
+    exports net.frogmouth.rnd.eofff.imagefileformat.properties.oinf;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.tols;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.udes;
     exports net.frogmouth.rnd.eofff.imagefileformat.properties.uuid;
+    exports net.frogmouth.rnd.eofff.imagefileformat.samplegroups.refs;
 }

@@ -1,7 +1,9 @@
 package net.frogmouth.rnd.eofff.isobmff.tfdt;
 
+import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class TrackFragmentDecodeTimeBox extends FullBox {
     public static final FourCC TFDT_ATOM = new FourCC("tfdt");
@@ -30,5 +32,24 @@ public class TrackFragmentDecodeTimeBox extends FullBox {
         sb.append("baseMediaDecodeTime=");
         sb.append(getBaseMediaDecodeTime());
         return sb.toString();
+    }
+
+    @Override
+    public void writeTo(OutputStreamWriter writer) throws IOException {
+        this.writeBoxHeader(writer);
+        if (getVersion() == 1) {
+            writer.writeLong(baseMediaDecodeTime);
+        } else {
+            writer.writeUnsignedInt32(baseMediaDecodeTime);
+        }
+    }
+
+    @Override
+    public long getBodySize() {
+        if (getVersion() == 1) {
+            return Long.BYTES;
+        } else {
+            return Integer.BYTES;
+        }
     }
 }

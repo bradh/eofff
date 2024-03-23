@@ -1,28 +1,30 @@
-package net.frogmouth.rnd.eofff.imagefileformat.properties.image;
+package net.frogmouth.rnd.eofff.imagefileformat.properties.oinf;
 
 import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import net.frogmouth.rnd.eofff.isobmff.iprp.AbstractItemProperty;
 import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullPropertyParser;
+import net.frogmouth.rnd.eofff.nalvideo.lhevc.oinf.OperatingPointsRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @AutoService(net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser.class)
-public class AuxiliaryTypePropertyParser extends ItemFullPropertyParser {
-    private static final Logger LOG = LoggerFactory.getLogger(AuxiliaryTypePropertyParser.class);
+public class OperatingPointsInformationPropertyParser extends ItemFullPropertyParser {
+    private static final Logger LOG =
+            LoggerFactory.getLogger(OperatingPointsInformationPropertyParser.class);
 
-    public AuxiliaryTypePropertyParser() {}
+    public OperatingPointsInformationPropertyParser() {}
 
     @Override
     public FourCC getFourCC() {
-        return AuxiliaryTypeProperty.AUXC_ATOM;
+        return OperatingPointsInformationProperty.OINF_ATOM;
     }
 
     @Override
     public AbstractItemProperty parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        AuxiliaryTypeProperty box = new AuxiliaryTypeProperty();
+        OperatingPointsInformationProperty box = new OperatingPointsInformationProperty();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
@@ -30,11 +32,8 @@ public class AuxiliaryTypePropertyParser extends ItemFullPropertyParser {
             return parseAsUnknownProperty(parseContext, initialOffset, boxSize, boxName);
         }
         box.setFlags(parseFlags(parseContext));
-        box.setAuxType(parseContext.readNullDelimitedString(boxSize));
-        long subtypeLen = initialOffset + boxSize - parseContext.getCursorPosition();
-        byte[] subType = new byte[(int) subtypeLen];
-        parseContext.readBytes(subType);
-        box.setAuxSubtype(subType);
+        OperatingPointsRecord opInfo = OperatingPointsRecord.parseFrom(parseContext, boxSize);
+        box.setOpInfo(opInfo);
         return box;
     }
 

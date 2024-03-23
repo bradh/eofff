@@ -1,15 +1,17 @@
 package net.frogmouth.rnd.eofff.imagefileformat.properties.image;
 
+import java.util.HexFormat;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullProperty;
 
 public class AuxiliaryTypeProperty extends ItemFullProperty {
 
+    public static final FourCC AUXC_ATOM = new FourCC("auxC");
     private String auxType;
     private byte[] auxSubtype;
 
-    public AuxiliaryTypeProperty(FourCC name) {
-        super(name);
+    public AuxiliaryTypeProperty() {
+        super(AUXC_ATOM);
     }
 
     @Override
@@ -34,16 +36,13 @@ public class AuxiliaryTypeProperty extends ItemFullProperty {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': aux_typ=");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        sb.append("aux_type=");
         sb.append(getAuxType());
-        sb.append(", aux_subtype=");
-        sb.append(getAuxSubtype());
-        sb.append(";");
+        sb.append(", aux_subtype=[");
+        sb.append(HexFormat.of().withPrefix("0x").withDelimiter(" ").formatHex(getAuxSubtype()));
+        sb.append("]");
         return sb.toString();
     }
 }

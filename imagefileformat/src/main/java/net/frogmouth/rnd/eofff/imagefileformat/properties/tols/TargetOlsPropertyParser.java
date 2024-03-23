@@ -1,7 +1,6 @@
 package net.frogmouth.rnd.eofff.imagefileformat.properties.tols;
 
 import com.google.auto.service.AutoService;
-import net.frogmouth.rnd.eofff.imagefileformat.properties.mski.*;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import net.frogmouth.rnd.eofff.isobmff.iprp.AbstractItemProperty;
