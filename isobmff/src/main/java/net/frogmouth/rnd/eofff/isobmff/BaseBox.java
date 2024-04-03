@@ -50,7 +50,7 @@ public class BaseBox implements Box {
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = getBaseStringBuilder(nestingLevel);
-        sb.append("TODO");
+        sb.append("[Not yet implemented]");
         return sb.toString();
     }
 

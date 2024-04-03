@@ -144,4 +144,17 @@ public class GPMFContainerItem extends GPMFItem {
     protected int getRepeat() {
         return length;
     }
+
+    public List<GPMFItem> getItems() {
+        return items;
+    }
+
+    public GPMFItem getItem(FourCC fourCC) {
+        for (GPMFItem item : items) {
+            if (item.getFourCC().equals(fourCC)) {
+                return item;
+            }
+        }
+        return null;
+    }
 }

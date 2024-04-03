@@ -3,14 +3,26 @@ package net.frogmouth.rnd.eofff.goprotools;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.foreign.MemorySegment;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import net.frogmouth.rnd.eofff.gopro.gpmf.GPMF;
+import net.frogmouth.rnd.eofff.gopro.gpmf.GPMFComplexItem;
+import net.frogmouth.rnd.eofff.gopro.gpmf.GPMFContainerItem;
+import net.frogmouth.rnd.eofff.gopro.gpmf.GPMFItem;
+import net.frogmouth.rnd.eofff.gopro.gpmf.GPMFParser;
+import net.frogmouth.rnd.eofff.gopro.gpmf.GPMFUnsignedLongItem;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.hevc.HEVCConfigurationItemProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageSpatialExtentsProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.uuid.UUIDProperty;
@@ -18,7 +30,9 @@ import net.frogmouth.rnd.eofff.isobmff.AbstractContainerBox;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FileParser;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import net.frogmouth.rnd.eofff.isobmff.dinf.DataInformationBox;
 import net.frogmouth.rnd.eofff.isobmff.dref.DataEntryBaseBox;
 import net.frogmouth.rnd.eofff.isobmff.dref.DataEntryUrlBox;
@@ -43,6 +57,7 @@ import net.frogmouth.rnd.eofff.isobmff.mdia.MediaBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.minf.MediaInformationBox;
 import net.frogmouth.rnd.eofff.isobmff.moov.MovieBox;
+import net.frogmouth.rnd.eofff.isobmff.mvhd.MovieHeaderBox;
 import net.frogmouth.rnd.eofff.isobmff.nmhd.NullMediaHeaderBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
 import net.frogmouth.rnd.eofff.isobmff.saio.SampleAuxiliaryInformationOffsetsBox;
@@ -60,13 +75,20 @@ import net.frogmouth.rnd.eofff.mpeg4.esds.ESDBox;
 import net.frogmouth.rnd.eofff.nalvideo.HEVCConfigurationBox;
 import net.frogmouth.rnd.eofff.nalvideo.HEVCDecoderConfigurationRecord;
 import net.frogmouth.rnd.eofff.nalvideo.HVC1SampleEntry;
+import net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampBox;
+import net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampPacket;
 import net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoBox;
 import net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoItemProperty;
+import org.threeten.extra.PeriodDuration;
+import org.threeten.extra.scale.TaiInstant;
 
 class GoProCleaner {
 
-    private static final int SECURITY_ITEM_ID = 20;
-    private static final int IMAGE_ITEM_ID = 30;
+    public static long zonedDateTimeToTime(ZonedDateTime zdt) {
+        return PeriodDuration.between(FullBox.ISOBMFF_EPOCH, zdt).get(ChronoUnit.SECONDS);
+    }
+
+    private static final int SECURITY_ITEM_ID = 10;
     private static final UUID CONTENT_ID_UUID =
             UUID.fromString("aac8ab7d-f519-5437-b7d3-c973d155e253");
     private static final String CONTENT_ID_UUID_URI = "urn:uuid:" + CONTENT_ID_UUID.toString();
@@ -85,7 +107,8 @@ class GoProCleaner {
                 <FakeDeclassOn>2023-12-25</FakeDeclassOn>
             </FakeSecurity>""";
 
-    private int nextItemId = 30;
+    private int nextItemId = 20;
+    private final List<Long> timestamps = new ArrayList<>();
 
     private final List<Box> sourceBoxes = new ArrayList<>();
     private final List<Box> destinationBoxes = new ArrayList<>();
@@ -98,6 +121,129 @@ class GoProCleaner {
         Path testFile = Paths.get(inputPath);
         FileParser fileParser = new FileParser();
         return fileParser.parse(testFile);
+    }
+
+    void dumpGPMF() throws IOException {
+        MediaDataBox mdat = (MediaDataBox) findTopLevelBox("mdat");
+        if (mdat == null) {
+            throw new IOException("Missing essential mdat box");
+        }
+        MovieBox moov = (MovieBox) findTopLevelBox("moov");
+        if (moov == null) {
+            throw new IOException("Missing essential moov box");
+        }
+        for (Box box : moov.getNestedBoxes()) {
+            if (box instanceof TrackBox trak) {
+                MediaBox mdia = (MediaBox) findChildBox(trak, "mdia");
+                if (mdia != null) {
+                    HandlerBox hdlr = (HandlerBox) findChildBox(mdia, "hdlr");
+                    if (hdlr != null) {
+                        if (hdlr.getHandlerType().equals("meta")) {
+                            MediaInformationBox minf =
+                                    (MediaInformationBox) findChildBox(mdia, "minf");
+                            if (minf != null) {
+                                SampleTableBox stbl = (SampleTableBox) findChildBox(minf, "stbl");
+                                if (stbl != null) {
+                                    debugDumpGPMF(stbl, mdat);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void debugDumpGPMF(SampleTableBox stbl, MediaDataBox mdat) throws IOException {
+        SampleSizeBox stsz = (SampleSizeBox) findChildBox(stbl, "stsz");
+        if (stsz == null) {
+            throw new IOException("Missing essential stsz box");
+        }
+        ChunkOffsetBox stco = (ChunkOffsetBox) findChildBox(stbl, "stco");
+        if (stco == null) {
+            throw new IOException("Missing essential stco box");
+        }
+        List<Long> offsets = stco.getEntries();
+        List<Long> sizes = stsz.getEntries();
+        assert (offsets.size() == sizes.size());
+        long frameSTMP = 0;
+        System.out.println("----------------");
+        for (int i = 0; i < offsets.size(); i++) {
+            Long offset = offsets.get(i);
+            Long size = sizes.get(i);
+            byte[] chunk = mdat.getDataAt(offset, size);
+            MemorySegment segment = MemorySegment.ofArray(chunk);
+            ParseContext ctx = new ParseContext(segment);
+            GPMFParser gpmfParser = new GPMFParser();
+            GPMF items = gpmfParser.parse(ctx, 0, size, new FourCC("gpmf"));
+            System.out.println("GPMF chunk: " + i);
+            TaiInstant previousTAI = TaiInstant.ofTaiSeconds(0, 0);
+            for (GPMFItem item : items.getItems()) {
+                if (item instanceof GPMFContainerItem devc) {
+                    for (GPMFItem nested : devc.getItems()) {
+                        if (nested instanceof GPMFContainerItem strm) {
+                            for (var nested2 : strm.getItems()) {
+                                if (nested2.getFourCC().toString().equals("CORI")) {
+                                    GPMFUnsignedLongItem frameSTMPItem =
+                                            (GPMFUnsignedLongItem) strm.getItem(new FourCC("STMP"));
+                                    frameSTMP = frameSTMPItem.getValue();
+                                    System.out.println("frame timestamp: " + frameSTMP);
+                                }
+                            }
+                        }
+                    }
+                    for (GPMFItem nested : devc.getItems()) {
+                        if (nested instanceof GPMFContainerItem strm) {
+                            for (var nested2 : strm.getItems()) {
+                                if (nested2.getFourCC().toString().equals("GPS9")) {
+                                    GPMFUnsignedLongItem gpsSTMPItem =
+                                            (GPMFUnsignedLongItem) strm.getItem(new FourCC("STMP"));
+                                    long stmpDelta = frameSTMP - gpsSTMPItem.getValue();
+                                    System.out.println("GPS timestamp: " + gpsSTMPItem.getValue());
+                                    System.out.println("stmpDelta: " + stmpDelta);
+                                    GPMFComplexItem complexItem = (GPMFComplexItem) nested2;
+                                    List<Object> gps = complexItem.getEntries().get(0);
+                                    int gpsDays = (int) gps.get(5);
+                                    int gpsMilliseconds = (int) gps.get(6);
+                                    // System.out.println("gpsDays: " + gpsDays);
+                                    // System.out.println("gpsMillis: " + gpsMilliseconds);
+                                    ZonedDateTime midnight =
+                                            ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+                                                    .plusDays(gpsDays);
+                                    // System.out.println(midnight.toString());
+                                    ZonedDateTime utc =
+                                            midnight.plus(gpsMilliseconds, ChronoUnit.MILLIS);
+                                    // System.out.println(utc.toString());
+                                    TaiInstant midnightTAI = TaiInstant.of(midnight.toInstant());
+                                    // System.out.println(midnightTAI);
+                                    TaiInstant tai =
+                                            midnightTAI.plus(
+                                                    Duration.of(
+                                                            gpsMilliseconds, ChronoUnit.MILLIS));
+                                    System.out.println("GPS TAI: " + tai);
+                                    // at this point we have the TAI time for the GPS9 sample.
+                                    // now adjust for the CORI (frame) to GPS9 (time) timestamp
+                                    // difference
+                                    TaiInstant frameTAI =
+                                            tai.plus(Duration.of(stmpDelta, ChronoUnit.MICROS));
+                                    System.out.println("frame TAI: " + frameTAI);
+                                    /* System.out.println(
+                                            "delta: "
+                                                    + (previousTAI.durationUntil(frameTAI).getNano()
+                                                            / (1.0e6)));
+                                    */
+                                    this.timestamps.add(
+                                            (long)
+                                                    (frameTAI.getTaiSeconds() * 1e9
+                                                            + frameTAI.getNano()));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // System.out.println("----------------");
+        }
     }
 
     private static Box extractChildBox(AbstractContainerBox parent, String fourCC) {
@@ -146,7 +292,8 @@ class GoProCleaner {
         return null;
     }
 
-    void cleanFile() {
+    void cleanFile() throws IOException {
+        this.dumpGPMF();
         FileTypeBox ftyp = (FileTypeBox) extractTopLevelBox("ftyp");
         ftyp.addCompatibleBrand(Brand.HEIC);
         destinationBoxes.add(ftyp);
@@ -177,6 +324,7 @@ class GoProCleaner {
             offsetAdjustment += cleanMoov.getSize();
         }
         adjustOffsets(cleanMoov, offsetAdjustment);
+        adjustTrackId(cleanMoov, nextItemId);
         adjustOffsets(meta, offsetAdjustment);
         destinationBoxes.add(cleanMoov);
         destinationBoxes.addAll(sourceBoxes);
@@ -219,7 +367,8 @@ class GoProCleaner {
         meta.addNestedBox(hdlr);
 
         PrimaryItemBox pitm = new PrimaryItemBox();
-        pitm.setItemID(IMAGE_ITEM_ID);
+        int firstImageItemId = nextItemId;
+        pitm.setItemID(firstImageItemId);
         meta.addNestedBox(pitm);
 
         ItemLocationBox iloc = new ItemLocationBox();
@@ -256,7 +405,8 @@ class GoProCleaner {
                     if (syncSamples.contains((long) i)) {
                         long offset = stco.getEntries().get(i - 1);
                         long length = stsz.getEntries().get(i - 1);
-                        ILocItem imageLocation = makeImageLocationItem(offset, length, numImages);
+                        ILocItem imageLocation =
+                                makeImageLocationItem(offset, length, firstImageItemId + numImages);
                         numImages += 1;
                         iloc.addItem(imageLocation);
                     }
@@ -279,7 +429,7 @@ class GoProCleaner {
             for (int i = 0; i < numImages; i++) {
                 ItemInfoEntry imageItem = new ItemInfoEntry();
                 imageItem.setVersion(2);
-                imageItem.setItemID(IMAGE_ITEM_ID + i);
+                imageItem.setItemID(firstImageItemId + i);
                 FourCC hvc1_fourcc = new FourCC("hvc1");
                 imageItem.setItemType(hvc1_fourcc.asUnsigned());
                 // TODO: it would be nice to flag the frame number
@@ -306,14 +456,24 @@ class GoProCleaner {
         ipco.addProperty(taic); // prop = 3
 
         for (int i = 0; i < numImages; i++) {
-            ipco.addProperty(makeContentIdProperty()); // props 4 through 3 + numImages
+            ipco.addProperty(makeContentIdProperty()); // props 4 through 4 + numImages
         }
+
+        for (int i = 0; i < numImages; i++) {
+            TAITimeStampBox itai = new TAITimeStampBox();
+            TAITimeStampPacket timeStampPacket = new TAITimeStampPacket();
+            timeStampPacket.setStatusBits((byte) 0b11); // TODO: we should check if we're locked
+            timeStampPacket.setTAITimeStamp(this.timestamps.get(i));
+            itai.setTimeStampPacket(timeStampPacket);
+            ipco.addProperty(itai); // props 4 + numImages to 4 + numImages * 2
+        }
+
         iprp.setItemProperties(ipco);
 
         for (int i = 0; i < numImages; i++) {
             ItemPropertyAssociation assoc = new ItemPropertyAssociation();
             AssociationEntry entry = new AssociationEntry();
-            entry.setItemId(IMAGE_ITEM_ID + i);
+            entry.setItemId(firstImageItemId + i);
             {
                 PropertyAssociation associationToHVCCProperty = new PropertyAssociation();
                 associationToHVCCProperty.setPropertyIndex(1);
@@ -338,11 +498,19 @@ class GoProCleaner {
                 associationToContentID.setEssential(false);
                 entry.addAssociation(associationToContentID);
             }
+            {
+                PropertyAssociation associationToContentID = new PropertyAssociation();
+                associationToContentID.setPropertyIndex(4 + numImages + i);
+                associationToContentID.setEssential(false);
+                entry.addAssociation(associationToContentID);
+            }
             assoc.addEntry(entry);
             iprp.addItemPropertyAssociation(assoc);
         }
 
         meta.addNestedBox(iprp);
+
+        nextItemId += numImages;
 
         ItemDataBox idat = new ItemDataBox();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -352,10 +520,10 @@ class GoProCleaner {
         return meta;
     }
 
-    private ILocItem makeImageLocationItem(long offset, long length, int imageNumber) {
+    private ILocItem makeImageLocationItem(long offset, long length, long itemId) {
         ILocItem imageLocation = new ILocItem();
         imageLocation.setConstructionMethod(0);
-        imageLocation.setItemId(IMAGE_ITEM_ID + imageNumber);
+        imageLocation.setItemId(itemId);
         imageLocation.setBaseOffset(0);
         ILocExtent imageExtent = new ILocExtent();
         imageExtent.setExtentIndex(0);
@@ -385,7 +553,7 @@ class GoProCleaner {
         Files.write(testOut.toPath(), baos.toByteArray(), StandardOpenOption.CREATE);
     }
 
-    private Box cleanMoov(MovieBox moov) {
+    private Box cleanMoov(MovieBox moov) throws IOException {
         MovieBox cleanMoov = new MovieBox();
         Box mvhd = extractChildBox(moov, "mvhd");
         cleanMoov.appendNestedBox(mvhd);
@@ -407,7 +575,7 @@ class GoProCleaner {
         return cleanMoov;
     }
 
-    private Box cleanTrak(TrackBox trak) {
+    private Box cleanTrak(TrackBox trak) throws IOException {
         TrackBox cleanTrak = new TrackBox();
         for (Box box : trak.getNestedBoxes()) {
             Box cleanBox =
@@ -495,7 +663,7 @@ class GoProCleaner {
         return null;
     }
 
-    private Box cleanMdia(MediaBox mdia) {
+    private Box cleanMdia(MediaBox mdia) throws IOException {
         MediaBox cleanMdia = new MediaBox();
         for (Box box : mdia.getNestedBoxes()) {
             Box cleanBox =
@@ -508,7 +676,7 @@ class GoProCleaner {
         return cleanMdia;
     }
 
-    private Box cleanMinf(MediaInformationBox minf) {
+    private Box cleanMinf(MediaInformationBox minf) throws IOException {
         MediaInformationBox cleanMinf = new MediaInformationBox();
         for (Box box : minf.getNestedBoxes()) {
             Box cleanBox =
@@ -558,9 +726,10 @@ class GoProCleaner {
         return url;
     }
 
-    private Box cleanStbl(SampleTableBox stbl) {
+    private Box cleanStbl(SampleTableBox stbl) throws IOException {
         SampleTableBox cleanStbl = new SampleTableBox();
         long sampleCount = 0;
+        List<Long> syncSamples = null;
         for (Box box : stbl.getNestedBoxes()) {
             Box cleanBox =
                     switch (box.getFourCC().toString()) {
@@ -571,17 +740,55 @@ class GoProCleaner {
             if (box instanceof SampleSizeBox stsz) {
                 sampleCount = stsz.getSampleCount();
             }
+            if (box instanceof SyncSampleBox stss) {
+                syncSamples = stss.getEntries();
+            }
         }
-        SampleAuxiliaryInformationSizesBox saiz = new SampleAuxiliaryInformationSizesBox();
-        saiz.setDefaultSampleInfoSize(Long.BYTES + Byte.BYTES);
-        saiz.setSampleCount(sampleCount);
-        cleanStbl.appendNestedBox(saiz);
-        SampleAuxiliaryInformationOffsetsBox saio = new SampleAuxiliaryInformationOffsetsBox();
-        // TODO: work out the offsets
-        Long offset = 9999l;
-        saio.addOffset(offset);
-        cleanStbl.appendNestedBox(saio);
-        // TODO: actually write the values to mdat
+        if (syncSamples != null) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            for (long packetIndex = 1; packetIndex <= sampleCount; packetIndex++) {
+                if (syncSamples.contains(packetIndex)) {
+                    ByteBuffer bb = ByteBuffer.allocate(Long.BYTES);
+                    int index = syncSamples.indexOf(packetIndex);
+                    long timestamp = this.timestamps.get(index);
+                    bb.putLong(timestamp);
+                    baos.write(bb.array());
+                    baos.write(0b00000011);
+                } else {
+                    baos.write(
+                            new byte[] {
+                                (byte) 0xFF,
+                                (byte) 0xFF,
+                                (byte) 0xFF,
+                                (byte) 0xFF,
+                                (byte) 0xFF,
+                                (byte) 0xFF,
+                                (byte) 0xFF,
+                                (byte) 0xFF
+                            });
+                    baos.write(0x00);
+                }
+            }
+            byte[] timestampPacketBytes = baos.toByteArray();
+            MediaDataBox mdat = (MediaDataBox) this.findTopLevelBox("mdat");
+            long initialTimestampPacketOffset = mdat.appendData(timestampPacketBytes);
+            SampleAuxiliaryInformationSizesBox saiz = new SampleAuxiliaryInformationSizesBox();
+            saiz.setFlags(1);
+            saiz.setAuxInfoType(new FourCC("stai"));
+            saiz.setDefaultSampleInfoSize(Long.BYTES + Byte.BYTES);
+            saiz.setSampleCount(sampleCount);
+            cleanStbl.appendNestedBox(saiz);
+            SampleAuxiliaryInformationOffsetsBox saio = new SampleAuxiliaryInformationOffsetsBox();
+            saio.setFlags(1);
+            saio.setAuxInfoType(new FourCC("stai"));
+            for (int offsetIndex = 0; offsetIndex < sampleCount; offsetIndex++) {
+                Long offset =
+                        initialTimestampPacketOffset
+                                + (offsetIndex * saiz.getDefaultSampleInfoSize());
+                saio.addOffset(offset);
+            }
+            cleanStbl.appendNestedBox(saio);
+        }
         return cleanStbl;
     }
 
@@ -641,6 +848,26 @@ class GoProCleaner {
                                                 extractChildBox(stbl, "stco");
                                                 stbl.appendNestedBox(stco_dest);
                                             }
+                                            if (stblChild
+                                                    instanceof
+                                                    SampleAuxiliaryInformationOffsetsBox
+                                                            saio_source) {
+                                                SampleAuxiliaryInformationOffsetsBox saio_dest =
+                                                        new SampleAuxiliaryInformationOffsetsBox();
+                                                saio_dest.setFlags(saio_source.getFlags());
+                                                saio_dest.setVersion(saio_source.getVersion());
+                                                if ((saio_source.getFlags() & 0x01) == 0x01) {
+                                                    saio_dest.setAuxInfoType(
+                                                            saio_source.getAuxInfoType());
+                                                    saio_dest.setAuxInfoTypeParameter(
+                                                            saio_source.getAuxInfoTypeParameter());
+                                                }
+                                                for (Long offset : saio_source.getOffsets()) {
+                                                    saio_dest.addOffset(offset + offsetAdjustment);
+                                                }
+                                                extractChildBox(stbl, "saio");
+                                                stbl.appendNestedBox(saio_dest);
+                                            }
                                         }
                                     }
                                 }
@@ -650,6 +877,14 @@ class GoProCleaner {
                 }
             }
         }
+    }
+
+    private void adjustTrackId(MovieBox cleanMoov, int nextTrackId) {
+        MovieHeaderBox mvhd = (MovieHeaderBox) findChildBox(cleanMoov, "mvhd");
+        mvhd.setNextTrackId(nextTrackId);
+        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+        long modificationTime = zonedDateTimeToTime(now);
+        mvhd.setModificationTime(modificationTime);
     }
 
     private void adjustOffsets(MetaBox mdat, long offsetAdjustment) {

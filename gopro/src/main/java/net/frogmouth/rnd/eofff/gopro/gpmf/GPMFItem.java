@@ -5,7 +5,7 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
-abstract class GPMFItem {
+public abstract class GPMFItem {
     private final FourCC fourCC;
 
     public GPMFItem(FourCC fourCC) {

@@ -11,6 +11,7 @@ module net.frogmouth.rnd.eofff.tools {
     requires net.frogmouth.rnd.eofff.mpeg4;
     requires net.frogmouth.rnd.eofff.nalvideo;
     requires net.frogmouth.rnd.eofff.uncompressed;
+    requires org.threeten.extra;
     requires org.slf4j;
     requires org.apache.logging.log4j;
     requires org.apache.logging.log4j.slf4j2.impl;

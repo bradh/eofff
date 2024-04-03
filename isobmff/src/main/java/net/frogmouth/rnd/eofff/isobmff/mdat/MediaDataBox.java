@@ -66,4 +66,13 @@ public class MediaDataBox extends BaseBox {
         int relativeOffsetEnd = (int) (relativeOffsetStart + size);
         return Arrays.copyOfRange(data, relativeOffsetStart, relativeOffsetEnd);
     }
+
+    public long appendData(byte[] bytes) {
+        long insertionPoint = this.initialOffset + this.data.length;
+        byte[] result = new byte[this.data.length + bytes.length];
+        System.arraycopy(this.data, 0, result, 0, this.data.length);
+        System.arraycopy(bytes, 0, result, this.data.length, bytes.length);
+        this.data = result;
+        return insertionPoint;
+    }
 }

@@ -78,8 +78,10 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.stbl.SampleTableBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sthd.SubtitleMediaHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.strk.SubTrackBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.stri.SubTrackInformationBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stsc.SampleToChunkBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stsd.SampleDescriptionBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.stsg.SubTrackSampleGroupBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stsh.ShadowSyncSampleBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stco.ChunkOffsetBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stss.SyncSampleBoxParser,
@@ -204,8 +206,10 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.stco;
     exports net.frogmouth.rnd.eofff.isobmff.sthd;
     exports net.frogmouth.rnd.eofff.isobmff.strk;
+    exports net.frogmouth.rnd.eofff.isobmff.stri;
     exports net.frogmouth.rnd.eofff.isobmff.stsc;
     exports net.frogmouth.rnd.eofff.isobmff.stsd;
+    exports net.frogmouth.rnd.eofff.isobmff.stsg;
     exports net.frogmouth.rnd.eofff.isobmff.stsh;
     exports net.frogmouth.rnd.eofff.isobmff.stss;
     exports net.frogmouth.rnd.eofff.isobmff.stsz;
