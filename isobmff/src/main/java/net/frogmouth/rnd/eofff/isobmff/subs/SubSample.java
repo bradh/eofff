@@ -1,5 +1,8 @@
 package net.frogmouth.rnd.eofff.isobmff.subs;
 
+import java.io.IOException;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+
 public class SubSample {
     public static final long VERSION0_BYTES = Short.BYTES + Byte.BYTES + Byte.BYTES + Integer.BYTES;
     public static final long VERSION1_BYTES =
@@ -51,5 +54,16 @@ public class SubSample {
         sb.append(discardable);
         sb.append(", codec_specific_parameter=");
         sb.append(codecSpecificParameters);
+    }
+
+    void writeTo(OutputStreamWriter stream, int version) throws IOException {
+        if (version == 1) {
+            stream.writeUnsignedInt32(subsampleSize);
+        } else {
+            stream.writeUnsignedInt16(subsampleSize);
+        }
+        stream.writeUnsignedInt8(subsamplePriority);
+        stream.writeUnsignedInt8(discardable);
+        stream.writeUnsignedInt32(codecSpecificParameters);
     }
 }

@@ -1,5 +1,6 @@
 package net.frogmouth.rnd.eofff.isobmff.subs;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.BaseBox;
@@ -50,7 +51,11 @@ public class SubSampleEntry {
         }
     }
 
-    void writeTo(OutputStreamWriter stream, int version) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    void writeTo(OutputStreamWriter stream, int version) throws IOException {
+        stream.writeUnsignedInt32(sampleDelta);
+        stream.writeUnsignedInt16(subsamples.size());
+        for (SubSample subsample : subsamples) {
+            subsample.writeTo(stream, version);
+        }
     }
 }
