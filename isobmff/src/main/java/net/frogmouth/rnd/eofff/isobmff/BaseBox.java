@@ -64,7 +64,7 @@ public class BaseBox implements Box {
         return sb;
     }
 
-    protected void addIndent(int nestingLevel, StringBuilder sb) {
+    public static void addIndent(int nestingLevel, StringBuilder sb) {
         for (int i = 0; i < nestingLevel; i++) {
             sb.append(INDENT);
         }

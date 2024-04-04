@@ -89,6 +89,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.stts.TimeToSampleBoxParser,
             net.frogmouth.rnd.eofff.isobmff.styp.SegmentTypeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stz2.CompactSampleSizeBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.subs.SubSampleInformationBoxParser,
             net.frogmouth.rnd.eofff.isobmff.traf.TrackFragmentBoxParser,
             net.frogmouth.rnd.eofff.isobmff.tfdt.TrackFragmentDecodeTimeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.tfhd.TrackFragmentHeaderBoxParser,
@@ -216,6 +217,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.stts;
     exports net.frogmouth.rnd.eofff.isobmff.styp;
     exports net.frogmouth.rnd.eofff.isobmff.stz2;
+    exports net.frogmouth.rnd.eofff.isobmff.subs;
     exports net.frogmouth.rnd.eofff.isobmff.tfdt;
     exports net.frogmouth.rnd.eofff.isobmff.tfhd;
     exports net.frogmouth.rnd.eofff.isobmff.tkhd;
