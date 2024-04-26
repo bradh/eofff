@@ -24,7 +24,7 @@ public class TrackReferenceBoxParser extends FullBoxParser {
         TrackReferenceBox box = new TrackReferenceBox();
         while (parseContext.hasRemainingUntil(initialOffset + boxSize)) {
             long refBoxSize = parseContext.readUnsignedInt32();
-            TrackReference refBoxName = parseContext.readTrackReference();
+            TrackReference refBoxName = new TrackReference((int) parseContext.readUnsignedInt32());
             int numTrackIds = (int) ((refBoxSize - (Integer.BYTES + FourCC.BYTES)) / Integer.BYTES);
             long[] trackIds = new long[numTrackIds];
             for (int i = 0; i < numTrackIds; i++) {
