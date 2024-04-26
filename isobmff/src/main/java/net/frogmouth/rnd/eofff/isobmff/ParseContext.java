@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.Brand;
-import net.frogmouth.rnd.eofff.isobmff.tref.TrackReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,12 +130,6 @@ public class ParseContext {
         return new Brand(i);
     }
 
-    // TODO: we should not do this...
-    public TrackReference readTrackReference() {
-        int i = readInt32();
-        return new TrackReference(i);
-    }
-
     public FourCC readFourCC() {
         int i = readInt32();
         return new FourCC(i);
@@ -256,5 +249,10 @@ public class ParseContext {
             }
         }
         return result;
+    }
+
+    public BitReader getBitReader(long numBytes) {
+        byte[] bytes = getBytes(numBytes);
+        return new BitReader(bytes);
     }
 }
