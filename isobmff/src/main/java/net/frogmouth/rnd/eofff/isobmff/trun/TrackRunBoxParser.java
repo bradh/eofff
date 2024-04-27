@@ -1,5 +1,12 @@
 package net.frogmouth.rnd.eofff.isobmff.trun;
 
+import static net.frogmouth.rnd.eofff.isobmff.trun.TrackRunBox.DATA_OFFSET_PRESENT_FLAG;
+import static net.frogmouth.rnd.eofff.isobmff.trun.TrackRunBox.FIRST_SAMPLE_FLAGS_PRESENT_FLAG;
+import static net.frogmouth.rnd.eofff.isobmff.trun.TrackRunBox.SAMPLE_COMPOSITION_TIME_OFFSETS_PRESENT_FLAG;
+import static net.frogmouth.rnd.eofff.isobmff.trun.TrackRunBox.SAMPLE_DURATION_PRESENT_FLAG;
+import static net.frogmouth.rnd.eofff.isobmff.trun.TrackRunBox.SAMPLE_FLAGS_PRESENT_FLAG;
+import static net.frogmouth.rnd.eofff.isobmff.trun.TrackRunBox.SAMPLE_SIZE_PRESENT_FLAG;
+
 import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
@@ -11,12 +18,6 @@ import org.slf4j.LoggerFactory;
 @AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
 public class TrackRunBoxParser extends FullBoxParser {
     private static final Logger LOG = LoggerFactory.getLogger(TrackRunBoxParser.class);
-    private static final int DATA_OFFSET_PRESENT_FLAG = 0x000001;
-    private static final int FIRST_SAMPLE_FLAGS_PRESENT_FLAG = 0x000004;
-    private static final int SAMPLE_DURATION_PRESENT_FLAG = 0x000100;
-    private static final int SAMPLE_SIZE_PRESENT_FLAG = 0x000200;
-    private static final int SAMPLE_FLAGS_PRESENT_FLAG = 0x000400;
-    private static final int SAMPLE_COMPOSITION_TIME_OFFSETS_PRESENT_FLAG = 0x000800;
 
     public TrackRunBoxParser() {}
 
@@ -35,31 +36,37 @@ public class TrackRunBoxParser extends FullBoxParser {
             return parseAsBaseBox(parseContext, initialOffset, boxSize, boxName);
         }
         box.setFlags(parseFlags(parseContext));
-        box.setSampleCount(parseContext.readUnsignedInt32());
+        long sampleCount = parseContext.readUnsignedInt32();
         if (box.isFlagSet(DATA_OFFSET_PRESENT_FLAG)) {
             box.setDataOffset(parseContext.readInt32());
         }
         if (box.isFlagSet(FIRST_SAMPLE_FLAGS_PRESENT_FLAG)) {
             box.setFirstSampleFlags(parseContext.readUnsignedInt32());
         }
-        for (int i = 0; i < box.getSampleCount(); i++) {
-            TrackRunSample sample = new TrackRunSample();
+        for (int i = 0; i < sampleCount; i++) {
+            long sampleDuration = 0;
+            long sampleSize = 0;
+            long sampleFlags = 0;
+            long sampleCompositionTimeOffset = 0;
             if (box.isFlagSet(SAMPLE_DURATION_PRESENT_FLAG)) {
-                sample.setSampleDuration(parseContext.readUnsignedInt32());
+                sampleDuration = parseContext.readUnsignedInt32();
             }
             if (box.isFlagSet(SAMPLE_SIZE_PRESENT_FLAG)) {
-                sample.setSampleSize(parseContext.readUnsignedInt32());
+                sampleSize = parseContext.readUnsignedInt32();
             }
             if (box.isFlagSet(SAMPLE_FLAGS_PRESENT_FLAG)) {
-                sample.setSampleFlags(parseContext.readUnsignedInt32());
+                sampleFlags = parseContext.readUnsignedInt32();
             }
             if (box.isFlagSet(SAMPLE_COMPOSITION_TIME_OFFSETS_PRESENT_FLAG)) {
                 if (box.getVersion() == 0x00) {
-                    sample.setSampleCompositionTimeOffset(parseContext.readUnsignedInt32());
+                    sampleCompositionTimeOffset = parseContext.readUnsignedInt32();
                 } else {
-                    sample.setSampleCompositionTimeOffset(parseContext.readInt32());
+                    sampleCompositionTimeOffset = parseContext.readInt32();
                 }
             }
+            TrackRunSample sample =
+                    new TrackRunSample(
+                            sampleDuration, sampleSize, sampleFlags, sampleCompositionTimeOffset);
             box.addSample(sample);
         }
 
