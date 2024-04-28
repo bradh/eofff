@@ -77,6 +77,9 @@ public class TrackFragmentHeaderBox extends FullBox {
     }
 
     // TODO: write
+
+    // TODO: get size
+
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
