@@ -17,4 +17,5 @@ module net.frogmouth.rnd.eofff.demos {
     requires org.apache.logging.log4j.slf4j2.impl;
     requires java.desktop;
     requires io.jhdf;
+    requires com.aayushatharva.brotli4j;
 }

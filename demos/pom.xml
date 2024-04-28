@@ -72,6 +72,11 @@
             <artifactId>jhdf</artifactId>
             <version>0.6.10</version>
         </dependency>
+        <dependency>
+            <groupId>com.aayushatharva.brotli4j</groupId>
+            <artifactId>brotli4j</artifactId>
+            <version>1.16.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
