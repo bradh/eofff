@@ -50,21 +50,26 @@ public class SegmentIndexBoxParser extends FullBoxParser {
         parseContext.readUnsignedInt16();
         int referenceCount = parseContext.readUnsignedInt16();
         for (int i = 0; i < referenceCount; i++) {
-            SegmentIndexReference reference = new SegmentIndexReference();
             long tempRef = parseContext.readUnsignedInt32();
+            int referenceType = 0;
             if ((tempRef & REFERENCE_TYPE_MASK) == REFERENCE_TYPE_MASK) {
-                reference.setReferenceType(1);
-            } else {
-                reference.setReferenceType(0);
+                referenceType = 1;
             }
-            reference.setReferencedSize((int) (tempRef & REFERENCED_SIZE_MASK));
-            reference.setSubSegmentDuration(parseContext.readUnsignedInt32());
+            int referencedSize = ((int) (tempRef & REFERENCED_SIZE_MASK));
+            long subSegmentDuration = parseContext.readUnsignedInt32();
             tempRef = parseContext.readUnsignedInt32();
-            reference.setStartsWithSAP(((tempRef & STARTS_WITH_SAP_MASK) == STARTS_WITH_SAP_MASK));
+            boolean startsWithSAP = ((tempRef & STARTS_WITH_SAP_MASK) == STARTS_WITH_SAP_MASK);
             int sapTypeBeforeShift = (int) (tempRef & SAP_TYPE_MASK);
             int sapTypeAfterShift = sapTypeBeforeShift >> SAP_TYPE_SHIFT;
-            reference.setSapType(sapTypeAfterShift);
-            reference.setSapDeltaTime((int) (tempRef & SAP_DELTA_TIME_MASK));
+            int sapDeltaTime = (int) (tempRef & SAP_DELTA_TIME_MASK);
+            SegmentIndexReference reference =
+                    new SegmentIndexReference(
+                            referenceType,
+                            referencedSize,
+                            subSegmentDuration,
+                            startsWithSAP,
+                            sapTypeAfterShift,
+                            sapDeltaTime);
             box.addReference(reference);
         }
         return box;

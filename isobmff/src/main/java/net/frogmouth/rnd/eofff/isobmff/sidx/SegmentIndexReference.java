@@ -1,77 +1,27 @@
 package net.frogmouth.rnd.eofff.isobmff.sidx;
 
-// TODO: record?
-public class SegmentIndexReference {
-    private int referenceType;
-    private int referencedSize;
-    private long subSegmentDuration;
-    private boolean startsWithSAP;
-    private int sapType;
-    private int sapDeltaTime;
-
-    public int getReferenceType() {
-        return referenceType;
-    }
-
-    public void setReferenceType(int referenceType) {
-        this.referenceType = referenceType;
-    }
-
-    public int getReferencedSize() {
-        return referencedSize;
-    }
-
-    public void setReferencedSize(int referencedSize) {
-        this.referencedSize = referencedSize;
-    }
-
-    public long getSubSegmentDuration() {
-        return subSegmentDuration;
-    }
-
-    public void setSubSegmentDuration(long subSegmentDuration) {
-        this.subSegmentDuration = subSegmentDuration;
-    }
-
-    public boolean isStartsWithSAP() {
-        return startsWithSAP;
-    }
-
-    public void setStartsWithSAP(boolean startsWithSAP) {
-        this.startsWithSAP = startsWithSAP;
-    }
-
-    public int getSapType() {
-        return sapType;
-    }
-
-    public void setSapType(int sapType) {
-        this.sapType = sapType;
-    }
-
-    public int getSapDeltaTime() {
-        return sapDeltaTime;
-    }
-
-    public void setSapDeltaTime(int sapDeltaTime) {
-        this.sapDeltaTime = sapDeltaTime;
-    }
-
+public record SegmentIndexReference(
+        int referenceType,
+        int referencedSize,
+        long subSegmentDuration,
+        boolean startsWithSAP,
+        int sapType,
+        int sapDeltaTime) {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("reference_type=");
-        sb.append(getReferenceType());
+        sb.append(referenceType());
         sb.append(", referenced_size=");
-        sb.append(getReferencedSize());
+        sb.append(referencedSize());
         sb.append(", subsegment_duration=");
-        sb.append(getSubSegmentDuration());
+        sb.append(subSegmentDuration());
         sb.append(", starts_with_SAP=");
-        sb.append(isStartsWithSAP());
+        sb.append(startsWithSAP());
         sb.append(", SAP_type=");
-        sb.append(getSapType());
+        sb.append(sapType());
         sb.append(", SAP_delta_time=");
-        sb.append(getSapDeltaTime());
+        sb.append(sapDeltaTime());
         return sb.toString();
     }
 }
