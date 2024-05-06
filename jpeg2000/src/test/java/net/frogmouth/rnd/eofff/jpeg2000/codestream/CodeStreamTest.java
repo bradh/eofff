@@ -138,23 +138,23 @@ public class CodeStreamTest {
                     int codeBlockStyle = ctx.readUnsignedInt8();
                     System.out.println("    code block style: " + codeBlockStyle);
                     /* decode:
-                               <codingBypass>no</codingBypass>
-            <resetOnBoundaries>no</resetOnBoundaries>
-            <termOnEachPass>no</termOnEachPass>
-            <vertCausalContext>no</vertCausalContext>
-            <predTermination>no</predTermination>
-            <segmentationSymbols>no</segmentationSymbols>
-            <transformation>5-3 reversible</transformation>
-            <precinctSizeX>32768</precinctSizeX>
-            <precinctSizeY>32768</precinctSizeY>
-            <precinctSizeX>32768</precinctSizeX>
-            <precinctSizeY>32768</precinctSizeY>
-            <precinctSizeX>32768</precinctSizeX>
-            <precinctSizeY>32768</precinctSizeY>
-            <precinctSizeX>32768</precinctSizeX>
-            <precinctSizeY>32768</precinctSizeY>
+                                       <codingBypass>no</codingBypass>
+                    <resetOnBoundaries>no</resetOnBoundaries>
+                    <termOnEachPass>no</termOnEachPass>
+                    <vertCausalContext>no</vertCausalContext>
+                    <predTermination>no</predTermination>
+                    <segmentationSymbols>no</segmentationSymbols>
+                    <transformation>5-3 reversible</transformation>
+                    <precinctSizeX>32768</precinctSizeX>
+                    <precinctSizeY>32768</precinctSizeY>
+                    <precinctSizeX>32768</precinctSizeX>
+                    <precinctSizeY>32768</precinctSizeY>
+                    <precinctSizeX>32768</precinctSizeX>
+                    <precinctSizeY>32768</precinctSizeY>
+                    <precinctSizeX>32768</precinctSizeX>
+                    <precinctSizeY>32768</precinctSizeY>
 
-                    */
+                            */
                     int transformation = ctx.readUnsignedInt8();
                     System.out.println(
                             "    transformation: "
