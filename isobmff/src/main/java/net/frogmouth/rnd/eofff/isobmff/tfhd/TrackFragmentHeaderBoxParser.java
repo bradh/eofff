@@ -11,11 +11,6 @@ import org.slf4j.LoggerFactory;
 @AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
 public class TrackFragmentHeaderBoxParser extends FullBoxParser {
     private static final Logger LOG = LoggerFactory.getLogger(TrackFragmentHeaderBoxParser.class);
-    private static final int BASE_DATA_OFFSET_PRESENT_FLAG = 0x000001;
-    private static final int SAMPLE_DESCRIPTION_INDEX_PRESENT_FLAG = 0x000002;
-    private static final int DEFAULT_SAMPLE_DURATION_PRESENT_FLAG = 0x000008;
-    private static final int DEFAULT_SAMPLE_SIZE_PRESENT_FLAG = 0x000010;
-    private static final int DEFAULT_SAMPLE_FLAGS_PRESENT_FLAG = 0x000020;
 
     public TrackFragmentHeaderBoxParser() {}
 
@@ -35,19 +30,19 @@ public class TrackFragmentHeaderBoxParser extends FullBoxParser {
         }
         box.setFlags(parseFlags(parseContext));
         box.setTrackID(parseContext.readUnsignedInt32());
-        if (box.isFlagSet(BASE_DATA_OFFSET_PRESENT_FLAG)) {
+        if (box.isFlagSet(TrackFragmentHeaderBox.BASE_DATA_OFFSET_PRESENT_FLAG)) {
             box.setBaseDataOffset(parseContext.readUnsignedInt64());
         }
-        if (box.isFlagSet(SAMPLE_DESCRIPTION_INDEX_PRESENT_FLAG)) {
+        if (box.isFlagSet(TrackFragmentHeaderBox.SAMPLE_DESCRIPTION_INDEX_PRESENT_FLAG)) {
             box.setSampleDescriptionIndex(parseContext.readUnsignedInt32());
         }
-        if (box.isFlagSet(DEFAULT_SAMPLE_DURATION_PRESENT_FLAG)) {
+        if (box.isFlagSet(TrackFragmentHeaderBox.DEFAULT_SAMPLE_DURATION_PRESENT_FLAG)) {
             box.setDefaultSampleDuration(parseContext.readUnsignedInt32());
         }
-        if (box.isFlagSet(DEFAULT_SAMPLE_SIZE_PRESENT_FLAG)) {
+        if (box.isFlagSet(TrackFragmentHeaderBox.DEFAULT_SAMPLE_SIZE_PRESENT_FLAG)) {
             box.setDefaultSampleSize(parseContext.readUnsignedInt32());
         }
-        if (box.isFlagSet(DEFAULT_SAMPLE_FLAGS_PRESENT_FLAG)) {
+        if (box.isFlagSet(TrackFragmentHeaderBox.DEFAULT_SAMPLE_FLAGS_PRESENT_FLAG)) {
             box.setDefaultSampleFlags(parseContext.readUnsignedInt32());
         }
         return box;

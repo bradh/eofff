@@ -1,16 +1,25 @@
 package net.frogmouth.rnd.eofff.isobmff.tfhd;
 
+import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
  * Track Fragment Header Box.
+ *
+ * <p>Note that correct handling of this box is dependent on specific flags.
  *
  * <p>See ISO/IEC 14496-12:2022 Section 8.8.7.
  */
 public class TrackFragmentHeaderBox extends FullBox {
 
     public static final FourCC TFHD_ATOM = new FourCC("tfhd");
+    static final int DEFAULT_SAMPLE_FLAGS_PRESENT_FLAG = 32;
+    static final int SAMPLE_DESCRIPTION_INDEX_PRESENT_FLAG = 2;
+    static final int DEFAULT_SAMPLE_SIZE_PRESENT_FLAG = 16;
+    static final int DEFAULT_SAMPLE_DURATION_PRESENT_FLAG = 8;
+    static final int BASE_DATA_OFFSET_PRESENT_FLAG = 1;
 
     private long trackID;
     private long baseDataOffset;
@@ -76,9 +85,48 @@ public class TrackFragmentHeaderBox extends FullBox {
         this.defaultSampleFlags = defaultSampleFlags;
     }
 
-    // TODO: write
+    @Override
+    public void writeTo(OutputStreamWriter stream) throws IOException {
+        this.writeBoxHeader(stream);
+        stream.writeUnsignedInt32(trackID);
+        if (isFlagSet(BASE_DATA_OFFSET_PRESENT_FLAG)) {
+            stream.writeLong(baseDataOffset);
+        }
+        if (isFlagSet(SAMPLE_DESCRIPTION_INDEX_PRESENT_FLAG)) {
+            stream.writeUnsignedInt32(sampleDescriptionIndex);
+        }
+        if (isFlagSet(DEFAULT_SAMPLE_DURATION_PRESENT_FLAG)) {
+            stream.writeUnsignedInt32(defaultSampleDuration);
+        }
+        if (isFlagSet(DEFAULT_SAMPLE_SIZE_PRESENT_FLAG)) {
+            stream.writeUnsignedInt32(defaultSampleSize);
+        }
+        if (isFlagSet(DEFAULT_SAMPLE_FLAGS_PRESENT_FLAG)) {
+            stream.writeUnsignedInt32(defaultSampleFlags);
+        }
+    }
 
-    // TODO: get size
+    @Override
+    public long getBodySize() {
+        long size = 0;
+        size += Integer.BYTES;
+        if (isFlagSet(BASE_DATA_OFFSET_PRESENT_FLAG)) {
+            size += Long.BYTES;
+        }
+        if (isFlagSet(SAMPLE_DESCRIPTION_INDEX_PRESENT_FLAG)) {
+            size += Integer.BYTES;
+        }
+        if (isFlagSet(DEFAULT_SAMPLE_DURATION_PRESENT_FLAG)) {
+            size += Integer.BYTES;
+        }
+        if (isFlagSet(DEFAULT_SAMPLE_SIZE_PRESENT_FLAG)) {
+            size += Integer.BYTES;
+        }
+        if (isFlagSet(DEFAULT_SAMPLE_FLAGS_PRESENT_FLAG)) {
+            size += Integer.BYTES;
+        }
+        return size;
+    }
 
     @Override
     public String toString(int nestingLevel) {
