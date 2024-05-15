@@ -16,7 +16,7 @@ public class CompressionConfigurationItemProperty extends ItemFullProperty {
 
     private FourCC compressionType;
     private boolean canDecompressContiguousRanges;
-    private int compressedRangeType;
+    private CompressionRangeType compressedRangeType;
 
     public CompressionConfigurationItemProperty() {
         super(CMPC_ATOM);
@@ -43,11 +43,11 @@ public class CompressionConfigurationItemProperty extends ItemFullProperty {
         this.canDecompressContiguousRanges = canDecompressContiguousRanges;
     }
 
-    public int getCompressedRangeType() {
+    public CompressionRangeType getCompressedRangeType() {
         return compressedRangeType;
     }
 
-    public void setCompressedRangeType(int compressedRangeType) {
+    public void setCompressedRangeType(CompressionRangeType compressedRangeType) {
         this.compressedRangeType = compressedRangeType;
     }
 
@@ -76,7 +76,7 @@ public class CompressionConfigurationItemProperty extends ItemFullProperty {
         this.writeBoxHeader(stream);
         stream.writeFourCC(compressionType);
         int v = canDecompressContiguousRanges ? 0x80 : 0x00;
-        v |= (this.compressedRangeType & 0x7f);
+        v |= (this.compressedRangeType.getValue() & 0x7f);
         stream.writeUnsignedInt8(v);
     }
 }

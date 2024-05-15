@@ -26,6 +26,7 @@
         <module>visualiser</module>
         <module>goprotools</module>
         <module>debugtools</module>
+        <module>uncompressed_experiments</module>
         <module>demos</module>
     </modules>
     <properties>

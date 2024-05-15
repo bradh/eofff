@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.demos;
+package net.frogmouth.rnd.eofff.uncompressed_experiments;
 
 import com.aayushatharva.brotli4j.Brotli4jLoader;
 import com.aayushatharva.brotli4j.encoder.Encoder;
@@ -47,6 +47,7 @@ import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
 import net.frogmouth.rnd.eofff.uncompressed.cmpc.CompressionConfigurationItemProperty;
+import net.frogmouth.rnd.eofff.uncompressed.cmpc.CompressionRangeType;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.icbr.ItemCompressedByteRangeInfo;
@@ -87,6 +88,24 @@ public class WriteGenericallyCompressedFileTest {
         boxes.add(free);
         boxes.add(mdat);
         writeBoxes(boxes, "rgb_generic_compressed_zlib.heif");
+    }
+
+    @Test
+    public void zlib_row() throws IOException {
+        MediaDataBox mdat = createMediaDataBox_rgb_component_row_zlib();
+
+        List<Box> boxes = new ArrayList<>();
+        FileTypeBox ftyp = createFileTypeBox();
+        boxes.add(ftyp);
+        MetaBox meta = createMetaBox_rgb_component_row_zlib(mdat.getBodySize());
+        boxes.add(meta);
+        long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
+        long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
+        FreeBox free = new FreeBox();
+        free.setData(new byte[(int) numberOfFillBytes]);
+        boxes.add(free);
+        boxes.add(mdat);
+        writeBoxes(boxes, "rgb_generic_compressed_zlib_rows.heif");
     }
 
     @Test
@@ -144,6 +163,18 @@ public class WriteGenericallyCompressedFileTest {
         boxes.add(makeItemInfoBox());
         boxes.add(makeItemLocationBox_rgb3(extentLength));
         boxes.add(makeItemPropertiesBox_rgb_component_whole_file_zlib());
+        meta.addNestedBoxes(boxes);
+        return meta;
+    }
+
+    private MetaBox createMetaBox_rgb_component_row_zlib(long extentLength) throws IOException {
+        MetaBox meta = new MetaBox();
+        List<Box> boxes = new ArrayList<>();
+        boxes.add(makeHandlerBox());
+        boxes.add(makePrimaryItemBox());
+        boxes.add(makeItemInfoBox());
+        boxes.add(makeItemLocationBox_rgb3(extentLength));
+        boxes.add(makeItemPropertiesBox_rgb_component_row_zlib());
         meta.addNestedBoxes(boxes);
         return meta;
     }
@@ -225,6 +256,21 @@ public class WriteGenericallyCompressedFileTest {
         ipco.addProperty(makeUncompressedFrameConfigBox_rgb_component());
         ipco.addProperty(makeImageSpatialExtentsProperty());
         ipco.addProperty(makeCompressionConfigurationBoxWholeFileZlib());
+        ipco.addProperty(makeCompressedByteRanges());
+        iprp.setItemProperties(ipco);
+
+        iprp.addItemPropertyAssociation(makePropertyAssociations());
+
+        return iprp;
+    }
+
+    private Box makeItemPropertiesBox_rgb_component_row_zlib() {
+        ItemPropertiesBox iprp = new ItemPropertiesBox();
+        ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
+        ipco.addProperty(makeComponentDefinitionBox_rgb_generic());
+        ipco.addProperty(makeUncompressedFrameConfigBox_rgb_component());
+        ipco.addProperty(makeImageSpatialExtentsProperty());
+        ipco.addProperty(makeCompressionConfigurationBoxRowZlib());
         ipco.addProperty(makeCompressedByteRanges());
         iprp.setItemProperties(ipco);
 
@@ -316,7 +362,15 @@ public class WriteGenericallyCompressedFileTest {
         CompressionConfigurationItemProperty cmpc = new CompressionConfigurationItemProperty();
         cmpc.setCompressionType(new FourCC("zlib"));
         cmpc.setCanDecompressContiguousRanges(true);
-        cmpc.setCompressedRangeType(1);
+        cmpc.setCompressedRangeType(CompressionRangeType.COMPONENT);
+        return cmpc;
+    }
+
+    private CompressionConfigurationItemProperty makeCompressionConfigurationBoxRowZlib() {
+        CompressionConfigurationItemProperty cmpc = new CompressionConfigurationItemProperty();
+        cmpc.setCompressionType(new FourCC("zlib"));
+        cmpc.setCanDecompressContiguousRanges(false);
+        cmpc.setCompressedRangeType(CompressionRangeType.ROW);
         return cmpc;
     }
 
@@ -324,7 +378,7 @@ public class WriteGenericallyCompressedFileTest {
         CompressionConfigurationItemProperty cmpc = new CompressionConfigurationItemProperty();
         cmpc.setCompressionType(new FourCC("defl"));
         cmpc.setCanDecompressContiguousRanges(true);
-        cmpc.setCompressedRangeType(1);
+        cmpc.setCompressedRangeType(CompressionRangeType.COMPONENT);
         return cmpc;
     }
 
@@ -332,7 +386,7 @@ public class WriteGenericallyCompressedFileTest {
         CompressionConfigurationItemProperty cmpc = new CompressionConfigurationItemProperty();
         cmpc.setCompressionType(new FourCC("brot"));
         cmpc.setCanDecompressContiguousRanges(true);
-        cmpc.setCompressedRangeType(1);
+        cmpc.setCompressedRangeType(CompressionRangeType.COMPONENT);
         return cmpc;
     }
 
@@ -378,6 +432,13 @@ public class WriteGenericallyCompressedFileTest {
         return mdat;
     }
 
+    private MediaDataBox createMediaDataBox_rgb_component_row_zlib() throws IOException {
+        MediaDataBox mdat = new MediaDataBox();
+        byte[] data = createMediaDataBoxZlibContentRows();
+        mdat.setData(data);
+        return mdat;
+    }
+
     private MediaDataBox createMediaDataBox_rgb_component_deflate() throws IOException {
         MediaDataBox mdat = new MediaDataBox();
         byte[] data = createMediaDataBoxDeflateContent();
@@ -395,6 +456,22 @@ public class WriteGenericallyCompressedFileTest {
     private byte[] createMediaDataBoxZlibContent() throws IOException {
         byte[] data = createUncompressedData();
 
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        byte[] temp = new byte[1024];
+        Deflater compressor = new Deflater();
+        compressor.setInput(data);
+        compressor.finish();
+        while (!compressor.finished()) {
+            int compressedSize = compressor.deflate(temp);
+            outputStream.write(temp, 0, compressedSize);
+        }
+        compressor.end();
+        return outputStream.toByteArray();
+    }
+
+    private byte[] createMediaDataBoxZlibContentRows() throws IOException {
+        byte[] data = createUncompressedData();
+        // TODO: implement properly
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] temp = new byte[1024];
         Deflater compressor = new Deflater();
