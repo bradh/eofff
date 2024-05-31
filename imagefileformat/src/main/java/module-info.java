@@ -16,6 +16,7 @@ module net.frogmouth.rnd.eofff.imagefileformat {
             net.frogmouth.rnd.eofff.imagefileformat.extensions.groups
                     .AlbumCollectionEntityToGroupBoxParser,
             net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.BurstEntityToGroupBoxParser,
+            net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.ImagePyramidEntityGroupParser,
             net.frogmouth.rnd.eofff.imagefileformat.extensions.groups.StereoEntityToGroupBoxParser;
 
     uses net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceFactory;

@@ -56,11 +56,16 @@ public abstract class AbstractEntityToGroupBox extends FullBox implements Entity
 
     @Override
     public String toString(int nestingLevel) {
+        StringBuilder sb = getStringBuilder(nestingLevel);
+        return sb.toString();
+    }
+
+    protected StringBuilder getStringBuilder(int nestingLevel) {
         StringBuilder sb = getBaseStringBuilder(nestingLevel);
         sb.append("group_id=");
         sb.append(groupId);
         sb.append(", entity_ids=");
         sb.append(entityIds);
-        return sb.toString();
+        return sb;
     }
 }
