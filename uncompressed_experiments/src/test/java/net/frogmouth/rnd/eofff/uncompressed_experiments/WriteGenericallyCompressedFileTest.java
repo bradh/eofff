@@ -471,17 +471,18 @@ public class WriteGenericallyCompressedFileTest {
 
     private byte[] createMediaDataBoxZlibContentRows() throws IOException {
         byte[] data = createUncompressedData();
-        // TODO: implement properly
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] temp = new byte[1024];
-        Deflater compressor = new Deflater();
-        compressor.setInput(data);
-        compressor.finish();
-        while (!compressor.finished()) {
-            int compressedSize = compressor.deflate(temp);
-            outputStream.write(temp, 0, compressedSize);
+        for (int row = 0; row < IMAGE_HEIGHT; row++) {
+            Deflater compressor = new Deflater();
+            compressor.setInput(data, row * IMAGE_WIDTH, IMAGE_WIDTH);
+            compressor.finish();
+            while (!compressor.finished()) {
+                int compressedSize = compressor.deflate(temp);
+                outputStream.write(temp, 0, compressedSize);
+            }
+            compressor.end();
         }
-        compressor.end();
         return outputStream.toByteArray();
     }
 
@@ -505,7 +506,6 @@ public class WriteGenericallyCompressedFileTest {
         byte[] data = createUncompressedData();
         Brotli4jLoader.ensureAvailability();
         byte[] brotliCompressed = Encoder.compress(data);
-        // TODO: compress with Brotli, somehow
         return brotliCompressed;
     }
 
