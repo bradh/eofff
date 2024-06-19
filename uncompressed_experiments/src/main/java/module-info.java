@@ -10,8 +10,12 @@ module net.frogmouth.rnd.eofff.uncompressed_experiments {
     // requires net.frogmouth.rnd.eofff.miaf;
     requires net.frogmouth.rnd.eofff.uncompressed;
     requires org.slf4j;
+    requires org.apache.commons.io;
     requires org.apache.logging.log4j;
     requires org.apache.logging.log4j.slf4j2.impl;
     requires java.desktop;
     requires com.aayushatharva.brotli4j;
+    requires tiff;
+    requires org.threeten.extra;
+    requires info.picocli;
 }
