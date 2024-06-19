@@ -159,6 +159,15 @@ public class Brand extends FourCC {
     public static final Brand UNIF = new Brand("unif");
 
     /**
+     * PRED Media File Brand.
+     *
+     * <p>This is {@code pred}.
+     *
+     * <p>See ISO/IEC 14496-12:2022(E) Section 10.2.4 for interpretation.
+     */
+    public static final Brand PRED = new Brand("pred");
+
+    /**
      * MIF1 Image File Brand.
      *
      * <p>This is (@code mif1).

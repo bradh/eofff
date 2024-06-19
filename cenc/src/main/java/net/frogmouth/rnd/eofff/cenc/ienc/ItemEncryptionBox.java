@@ -1,105 +1,80 @@
-package net.frogmouth.rnd.eofff.imagefileformat.properties.udes;
+package net.frogmouth.rnd.eofff.cenc.ienc;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullProperty;
 
-public class UserDescriptionProperty extends ItemFullProperty {
-    public static final FourCC UDES_ATOM = new FourCC("udes");
+public class ItemEncryptionBox extends ItemFullProperty {
+    public static final FourCC IENC_ATOM = new FourCC("ienc");
 
-    private String lang;
-    private String descriptiveName;
-    private String description;
-    private String tags;
+    private int cryptByteBlock;
+    private int skipByteBlock;
+    private final List<ItemEncryptionEntry> entries = new ArrayList<>();
 
-    public UserDescriptionProperty() {
-        super(UDES_ATOM);
+    public ItemEncryptionBox() {
+        super(IENC_ATOM);
+    }
+
+    public int getCryptByteBlock() {
+        return cryptByteBlock;
+    }
+
+    public void setCryptByteBlock(int cryptByteBlock) {
+        this.cryptByteBlock = cryptByteBlock;
+    }
+
+    public int getSkipByteBlock() {
+        return skipByteBlock;
+    }
+
+    public void setSkipByteBlock(int skipByteBlock) {
+        this.skipByteBlock = skipByteBlock;
+    }
+
+    public List<ItemEncryptionEntry> getEntries() {
+        return entries;
+    }
+
+    public void addEntry(ItemEncryptionEntry entry) {
+        entries.add(entry);
     }
 
     @Override
     public long getBodySize() {
         int size = 0;
-        if (lang != null) {
-            size += lang.getBytes(StandardCharsets.UTF_8).length;
-        }
-        size += Byte.BYTES;
-        if (descriptiveName != null) {
-            size += descriptiveName.getBytes(StandardCharsets.UTF_8).length;
-        }
-        size += Byte.BYTES;
-        if (description != null) {
-            size += description.getBytes(StandardCharsets.UTF_8).length;
-        }
-        size += Byte.BYTES;
-        if (tags != null) {
-            size += tags.getBytes(StandardCharsets.UTF_8).length;
-        }
-        size += Byte.BYTES;
+        // TODO
         return size;
     }
 
     @Override
     public String getFullName() {
-        return "UserDescriptionProperty";
-    }
-
-    public String getLang() {
-        return lang;
-    }
-
-    public void setLang(String lang) {
-        this.lang = lang;
-    }
-
-    public String getDescriptiveName() {
-        return descriptiveName;
-    }
-
-    public void setDescriptiveName(String descriptiveName) {
-        this.descriptiveName = descriptiveName;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getTags() {
-        return tags;
-    }
-
-    public void setTags(String tags) {
-        this.tags = tags;
+        return "ItemEncryptionBox";
     }
 
     @Override
     public void writeTo(OutputStreamWriter writer) throws IOException {
         this.writeBoxHeader(writer);
-        writer.writeNullTerminatedString(lang);
-        writer.writeNullTerminatedString(this.descriptiveName);
-        writer.writeNullTerminatedString(description);
-        writer.writeNullTerminatedString(tags);
+        // TODO
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': lang=");
-        sb.append(getLang());
-        sb.append(", name=");
-        sb.append(getDescriptiveName());
-        sb.append(", description=");
-        sb.append(getDescription());
-        sb.append(", tags=");
-        sb.append(getTags());
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        if (getVersion() > 0) {
+            sb.append("crypt_byte_block=");
+            sb.append(this.cryptByteBlock);
+            sb.append(", skip_byte_block=");
+            sb.append(this.skipByteBlock);
+            sb.append(", ");
+        }
+        sb.append("num_keys=");
+        sb.append(this.entries.size());
+        for (var entry : this.entries) {
+            entry.append_to(sb);
+        }
         return sb.toString();
     }
 }

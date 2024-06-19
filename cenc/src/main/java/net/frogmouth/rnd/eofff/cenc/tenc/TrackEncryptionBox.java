@@ -1,105 +1,118 @@
-package net.frogmouth.rnd.eofff.imagefileformat.properties.udes;
+package net.frogmouth.rnd.eofff.cenc.tenc;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.HexFormat;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
+import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
-import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullProperty;
 
-public class UserDescriptionProperty extends ItemFullProperty {
-    public static final FourCC UDES_ATOM = new FourCC("udes");
+public class TrackEncryptionBox extends FullBox {
+    public static final FourCC TENC_ATOM = new FourCC("tenc");
 
-    private String lang;
-    private String descriptiveName;
-    private String description;
-    private String tags;
+    private int defaultCryptByteBlock;
+    private int defaultSkipByteBlock;
+    private int defaultIsProtected;
+    private int defaultPerSampleIVSize;
+    private byte[] defaultKeyIdentifier;
+    private byte[] defaultConstantIV = null;
 
-    public UserDescriptionProperty() {
-        super(UDES_ATOM);
+    public TrackEncryptionBox() {
+        super(TENC_ATOM);
+    }
+
+    public int getDefaultCryptByteBlock() {
+        return defaultCryptByteBlock;
+    }
+
+    public void setDefaultCryptByteBlock(int defaultCryptByteBlock) {
+        this.defaultCryptByteBlock = defaultCryptByteBlock;
+    }
+
+    public int getDefaultSkipByteBlock() {
+        return defaultSkipByteBlock;
+    }
+
+    public void setDefaultSkipByteBlock(int defaultSkipByteBlock) {
+        this.defaultSkipByteBlock = defaultSkipByteBlock;
+    }
+
+    public int getDefaultIsProtected() {
+        return defaultIsProtected;
+    }
+
+    public void setDefaultIsProtected(int defaultIsProtected) {
+        this.defaultIsProtected = defaultIsProtected;
+    }
+
+    public int getDefaultPerSampleIVSize() {
+        return defaultPerSampleIVSize;
+    }
+
+    public void setDefaultPerSampleIVSize(int defaultPerSampleIVSize) {
+        this.defaultPerSampleIVSize = defaultPerSampleIVSize;
+    }
+
+    public byte[] getDefaultKeyIdentifier() {
+        return defaultKeyIdentifier;
+    }
+
+    public void setDefaultKeyIdentifier(byte[] defaultKeyIdentifier) {
+        this.defaultKeyIdentifier = defaultKeyIdentifier;
+    }
+
+    public byte[] getDefaultConstantIV() {
+        return defaultConstantIV;
+    }
+
+    public void setDefaultConstantIV(byte[] defaultConstantIV) {
+        this.defaultConstantIV = defaultConstantIV;
     }
 
     @Override
     public long getBodySize() {
         int size = 0;
-        if (lang != null) {
-            size += lang.getBytes(StandardCharsets.UTF_8).length;
-        }
-        size += Byte.BYTES;
-        if (descriptiveName != null) {
-            size += descriptiveName.getBytes(StandardCharsets.UTF_8).length;
-        }
-        size += Byte.BYTES;
-        if (description != null) {
-            size += description.getBytes(StandardCharsets.UTF_8).length;
-        }
-        size += Byte.BYTES;
-        if (tags != null) {
-            size += tags.getBytes(StandardCharsets.UTF_8).length;
-        }
-        size += Byte.BYTES;
+        // TODO
         return size;
     }
 
     @Override
     public String getFullName() {
-        return "UserDescriptionProperty";
-    }
-
-    public String getLang() {
-        return lang;
-    }
-
-    public void setLang(String lang) {
-        this.lang = lang;
-    }
-
-    public String getDescriptiveName() {
-        return descriptiveName;
-    }
-
-    public void setDescriptiveName(String descriptiveName) {
-        this.descriptiveName = descriptiveName;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getTags() {
-        return tags;
-    }
-
-    public void setTags(String tags) {
-        this.tags = tags;
+        return "TrackEncryptionBox";
     }
 
     @Override
     public void writeTo(OutputStreamWriter writer) throws IOException {
         this.writeBoxHeader(writer);
-        writer.writeNullTerminatedString(lang);
-        writer.writeNullTerminatedString(this.descriptiveName);
-        writer.writeNullTerminatedString(description);
-        writer.writeNullTerminatedString(tags);
+        // TODO
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': lang=");
-        sb.append(getLang());
-        sb.append(", name=");
-        sb.append(getDescriptiveName());
-        sb.append(", description=");
-        sb.append(getDescription());
-        sb.append(", tags=");
-        sb.append(getTags());
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        if (getVersion() > 0) {
+            sb.append("default_crypt_byte_block=");
+            sb.append(this.defaultCryptByteBlock);
+            sb.append(", default_skip_byte_block=");
+            sb.append(this.defaultSkipByteBlock);
+            sb.append(", ");
+        }
+        sb.append("default_isProtected=");
+        sb.append(this.defaultIsProtected);
+        sb.append(", default_Per_Sample_IV_Size=");
+        sb.append(this.defaultPerSampleIVSize);
+        sb.append(", default_KID=");
+        sb.append(
+                HexFormat.of().withDelimiter(",").withPrefix("0x").formatHex(defaultKeyIdentifier));
+        if ((this.defaultIsProtected == 1) && (this.defaultPerSampleIVSize == 0)) {
+            sb.append(", default_constant_IV_size=");
+            sb.append(this.defaultConstantIV.length);
+            sb.append(", default_constant_IV=");
+            sb.append(
+                    HexFormat.of()
+                            .withDelimiter(",")
+                            .withPrefix("0x")
+                            .formatHex(this.defaultConstantIV));
+        }
         return sb.toString();
     }
 }

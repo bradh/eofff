@@ -1,23 +1,23 @@
-package net.frogmouth.rnd.eofff.isobmff.minf;
+package net.frogmouth.rnd.eofff.isobmff.sinf;
 
 import net.frogmouth.rnd.eofff.isobmff.AbstractContainerBox;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 
 /**
- * Media Information Box.
+ * Protection Scheme Information Box.
  *
- * <p>See ISO/IEC 14496-12:2022 Section 8.4.4.
+ * <p>See ISO/IEC 14496-12:2022 Section 8.12.2.
  */
-public class MediaInformationBox extends AbstractContainerBox {
+public class ProtectionSchemeInfoBox extends AbstractContainerBox {
 
-    public static final FourCC MINF_ATOM = new FourCC("minf");
+    public static final FourCC SINF_ATOM = new FourCC("sinf");
 
-    public MediaInformationBox() {
-        super(MINF_ATOM);
+    public ProtectionSchemeInfoBox() {
+        super(SINF_ATOM);
     }
 
     @Override
     public String getFullName() {
-        return "MediaInformationBox";
+        return "ProtectionSchemeInfoBox";
     }
 }

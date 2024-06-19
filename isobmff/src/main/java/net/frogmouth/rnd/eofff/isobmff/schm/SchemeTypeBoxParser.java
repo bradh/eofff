@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.isobmff.pitm;
+package net.frogmouth.rnd.eofff.isobmff.schm;
 
 import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.Box;
@@ -9,19 +9,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
-public class PrimaryItemBoxParser extends FullBoxParser {
-    private static final Logger LOG = LoggerFactory.getLogger(PrimaryItemBoxParser.class);
+public class SchemeTypeBoxParser extends FullBoxParser {
+    private static final Logger LOG = LoggerFactory.getLogger(SchemeTypeBoxParser.class);
 
-    public PrimaryItemBoxParser() {}
+    public SchemeTypeBoxParser() {}
 
     @Override
     public FourCC getFourCC() {
-        return PrimaryItemBox.PITM_ATOM;
+        return SchemeTypeBox.SCHM_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        PrimaryItemBox box = new PrimaryItemBox();
+        SchemeTypeBox box = new SchemeTypeBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
@@ -29,15 +29,15 @@ public class PrimaryItemBoxParser extends FullBoxParser {
             return parseAsBaseBox(parseContext, initialOffset, boxSize, boxName);
         }
         box.setFlags(parseFlags(parseContext));
-        if (version == 0) {
-            box.setItemID(parseContext.readUnsignedInt16());
-        } else {
-            box.setItemID(parseContext.readUnsignedInt32());
+        box.setSchemeType(parseContext.readFourCC());
+        box.setSchemeVersion(parseContext.readUnsignedInt32());
+        if (box.getFlags() == 1) {
+            box.setSchemeUri(parseContext.readNullDelimitedString(boxSize));
         }
         return box;
     }
 
     private boolean isSupportedVersion(int version) {
-        return ((version == 0x00) || (version == 0x01));
+        return (version == 0x00);
     }
 }

@@ -1,22 +1,22 @@
-package net.frogmouth.rnd.eofff.imagefileformat.itemreferences;
+package net.frogmouth.rnd.eofff.cenc.auxr;
 
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.iref.SingleItemReferenceBox;
 
 /**
- * Auxiliary Image item reference.
+ * Auxiliary item reference.
  *
- * <p>See ISO/IEC 23008-12:2022 Section 6.4.5.
+ * <p>See ISO/IEC 23001-7:2023 Section 8.4.1
  */
-public class AuxiliaryImage extends SingleItemReferenceBox {
-    public static final FourCC AUXL_ATOM = new FourCC("auxl");
+public class AuxiliaryReference extends SingleItemReferenceBox {
+    public static final FourCC AUXR_ATOM = new FourCC("auxr");
 
-    public AuxiliaryImage() {
-        super(AUXL_ATOM);
+    public AuxiliaryReference() {
+        super(AUXR_ATOM);
     }
 
     @Override
     public String getFullName() {
-        return "Auxiliary Image";
+        return "Auxiliary item reference";
     }
 }

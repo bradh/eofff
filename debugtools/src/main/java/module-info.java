@@ -5,6 +5,7 @@
  * capabilities can be used.
  */
 module net.frogmouth.rnd.eofff.debugtools {
+    requires net.frogmouth.rnd.eofff.cenc;
     requires net.frogmouth.rnd.eofff.imagefileformat;
     requires net.frogmouth.rnd.eofff.isobmff;
     requires net.frogmouth.rnd.eofff.jpeg2000;

@@ -1,73 +1,108 @@
-package net.frogmouth.rnd.eofff.isobmff.co64;
+package net.frogmouth.rnd.eofff.cenc.pssh;
+
+import static net.frogmouth.rnd.eofff.cenc.CommonEncryptionConstants.KEY_IDENTIFIER_BYTES;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.List;
+import java.util.UUID;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
- * Chunk Offset Box.
+ * Protection System Specific Header Box (pssh).
  *
- * <p>See ISO/IEC 14496-12:2022 Section 8.7.5
+ * <p>See ISO/IEC 23001-7:2023 Section 8.1.2.
  */
-public class ChunkLargeOffsetBox extends FullBox {
-    public static final FourCC CO64_ATOM = new FourCC("co64");
+public class ProtectionSystemSpecificHeaderBox extends FullBox {
+    public static final FourCC PSSH_ATOM = new FourCC("pssh");
 
-    private final List<Long> entries = new ArrayList<>();
+    private UUID systemID;
+    private final List<byte[]> keyIdentifiers = new ArrayList<>();
+    private byte[] data;
 
-    public ChunkLargeOffsetBox() {
-        super(CO64_ATOM);
+    public ProtectionSystemSpecificHeaderBox() {
+        super(PSSH_ATOM);
     }
 
     @Override
     public String getFullName() {
-        return "ChunkLargeOffsetBox";
+        return "ProtectionSystemSpecificHeaderBox";
+    }
+
+    public UUID getSystemID() {
+        return systemID;
+    }
+
+    public void setSystemID(UUID systemID) {
+        this.systemID = systemID;
+    }
+
+    public List<byte[]> getKeyIdentifiers() {
+        return new ArrayList<>(keyIdentifiers);
+    }
+
+    public void addKeyIdentifier(byte[] kid) {
+        keyIdentifiers.add(kid);
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
     }
 
     @Override
     public long getBodySize() {
         long size = 0;
-        size += Integer.BYTES;
-        size += (entries.size() * Long.BYTES);
-        return size;
-    }
-
-    public List<Long> getEntries() {
-        return new ArrayList<>(entries);
-    }
-
-    public void addEntry(Long entry) {
-        this.entries.add(entry);
-    }
-
-    public void shiftChunks(long shift) {
-        for (int i = 0; i < entries.size(); i++) {
-            long entry = entries.get(i);
-            entry += shift;
-            entries.set(i, entry);
+        size += 16;
+        if (getVersion() > 0) {
+            size += Integer.BYTES;
+            size += (keyIdentifiers.size() * KEY_IDENTIFIER_BYTES);
         }
+        size += Integer.BYTES;
+        size += data.length;
+        return size;
     }
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
         this.writeBoxHeader(stream);
-        stream.writeUnsignedInt32(entries.size());
-        for (long entry : entries) {
-            stream.writeLong((int) entry);
+        stream.writeUUID(systemID);
+        if (getVersion() > 0) {
+            stream.writeUnsignedInt32(keyIdentifiers.size());
+            for (int i = 0; i < keyIdentifiers.size(); i++) {
+                stream.write(keyIdentifiers.get(i));
+            }
         }
+        stream.writeUnsignedInt32(data.length);
+        stream.write(data);
     }
 
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
-        for (Long entry : entries) {
-            sb.append("\n");
-            this.addIndent(nestingLevel + 1, sb);
-            sb.append("chunk_offset=");
-            sb.append(entry.toString());
+        sb.append("SystemID=");
+        sb.append(systemID);
+        if (getVersion() > 0) {
+            sb.append(", KID_count=");
+            sb.append(this.keyIdentifiers.size());
+            sb.append(", KID=[");
+            for (byte[] identifier : this.keyIdentifiers) {
+                sb.append("0x");
+                sb.append(HexFormat.of().formatHex(identifier));
+                sb.append(" ");
+            }
+            sb.append("]");
         }
+        sb.append(", DataSize=");
+        sb.append(data.length);
+        sb.append(", Data=");
+        sb.append(HexFormat.of().withDelimiter(",").withPrefix("0x").formatHex(data));
         return sb.toString();
     }
 }

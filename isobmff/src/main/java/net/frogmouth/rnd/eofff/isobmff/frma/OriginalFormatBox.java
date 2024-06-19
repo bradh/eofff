@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.isobmff.hinf;
+package net.frogmouth.rnd.eofff.isobmff.frma;
 
 import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.BaseBox;
@@ -6,47 +6,47 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 /**
- * Hint statistics box - bytes sent, not including RTP headers (tpay).
+ * Original Format Box (frma).
  *
- * <p>See ISO/IEC 14496-12:2022 Section 9.1.5
+ * <p>See ISO/IEC 14496-12:2022 Section 8.12.3
  */
-public class HintBytesSent extends BaseBox {
-    public static final FourCC TPAY_ATOM = new FourCC("tpay");
-    private long bytesSent;
+public class OriginalFormatBox extends BaseBox {
+    public static final FourCC FRMA_ATOM = new FourCC("frma");
+    private FourCC dataFormat;
 
-    public HintBytesSent() {
-        super(TPAY_ATOM);
+    public OriginalFormatBox() {
+        super(FRMA_ATOM);
     }
 
     @Override
     public String getFullName() {
-        return "PayloadBytesSent";
+        return "OriginalFormatBox";
     }
 
-    public long getBytesSent() {
-        return bytesSent;
+    public FourCC getDataFormat() {
+        return dataFormat;
     }
 
-    public void setBytesSent(long bytesSent) {
-        this.bytesSent = bytesSent;
+    public void setDataFormat(FourCC dataFormat) {
+        this.dataFormat = dataFormat;
     }
 
     @Override
     public long getBodySize() {
-        return Integer.BYTES;
+        return FourCC.BYTES;
     }
 
     @Override
     public void writeTo(OutputStreamWriter stream) throws IOException {
         this.writeBoxHeader(stream);
-        stream.writeUnsignedInt32(bytesSent);
+        stream.writeFourCC(dataFormat);
     }
 
     @Override
     public String toString(int nestingLevel) {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
-        sb.append("bytessent=");
-        sb.append(bytesSent);
+        sb.append("data_format=");
+        sb.append(dataFormat.toString());
         return sb.toString();
     }
 }

@@ -1,23 +1,23 @@
-package net.frogmouth.rnd.eofff.mpeg4.mp4a;
+package net.frogmouth.rnd.eofff.isobmff.enca;
 
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.sampleentry.AudioSampleEntry;
 
 /**
- * MP4 Audio Sample Entry.
+ * Encrypted Audio Sample Entry.
  *
- * <p>See ISO/IEC 14496-14 Section 6.7.2.
+ * <p>See ISO/IEC 14496-12 Section 8.12.1.
  */
-public class MP4AudioSampleEntry extends AudioSampleEntry {
+public class EncryptedAudioSampleEntry extends AudioSampleEntry {
 
-    public static FourCC MP4A_ATOM = new FourCC("mp4a");
+    public static FourCC ENCA_ATOM = new FourCC("enca");
 
-    public MP4AudioSampleEntry() {
-        super(MP4A_ATOM);
+    public EncryptedAudioSampleEntry() {
+        super(ENCA_ATOM);
     }
 
     @Override
     public String getFullName() {
-        return "MP4AudioSampleEntry";
+        return "EncryptedAudioSampleEntry";
     }
 }

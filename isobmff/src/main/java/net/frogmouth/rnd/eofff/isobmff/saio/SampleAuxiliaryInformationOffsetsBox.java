@@ -17,7 +17,7 @@ public class SampleAuxiliaryInformationOffsetsBox extends FullBox {
 
     private FourCC auxInfoType;
     private long auxInfoTypeParameter;
-    private List<Long> offsets = new ArrayList<>();
+    private final List<Long> offsets = new ArrayList<>();
 
     public SampleAuxiliaryInformationOffsetsBox() {
         super(SAIO_ATOM);

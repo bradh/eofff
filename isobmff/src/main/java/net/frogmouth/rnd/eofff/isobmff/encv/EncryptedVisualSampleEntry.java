@@ -1,23 +1,23 @@
-package net.frogmouth.rnd.eofff.mpeg4.mp4v;
+package net.frogmouth.rnd.eofff.isobmff.encv;
 
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.sampleentry.VisualSampleEntry;
 
 /**
- * MP4 Visual Sample Entry.
+ * Encrypted Visual Sample Entry.
  *
- * <p>See ISO/IEC 14496-14 Section 6.7.2.
+ * <p>See ISO/IEC 14496-12 Section 8.12.
  */
-public class MP4VisualSampleEntry extends VisualSampleEntry {
+public class EncryptedVisualSampleEntry extends VisualSampleEntry {
 
-    public static FourCC MP4V_ATOM = new FourCC("mp4v");
+    public static FourCC ENCV_ATOM = new FourCC("encv");
 
-    public MP4VisualSampleEntry() {
-        super(MP4V_ATOM);
+    public EncryptedVisualSampleEntry() {
+        super(ENCV_ATOM);
     }
 
     @Override
     public String getFullName() {
-        return "MP4VisualSampleEntry";
+        return "EncryptedVisualSampleEntry";
     }
 }

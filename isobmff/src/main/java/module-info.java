@@ -17,6 +17,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.elst.EditListBoxParser,
             net.frogmouth.rnd.eofff.isobmff.free.FreeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.free.SkipBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.frma.OriginalFormatBoxParser,
             net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.grpl.GroupsListBoxParser,
             net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBoxParser,
@@ -45,6 +46,7 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.infe.ItemInfoEntryParser,
             net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceBoxParser,
             net.frogmouth.rnd.eofff.isobmff.iloc.ItemLocationBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.ipro.ItemProtectionBoxParser,
             net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertyContainerBoxParser,
             net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertyAssociationParser,
             net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertiesBoxParser,
@@ -69,11 +71,14 @@ module net.frogmouth.rnd.eofff.isobmff {
             net.frogmouth.rnd.eofff.isobmff.pdin.ProgressiveDownloadInfoBoxParser,
             net.frogmouth.rnd.eofff.isobmff.saio.SampleAuxiliaryInformationOffsetsBoxParser,
             net.frogmouth.rnd.eofff.isobmff.saiz.SampleAuxiliaryInformationSizesBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.schi.SchemeInformationBoxParser,
             net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sbgp.SampleToGroupBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.schm.SchemeTypeBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sdp.RTPTrackSDPHintInformationParser,
             net.frogmouth.rnd.eofff.isobmff.sgpd.SampleGroupDescriptionBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sidx.SegmentIndexBoxParser,
+            net.frogmouth.rnd.eofff.isobmff.sinf.ProtectionSchemeInfoBoxParser,
             net.frogmouth.rnd.eofff.isobmff.smhd.SoundMediaHeaderBoxParser,
             net.frogmouth.rnd.eofff.isobmff.stbl.SampleTableBoxParser,
             net.frogmouth.rnd.eofff.isobmff.sthd.SubtitleMediaHeaderBoxParser,
@@ -139,6 +144,8 @@ module net.frogmouth.rnd.eofff.isobmff {
     uses net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser;
 
     provides net.frogmouth.rnd.eofff.isobmff.sampleentry.SampleEntryParser with
+            net.frogmouth.rnd.eofff.isobmff.enca.EncryptedAudioSampleEntryParser,
+            net.frogmouth.rnd.eofff.isobmff.encv.EncryptedVisualSampleEntryParser,
             net.frogmouth.rnd.eofff.isobmff.sampleentry.hint.FDHintSampleEntryParser,
             net.frogmouth.rnd.eofff.isobmff.sampleentry.hint.ReceivedRtpSampleEntryParser,
             net.frogmouth.rnd.eofff.isobmff.sampleentry.SimpleTextSampleEntryParser,
@@ -161,7 +168,10 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.edts;
     exports net.frogmouth.rnd.eofff.isobmff.elng;
     exports net.frogmouth.rnd.eofff.isobmff.elst;
+    exports net.frogmouth.rnd.eofff.isobmff.enca;
+    exports net.frogmouth.rnd.eofff.isobmff.encv;
     exports net.frogmouth.rnd.eofff.isobmff.free;
+    exports net.frogmouth.rnd.eofff.isobmff.frma;
     exports net.frogmouth.rnd.eofff.isobmff.ftyp;
     exports net.frogmouth.rnd.eofff.isobmff.grpl;
     exports net.frogmouth.rnd.eofff.isobmff.hdlr;
@@ -173,6 +183,7 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.iloc;
     exports net.frogmouth.rnd.eofff.isobmff.imda;
     exports net.frogmouth.rnd.eofff.isobmff.infe;
+    exports net.frogmouth.rnd.eofff.isobmff.ipro;
     exports net.frogmouth.rnd.eofff.isobmff.iprp;
     exports net.frogmouth.rnd.eofff.isobmff.iref;
     exports net.frogmouth.rnd.eofff.isobmff.kind;
@@ -199,9 +210,12 @@ module net.frogmouth.rnd.eofff.isobmff {
     exports net.frogmouth.rnd.eofff.isobmff.saio;
     exports net.frogmouth.rnd.eofff.isobmff.saiz;
     exports net.frogmouth.rnd.eofff.isobmff.sbgp;
+    exports net.frogmouth.rnd.eofff.isobmff.schi;
+    exports net.frogmouth.rnd.eofff.isobmff.schm;
     exports net.frogmouth.rnd.eofff.isobmff.sdp;
     exports net.frogmouth.rnd.eofff.isobmff.sgpd;
     exports net.frogmouth.rnd.eofff.isobmff.sidx;
+    exports net.frogmouth.rnd.eofff.isobmff.sinf;
     exports net.frogmouth.rnd.eofff.isobmff.smhd;
     exports net.frogmouth.rnd.eofff.isobmff.stbl;
     exports net.frogmouth.rnd.eofff.isobmff.stco;

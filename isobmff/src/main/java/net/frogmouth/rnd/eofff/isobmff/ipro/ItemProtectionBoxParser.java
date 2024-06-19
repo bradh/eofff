@@ -1,27 +1,28 @@
-package net.frogmouth.rnd.eofff.isobmff.iref;
+package net.frogmouth.rnd.eofff.isobmff.ipro;
 
 import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBoxParser;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
+import net.frogmouth.rnd.eofff.isobmff.sinf.ProtectionSchemeInfoBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
-public class ItemReferenceBoxParser extends FullBoxParser {
-    private static final Logger LOG = LoggerFactory.getLogger(ItemReferenceBoxParser.class);
+public class ItemProtectionBoxParser extends FullBoxParser {
+    private static final Logger LOG = LoggerFactory.getLogger(ItemProtectionBoxParser.class);
 
-    public ItemReferenceBoxParser() {}
+    public ItemProtectionBoxParser() {}
 
     @Override
     public FourCC getFourCC() {
-        return ItemReferenceBox.IREF_ATOM;
+        return ItemProtectionBox.IPRO_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ItemReferenceBox box = new ItemReferenceBox();
+        ItemProtectionBox box = new ItemProtectionBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
@@ -29,32 +30,24 @@ public class ItemReferenceBoxParser extends FullBoxParser {
             return parseAsBaseBox(parseContext, initialOffset, boxSize, boxName);
         }
         box.setFlags(parseFlags(parseContext));
-        while (parseContext.hasRemainingUntil(initialOffset + boxSize)) {
-            long refBoxSize = parseContext.readUnsignedInt32();
-            FourCC referenceType = parseContext.readFourCC();
-            // SingleItemReferenceBox refBox = new SingleItemReferenceBox(refBoxName);
-            ItemReferenceFactory referenceFactory =
-                    ItemReferenceFactoryManager.getFactory(referenceType);
-            SingleItemReferenceBox refBox = referenceFactory.makeItemReference(referenceType);
-            if (version == 0x00) {
-                refBox.setFromItemId(parseContext.readUnsignedInt16());
-                int refCount = parseContext.readUnsignedInt16();
-                for (int i = 0; i < refCount; i++) {
-                    refBox.addReference(parseContext.readUnsignedInt16());
-                }
-            } else if (version == 0x01) {
-                refBox.setFromItemId(parseContext.readUnsignedInt32());
-                int refCount = parseContext.readUnsignedInt16();
-                for (int i = 0; i < refCount; i++) {
-                    refBox.addReference(parseContext.readUnsignedInt32());
-                }
+        int protectionCount = parseContext.readUnsignedInt16();
+        for (int i = 0; i < protectionCount; i++) {
+            Box maybeSinf = parseContext.parseBox();
+            if (maybeSinf instanceof ProtectionSchemeInfoBox sinf) {
+                box.appendProtectionSchemeInfoBox(sinf);
+            } else if (maybeSinf == null) {
+                LOG.warn("Got null box instead of ProtectionSchemeInfoBox");
+            } else {
+                LOG.warn(
+                        "Expected ProtectionSchemeInfoBox, got "
+                                + maybeSinf.getFullName()
+                                + " instead.");
             }
-            box.addItem(refBox);
         }
         return box;
     }
 
     private boolean isSupportedVersion(int version) {
-        return ((version == 0x00) || (version == 0x01));
+        return (version == 0x00);
     }
 }

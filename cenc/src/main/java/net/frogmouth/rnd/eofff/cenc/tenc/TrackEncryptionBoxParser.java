@@ -1,4 +1,6 @@
-package net.frogmouth.rnd.eofff.isobmff.iref;
+package net.frogmouth.rnd.eofff.cenc.tenc;
+
+import static net.frogmouth.rnd.eofff.cenc.CommonEncryptionConstants.KEY_IDENTIFIER_BYTES;
 
 import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.Box;
@@ -9,19 +11,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
-public class ItemReferenceBoxParser extends FullBoxParser {
-    private static final Logger LOG = LoggerFactory.getLogger(ItemReferenceBoxParser.class);
+public class TrackEncryptionBoxParser extends FullBoxParser {
+    private static final Logger LOG = LoggerFactory.getLogger(TrackEncryptionBoxParser.class);
 
-    public ItemReferenceBoxParser() {}
+    public TrackEncryptionBoxParser() {}
 
     @Override
     public FourCC getFourCC() {
-        return ItemReferenceBox.IREF_ATOM;
+        return TrackEncryptionBox.TENC_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ItemReferenceBox box = new ItemReferenceBox();
+        TrackEncryptionBox box = new TrackEncryptionBox();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
@@ -29,27 +31,20 @@ public class ItemReferenceBoxParser extends FullBoxParser {
             return parseAsBaseBox(parseContext, initialOffset, boxSize, boxName);
         }
         box.setFlags(parseFlags(parseContext));
-        while (parseContext.hasRemainingUntil(initialOffset + boxSize)) {
-            long refBoxSize = parseContext.readUnsignedInt32();
-            FourCC referenceType = parseContext.readFourCC();
-            // SingleItemReferenceBox refBox = new SingleItemReferenceBox(refBoxName);
-            ItemReferenceFactory referenceFactory =
-                    ItemReferenceFactoryManager.getFactory(referenceType);
-            SingleItemReferenceBox refBox = referenceFactory.makeItemReference(referenceType);
-            if (version == 0x00) {
-                refBox.setFromItemId(parseContext.readUnsignedInt16());
-                int refCount = parseContext.readUnsignedInt16();
-                for (int i = 0; i < refCount; i++) {
-                    refBox.addReference(parseContext.readUnsignedInt16());
-                }
-            } else if (version == 0x01) {
-                refBox.setFromItemId(parseContext.readUnsignedInt32());
-                int refCount = parseContext.readUnsignedInt16();
-                for (int i = 0; i < refCount; i++) {
-                    refBox.addReference(parseContext.readUnsignedInt32());
-                }
-            }
-            box.addItem(refBox);
+        parseContext.skipBytes(1);
+        if (version == 0) {
+            parseContext.skipBytes(1);
+        } else {
+            int v = parseContext.readUnsignedInt8();
+            box.setDefaultCryptByteBlock(v >> 4);
+            box.setDefaultSkipByteBlock(v & 0x0F);
+        }
+        box.setDefaultIsProtected(parseContext.readUnsignedInt8());
+        box.setDefaultPerSampleIVSize(parseContext.readUnsignedInt8());
+        box.setDefaultKeyIdentifier(parseContext.getBytes(KEY_IDENTIFIER_BYTES));
+        if ((box.getDefaultIsProtected() == 1) && (box.getDefaultPerSampleIVSize() == 0)) {
+            int defaultConstantIVSize = parseContext.readUnsignedInt8();
+            box.setDefaultConstantIV(parseContext.getBytes(defaultConstantIVSize));
         }
         return box;
     }

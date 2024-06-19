@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.isobmff.hinf;
+package net.frogmouth.rnd.eofff.isobmff.frma;
 
 import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.Box;
@@ -7,19 +7,19 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 
 @AutoService(net.frogmouth.rnd.eofff.isobmff.BoxParser.class)
-public class HintLargestPacketParser extends BoxParser {
+public class OriginalFormatBoxParser extends BoxParser {
 
-    public HintLargestPacketParser() {}
+    public OriginalFormatBoxParser() {}
 
     @Override
     public FourCC getFourCC() {
-        return HintLargestPacket.PMAX_ATOM;
+        return OriginalFormatBox.FRMA_ATOM;
     }
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        HintLargestPacket box = new HintLargestPacket();
-        box.setBytes(parseContext.readUnsignedInt32());
+        OriginalFormatBox box = new OriginalFormatBox();
+        box.setDataFormat(parseContext.readFourCC());
         return box;
     }
 }
