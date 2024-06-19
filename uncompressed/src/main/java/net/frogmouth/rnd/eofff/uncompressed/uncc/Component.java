@@ -13,6 +13,14 @@ public class Component {
     private final ComponentFormat componentFormat;
     private final int componentAlignSize;
 
+    /**
+     * Constructor.
+     *
+     * @param component_index the component index into the cmpd box array.
+     * @param component_bit_depth_minus_one the number of bits in the component, minus 1
+     * @param component_format the component format (enumerated value)
+     * @param component_align_size the component alignment, usually 0.
+     */
     public Component(
             int component_index,
             int component_bit_depth_minus_one,
