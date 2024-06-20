@@ -93,12 +93,7 @@ public class CreateGIMIGridTest extends GIMIValidator {
             """
             <?xml version="1.0" encoding="UTF-8"?>
             <FakeSecurity xmlns="http://www.opengis.net/CodeSprint2023Oct/Security">
-                <FakeLevel>SECRETIVE-ISH</FakeLevel>
-                <FakeCaveat>DOWN-UNDER</FakeCaveat>
-                <FakeCaveat>SUBURBIA</FakeCaveat>
-                <FakeRelTo>UK</FakeRelTo>
-                <FakeRelTo>AU</FakeRelTo>
-                <FakeDeclassOn>2024-10-01</FakeDeclassOn>
+                <FakeLevel>UNCLASSFIIED</FakeLevel>
             </FakeSecurity>""";
 
     private final FileDirectory directory;
