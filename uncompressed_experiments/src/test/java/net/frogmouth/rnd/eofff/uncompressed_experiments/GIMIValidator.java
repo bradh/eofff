@@ -27,7 +27,7 @@ import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteBox;
 import net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampBox;
 import net.frogmouth.rnd.eofff.uncompressed.sbpm.SensorBadPixelsMapBox;
-import net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoBox;
+import net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoItemProperty;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
@@ -803,7 +803,7 @@ class GIMIValidator {
         SensorBadPixelsMapBox sbpm = null;
         UserDescriptionProperty udes = null;
         MaskConfigurationProperty mskC = null;
-        TAIClockInfoBox taic = null;
+        TAIClockInfoItemProperty taic = null;
         TAITimeStampBox itai = null;
         for (AbstractItemProperty property : properties) {
             if (property instanceof ComponentDefinitionBox componentDefinitionBox) {
@@ -823,7 +823,7 @@ class GIMIValidator {
                 // TODO
             } else if (property instanceof MaskConfigurationProperty maskConfigurationProperty) {
                 mskC = maskConfigurationProperty;
-            } else if (property instanceof TAIClockInfoBox clockInfoBox) {
+            } else if (property instanceof TAIClockInfoItemProperty clockInfoBox) {
                 taic = clockInfoBox;
             } else if (property instanceof TAITimeStampBox timeStampBox) {
                 itai = timeStampBox;

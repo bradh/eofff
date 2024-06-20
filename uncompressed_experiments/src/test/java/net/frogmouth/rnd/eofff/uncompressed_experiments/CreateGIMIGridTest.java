@@ -8,6 +8,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -43,6 +48,9 @@ import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
+import net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampBox;
+import net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampPacket;
+import net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoItemProperty;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
@@ -51,6 +59,8 @@ import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
+import org.threeten.extra.scale.TaiInstant;
+import org.threeten.extra.scale.UtcInstant;
 
 public class CreateGIMIGridTest extends GIMIValidator {
     private static final Logger LOG = LoggerFactory.getLogger(CreateGIMIGridTest.class);
@@ -95,6 +105,8 @@ public class CreateGIMIGridTest extends GIMIValidator {
     private final GeoTransform transform;
     private static final UUID CONTENT_ID_UUID =
             UUID.fromString("aac8ab7d-f519-5437-b7d3-c973d155e253");
+
+    private LocalDateTime TIMESTAMP = LocalDateTime.of(LocalDate.of(2017, 5, 7), LocalTime.MIN);
 
     private final String path;
 
@@ -253,6 +265,7 @@ public class CreateGIMIGridTest extends GIMIValidator {
                 int itemID = getItemIdForGridComponent(x, y);
                 ItemInfoEntry infexy = new ItemInfoEntry();
                 infexy.setVersion(2);
+                infexy.setFlags(1); // Hidden
                 infexy.setItemID(itemID);
                 FourCC unci = new FourCC("unci");
                 infexy.setItemType(unci.asUnsigned());
@@ -313,6 +326,7 @@ public class CreateGIMIGridTest extends GIMIValidator {
                 int itemID = getItemIdForGridComponent(x, y);
                 ItemInfoEntry infexy = new ItemInfoEntry();
                 infexy.setVersion(2);
+                infexy.setFlags(1); // Hidden
                 infexy.setItemID(itemID);
                 FourCC unci = new FourCC("unci");
                 infexy.setItemType(unci.asUnsigned());
@@ -522,17 +536,17 @@ public class CreateGIMIGridTest extends GIMIValidator {
     }
 
     private Box makeItemPropertiesBox_grid() {
-        // TODO: remove unused properties
         ItemPropertiesBox iprp = new ItemPropertiesBox();
         ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
         ipco.addProperty(makeComponentDefinitionBox_rgb3()); // 1
         ipco.addProperty(makeUncompressedFrameConfigBox_grid_item()); // 2
         ipco.addProperty(makeImageSpatialExtentsProperty_grid_tile()); // 3
         ipco.addProperty(makeImageSpatialExtentsProperty_grid()); // 4
-        ipco.addProperty(makeUncompressedFrameConfigBox_tiled_item()); // 5
-        ipco.addProperty(makeContentIdPropertyGridItem()); // 6
-        ipco.addProperty(makeContentIdPropertyFakeSecurity()); // 7
-        ipco.addProperty(makeUserDescription_copyright()); // 8
+        ipco.addProperty(makeContentIdPropertyGridItem()); // 5
+        ipco.addProperty(makeContentIdPropertyFakeSecurity()); // 6
+        ipco.addProperty(makeUserDescription_copyright()); // 7
+        ipco.addProperty(makeClockInfoItemProperty()); // 8
+        ipco.addProperty(makeTimeStampBox()); // 9
         iprp.setItemProperties(ipco);
 
         {
@@ -578,16 +592,28 @@ public class CreateGIMIGridTest extends GIMIValidator {
             }
             {
                 PropertyAssociation associationToContentId = new PropertyAssociation();
-                associationToContentId.setPropertyIndex(6);
+                associationToContentId.setPropertyIndex(5);
                 associationToContentId.setEssential(false);
                 entry.addAssociation(associationToContentId);
             }
             {
                 PropertyAssociation associationToCopyrightUserDescription =
                         new PropertyAssociation();
-                associationToCopyrightUserDescription.setPropertyIndex(8);
+                associationToCopyrightUserDescription.setPropertyIndex(7);
                 associationToCopyrightUserDescription.setEssential(false);
                 entry.addAssociation(associationToCopyrightUserDescription);
+            }
+            {
+                PropertyAssociation associationToClockInfo = new PropertyAssociation();
+                associationToClockInfo.setPropertyIndex(8);
+                associationToClockInfo.setEssential(false);
+                entry.addAssociation(associationToClockInfo);
+            }
+            {
+                PropertyAssociation assocationToTimestampTAI = new PropertyAssociation();
+                assocationToTimestampTAI.setPropertyIndex(9);
+                assocationToTimestampTAI.setEssential(false);
+                entry.addAssociation(assocationToTimestampTAI);
             }
             assoc.addEntry(entry);
             iprp.addItemPropertyAssociation(assoc);
@@ -599,7 +625,7 @@ public class CreateGIMIGridTest extends GIMIValidator {
             entry.setItemId(FAKE_SECURITY_ITEM_ID);
             {
                 PropertyAssociation associationToContentId = new PropertyAssociation();
-                associationToContentId.setPropertyIndex(7);
+                associationToContentId.setPropertyIndex(6);
                 associationToContentId.setEssential(false);
                 entry.addAssociation(associationToContentId);
             }
@@ -610,17 +636,16 @@ public class CreateGIMIGridTest extends GIMIValidator {
     }
 
     private Box makeItemPropertiesBox_tile() {
-        // TODO: remove unused props
         ItemPropertiesBox iprp = new ItemPropertiesBox();
         ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
         ipco.addProperty(makeComponentDefinitionBox_rgb3()); // 1
-        ipco.addProperty(makeUncompressedFrameConfigBox_grid_item()); // 2
-        ipco.addProperty(makeImageSpatialExtentsProperty_grid_tile()); // 3
-        ipco.addProperty(makeImageSpatialExtentsProperty_grid()); // 4
-        ipco.addProperty(makeUncompressedFrameConfigBox_tiled_item()); // 5
-        ipco.addProperty(makeContentIdPropertyGridItem()); // 6
-        ipco.addProperty(makeContentIdPropertyFakeSecurity()); // 7
-        ipco.addProperty(makeUserDescription_copyright()); // 8
+        ipco.addProperty(makeImageSpatialExtentsProperty_grid()); // 2
+        ipco.addProperty(makeUncompressedFrameConfigBox_tiled_item()); // 3
+        ipco.addProperty(makeContentIdPropertyGridItem()); // 4
+        ipco.addProperty(makeContentIdPropertyFakeSecurity()); // 5
+        ipco.addProperty(makeUserDescription_copyright()); // 6
+        ipco.addProperty(makeClockInfoItemProperty()); // 7
+        ipco.addProperty(makeTimeStampBox()); // 8
         iprp.setItemProperties(ipco);
 
         {
@@ -630,7 +655,7 @@ public class CreateGIMIGridTest extends GIMIValidator {
             {
                 PropertyAssociation associationToImageSpatialExtentsProperty =
                         new PropertyAssociation();
-                associationToImageSpatialExtentsProperty.setPropertyIndex(4);
+                associationToImageSpatialExtentsProperty.setPropertyIndex(2);
                 associationToImageSpatialExtentsProperty.setEssential(false);
                 entry.addAssociation(associationToImageSpatialExtentsProperty);
             }
@@ -642,22 +667,34 @@ public class CreateGIMIGridTest extends GIMIValidator {
 
                 PropertyAssociation associationToUncompressedFrameConfigBox =
                         new PropertyAssociation();
-                associationToUncompressedFrameConfigBox.setPropertyIndex(5);
+                associationToUncompressedFrameConfigBox.setPropertyIndex(3);
                 associationToUncompressedFrameConfigBox.setEssential(true);
                 entry.addAssociation(associationToUncompressedFrameConfigBox);
             }
             {
                 PropertyAssociation associationToContentId = new PropertyAssociation();
-                associationToContentId.setPropertyIndex(6);
+                associationToContentId.setPropertyIndex(4);
                 associationToContentId.setEssential(false);
                 entry.addAssociation(associationToContentId);
             }
             {
                 PropertyAssociation associationToCopyrightUserDescription =
                         new PropertyAssociation();
-                associationToCopyrightUserDescription.setPropertyIndex(8);
+                associationToCopyrightUserDescription.setPropertyIndex(6);
                 associationToCopyrightUserDescription.setEssential(false);
                 entry.addAssociation(associationToCopyrightUserDescription);
+            }
+            {
+                PropertyAssociation associationToClockInfo = new PropertyAssociation();
+                associationToClockInfo.setPropertyIndex(7);
+                associationToClockInfo.setEssential(false);
+                entry.addAssociation(associationToClockInfo);
+            }
+            {
+                PropertyAssociation assocationToTimestampTAI = new PropertyAssociation();
+                assocationToTimestampTAI.setPropertyIndex(8);
+                assocationToTimestampTAI.setEssential(false);
+                entry.addAssociation(assocationToTimestampTAI);
             }
             assoc.addEntry(entry);
             iprp.addItemPropertyAssociation(assoc);
@@ -669,7 +706,7 @@ public class CreateGIMIGridTest extends GIMIValidator {
             entry.setItemId(FAKE_SECURITY_ITEM_ID);
             {
                 PropertyAssociation associationToContentId = new PropertyAssociation();
-                associationToContentId.setPropertyIndex(7);
+                associationToContentId.setPropertyIndex(5);
                 associationToContentId.setEssential(false);
                 entry.addAssociation(associationToContentId);
             }
@@ -690,6 +727,8 @@ public class CreateGIMIGridTest extends GIMIValidator {
         ipco.addProperty(makeContentIdPropertyGridItem()); // 6
         ipco.addProperty(makeContentIdPropertyFakeSecurity()); // 7
         ipco.addProperty(makeUserDescription_copyright()); // 8
+        ipco.addProperty(makeClockInfoItemProperty()); // 9
+        ipco.addProperty(makeTimeStampBox()); // 10
         iprp.setItemProperties(ipco);
 
         {
@@ -746,6 +785,18 @@ public class CreateGIMIGridTest extends GIMIValidator {
                 associationToCopyrightUserDescription.setEssential(false);
                 entry.addAssociation(associationToCopyrightUserDescription);
             }
+            {
+                PropertyAssociation associationToClockInfo = new PropertyAssociation();
+                associationToClockInfo.setPropertyIndex(9);
+                associationToClockInfo.setEssential(false);
+                entry.addAssociation(associationToClockInfo);
+            }
+            {
+                PropertyAssociation assocationToTimestampTAI = new PropertyAssociation();
+                assocationToTimestampTAI.setPropertyIndex(10);
+                assocationToTimestampTAI.setEssential(false);
+                entry.addAssociation(assocationToTimestampTAI);
+            }
             assoc.addEntry(entry);
             iprp.addItemPropertyAssociation(assoc);
         }
@@ -785,6 +836,18 @@ public class CreateGIMIGridTest extends GIMIValidator {
                 associationToCopyrightUserDescription.setPropertyIndex(8);
                 associationToCopyrightUserDescription.setEssential(false);
                 entry.addAssociation(associationToCopyrightUserDescription);
+            }
+            {
+                PropertyAssociation associationToClockInfo = new PropertyAssociation();
+                associationToClockInfo.setPropertyIndex(9);
+                associationToClockInfo.setEssential(false);
+                entry.addAssociation(associationToClockInfo);
+            }
+            {
+                PropertyAssociation assocationToTimestampTAI = new PropertyAssociation();
+                assocationToTimestampTAI.setPropertyIndex(10);
+                assocationToTimestampTAI.setEssential(false);
+                entry.addAssociation(assocationToTimestampTAI);
             }
             assoc.addEntry(entry);
             iprp.addItemPropertyAssociation(assoc);
@@ -1001,5 +1064,29 @@ public class CreateGIMIGridTest extends GIMIValidator {
         contentIdProperty.setPayload(FAKE_SECURITY_CONTENT_ID.getBytes(StandardCharsets.UTF_8));
         System.out.println(contentIdProperty.toString());
         return contentIdProperty;
+    }
+
+    private TAITimeStampBox makeTimeStampBox() {
+        TAITimeStampBox itai = new TAITimeStampBox();
+        TAITimeStampPacket time_stamp_packet = new TAITimeStampPacket();
+        Instant instant = TIMESTAMP.toInstant(ZoneOffset.UTC);
+        UtcInstant utcInstant = UtcInstant.of(instant);
+        TaiInstant taiInstant = utcInstant.toTaiInstant();
+        long timestamp =
+                GIMIUtils.NANOS_PER_SECOND * taiInstant.getTaiSeconds() + taiInstant.getNano();
+        time_stamp_packet.setTAITimeStamp(timestamp);
+        time_stamp_packet.setStatusBits((byte) 0x02);
+        itai.setTimeStampPacket(time_stamp_packet);
+        return itai;
+    }
+
+    private TAIClockInfoItemProperty makeClockInfoItemProperty() {
+
+        TAIClockInfoItemProperty taic = new TAIClockInfoItemProperty();
+        taic.setTimeUncertainty(24 * 60 * 60 * GIMIUtils.NANOS_PER_SECOND);
+        taic.setCorrectionOffset(0);
+        taic.setClockDriftRate(Float.NaN);
+        taic.setReferenceSourceType((byte) 0x01);
+        return taic;
     }
 }
