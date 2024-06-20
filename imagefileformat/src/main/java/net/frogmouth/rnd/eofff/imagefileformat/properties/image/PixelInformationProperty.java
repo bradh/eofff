@@ -9,10 +9,12 @@ import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullProperty;
 
 public class PixelInformationProperty extends ItemFullProperty {
 
+    public static final FourCC PIXI_ATOM = new FourCC("pixi");
+
     private final List<Integer> channels = new ArrayList<>();
 
-    public PixelInformationProperty(FourCC name) {
-        super(name);
+    public PixelInformationProperty() {
+        super(PIXI_ATOM);
     }
 
     @Override

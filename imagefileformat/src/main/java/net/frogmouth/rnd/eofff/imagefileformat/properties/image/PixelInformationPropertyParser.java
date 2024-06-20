@@ -16,13 +16,13 @@ public class PixelInformationPropertyParser extends ItemFullPropertyParser {
 
     @Override
     public FourCC getFourCC() {
-        return new FourCC("pixi");
+        return PixelInformationProperty.PIXI_ATOM;
     }
 
     @Override
     public AbstractItemProperty parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        PixelInformationProperty box = new PixelInformationProperty(boxName);
+        PixelInformationProperty box = new PixelInformationProperty();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
