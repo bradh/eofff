@@ -167,7 +167,7 @@ public class GIMISum implements Runnable {
             pngFile = Files.createTempFile(null, ".png").toString();
             ProcessBuilder builder =
                     new ProcessBuilder(
-                            "/usr/local/bin/gdal_translate", "-of", "PNG", sourcePath, pngFile);
+                            "/usr/bin/gdal_translate", "-of", "PNG", sourcePath, pngFile);
             if (sourcePath.endsWith(".tif")) {
                 mil.nga.tiff.TIFFImage tiffImage =
                         mil.nga.tiff.TiffReader.readTiff(new File(sourcePath));
