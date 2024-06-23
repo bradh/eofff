@@ -11,6 +11,11 @@ import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import mil.nga.tiff.FileDirectory;
@@ -39,12 +44,17 @@ import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
+import net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampBox;
+import net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampPacket;
+import net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoItemProperty;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
 import org.testng.annotations.Test;
+import org.threeten.extra.scale.TaiInstant;
+import org.threeten.extra.scale.UtcInstant;
 
 /** Write file. */
 public class WriteFloat64Test {
@@ -54,6 +64,8 @@ public class WriteFloat64Test {
     private int imageWidth = 0;
     private int imageHeight = 0;
     private static final int MDAT_START = 512;
+
+    private LocalDateTime TIMESTAMP = LocalDateTime.of(LocalDate.of(2020, 2, 13), LocalTime.MIN);
 
     private static final int IMAGE_DATA_START = MDAT_START + 8; // assumes mdat header is 8 bytes.
 
@@ -101,6 +113,7 @@ public class WriteFloat64Test {
         fileTypeBox.setMinorVersion(0);
         fileTypeBox.addCompatibleBrand(Brand.MIF2);
         fileTypeBox.addCompatibleBrand(Brand.MIF1);
+        fileTypeBox.addCompatibleBrand(new Brand("geo1"));
         fileTypeBox.addCompatibleBrand(Brand.UNIF);
         return fileTypeBox;
     }
@@ -174,7 +187,9 @@ public class WriteFloat64Test {
         ipco.addProperty(makeComponentDefinitionBox());
         ipco.addProperty(makeUncompressedFrameConfigBox(littleEndian));
         ipco.addProperty(makeImageSpatialExtentsProperty());
-        ipco.addProperty(makeRandomContentId());
+        ipco.addProperty(makeRandomContentId()); // 4
+        ipco.addProperty(makeClockInfoItemProperty()); // 5
+        ipco.addProperty(makeTimeStampBox()); // 6
         iprp.setItemProperties(ipco);
 
         ItemPropertyAssociation itemPropertyAssociation = new ItemPropertyAssociation();
@@ -202,6 +217,19 @@ public class WriteFloat64Test {
             associationToContentIDProperty.setPropertyIndex(4);
             associationToContentIDProperty.setEssential(false);
             mainItemAssociations.addAssociation(associationToContentIDProperty);
+
+            {
+                PropertyAssociation associationToClockInfo = new PropertyAssociation();
+                associationToClockInfo.setPropertyIndex(5);
+                associationToClockInfo.setEssential(false);
+                mainItemAssociations.addAssociation(associationToClockInfo);
+            }
+            {
+                PropertyAssociation assocationToTimestampTAI = new PropertyAssociation();
+                assocationToTimestampTAI.setPropertyIndex(6);
+                assocationToTimestampTAI.setEssential(false);
+                mainItemAssociations.addAssociation(assocationToTimestampTAI);
+            }
 
             itemPropertyAssociation.addEntry(mainItemAssociations);
         }
@@ -315,5 +343,29 @@ public class WriteFloat64Test {
         }
         File testOut = new File(outputPathName);
         Files.write(testOut.toPath(), baos.toByteArray(), StandardOpenOption.CREATE);
+    }
+
+    private TAITimeStampBox makeTimeStampBox() {
+        TAITimeStampBox itai = new TAITimeStampBox();
+        TAITimeStampPacket time_stamp_packet = new TAITimeStampPacket();
+        Instant instant = TIMESTAMP.toInstant(ZoneOffset.UTC);
+        UtcInstant utcInstant = UtcInstant.of(instant);
+        TaiInstant taiInstant = utcInstant.toTaiInstant();
+        long timestamp =
+                GIMIUtils.NANOS_PER_SECOND * taiInstant.getTaiSeconds() + taiInstant.getNano();
+        time_stamp_packet.setTAITimeStamp(timestamp);
+        time_stamp_packet.setStatusBits((byte) 0x02);
+        itai.setTimeStampPacket(time_stamp_packet);
+        return itai;
+    }
+
+    private TAIClockInfoItemProperty makeClockInfoItemProperty() {
+
+        TAIClockInfoItemProperty taic = new TAIClockInfoItemProperty();
+        taic.setTimeUncertainty(24 * 60 * 60 * GIMIUtils.NANOS_PER_SECOND);
+        taic.setCorrectionOffset(0);
+        taic.setClockDriftRate(Float.NaN);
+        taic.setReferenceSourceType((byte) 0x01);
+        return taic;
     }
 }
