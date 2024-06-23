@@ -18,6 +18,6 @@ public class GoProDumper {
         */
         GoProCleaner cleaner = new GoProCleaner(args[0]);
         cleaner.cleanFile();
-        cleaner.writeOutFile("dump_gopro.mp4");
+        cleaner.writeOutFile("parafield_gimi.mp4");
     }
 }

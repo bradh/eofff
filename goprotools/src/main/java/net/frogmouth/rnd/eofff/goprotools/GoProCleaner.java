@@ -99,12 +99,7 @@ class GoProCleaner {
             """
             <?xml version="1.0" encoding="UTF-8"?>
             <FakeSecurity xmlns="http://www.opengis.net/CodeSprint2023Oct/Security">
-                <FakeLevel>UNRESTRICTED</FakeLevel>
-                <FakeCaveat>DOWN-UNDER</FakeCaveat>
-                <FakeCaveat>EASY-AS BRO</FakeCaveat>
-                <FakeRelTo>NZ</FakeRelTo>
-                <FakeRelTo>AU</FakeRelTo>
-                <FakeDeclassOn>2023-12-25</FakeDeclassOn>
+                <FakeLevel>UNCLASSIFIED</FakeLevel>
             </FakeSecurity>""";
 
     private int nextItemId = 20;
@@ -295,7 +290,10 @@ class GoProCleaner {
     void cleanFile() throws IOException {
         this.dumpGPMF();
         FileTypeBox ftyp = (FileTypeBox) extractTopLevelBox("ftyp");
+        ftyp.setMinorVersion(0);
         ftyp.addCompatibleBrand(Brand.HEIC);
+        ftyp.addCompatibleBrand(Brand.MIF1);
+        ftyp.addCompatibleBrand(new Brand("geo1"));
         destinationBoxes.add(ftyp);
         MetaBox meta = makeMetaBox();
         // TODO: we should check relative sizes for ftyp
@@ -470,8 +468,8 @@ class GoProCleaner {
 
         iprp.setItemProperties(ipco);
 
+        ItemPropertyAssociation assoc = new ItemPropertyAssociation();
         for (int i = 0; i < numImages; i++) {
-            ItemPropertyAssociation assoc = new ItemPropertyAssociation();
             AssociationEntry entry = new AssociationEntry();
             entry.setItemId(firstImageItemId + i);
             {
@@ -505,8 +503,8 @@ class GoProCleaner {
                 entry.addAssociation(associationToContentID);
             }
             assoc.addEntry(entry);
-            iprp.addItemPropertyAssociation(assoc);
         }
+        iprp.addItemPropertyAssociation(assoc);
 
         meta.addNestedBox(iprp);
 
