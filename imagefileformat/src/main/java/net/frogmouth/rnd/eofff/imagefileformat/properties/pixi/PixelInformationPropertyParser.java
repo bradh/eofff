@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.imagefileformat.properties.image;
+package net.frogmouth.rnd.eofff.imagefileformat.properties.pixi;
 
 import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
@@ -34,10 +34,28 @@ public class PixelInformationPropertyParser extends ItemFullPropertyParser {
         for (int i = 0; i < numChannels; i++) {
             box.addChannel(parseContext.readUnsignedInt8());
         }
+        if (version == 1) {
+            for (int i = 0; i < numChannels; i++) {
+                SupplementalChannelInfo supplementalChannelInfo = new SupplementalChannelInfo();
+                int infoBits = parseContext.readUnsignedInt8();
+                int channelIDC = infoBits >> 5;
+                supplementalChannelInfo.setChannelIDC(channelIDC);
+                int channelDataType = (infoBits & 0x18) >> 3;
+                supplementalChannelInfo.setChannelDataType(channelDataType);
+                if (box.hasSubsampling()) {
+                    // TODO: parse out
+                }
+                if ((infoBits & 0b00000100) != 0) {
+                    String channelLabel = parseContext.readNullDelimitedString(boxSize);
+                    supplementalChannelInfo.setChannelLabel(channelLabel);
+                }
+                box.addExtraInfo(supplementalChannelInfo);
+            }
+        }
         return box;
     }
 
     private boolean isSupportedVersion(int version) {
-        return (version == 0x00);
+        return ((version == 0x00) || (version == 0x01));
     }
 }
