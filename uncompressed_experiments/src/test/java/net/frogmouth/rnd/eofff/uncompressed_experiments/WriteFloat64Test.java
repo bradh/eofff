@@ -247,7 +247,7 @@ public class WriteFloat64Test {
 
     private UncompressedFrameConfigBox makeUncompressedFrameConfigBox(boolean littleEndian) {
         UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
-        uncc.setProfile(new FourCC("gene"));
+        uncc.setProfile(new FourCC(0));
         uncc.addComponent(new Component(0, 63, ComponentFormat.FloatingPoint, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
         uncc.setInterleaveType(Interleaving.Component);
