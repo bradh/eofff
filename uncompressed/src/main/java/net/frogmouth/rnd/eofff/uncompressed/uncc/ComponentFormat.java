@@ -40,7 +40,14 @@ public enum ComponentFormat {
      * of the size component_bit_depth/2. For this component format, component_bit_depth values
      * shall be 32, 64, 128 or 256; other values are forbidden.
      */
-    ComplexFloatingPoint(2, "Complex floating point");
+    ComplexFloatingPoint(2, "Complex floating point"),
+
+    /**
+     * Signed integer.
+     *
+     * <p>The value is a signed integer, coded on component_bit_depth bits (e.g. 8 bit signed).
+     */
+    SignedInteger(3, "Signed integer");
 
     private final int encodedValue;
     private final String description;
