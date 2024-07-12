@@ -15,17 +15,22 @@
     <dependencies>
         <dependency>
             <groupId>net.frogmouth.rnd.eofff</groupId>
+            <artifactId>cenc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.frogmouth.rnd.eofff</groupId>
+            <artifactId>imagefileformat</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.frogmouth.rnd.eofff</groupId>
             <artifactId>isobmff</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>net.frogmouth.rnd.eofff</groupId>
             <artifactId>jpeg2000</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.frogmouth.rnd.eofff</groupId>
-            <artifactId>imagefileformat</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

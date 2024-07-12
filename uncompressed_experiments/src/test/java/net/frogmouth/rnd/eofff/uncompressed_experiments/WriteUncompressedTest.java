@@ -1,20 +1,27 @@
 package net.frogmouth.rnd.eofff.uncompressed_experiments;
 
-import static net.frogmouth.rnd.eofff.uncompressed_experiments.GIMIUtils.makeRandomContentId;
-import static org.testng.Assert.*;
-
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
+import java.awt.image.BandedSampleModel;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import javax.imageio.ImageIO;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.image.ImageSpatialExtentsProperty;
 import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
@@ -23,7 +30,6 @@ import net.frogmouth.rnd.eofff.isobmff.free.FreeBox;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.Brand;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBox;
-import net.frogmouth.rnd.eofff.isobmff.idat.ItemDataBox;
 import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoBox;
 import net.frogmouth.rnd.eofff.isobmff.iloc.ILocExtent;
 import net.frogmouth.rnd.eofff.isobmff.iloc.ILocItem;
@@ -34,48 +40,38 @@ import net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertiesBox;
 import net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertyAssociation;
 import net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertyContainerBox;
 import net.frogmouth.rnd.eofff.isobmff.iprp.PropertyAssociation;
-import net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceBox;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
-import net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampBox;
-import net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampPacket;
-import net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoItemProperty;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
 import org.testng.annotations.Test;
-import org.threeten.extra.scale.TaiInstant;
-import org.threeten.extra.scale.UtcInstant;
 
 /** Write file. */
-public class WriteSignedIntegerTest {
+public class WriteUncompressedTest {
 
-    private static final long MAIN_ITEM_ID = 10;
+    private static final long MAIN_ITEM_ID = 1;
     private static final int LENGTH_OF_FREEBOX_HEADER = 8;
-    private final int imageWidth = 128;
-    private final int imageHeight = 2;
-    private static final int MDAT_START = 512;
-
-    private final LocalDateTime TIMESTAMP =
-            LocalDateTime.of(LocalDate.of(2024, 5, 24), LocalTime.of(17, 26, 15, 0));
+    protected static final int IMAGE_WIDTH = 128;
+    protected static final int IMAGE_HEIGHT = 72;
+    private static final int MDAT_START = 370;
+    protected static final int NUM_BYTES_PER_PIXEL_RGB = 3;
 
     private static final int IMAGE_DATA_START = MDAT_START + 8; // assumes mdat header is 8 bytes.
 
-    public WriteSignedIntegerTest() {}
-
     @Test
-    public void signed_8() throws IOException {
-        MediaDataBox mdat = createMediaDataBox8();
+    public void component() throws IOException {
+        MediaDataBox mdat = createMediaDataBox_rgb_component();
 
         List<Box> boxes = new ArrayList<>();
         FileTypeBox ftyp = createFileTypeBox();
         boxes.add(ftyp);
-        MetaBox meta = createMetaBox8();
+        MetaBox meta = createMetaBox_rgb_component(mdat.getBodySize());
         boxes.add(meta);
         long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
         long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
@@ -83,30 +79,26 @@ public class WriteSignedIntegerTest {
         free.setData(new byte[(int) numberOfFillBytes]);
         boxes.add(free);
         boxes.add(mdat);
-        writeBoxes(boxes, "signed_int8.hif");
+        writeBoxes(boxes, "uncompressed_rgb_component.heif");
     }
 
     private FileTypeBox createFileTypeBox() {
         FileTypeBox fileTypeBox = new FileTypeBox();
         fileTypeBox.setMajorBrand(new Brand("mif1"));
         fileTypeBox.setMinorVersion(0);
-        fileTypeBox.addCompatibleBrand(Brand.MIF2);
-        fileTypeBox.addCompatibleBrand(Brand.MIF1);
-        fileTypeBox.addCompatibleBrand(new Brand("geo1"));
-        fileTypeBox.addCompatibleBrand(Brand.UNIF);
+        fileTypeBox.addCompatibleBrand(new Brand("mif1"));
+        fileTypeBox.addCompatibleBrand(new Brand("unif"));
         return fileTypeBox;
     }
 
-    private MetaBox createMetaBox8() throws IOException {
+    private MetaBox createMetaBox_rgb_component(long extentLength) throws IOException {
         MetaBox meta = new MetaBox();
         List<Box> boxes = new ArrayList<>();
         boxes.add(makeHandlerBox());
         boxes.add(makePrimaryItemBox());
         boxes.add(makeItemInfoBox());
-        boxes.add(makeItemLocationBox());
-        boxes.add(makeItemDataBox());
-        boxes.add(makeItemPropertiesBox8());
-        boxes.add(makeItemReferenceBox());
+        boxes.add(makeItemLocationBox_rgb3(extentLength));
+        boxes.add(makeItemPropertiesBox_rgb_component());
         meta.addNestedBoxes(boxes);
         return meta;
     }
@@ -131,12 +123,12 @@ public class WriteSignedIntegerTest {
         infe0.setItemID(MAIN_ITEM_ID);
         FourCC unci = new FourCC("unci");
         infe0.setItemType(unci.asUnsigned());
-        infe0.setItemName("Uncompressed Image");
+        infe0.setItemName("Generically compressed Image");
         iinf.addItem(infe0);
         return iinf;
     }
 
-    private ItemLocationBox makeItemLocationBox() throws IOException {
+    private ItemLocationBox makeItemLocationBox_rgb3(long extentLength) {
         ItemLocationBox iloc = new ItemLocationBox();
         iloc.setOffsetSize(4);
         iloc.setLengthSize(4);
@@ -149,28 +141,26 @@ public class WriteSignedIntegerTest {
         ILocExtent mainItemExtent = new ILocExtent();
         mainItemExtent.setExtentIndex(0);
         mainItemExtent.setExtentOffset(IMAGE_DATA_START);
-        mainItemExtent.setExtentLength(imageHeight * imageWidth);
+        mainItemExtent.setExtentLength(extentLength);
         mainItemLocation.addExtent(mainItemExtent);
         iloc.addItem(mainItemLocation);
         return iloc;
     }
 
-    private ItemDataBox makeItemDataBox() throws IOException {
-        ItemDataBoxBuilder itemDataBoxBuilder = new ItemDataBoxBuilder();
-        return itemDataBoxBuilder.build();
-    }
-
-    private Box makeItemPropertiesBox8() {
+    private Box makeItemPropertiesBox_rgb_component() {
         ItemPropertiesBox iprp = new ItemPropertiesBox();
         ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
-        ipco.addProperty(makeComponentDefinitionBox());
-        ipco.addProperty(makeUncompressedFrameConfigBox());
+        ipco.addProperty(makeComponentDefinitionBox_rgb_generic());
+        ipco.addProperty(makeUncompressedFrameConfigBox_rgb_component());
         ipco.addProperty(makeImageSpatialExtentsProperty());
-        ipco.addProperty(makeRandomContentId()); // 4
-        ipco.addProperty(makeClockInfoItemProperty()); // 5
-        ipco.addProperty(makeTimeStampBox()); // 6
         iprp.setItemProperties(ipco);
 
+        iprp.addItemPropertyAssociation(makePropertyAssociations());
+
+        return iprp;
+    }
+
+    private ItemPropertyAssociation makePropertyAssociations() {
         ItemPropertyAssociation itemPropertyAssociation = new ItemPropertyAssociation();
         {
             AssociationEntry mainItemAssociations = new AssociationEntry();
@@ -192,42 +182,28 @@ public class WriteSignedIntegerTest {
             associationToImageSpatialExtentsProperty.setEssential(true);
             mainItemAssociations.addAssociation(associationToImageSpatialExtentsProperty);
 
-            PropertyAssociation associationToContentIDProperty = new PropertyAssociation();
-            associationToContentIDProperty.setPropertyIndex(4);
-            associationToContentIDProperty.setEssential(false);
-            mainItemAssociations.addAssociation(associationToContentIDProperty);
-
-            {
-                PropertyAssociation associationToClockInfo = new PropertyAssociation();
-                associationToClockInfo.setPropertyIndex(5);
-                associationToClockInfo.setEssential(false);
-                mainItemAssociations.addAssociation(associationToClockInfo);
-            }
-            {
-                PropertyAssociation assocationToTimestampTAI = new PropertyAssociation();
-                assocationToTimestampTAI.setPropertyIndex(6);
-                assocationToTimestampTAI.setEssential(false);
-                mainItemAssociations.addAssociation(assocationToTimestampTAI);
-            }
-
             itemPropertyAssociation.addEntry(mainItemAssociations);
         }
-        iprp.addItemPropertyAssociation(itemPropertyAssociation);
-
-        return iprp;
+        return itemPropertyAssociation;
     }
 
-    private ComponentDefinitionBox makeComponentDefinitionBox() {
+    private ComponentDefinitionBox makeComponentDefinitionBox_rgb_generic() {
         ComponentDefinitionBox cmpd = new ComponentDefinitionBox();
-        ComponentDefinition monoComponent = new ComponentDefinition(0, null);
-        cmpd.addComponentDefinition(monoComponent);
+        ComponentDefinition redComponent = new ComponentDefinition(4, null);
+        cmpd.addComponentDefinition(redComponent);
+        ComponentDefinition greenComponent = new ComponentDefinition(5, null);
+        cmpd.addComponentDefinition(greenComponent);
+        ComponentDefinition blueComponent = new ComponentDefinition(6, null);
+        cmpd.addComponentDefinition(blueComponent);
         return cmpd;
     }
 
-    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox() {
+    private UncompressedFrameConfigBox makeUncompressedFrameConfigBox_rgb_component() {
         UncompressedFrameConfigBox uncc = new UncompressedFrameConfigBox();
         uncc.setProfile(new FourCC(0));
-        uncc.addComponent(new Component(0, 7, ComponentFormat.SignedInteger, 0));
+        uncc.addComponent(new Component(0, 7, ComponentFormat.UnsignedInteger, 0));
+        uncc.addComponent(new Component(1, 7, ComponentFormat.UnsignedInteger, 0));
+        uncc.addComponent(new Component(2, 7, ComponentFormat.UnsignedInteger, 0));
         uncc.setSamplingType(SamplingType.NoSubsampling);
         uncc.setInterleaveType(Interleaving.Component);
         uncc.setBlockSize(0);
@@ -240,35 +216,94 @@ public class WriteSignedIntegerTest {
         uncc.setRowAlignSize(0);
         uncc.setTileAlignSize(0);
         uncc.setNumTileColumnsMinusOne(0);
-        uncc.setNumTileColumnsMinusOne(0);
+        uncc.setNumTileRowsMinusOne(0);
         return uncc;
     }
 
     private ImageSpatialExtentsProperty makeImageSpatialExtentsProperty() {
         ImageSpatialExtentsProperty ispe = new ImageSpatialExtentsProperty();
-        ispe.setImageHeight(imageHeight);
-        ispe.setImageWidth(imageWidth);
+        ispe.setImageHeight(IMAGE_HEIGHT);
+        ispe.setImageWidth(IMAGE_WIDTH);
         return ispe;
     }
 
-    private Box makeItemReferenceBox() {
-        ItemReferenceBox iref = new ItemReferenceBox();
-        return iref;
+    private MediaDataBox createMediaDataBox_rgb_component() throws IOException {
+        MediaDataBox mdat = new MediaDataBox();
+        byte[] data = createUncompressedData();
+        mdat.setData(data);
+        return mdat;
     }
 
-    private MediaDataBox createMediaDataBox8() throws IOException {
-        MediaDataBox mdat = new MediaDataBox();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        for (int j = 0; j < imageHeight; j++) {
-            for (int i = 0; i < imageWidth; i++) {
-                int sign = (j % 2 == 0) ? 1 : -1;
-                byte value = (byte) (i * sign);
-                // System.out.println("value: " + value);
-                baos.write(value);
+    private byte[] createUncompressedData() throws IOException {
+        SampleModel sampleModel =
+                new BandedSampleModel(DataBuffer.TYPE_BYTE, IMAGE_WIDTH, IMAGE_HEIGHT, 3);
+        WritableRaster raster = Raster.createWritableRaster(sampleModel, (Point) null);
+        ColorModel colourModel =
+                new ComponentColorModel(
+                        ColorSpace.getInstance(ColorSpace.CS_sRGB),
+                        false,
+                        true,
+                        Transparency.OPAQUE,
+                        DataBuffer.TYPE_BYTE);
+        BufferedImage image = new BufferedImage(colourModel, raster, true, null);
+        drawColouredRectangles(image);
+        ImageIO.write(image, "PNG", new File("ref_component.png"));
+        DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
+        int numBanks = buffer.getNumBanks();
+        int totalSize = 0;
+        for (int i = 0; i < numBanks; i++) {
+            totalSize += buffer.getData(i).length;
+        }
+        byte[] data = new byte[totalSize];
+        int destination = 0;
+        for (int i = 0; i < numBanks; i++) {
+            System.arraycopy(buffer.getData(i), 0, data, destination, buffer.getData(i).length);
+            destination += buffer.getData(i).length;
+        }
+        return data;
+    }
+
+    public static BufferedImage deepCopy(BufferedImage source) {
+        SampleModel sampleModel =
+                new BandedSampleModel(
+                        DataBuffer.TYPE_BYTE, source.getWidth(), source.getHeight(), 3);
+        WritableRaster raster = Raster.createWritableRaster(sampleModel, (Point) null);
+        BufferedImage b = new BufferedImage(source.getColorModel(), raster, true, null);
+        Graphics2D g = b.createGraphics();
+        g.drawImage(source, 0, 0, null);
+        g.dispose();
+        return b;
+    }
+
+    protected static final Color[] COLOURS =
+            new Color[] {
+                Color.RED,
+                Color.GREEN,
+                Color.BLUE,
+                Color.BLACK,
+                Color.WHITE,
+                Color.DARK_GRAY,
+                Color.CYAN,
+                Color.MAGENTA,
+                Color.LIGHT_GRAY,
+                Color.YELLOW,
+                Color.PINK,
+                Color.ORANGE,
+                Color.GRAY
+            };
+
+    private void drawColouredRectangles(BufferedImage image) {
+        Graphics2D g2 = image.createGraphics();
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 4; c++) {
+                g2.setColor(COLOURS[r * 4 + c]);
+                g2.fillRect(
+                        c * IMAGE_WIDTH / 4,
+                        r * IMAGE_HEIGHT / 3,
+                        IMAGE_WIDTH / 4,
+                        IMAGE_HEIGHT / 3);
             }
         }
-        mdat.setData(baos.toByteArray());
-        return mdat;
     }
 
     private void writeBoxes(List<Box> boxes, String outputPathName) throws IOException {
@@ -280,29 +315,5 @@ public class WriteSignedIntegerTest {
         }
         File testOut = new File(outputPathName);
         Files.write(testOut.toPath(), baos.toByteArray(), StandardOpenOption.CREATE);
-    }
-
-    private TAITimeStampBox makeTimeStampBox() {
-        TAITimeStampBox itai = new TAITimeStampBox();
-        TAITimeStampPacket time_stamp_packet = new TAITimeStampPacket();
-        Instant instant = TIMESTAMP.toInstant(ZoneOffset.UTC);
-        UtcInstant utcInstant = UtcInstant.of(instant);
-        TaiInstant taiInstant = utcInstant.toTaiInstant();
-        long timestamp =
-                GIMIUtils.NANOS_PER_SECOND * taiInstant.getTaiSeconds() + taiInstant.getNano();
-        time_stamp_packet.setTAITimeStamp(timestamp);
-        time_stamp_packet.setStatusBits((byte) 0x02);
-        itai.setTimeStampPacket(time_stamp_packet);
-        return itai;
-    }
-
-    private TAIClockInfoItemProperty makeClockInfoItemProperty() {
-
-        TAIClockInfoItemProperty taic = new TAIClockInfoItemProperty();
-        taic.setTimeUncertainty(5 * GIMIUtils.NANOS_PER_SECOND);
-        taic.setCorrectionOffset(0);
-        taic.setClockDriftRate(Float.NaN);
-        taic.setReferenceSourceType((byte) 0x01);
-        return taic;
     }
 }

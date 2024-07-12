@@ -33,7 +33,7 @@ public class CompressionConfigurationItemPropertyParser implements PropertyParse
         box.setFlags(parseFlags(parseContext));
         box.setCompressionType(parseContext.readFourCC());
         int v = parseContext.readUnsignedInt8();
-        box.setCanDecompressContiguousRanges((v & 0x80) == 0x80);
+        box.setMustDecompressIndividualEntities((v & 0x80) == 0x80);
         box.setCompressedRangeType(CompressionRangeType.getTypeForValue((v & 0x7f)));
         return box;
     }

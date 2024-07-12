@@ -3,7 +3,7 @@ package net.frogmouth.rnd.eofff.uncompressed.cmpc;
 /** Compression Range Type. */
 public enum CompressionRangeType {
     /** The entity is the full item or sample. */
-    FULL_IMAGE(0),
+    FULL_ITEM(0),
     /**
      * The entity is the full image for a given component (component-based interleave and mixed
      * interleave).
@@ -29,8 +29,6 @@ public enum CompressionRangeType {
      * <p>Only applicable to image-related types.
      */
     PIXEL(4),
-    /** The entity is a single KLV-encoded key. */
-    KLV(5),
     /**
      * The entity is not known.
      *
