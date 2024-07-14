@@ -13,16 +13,16 @@ import org.testng.annotations.Test;
 public class ComponentPaletteBoxTest extends PropertyTestSupport {
     private static final byte[] CPAL_BYTES =
             new byte[] {
-                0x00, 0x00, 0x00, 0x24, 0x63, 0x70, 0x61, 0x6c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03,
-                0x00, 0x01, 0x07, 0x00, 0x00, 0x02, 0x07, 0x00, 0x00, 0x03, 0x07, 0x00, 0x00, 0x00,
-                0x00, 0x02, 0x10, 0x20, 0x30, 0x11, 0x21, 0x31
+                0x00, 0x00, 0x00, 0x2a, 0x63, 0x70, 0x61, 0x6c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03,
+                0x00, 0x00, 0x00, 0x01, 0x07, 0x00, 0x00, 0x00, 0x00, 0x02, 0x07, 0x00, 0x00, 0x00,
+                0x00, 0x03, 0x07, 0x00, 0x00, 0x00, 0x00, 0x02, 0x10, 0x20, 0x30, 0x11, 0x21, 0x31
             };
 
     @Test
     public void checkParse() throws IOException {
         AbstractItemProperty prop = parseBytesToSingleProperty(CPAL_BYTES);
-        assertTrue(prop instanceof ComponentPaletteBox);
-        ComponentPaletteBox cpal = (ComponentPaletteBox) prop;
+        assertTrue(prop instanceof ComponentPaletteProperty);
+        ComponentPaletteProperty cpal = (ComponentPaletteProperty) prop;
         assertTrue(cpal.getFourCC().toString().equals("cpal"));
         assertEquals(cpal.getFullName(), "ComponentPaletteBox");
         assertEquals(cpal.getComponents().size(), 3);
@@ -44,7 +44,7 @@ public class ComponentPaletteBoxTest extends PropertyTestSupport {
 
     @Test
     public void checkWrite() throws IOException {
-        ComponentPaletteBox box = new ComponentPaletteBox();
+        ComponentPaletteProperty box = new ComponentPaletteProperty();
         box.addComponent(new PaletteComponent(1, 7, 0));
         box.addComponent(new PaletteComponent(2, 7, 0));
         box.addComponent(new PaletteComponent(3, 7, 0));

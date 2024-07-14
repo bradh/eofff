@@ -24,7 +24,7 @@ import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
-import net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteBox;
+import net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteProperty;
 import net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampBox;
 import net.frogmouth.rnd.eofff.uncompressed.sbpm.SensorBadPixelsMapBox;
 import net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoItemProperty;
@@ -134,7 +134,7 @@ class GIMIValidator {
     protected void checkComponentPaletteBoxIsPresentIfNeeded(
             List<Component> components,
             List<ComponentDefinition> componentDefinitions,
-            ComponentPaletteBox cpal) {
+            ComponentPaletteProperty cpal) {
         int numberOfP = getNumberOfPaletteComponents(components, componentDefinitions);
         if ((numberOfP > 0) && (cpal == null)) {
             fail(
@@ -799,7 +799,7 @@ class GIMIValidator {
         ComponentDefinitionBox cmpd = null;
         UncompressedFrameConfigBox uncC = null;
         ImageSpatialExtentsProperty ispe = null;
-        ComponentPaletteBox cpal = null;
+        ComponentPaletteProperty cpal = null;
         SensorBadPixelsMapBox sbpm = null;
         UserDescriptionProperty udes = null;
         MaskConfigurationProperty mskC = null;
@@ -813,7 +813,7 @@ class GIMIValidator {
             } else if (property
                     instanceof ImageSpatialExtentsProperty imageSpatialExtentsProperty) {
                 ispe = imageSpatialExtentsProperty;
-            } else if (property instanceof ComponentPaletteBox componentPaletteBox) {
+            } else if (property instanceof ComponentPaletteProperty componentPaletteBox) {
                 cpal = componentPaletteBox;
             } else if (property instanceof SensorBadPixelsMapBox sensorBadPixelsMapBox) {
                 sbpm = sensorBadPixelsMapBox;

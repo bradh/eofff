@@ -29,6 +29,7 @@
         <module>uncompressed_experiments</module>
         <module>demos</module>
         <module>cenc</module>
+        <module>png</module>
     </modules>
     <properties>
         <auto-service.version>1.1.1</auto-service.version>

@@ -10,16 +10,16 @@ import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullProperty;
 /**
  * Component Palette Box.
  *
- * <p>See ISO/IEC 23001-17 (DIS) Section 6.1.2.
+ * <p>See ISO/IEC 23001-17:2024 Section 6.1.2.
  */
-public class ComponentPaletteBox extends ItemFullProperty {
+public class ComponentPaletteProperty extends ItemFullProperty {
 
     public static final FourCC CPAL_ATOM = new FourCC("cpal");
 
     private final List<PaletteComponent> components = new ArrayList<>();
     private byte[][] componentValues;
 
-    public ComponentPaletteBox() {
+    public ComponentPaletteProperty() {
         super(CPAL_ATOM);
     }
 

@@ -9,20 +9,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @AutoService(net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser.class)
-public class ComponentPaletteBoxParser implements PropertyParser {
-    private static final Logger LOG = LoggerFactory.getLogger(ComponentPaletteBoxParser.class);
+public class ComponentPalettePropertyParser implements PropertyParser {
+    private static final Logger LOG = LoggerFactory.getLogger(ComponentPalettePropertyParser.class);
 
-    public ComponentPaletteBoxParser() {}
+    public ComponentPalettePropertyParser() {}
 
     @Override
     public FourCC getFourCC() {
-        return ComponentPaletteBox.CPAL_ATOM;
+        return ComponentPaletteProperty.CPAL_ATOM;
     }
 
     @Override
     public AbstractItemProperty parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        ComponentPaletteBox box = new ComponentPaletteBox();
+        ComponentPaletteProperty box = new ComponentPaletteProperty();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
@@ -32,7 +32,7 @@ public class ComponentPaletteBoxParser implements PropertyParser {
         box.setFlags(parseFlags(parseContext));
         int component_count = parseContext.readUnsignedInt16();
         for (int i = 0; i < component_count; i++) {
-            int component_index = parseContext.readUnsignedInt16();
+            long component_index = parseContext.readUnsignedInt32();
             int component_bit_depth_minus_one = parseContext.readUnsignedInt8();
             int component_format = parseContext.readUnsignedInt8();
             PaletteComponent component =

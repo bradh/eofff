@@ -14,7 +14,7 @@ module net.frogmouth.rnd.eofff.uncompressed {
             net.frogmouth.rnd.eofff.uncompressed.cloc.ChromaLocationBoxParser,
             net.frogmouth.rnd.eofff.uncompressed.cmpc.CompressionConfigurationItemPropertyParser,
             net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBoxParser,
-            net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteBoxParser,
+            net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPalettePropertyParser,
             net.frogmouth.rnd.eofff.uncompressed.depi.DepthInfoBoxParser,
             net.frogmouth.rnd.eofff.uncompressed.disi.DisparityInformationBoxParser,
             net.frogmouth.rnd.eofff.uncompressed.icbr.ItemCompressedByteRangeInfoParser,

@@ -5,17 +5,17 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class PaletteComponent {
 
-    private final int componentIndex;
+    private final long componentIndex;
     private final int componentBitDepthMinusOne;
     private final int componentFormat;
 
-    public PaletteComponent(int index, int bit_depth_minus_one, int format) {
+    public PaletteComponent(long index, int bit_depth_minus_one, int format) {
         this.componentIndex = index;
         this.componentBitDepthMinusOne = bit_depth_minus_one;
         this.componentFormat = format;
     }
 
-    public int getComponentIndex() {
+    public long getComponentIndex() {
         return componentIndex;
     }
 
@@ -28,13 +28,13 @@ public class PaletteComponent {
     }
 
     void writeTo(OutputStreamWriter stream) throws IOException {
-        stream.writeUnsignedInt16(this.componentIndex);
+        stream.writeUnsignedInt32(this.componentIndex);
         stream.writeByte(this.componentBitDepthMinusOne);
         stream.writeByte(this.componentFormat);
     }
 
     public int getNumberOfBytes() {
-        return Short.BYTES + Byte.BYTES + Byte.BYTES;
+        return Integer.BYTES + Byte.BYTES + Byte.BYTES;
     }
 
     @Override

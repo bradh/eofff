@@ -9,6 +9,7 @@ module net.frogmouth.rnd.eofff.uncompressed_experiments {
     requires net.frogmouth.rnd.eofff.isobmff;
     // requires net.frogmouth.rnd.eofff.miaf;
     requires net.frogmouth.rnd.eofff.nalvideo;
+    requires net.frogmouth.rnd.ngiis.png;
     requires net.frogmouth.rnd.eofff.uncompressed;
     requires org.slf4j;
     requires org.apache.commons.io;
