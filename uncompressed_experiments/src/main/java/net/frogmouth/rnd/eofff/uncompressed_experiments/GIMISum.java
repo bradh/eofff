@@ -74,7 +74,7 @@ public class GIMISum implements Runnable {
 
     @Option(
             names = {"--declasDate"},
-            description = "Security marking 'declassOn' date  (YYYY-MM-DD)")
+            description = "Security marking 'declasOn' date  (YYYY-MM-DD)")
     private LocalDate declasOnDate = LocalDate.now().plus(1, ChronoUnit.YEARS);
 
     @Option(
@@ -167,7 +167,17 @@ public class GIMISum implements Runnable {
             pngFile = Files.createTempFile(null, ".png").toString();
             ProcessBuilder builder =
                     new ProcessBuilder(
-                            "/usr/bin/gdal_translate", "-of", "PNG", sourcePath, pngFile);
+                            "/usr/bin/gdal_translate",
+                            "-of",
+                            "PNG",
+                            "-b",
+                            "1",
+                            "-b",
+                            "2",
+                            "-b",
+                            "3",
+                            sourcePath,
+                            pngFile);
             if (sourcePath.endsWith(".tif")) {
                 mil.nga.tiff.TIFFImage tiffImage =
                         mil.nga.tiff.TiffReader.readTiff(new File(sourcePath));

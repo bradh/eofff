@@ -5,6 +5,7 @@ import static org.testng.Assert.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
@@ -56,6 +57,8 @@ import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
+import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.ModelTransformationProperty;
+import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.WellKnownText2Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -74,20 +77,17 @@ public class CreateGIMIGridTest extends GIMIValidator {
 
     private final int tileWidth;
     private final int tileHeight;
-    private static final int NUM_TILE_ROWS = 16;
-    private static final int NUM_TILE_COLUMNS = 20;
+    private static final int NUM_TILE_ROWS = 18;
+    private static final int NUM_TILE_COLUMNS = 19;
     private final int imageHeight;
     private final int imageWidth;
-    private static final int MDAT_START_GRID = 27000;
+    private static final int MDAT_START_GRID = 27000 + 1415 + 154;
     private static final int MDAT_START_GRID_DATA = MDAT_START_GRID + 2 * Integer.BYTES;
     private final int tileSizeBytes;
 
     private static final UUID GRID_ITEM_CONTENT_ID_UUID = UUID.randomUUID();
-    private static final String GRID_ITEM_CONTENT_ID = "urn:uuid:" + GRID_ITEM_CONTENT_ID_UUID;
 
     private static final UUID FAKE_SECURITY_CONTENT_ID_UUID = UUID.randomUUID();
-    private static final String FAKE_SECURITY_CONTENT_ID =
-            "urn:uuid:" + FAKE_SECURITY_CONTENT_ID_UUID;
     private final String FAKE_SECURITY_MIME_TYPE = "application/x.fake-dni-arh+xml";
     private final String FAKE_SECURITY_XML =
             """
@@ -97,16 +97,18 @@ public class CreateGIMIGridTest extends GIMIValidator {
             </FakeSecurity>""";
 
     private final FileDirectory directory;
-    private final GeoTransform transform;
     private static final UUID CONTENT_ID_UUID =
             UUID.fromString("aac8ab7d-f519-5437-b7d3-c973d155e253");
 
-    private LocalDateTime TIMESTAMP = LocalDateTime.of(LocalDate.of(2017, 5, 7), LocalTime.MIN);
+    private final LocalDateTime TIMESTAMP =
+            LocalDateTime.of(LocalDate.of(2017, 5, 7), LocalTime.MIN);
+    List<Double> pixelScale;
+    List<Double> modelTiePoint;
 
     private final String path;
 
     public CreateGIMIGridTest() throws IOException {
-        path = "/home/bradh/gdal_hacks/ACT2017-epsg4326-trimmed.tif";
+        path = "/home/bradh/gdal_hacks/ACT2017-cog.tif";
         mil.nga.tiff.TIFFImage tiffImage = mil.nga.tiff.TiffReader.readTiff(new File(path));
         List<mil.nga.tiff.FileDirectory> directories = tiffImage.getFileDirectories();
         directory = directories.get(0);
@@ -115,13 +117,12 @@ public class CreateGIMIGridTest extends GIMIValidator {
         imageHeight = (int) directory.getImageHeight();
         imageWidth = (int) directory.getImageWidth();
         tileSizeBytes = tileWidth * tileHeight * NUM_BYTES_PER_PIXEL_RGB;
-        List<Double> pixelScale = directory.getModelPixelScale();
-        List<Double> modelTiePoint = directory.getModelTiepoint();
-        transform = new GeoTransform(modelTiePoint, pixelScale);
+        pixelScale = directory.getModelPixelScale();
+        modelTiePoint = directory.getModelTiepoint();
     }
 
     @Test
-    public void writeFile_rgb_grid() throws IOException {
+    public void writeFile_rgb_grid_no_pymd() throws IOException {
         List<Box> boxes = new ArrayList<>();
         FileTypeBox ftyp = createFileTypeBox();
         boxes.add(ftyp);
@@ -134,11 +135,11 @@ public class CreateGIMIGridTest extends GIMIValidator {
         boxes.add(free);
         MediaDataBox mdat = createMediaDataBox_rgb_grid();
         boxes.add(mdat);
-        writeBoxes(boxes, "test_gimi_rgb_grid.heif");
+        writeBoxes(boxes, "ACT2017_gimi_rgb_grid_no_pymd.heif");
     }
 
     @Test
-    public void writeFile_rgb_tile() throws IOException {
+    public void writeFile_rgb_tile_no_pymd() throws IOException {
         List<Box> boxes = new ArrayList<>();
         FileTypeBox ftyp = createFileTypeBox();
         boxes.add(ftyp);
@@ -151,11 +152,11 @@ public class CreateGIMIGridTest extends GIMIValidator {
         boxes.add(free);
         MediaDataBox mdat = createMediaDataBox_rgb_grid();
         boxes.add(mdat);
-        writeBoxes(boxes, "test_gimi_rgb_tile.heif");
+        writeBoxes(boxes, "ACT2017_gimi_rgb_tile_no_pymd.heif");
     }
 
     @Test
-    public void writeFile_rgb_grid_or_tile() throws IOException {
+    public void writeFile_rgb_grid_or_tile_no_pymd() throws IOException {
         List<Box> boxes = new ArrayList<>();
         FileTypeBox ftyp = createFileTypeBox();
         boxes.add(ftyp);
@@ -168,7 +169,7 @@ public class CreateGIMIGridTest extends GIMIValidator {
         boxes.add(free);
         MediaDataBox mdat = createMediaDataBox_rgb_grid();
         boxes.add(mdat);
-        writeBoxes(boxes, "test_gimi_rgb_grid_or_tile.heif");
+        writeBoxes(boxes, "ACT2017_gimi_rgb_grid_or_tile_no_pymd.heif");
     }
 
     private void writeBoxes(List<Box> boxes, String outputPathName) throws IOException {
@@ -184,7 +185,11 @@ public class CreateGIMIGridTest extends GIMIValidator {
             box.writeTo(streamWriter);
         }
         File testOut = new File(outputPathName);
-        Files.write(testOut.toPath(), baos.toByteArray(), StandardOpenOption.CREATE);
+        Files.write(
+                testOut.toPath(),
+                baos.toByteArray(),
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING);
     }
 
     private FileTypeBox createFileTypeBox() {
@@ -542,6 +547,8 @@ public class CreateGIMIGridTest extends GIMIValidator {
         ipco.addProperty(makeUserDescription_copyright()); // 7
         ipco.addProperty(makeClockInfoItemProperty()); // 8
         ipco.addProperty(makeTimeStampBox()); // 9
+        ipco.addProperty(makeModelTransformationProperty()); // 10
+        ipco.addProperty(makeWKT2Property()); // 11
         iprp.setItemProperties(ipco);
 
         {
@@ -610,6 +617,18 @@ public class CreateGIMIGridTest extends GIMIValidator {
                 assocationToTimestampTAI.setEssential(false);
                 entry.addAssociation(assocationToTimestampTAI);
             }
+            {
+                PropertyAssociation associationToTransformMatrix = new PropertyAssociation();
+                associationToTransformMatrix.setPropertyIndex(10);
+                associationToTransformMatrix.setEssential(false);
+                entry.addAssociation(associationToTransformMatrix);
+            }
+            {
+                PropertyAssociation associationToWkt2 = new PropertyAssociation();
+                associationToWkt2.setPropertyIndex(11);
+                associationToWkt2.setEssential(false);
+                entry.addAssociation(associationToWkt2);
+            }
             assoc.addEntry(entry);
             iprp.addItemPropertyAssociation(assoc);
         }
@@ -641,6 +660,8 @@ public class CreateGIMIGridTest extends GIMIValidator {
         ipco.addProperty(makeUserDescription_copyright()); // 6
         ipco.addProperty(makeClockInfoItemProperty()); // 7
         ipco.addProperty(makeTimeStampBox()); // 8
+        ipco.addProperty(makeModelTransformationProperty()); // 9
+        ipco.addProperty(makeWKT2Property()); // 10
         iprp.setItemProperties(ipco);
 
         {
@@ -686,10 +707,22 @@ public class CreateGIMIGridTest extends GIMIValidator {
                 entry.addAssociation(associationToClockInfo);
             }
             {
-                PropertyAssociation assocationToTimestampTAI = new PropertyAssociation();
-                assocationToTimestampTAI.setPropertyIndex(8);
-                assocationToTimestampTAI.setEssential(false);
-                entry.addAssociation(assocationToTimestampTAI);
+                PropertyAssociation associationToTimestampTAI = new PropertyAssociation();
+                associationToTimestampTAI.setPropertyIndex(8);
+                associationToTimestampTAI.setEssential(false);
+                entry.addAssociation(associationToTimestampTAI);
+            }
+            {
+                PropertyAssociation associationToTransformMatrix = new PropertyAssociation();
+                associationToTransformMatrix.setPropertyIndex(9);
+                associationToTransformMatrix.setEssential(false);
+                entry.addAssociation(associationToTransformMatrix);
+            }
+            {
+                PropertyAssociation associationToWkt2 = new PropertyAssociation();
+                associationToWkt2.setPropertyIndex(10);
+                associationToWkt2.setEssential(false);
+                entry.addAssociation(associationToWkt2);
             }
             assoc.addEntry(entry);
             iprp.addItemPropertyAssociation(assoc);
@@ -724,6 +757,8 @@ public class CreateGIMIGridTest extends GIMIValidator {
         ipco.addProperty(makeUserDescription_copyright()); // 8
         ipco.addProperty(makeClockInfoItemProperty()); // 9
         ipco.addProperty(makeTimeStampBox()); // 10
+        ipco.addProperty(makeModelTransformationProperty()); // 11
+        ipco.addProperty(makeWKT2Property()); // 12
         iprp.setItemProperties(ipco);
 
         {
@@ -792,6 +827,18 @@ public class CreateGIMIGridTest extends GIMIValidator {
                 assocationToTimestampTAI.setEssential(false);
                 entry.addAssociation(assocationToTimestampTAI);
             }
+            {
+                PropertyAssociation associationToTransformMatrix = new PropertyAssociation();
+                associationToTransformMatrix.setPropertyIndex(11);
+                associationToTransformMatrix.setEssential(false);
+                entry.addAssociation(associationToTransformMatrix);
+            }
+            {
+                PropertyAssociation associationToWkt2 = new PropertyAssociation();
+                associationToWkt2.setPropertyIndex(12);
+                associationToWkt2.setEssential(false);
+                entry.addAssociation(associationToWkt2);
+            }
             assoc.addEntry(entry);
             iprp.addItemPropertyAssociation(assoc);
         }
@@ -843,6 +890,18 @@ public class CreateGIMIGridTest extends GIMIValidator {
                 assocationToTimestampTAI.setPropertyIndex(10);
                 assocationToTimestampTAI.setEssential(false);
                 entry.addAssociation(assocationToTimestampTAI);
+            }
+            {
+                PropertyAssociation associationToTransformMatrix = new PropertyAssociation();
+                associationToTransformMatrix.setPropertyIndex(11);
+                associationToTransformMatrix.setEssential(false);
+                entry.addAssociation(associationToTransformMatrix);
+            }
+            {
+                PropertyAssociation associationToWkt2 = new PropertyAssociation();
+                associationToWkt2.setPropertyIndex(12);
+                associationToWkt2.setEssential(false);
+                entry.addAssociation(associationToWkt2);
             }
             assoc.addEntry(entry);
             iprp.addItemPropertyAssociation(assoc);
@@ -978,7 +1037,7 @@ public class CreateGIMIGridTest extends GIMIValidator {
         uncc.setRowAlignSize(0);
         uncc.setTileAlignSize(0);
         uncc.setNumTileColumnsMinusOne(0);
-        uncc.setNumTileColumnsMinusOne(0);
+        uncc.setNumTileRowsMinusOne(0);
         return uncc;
     }
 
@@ -1048,16 +1107,20 @@ public class CreateGIMIGridTest extends GIMIValidator {
     private UUIDProperty makeContentIdPropertyGridItem() {
         UUIDProperty contentIdProperty = new UUIDProperty();
         contentIdProperty.setExtendedType(CONTENT_ID_UUID);
-        contentIdProperty.setPayload(GRID_ITEM_CONTENT_ID.getBytes(StandardCharsets.UTF_8));
-        System.out.println(contentIdProperty.toString());
+        ByteBuffer bb = ByteBuffer.allocate(16);
+        bb.putLong(GRID_ITEM_CONTENT_ID_UUID.getMostSignificantBits());
+        bb.putLong(GRID_ITEM_CONTENT_ID_UUID.getLeastSignificantBits());
+        contentIdProperty.setPayload(bb.array());
         return contentIdProperty;
     }
 
     private UUIDProperty makeContentIdPropertyFakeSecurity() {
         UUIDProperty contentIdProperty = new UUIDProperty();
         contentIdProperty.setExtendedType(CONTENT_ID_UUID);
-        contentIdProperty.setPayload(FAKE_SECURITY_CONTENT_ID.getBytes(StandardCharsets.UTF_8));
-        System.out.println(contentIdProperty.toString());
+        ByteBuffer bb = ByteBuffer.allocate(16);
+        bb.putLong(FAKE_SECURITY_CONTENT_ID_UUID.getMostSignificantBits());
+        bb.putLong(FAKE_SECURITY_CONTENT_ID_UUID.getLeastSignificantBits());
+        contentIdProperty.setPayload(bb.array());
         return contentIdProperty;
     }
 
@@ -1083,5 +1146,31 @@ public class CreateGIMIGridTest extends GIMIValidator {
         taic.setClockDriftRate(Float.NaN);
         taic.setReferenceSourceType((byte) 0x01);
         return taic;
+    }
+
+    private ModelTransformationProperty makeModelTransformationProperty() {
+        ModelTransformationProperty modelTransformation = new ModelTransformationProperty();
+        assertEquals(this.pixelScale.size(), 3);
+        assertEquals(this.pixelScale.get(2), 0.0);
+        double sx = this.pixelScale.get(0);
+        double sy = this.pixelScale.get(1);
+        assertEquals(this.modelTiePoint.size(), 6);
+        double tx = this.modelTiePoint.get(3) + this.modelTiePoint.get(0) / sx;
+        double ty = this.modelTiePoint.get(4) + this.modelTiePoint.get(1) / sy;
+        modelTransformation.setM00(sx);
+        modelTransformation.setM01(0.0);
+        modelTransformation.setM03(tx);
+        modelTransformation.setM10(0.0);
+        modelTransformation.setM11(-1.0 * sy);
+        modelTransformation.setM13(ty);
+        return modelTransformation;
+    }
+
+    private WellKnownText2Property makeWKT2Property() {
+        WellKnownText2Property prop = new WellKnownText2Property();
+        // TODO: make sure it is not hard coded
+        prop.setWkt2(
+                "PROJCRS[\"GDA94 / MGA zone 55\",BASEGEOGCRS[\"GDA94\",DATUM[\"Geocentric Datum of Australia 1994\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4283]],CONVERSION[\"Map Grid of Australia zone 55\",METHOD[\"Transverse Mercator\",ID[\"EPSG\",9807]],PARAMETER[\"Latitude of natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",147,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8802]],PARAMETER[\"Scale factor at natural origin\",0.9996,SCALEUNIT[\"unity\",1],ID[\"EPSG\",8805]],PARAMETER[\"False easting\",500000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",10000000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"(E)\",east,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"(N)\",north,ORDER[2],LENGTHUNIT[\"metre\",1]],USAGE[SCOPE[\"Engineering survey, topographic mapping.\"],AREA[\"Australia - onshore and offshore between 144°E and 150°E.\"],BBOX[-50.89,144,-9.23,150.01]],ID[\"EPSG\",28355]]");
+        return prop;
     }
 }

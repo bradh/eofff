@@ -4,11 +4,10 @@ import java.io.IOException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import net.frogmouth.rnd.eofff.isobmff.trgr.TrackGroupBox;
 
 public class FullBox extends BaseBox {
-    private static final long BYTES_IN_FULL_BOX_HEADER = Integer.BYTES + FourCC.BYTES + 1 + 3;
-    private static final long BYTES_IN_LARGE_FULL_BOX_HEADER =
+    protected static final long BYTES_IN_FULL_BOX_HEADER = Integer.BYTES + FourCC.BYTES + 1 + 3;
+    protected static final long BYTES_IN_LARGE_FULL_BOX_HEADER =
             Integer.BYTES + FourCC.BYTES + Long.BYTES + 1 + 3;
     public static final ZonedDateTime ISOBMFF_EPOCH =
             ZonedDateTime.of(1904, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
@@ -78,7 +77,7 @@ public class FullBox extends BaseBox {
         long bodySize = getBodySize();
         if (needLargeSize(bodySize)) {
             long boxSize = BYTES_IN_LARGE_FULL_BOX_HEADER + bodySize;
-            stream.writeUnsignedInt32(TrackGroupBox.LARGE_SIZE_FLAG);
+            stream.writeUnsignedInt32(LARGE_SIZE_FLAG);
             stream.writeFourCC(this.getFourCC());
             stream.writeLong(boxSize);
         } else {

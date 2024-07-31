@@ -27,7 +27,7 @@ public class OutputStreamWriter {
     }
 
     public void writeNullTerminatedString(String name) throws IOException {
-        write(name.getBytes(StandardCharsets.US_ASCII));
+        write(name.getBytes(StandardCharsets.UTF_8));
         writeByte(0); // NULL terminator
     }
 
@@ -101,6 +101,17 @@ public class OutputStreamWriter {
 
     public void writeDouble32(float f) throws IOException {
         outputStream.write(floatToBytes(f));
+    }
+
+    private byte[] doubleToBytes(double d) {
+        ByteBuffer buffer = ByteBuffer.allocate(Double.BYTES);
+        buffer.putDouble(d);
+        buffer.rewind();
+        return buffer.array();
+    }
+
+    public void writeDouble64(double d) throws IOException {
+        outputStream.write(doubleToBytes(d));
     }
 
     public void writeUUID(UUID uuid) throws IOException {

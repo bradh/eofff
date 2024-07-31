@@ -261,7 +261,7 @@ public class WriteFloat64Test {
         uncc.setRowAlignSize(0);
         uncc.setTileAlignSize(0);
         uncc.setNumTileColumnsMinusOne(0);
-        uncc.setNumTileColumnsMinusOne(0);
+        uncc.setNumTileRowsMinusOne(0);
         return uncc;
     }
 
