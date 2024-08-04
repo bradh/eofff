@@ -12,6 +12,7 @@ import net.frogmouth.rnd.eofff.isobmff.Box;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.Brand;
 import net.frogmouth.rnd.eofff.isobmff.ftyp.FileTypeBox;
+import net.frogmouth.rnd.eofff.isobmff.grpl.GroupsListBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBox;
 import net.frogmouth.rnd.eofff.isobmff.idat.ItemDataBox;
 import net.frogmouth.rnd.eofff.isobmff.iinf.ItemInfoBox;
@@ -899,6 +900,8 @@ class GIMIValidator {
             } else if (box instanceof ItemDataBox idat) {
                 // Not yet
             } else if (box instanceof ItemReferenceBox iref) {
+                // Not yet
+            } else if (box instanceof GroupsListBox grpl) {
                 // Not yet
             } else {
                 fail(

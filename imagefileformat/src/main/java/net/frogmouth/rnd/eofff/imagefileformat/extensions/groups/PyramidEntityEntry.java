@@ -11,7 +11,7 @@ public record PyramidEntityEntry(
     public void writeTo(OutputStreamWriter writer) throws IOException {
         writer.writeUnsignedInt16(layerBinning);
         writer.writeUnsignedInt16(tilesInLayerRowMinus1);
-        writer.writeUnsignedInt32(tilesInLayerColumnMinus1);
+        writer.writeUnsignedInt16(tilesInLayerColumnMinus1);
     }
 
     public void addTo(StringBuilder sb) {
