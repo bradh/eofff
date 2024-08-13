@@ -6,7 +6,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullProperty;
 
 /**
- * Disparity Information.
+ * Compression configuration information.
  *
  * <p>See ISO/IEC 23001-17 Amd. 2 (CDAM) Section 8.2
  */
@@ -15,7 +15,6 @@ public class CompressionConfigurationItemProperty extends ItemFullProperty {
     public static final FourCC CMPC_ATOM = new FourCC("cmpC");
 
     private FourCC compressionType;
-    private boolean mustDecompressIndividualEntities;
     private CompressionRangeType compressedRangeType;
 
     public CompressionConfigurationItemProperty() {
@@ -35,14 +34,6 @@ public class CompressionConfigurationItemProperty extends ItemFullProperty {
         this.compressionType = compressionType;
     }
 
-    public boolean isMustDecompressIndividualEntities() {
-        return mustDecompressIndividualEntities;
-    }
-
-    public void setMustDecompressIndividualEntities(boolean mustDecompressIndividualEntities) {
-        this.mustDecompressIndividualEntities = mustDecompressIndividualEntities;
-    }
-
     public CompressionRangeType getCompressedRangeType() {
         return compressedRangeType;
     }
@@ -56,8 +47,6 @@ public class CompressionConfigurationItemProperty extends ItemFullProperty {
         StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
         sb.append("compression_type=");
         sb.append(compressionType);
-        sb.append(", must_decompress_individual_entities=");
-        sb.append(mustDecompressIndividualEntities);
         sb.append(", compressed_range_type=");
         sb.append(compressedRangeType);
         return sb.toString();
@@ -67,7 +56,7 @@ public class CompressionConfigurationItemProperty extends ItemFullProperty {
     public long getBodySize() {
         long count = 0;
         count += FourCC.BYTES;
-        count += Byte.BYTES; // individual entity flag + compressed range type
+        count += Byte.BYTES; // compressed range type
         return count;
     }
 
@@ -75,8 +64,6 @@ public class CompressionConfigurationItemProperty extends ItemFullProperty {
     public void writeTo(OutputStreamWriter stream) throws IOException {
         this.writeBoxHeader(stream);
         stream.writeFourCC(compressionType);
-        int v = mustDecompressIndividualEntities ? 0x80 : 0x00;
-        v |= (this.compressedRangeType.getValue() & 0x7f);
-        stream.writeUnsignedInt8(v);
+        stream.writeUnsignedInt8(this.compressedRangeType.getValue());
     }
 }

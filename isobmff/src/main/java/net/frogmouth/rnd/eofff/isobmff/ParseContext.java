@@ -75,6 +75,12 @@ public class ParseContext {
         return i;
     }
 
+    public int readUnsignedInt24() {
+        int i = readUnsignedInt8() << Short.SIZE;
+        i |= readUnsignedInt16();
+        return i;
+    }
+
     public long readUnsignedInt32() {
         long i = memorySegment.get(INT_BIG_ENDIAN, cursor) & 0x00FFFFFFFFl;
         cursor += Integer.BYTES;

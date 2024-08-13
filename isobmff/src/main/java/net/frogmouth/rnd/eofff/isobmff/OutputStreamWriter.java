@@ -53,6 +53,15 @@ public class OutputStreamWriter {
         return buffer.array();
     }
 
+    private byte[] int24ToBytes(int i) {
+        ByteBuffer buffer = ByteBuffer.allocate(3);
+        buffer.put((byte) ((i >> 16) & 0xFF));
+        buffer.put((byte) ((i >> 8) & 0xFF));
+        buffer.put((byte) (i & 0xFF));
+        buffer.rewind();
+        return buffer.array();
+    }
+
     public void writeLong(long i) throws IOException {
         outputStream.write(longToBytes(i));
     }
@@ -81,6 +90,15 @@ public class OutputStreamWriter {
     public void writeUnsignedInt16(long i) throws IOException {
         // TODO: check range
         outputStream.write(shortToBytes((short) i));
+    }
+
+    public void writeUnsignedInt24(int i) throws IOException {
+        outputStream.write(int24ToBytes(i));
+    }
+
+    public void writeUnsignedInt24(long i) throws IOException {
+        // TODO: check range
+        outputStream.write(int24ToBytes((int) i));
     }
 
     public void writeUnsignedInt32(int i) throws IOException {

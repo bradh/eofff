@@ -17,7 +17,7 @@ module net.frogmouth.rnd.eofff.uncompressed {
             net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPalettePropertyParser,
             net.frogmouth.rnd.eofff.uncompressed.depi.DepthInfoBoxParser,
             net.frogmouth.rnd.eofff.uncompressed.disi.DisparityInformationBoxParser,
-            net.frogmouth.rnd.eofff.uncompressed.icbr.ItemCompressedByteRangeInfoParser,
+            net.frogmouth.rnd.eofff.uncompressed.icef.GenericallyCompressedUnitsItemInfoParser,
             net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampBoxParser,
             net.frogmouth.rnd.eofff.uncompressed.sbpm.SensorBadPixelsMapBoxParser,
             net.frogmouth.rnd.eofff.uncompressed.taic.TAIClockInfoItemPropertyParser,
@@ -29,7 +29,7 @@ module net.frogmouth.rnd.eofff.uncompressed {
     exports net.frogmouth.rnd.eofff.uncompressed.cpal;
     exports net.frogmouth.rnd.eofff.uncompressed.depi;
     exports net.frogmouth.rnd.eofff.uncompressed.disi;
-    exports net.frogmouth.rnd.eofff.uncompressed.icbr;
+    exports net.frogmouth.rnd.eofff.uncompressed.icef;
     exports net.frogmouth.rnd.eofff.uncompressed.itai;
     exports net.frogmouth.rnd.eofff.uncompressed.pmdp;
     exports net.frogmouth.rnd.eofff.uncompressed.sbpm;

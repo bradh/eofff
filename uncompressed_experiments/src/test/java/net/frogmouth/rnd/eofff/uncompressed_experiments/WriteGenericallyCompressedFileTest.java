@@ -61,8 +61,8 @@ import net.frogmouth.rnd.eofff.uncompressed.cmpc.CompressionConfigurationItemPro
 import net.frogmouth.rnd.eofff.uncompressed.cmpc.CompressionRangeType;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
-import net.frogmouth.rnd.eofff.uncompressed.icbr.ByteRange;
-import net.frogmouth.rnd.eofff.uncompressed.icbr.ItemCompressedByteRangeInfo;
+import net.frogmouth.rnd.eofff.uncompressed.icef.CompressedUnitInfo;
+import net.frogmouth.rnd.eofff.uncompressed.icef.GenericallyCompressedUnitsItemInfo;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Component;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
@@ -87,9 +87,6 @@ public class WriteGenericallyCompressedFileTest {
     protected static final int NUM_BYTES_PER_PIXEL_RGB = 3;
 
     private static final int MDAT_HEADER_BYTES = 8;
-    private static final int IMAGE_DATA_START = MDAT_START + MDAT_HEADER_BYTES;
-    private static final int ROW_IMAGE_DATA_START = ROW_MDAT_START + 8;
-    private static final int PIXEL_IMAGE_DATA_START = PIXEL_MDAT_START + 8;
 
     public WriteGenericallyCompressedFileTest() {}
 
@@ -113,13 +110,13 @@ public class WriteGenericallyCompressedFileTest {
 
     @Test
     public void zlib_row() throws IOException {
-        ItemCompressedByteRangeInfo icbr = new ItemCompressedByteRangeInfo();
-        MediaDataBox mdat = createMediaDataBox_rgb_component_row_zlib(icbr);
+        GenericallyCompressedUnitsItemInfo icef = new GenericallyCompressedUnitsItemInfo();
+        MediaDataBox mdat = createMediaDataBox_rgb_component_row_zlib(icef);
 
         List<Box> boxes = new ArrayList<>();
         FileTypeBox ftyp = createFileTypeBox();
         boxes.add(ftyp);
-        MetaBox meta = createMetaBox_rgb_component_row_zlib(mdat.getBodySize(), icbr);
+        MetaBox meta = createMetaBox_rgb_component_row_zlib(mdat.getBodySize(), icef);
         boxes.add(meta);
         long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
         long numberOfFillBytes = ROW_MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
@@ -132,13 +129,13 @@ public class WriteGenericallyCompressedFileTest {
 
     @Test
     public void zlib_pixel() throws IOException {
-        ItemCompressedByteRangeInfo icbr = new ItemCompressedByteRangeInfo();
-        MediaDataBox mdat = createMediaDataBox_rgb_component_zlib_pixel(icbr);
+        GenericallyCompressedUnitsItemInfo icef = new GenericallyCompressedUnitsItemInfo();
+        MediaDataBox mdat = createMediaDataBox_rgb_component_zlib_pixel(icef);
 
         List<Box> boxes = new ArrayList<>();
         FileTypeBox ftyp = createFileTypeBox();
         boxes.add(ftyp);
-        MetaBox meta = createMetaBox_rgb_component_zlib_pixel(mdat.getBodySize(), icbr);
+        MetaBox meta = createMetaBox_rgb_component_zlib_pixel(mdat.getBodySize(), icef);
         boxes.add(meta);
         long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
         long numberOfFillBytes =
@@ -152,13 +149,13 @@ public class WriteGenericallyCompressedFileTest {
 
     @Test
     public void zlib_tiled() throws IOException {
-        ItemCompressedByteRangeInfo icbr = new ItemCompressedByteRangeInfo();
-        MediaDataBox mdat = createMediaDataBox_rgb_component_zlib_tiled(icbr);
+        GenericallyCompressedUnitsItemInfo icef = new GenericallyCompressedUnitsItemInfo();
+        MediaDataBox mdat = createMediaDataBox_rgb_component_zlib_tiled(icef);
 
         List<Box> boxes = new ArrayList<>();
         FileTypeBox ftyp = createFileTypeBox();
         boxes.add(ftyp);
-        MetaBox meta = createMetaBox_rgb_component_tile_zlib(mdat.getBodySize(), icbr);
+        MetaBox meta = createMetaBox_rgb_component_tile_zlib(mdat.getBodySize(), icef);
         boxes.add(meta);
         long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
         long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
@@ -189,13 +186,13 @@ public class WriteGenericallyCompressedFileTest {
 
     @Test
     public void deflate_tiled() throws IOException {
-        ItemCompressedByteRangeInfo icbr = new ItemCompressedByteRangeInfo();
-        MediaDataBox mdat = createMediaDataBox_rgb_component_deflate_tiled(icbr);
+        GenericallyCompressedUnitsItemInfo icef = new GenericallyCompressedUnitsItemInfo();
+        MediaDataBox mdat = createMediaDataBox_rgb_component_deflate_tiled(icef);
 
         List<Box> boxes = new ArrayList<>();
         FileTypeBox ftyp = createFileTypeBox();
         boxes.add(ftyp);
-        MetaBox meta = createMetaBox_rgb_component_tile_deflate(mdat.getBodySize(), icbr);
+        MetaBox meta = createMetaBox_rgb_component_tile_deflate(mdat.getBodySize(), icef);
         boxes.add(meta);
         long lengthOfPreviousBoxes = ftyp.getSize() + meta.getSize();
         long numberOfFillBytes = MDAT_START - lengthOfPreviousBoxes - LENGTH_OF_FREEBOX_HEADER;
@@ -383,7 +380,6 @@ public class WriteGenericallyCompressedFileTest {
         iloc.addItem(deflateItemLocation);
         iloc.addItem(zlibItemLocation);
         iloc.addItem(hevcItemLocation);
-        System.out.println(iloc.toString(0));
         metaChildren.add(iloc);
         metaChildren.add(idat);
         ItemPropertiesBox iprp = new ItemPropertiesBox();
@@ -682,7 +678,6 @@ public class WriteGenericallyCompressedFileTest {
             assoc.addEntry(entry);
         }
         iprp.addItemPropertyAssociation(assoc);
-        iprp.addItemPropertyAssociation(ipma);
         metaChildren.add(iprp);
         ItemReferenceBox iref = new ItemReferenceBox();
         {
@@ -844,47 +839,47 @@ public class WriteGenericallyCompressedFileTest {
         boxes.add(makeHandlerBox());
         boxes.add(makePrimaryItemBox());
         boxes.add(makeItemInfoBox());
-        boxes.add(makeItemLocationBox_rgb3(extentLength));
+        boxes.add(makeItemLocationBox_rgb3(MDAT_START + 8, extentLength));
         boxes.add(makeItemPropertiesBox_rgb_component_whole_file_zlib());
         meta.addNestedBoxes(boxes);
         return meta;
     }
 
     private MetaBox createMetaBox_rgb_component_row_zlib(
-            long extentLength, ItemCompressedByteRangeInfo icbr) throws IOException {
+            long extentLength, GenericallyCompressedUnitsItemInfo icef) throws IOException {
         MetaBox meta = new MetaBox();
         List<Box> boxes = new ArrayList<>();
         boxes.add(makeHandlerBox());
         boxes.add(makePrimaryItemBox());
         boxes.add(makeItemInfoBox());
-        boxes.add(makeItemLocationBox_rgb3(extentLength));
-        boxes.add(makeItemPropertiesBox_rgb_component_row_zlib(icbr));
+        boxes.add(makeItemLocationBox_rgb3(ROW_MDAT_START + 8, extentLength));
+        boxes.add(makeItemPropertiesBox_rgb_component_row_zlib(icef));
         meta.addNestedBoxes(boxes);
         return meta;
     }
 
     private MetaBox createMetaBox_rgb_component_zlib_pixel(
-            long extentLength, ItemCompressedByteRangeInfo icbr) throws IOException {
+            long extentLength, GenericallyCompressedUnitsItemInfo icef) throws IOException {
         MetaBox meta = new MetaBox();
         List<Box> boxes = new ArrayList<>();
         boxes.add(makeHandlerBox());
         boxes.add(makePrimaryItemBox());
         boxes.add(makeItemInfoBox());
-        boxes.add(makeItemLocationBox_rgb3(extentLength));
-        boxes.add(makeItemPropertiesBox_rgb_component_pixel_zlib(icbr));
+        boxes.add(makeItemLocationBox_rgb3(PIXEL_MDAT_START + 8, extentLength));
+        boxes.add(makeItemPropertiesBox_rgb_component_pixel_zlib(icef));
         meta.addNestedBoxes(boxes);
         return meta;
     }
 
     private MetaBox createMetaBox_rgb_component_tile_zlib(
-            long extentLength, ItemCompressedByteRangeInfo icbr) throws IOException {
+            long extentLength, GenericallyCompressedUnitsItemInfo icef) throws IOException {
         MetaBox meta = new MetaBox();
         List<Box> boxes = new ArrayList<>();
         boxes.add(makeHandlerBox());
         boxes.add(makePrimaryItemBox());
         boxes.add(makeItemInfoBox());
-        boxes.add(makeItemLocationBox_rgb3(extentLength));
-        boxes.add(makeItemPropertiesBox_rgb_component_tile_zlib(icbr));
+        boxes.add(makeItemLocationBox_rgb3(MDAT_START + 8, extentLength));
+        boxes.add(makeItemPropertiesBox_rgb_component_tile_zlib(icef));
         meta.addNestedBoxes(boxes);
         return meta;
     }
@@ -896,21 +891,21 @@ public class WriteGenericallyCompressedFileTest {
         boxes.add(makeHandlerBox());
         boxes.add(makePrimaryItemBox());
         boxes.add(makeItemInfoBox());
-        boxes.add(makeItemLocationBox_rgb3(extentLength));
+        boxes.add(makeItemLocationBox_rgb3(MDAT_START + 8, extentLength));
         boxes.add(makeItemPropertiesBox_rgb_component_whole_file_deflate());
         meta.addNestedBoxes(boxes);
         return meta;
     }
 
     private MetaBox createMetaBox_rgb_component_tile_deflate(
-            long extentLength, ItemCompressedByteRangeInfo icbr) throws IOException {
+            long extentLength, GenericallyCompressedUnitsItemInfo icef) throws IOException {
         MetaBox meta = new MetaBox();
         List<Box> boxes = new ArrayList<>();
         boxes.add(makeHandlerBox());
         boxes.add(makePrimaryItemBox());
         boxes.add(makeItemInfoBox());
-        boxes.add(makeItemLocationBox_rgb3(extentLength));
-        boxes.add(makeItemPropertiesBox_rgb_component_tile_deflate(icbr));
+        boxes.add(makeItemLocationBox_rgb3(MDAT_START + 8, extentLength));
+        boxes.add(makeItemPropertiesBox_rgb_component_tile_deflate(icef));
         meta.addNestedBoxes(boxes);
         return meta;
     }
@@ -922,7 +917,7 @@ public class WriteGenericallyCompressedFileTest {
         boxes.add(makeHandlerBox());
         boxes.add(makePrimaryItemBox());
         boxes.add(makeItemInfoBox());
-        boxes.add(makeItemLocationBox_rgb3(extentLength));
+        boxes.add(makeItemLocationBox_rgb3(MDAT_START + 8, extentLength));
         boxes.add(makeItemPropertiesBox_rgb_component_whole_file_brotli());
         meta.addNestedBoxes(boxes);
         return meta;
@@ -953,7 +948,7 @@ public class WriteGenericallyCompressedFileTest {
         return iinf;
     }
 
-    private ItemLocationBox makeItemLocationBox_rgb3(long extentLength) {
+    private ItemLocationBox makeItemLocationBox_rgb3(long offset, long extentLength) {
         ItemLocationBox iloc = new ItemLocationBox();
         iloc.setOffsetSize(4);
         iloc.setLengthSize(4);
@@ -965,7 +960,7 @@ public class WriteGenericallyCompressedFileTest {
         mainItemLocation.setItemId(MAIN_ITEM_ID);
         ILocExtent mainItemExtent = new ILocExtent();
         mainItemExtent.setExtentIndex(0);
-        mainItemExtent.setExtentOffset(IMAGE_DATA_START);
+        mainItemExtent.setExtentOffset(offset);
         mainItemExtent.setExtentLength(extentLength);
         mainItemLocation.addExtent(mainItemExtent);
         iloc.addItem(mainItemLocation);
@@ -979,7 +974,6 @@ public class WriteGenericallyCompressedFileTest {
         ipco.addProperty(makeUncompressedFrameConfigBox_rgb_component());
         ipco.addProperty(makeImageSpatialExtentsProperty());
         ipco.addProperty(makeCompressionConfigurationBoxWholeFileZlib());
-        ipco.addProperty(new ItemCompressedByteRangeInfo());
         iprp.setItemProperties(ipco);
 
         iprp.addItemPropertyAssociation(makePropertyAssociations());
@@ -987,14 +981,15 @@ public class WriteGenericallyCompressedFileTest {
         return iprp;
     }
 
-    private Box makeItemPropertiesBox_rgb_component_row_zlib(ItemCompressedByteRangeInfo icbr) {
+    private Box makeItemPropertiesBox_rgb_component_row_zlib(
+            GenericallyCompressedUnitsItemInfo icef) {
         ItemPropertiesBox iprp = new ItemPropertiesBox();
         ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
         ipco.addProperty(makeComponentDefinitionBox_rgb_generic());
         ipco.addProperty(makeUncompressedFrameConfigBox_rgb_component());
         ipco.addProperty(makeImageSpatialExtentsProperty());
         ipco.addProperty(makeCompressionConfigurationBoxRowZlib());
-        ipco.addProperty(icbr);
+        ipco.addProperty(icef);
         iprp.setItemProperties(ipco);
 
         iprp.addItemPropertyAssociation(makePropertyAssociations());
@@ -1002,14 +997,15 @@ public class WriteGenericallyCompressedFileTest {
         return iprp;
     }
 
-    private Box makeItemPropertiesBox_rgb_component_pixel_zlib(ItemCompressedByteRangeInfo icbr) {
+    private Box makeItemPropertiesBox_rgb_component_pixel_zlib(
+            GenericallyCompressedUnitsItemInfo icef) {
         ItemPropertiesBox iprp = new ItemPropertiesBox();
         ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
         ipco.addProperty(makeComponentDefinitionBox_rgb_generic());
         ipco.addProperty(makeUncompressedFrameConfigBox_rgb_component());
         ipco.addProperty(makeImageSpatialExtentsProperty());
         ipco.addProperty(makeCompressionConfigurationBoxPixelZlib());
-        ipco.addProperty(icbr);
+        ipco.addProperty(icef);
         iprp.setItemProperties(ipco);
 
         iprp.addItemPropertyAssociation(makePropertyAssociations());
@@ -1017,14 +1013,15 @@ public class WriteGenericallyCompressedFileTest {
         return iprp;
     }
 
-    private Box makeItemPropertiesBox_rgb_component_tile_zlib(ItemCompressedByteRangeInfo icbr) {
+    private Box makeItemPropertiesBox_rgb_component_tile_zlib(
+            GenericallyCompressedUnitsItemInfo icef) {
         ItemPropertiesBox iprp = new ItemPropertiesBox();
         ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
         ipco.addProperty(makeComponentDefinitionBox_rgb_generic());
         ipco.addProperty(makeUncompressedFrameConfigBox_rgb_component_tiled());
         ipco.addProperty(makeImageSpatialExtentsProperty());
         ipco.addProperty(makeCompressionConfigurationBoxTileZlib());
-        ipco.addProperty(icbr);
+        ipco.addProperty(icef);
         iprp.setItemProperties(ipco);
 
         iprp.addItemPropertyAssociation(makePropertyAssociations());
@@ -1039,7 +1036,7 @@ public class WriteGenericallyCompressedFileTest {
         ipco.addProperty(makeUncompressedFrameConfigBox_rgb_component());
         ipco.addProperty(makeImageSpatialExtentsProperty());
         ipco.addProperty(makeCompressionConfigurationBoxWholeFileDeflate());
-        ipco.addProperty(new ItemCompressedByteRangeInfo());
+        ipco.addProperty(new GenericallyCompressedUnitsItemInfo());
         iprp.setItemProperties(ipco);
 
         iprp.addItemPropertyAssociation(makePropertyAssociations());
@@ -1047,14 +1044,15 @@ public class WriteGenericallyCompressedFileTest {
         return iprp;
     }
 
-    private Box makeItemPropertiesBox_rgb_component_tile_deflate(ItemCompressedByteRangeInfo icbr) {
+    private Box makeItemPropertiesBox_rgb_component_tile_deflate(
+            GenericallyCompressedUnitsItemInfo icef) {
         ItemPropertiesBox iprp = new ItemPropertiesBox();
         ItemPropertyContainerBox ipco = new ItemPropertyContainerBox();
         ipco.addProperty(makeComponentDefinitionBox_rgb_generic());
         ipco.addProperty(makeUncompressedFrameConfigBox_rgb_component_tiled());
         ipco.addProperty(makeImageSpatialExtentsProperty());
         ipco.addProperty(makeCompressionConfigurationBoxTileDeflate());
-        ipco.addProperty(icbr);
+        ipco.addProperty(icef);
         iprp.setItemProperties(ipco);
 
         iprp.addItemPropertyAssociation(makePropertyAssociations());
@@ -1069,7 +1067,7 @@ public class WriteGenericallyCompressedFileTest {
         ipco.addProperty(makeUncompressedFrameConfigBox_rgb_component());
         ipco.addProperty(makeImageSpatialExtentsProperty());
         ipco.addProperty(makeCompressionConfigurationBoxWholeFileBrotli());
-        ipco.addProperty(new ItemCompressedByteRangeInfo());
+        ipco.addProperty(new GenericallyCompressedUnitsItemInfo());
         iprp.setItemProperties(ipco);
 
         iprp.addItemPropertyAssociation(makePropertyAssociations());
@@ -1129,7 +1127,6 @@ public class WriteGenericallyCompressedFileTest {
     private CompressionConfigurationItemProperty makeCompressionConfigurationBoxWholeFileZlib() {
         CompressionConfigurationItemProperty cmpc = new CompressionConfigurationItemProperty();
         cmpc.setCompressionType(new FourCC("zlib"));
-        cmpc.setMustDecompressIndividualEntities(false);
         cmpc.setCompressedRangeType(CompressionRangeType.FULL_ITEM);
         return cmpc;
     }
@@ -1137,7 +1134,6 @@ public class WriteGenericallyCompressedFileTest {
     private CompressionConfigurationItemProperty makeCompressionConfigurationBoxRowZlib() {
         CompressionConfigurationItemProperty cmpc = new CompressionConfigurationItemProperty();
         cmpc.setCompressionType(new FourCC("zlib"));
-        cmpc.setMustDecompressIndividualEntities(true);
         cmpc.setCompressedRangeType(CompressionRangeType.ROW);
         return cmpc;
     }
@@ -1145,7 +1141,6 @@ public class WriteGenericallyCompressedFileTest {
     private CompressionConfigurationItemProperty makeCompressionConfigurationBoxPixelZlib() {
         CompressionConfigurationItemProperty cmpc = new CompressionConfigurationItemProperty();
         cmpc.setCompressionType(new FourCC("zlib"));
-        cmpc.setMustDecompressIndividualEntities(true);
         cmpc.setCompressedRangeType(CompressionRangeType.PIXEL);
         return cmpc;
     }
@@ -1153,7 +1148,6 @@ public class WriteGenericallyCompressedFileTest {
     private CompressionConfigurationItemProperty makeCompressionConfigurationBoxTileZlib() {
         CompressionConfigurationItemProperty cmpc = new CompressionConfigurationItemProperty();
         cmpc.setCompressionType(new FourCC("zlib"));
-        cmpc.setMustDecompressIndividualEntities(true);
         cmpc.setCompressedRangeType(CompressionRangeType.TILE);
         return cmpc;
     }
@@ -1161,7 +1155,6 @@ public class WriteGenericallyCompressedFileTest {
     private CompressionConfigurationItemProperty makeCompressionConfigurationBoxWholeFileDeflate() {
         CompressionConfigurationItemProperty cmpc = new CompressionConfigurationItemProperty();
         cmpc.setCompressionType(new FourCC("defl"));
-        cmpc.setMustDecompressIndividualEntities(false);
         cmpc.setCompressedRangeType(CompressionRangeType.FULL_ITEM);
         return cmpc;
     }
@@ -1169,7 +1162,6 @@ public class WriteGenericallyCompressedFileTest {
     private CompressionConfigurationItemProperty makeCompressionConfigurationBoxTileDeflate() {
         CompressionConfigurationItemProperty cmpc = new CompressionConfigurationItemProperty();
         cmpc.setCompressionType(new FourCC("defl"));
-        cmpc.setMustDecompressIndividualEntities(true);
         cmpc.setCompressedRangeType(CompressionRangeType.TILE);
         return cmpc;
     }
@@ -1177,7 +1169,6 @@ public class WriteGenericallyCompressedFileTest {
     private CompressionConfigurationItemProperty makeCompressionConfigurationBoxWholeFileBrotli() {
         CompressionConfigurationItemProperty cmpc = new CompressionConfigurationItemProperty();
         cmpc.setCompressionType(new FourCC("brot"));
-        cmpc.setMustDecompressIndividualEntities(false);
         cmpc.setCompressedRangeType(CompressionRangeType.FULL_ITEM);
         return cmpc;
     }
@@ -1240,34 +1231,34 @@ public class WriteGenericallyCompressedFileTest {
         return mdat;
     }
 
-    private MediaDataBox createMediaDataBox_rgb_component_row_zlib(ItemCompressedByteRangeInfo icbr)
-            throws IOException {
+    private MediaDataBox createMediaDataBox_rgb_component_row_zlib(
+            GenericallyCompressedUnitsItemInfo icef) throws IOException {
         MediaDataBox mdat = new MediaDataBox();
-        byte[] data = createMediaDataBoxZlibContentRows(icbr);
+        byte[] data = createMediaDataBoxZlibContentRows(icef);
         mdat.setData(data);
         return mdat;
     }
 
     private MediaDataBox createMediaDataBox_rgb_component_zlib_pixel(
-            ItemCompressedByteRangeInfo icbr) throws IOException {
+            GenericallyCompressedUnitsItemInfo icef) throws IOException {
         MediaDataBox mdat = new MediaDataBox();
-        byte[] data = createMediaDataBoxZlibPixelContent(icbr);
+        byte[] data = createMediaDataBoxZlibPixelContent(icef);
         mdat.setData(data);
         return mdat;
     }
 
     private MediaDataBox createMediaDataBox_rgb_component_zlib_tiled(
-            ItemCompressedByteRangeInfo icbr) throws IOException {
+            GenericallyCompressedUnitsItemInfo icef) throws IOException {
         MediaDataBox mdat = new MediaDataBox();
-        byte[] data = createMediaDataBoxZlibTiledContent(icbr);
+        byte[] data = createMediaDataBoxZlibTiledContent(icef);
         mdat.setData(data);
         return mdat;
     }
 
     private MediaDataBox createMediaDataBox_rgb_component_deflate_tiled(
-            ItemCompressedByteRangeInfo icbr) throws IOException {
+            GenericallyCompressedUnitsItemInfo icef) throws IOException {
         MediaDataBox mdat = new MediaDataBox();
-        byte[] data = createMediaDataBoxDeflateTiledContent(icbr);
+        byte[] data = createMediaDataBoxDeflateTiledContent(icef);
         mdat.setData(data);
         return mdat;
     }
@@ -1292,12 +1283,12 @@ public class WriteGenericallyCompressedFileTest {
         return zlibData(data);
     }
 
-    private byte[] createMediaDataBoxZlibContentRows(ItemCompressedByteRangeInfo icbr)
+    private byte[] createMediaDataBoxZlibContentRows(GenericallyCompressedUnitsItemInfo icef)
             throws IOException {
         byte[] data = createUncompressedData();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] temp = new byte[1024];
-        long dataOffset = ROW_IMAGE_DATA_START;
+        long dataOffset = 0;
         for (int row = 0; row < IMAGE_HEIGHT; row++) {
             ByteArrayOutputStream rowData = new ByteArrayOutputStream();
             Deflater compressor = new Deflater();
@@ -1309,19 +1300,19 @@ public class WriteGenericallyCompressedFileTest {
             }
             compressor.end();
             outputStream.writeBytes(rowData.toByteArray());
-            ByteRange range = new ByteRange(dataOffset, rowData.size());
+            CompressedUnitInfo range = new CompressedUnitInfo(dataOffset, rowData.size());
             dataOffset += rowData.size();
-            icbr.addRange(range);
+            icef.addCompressedUnitInfo(range);
         }
         return outputStream.toByteArray();
     }
 
-    private byte[] createMediaDataBoxZlibPixelContent(ItemCompressedByteRangeInfo icbr)
+    private byte[] createMediaDataBoxZlibPixelContent(GenericallyCompressedUnitsItemInfo icef)
             throws IOException {
         byte[] data = createUncompressedData();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] temp = new byte[1024];
-        long dataOffset = PIXEL_IMAGE_DATA_START;
+        long dataOffset = 0;
         for (int row = 0; row < IMAGE_HEIGHT; row++) {
             for (int col = 0; col < IMAGE_WIDTH; col++) {
                 ByteArrayOutputStream pixelData = new ByteArrayOutputStream();
@@ -1334,20 +1325,20 @@ public class WriteGenericallyCompressedFileTest {
                 }
                 compressor.end();
                 outputStream.writeBytes(pixelData.toByteArray());
-                ByteRange range = new ByteRange(dataOffset, pixelData.size());
+                CompressedUnitInfo range = new CompressedUnitInfo(dataOffset, pixelData.size());
                 dataOffset += pixelData.size();
-                icbr.addRange(range);
+                icef.addCompressedUnitInfo(range);
             }
         }
         return outputStream.toByteArray();
     }
 
-    private byte[] createMediaDataBoxZlibTiledContent(ItemCompressedByteRangeInfo icbr)
+    private byte[] createMediaDataBoxZlibTiledContent(GenericallyCompressedUnitsItemInfo icef)
             throws IOException {
         byte[] data = createUncompressedDataTiled();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] temp = new byte[4096];
-        long dataOffset = IMAGE_DATA_START;
+        long dataOffset = 0;
         for (int tileIndex = 0; tileIndex < NUM_TILES_HORIZ * NUM_TILES_VERT; tileIndex++) {
             ByteArrayOutputStream tileData = new ByteArrayOutputStream();
             Deflater compressor = new Deflater();
@@ -1360,9 +1351,9 @@ public class WriteGenericallyCompressedFileTest {
             }
             compressor.end();
             outputStream.writeBytes(tileData.toByteArray());
-            ByteRange range = new ByteRange(dataOffset, tileData.size());
+            CompressedUnitInfo range = new CompressedUnitInfo(dataOffset, tileData.size());
             dataOffset += tileData.size();
-            icbr.addRange(range);
+            icef.addCompressedUnitInfo(range);
         }
         return outputStream.toByteArray();
     }
@@ -1401,13 +1392,13 @@ public class WriteGenericallyCompressedFileTest {
         return outputStream.toByteArray();
     }
 
-    private byte[] createMediaDataBoxDeflateTiledContent(ItemCompressedByteRangeInfo icbr)
+    private byte[] createMediaDataBoxDeflateTiledContent(GenericallyCompressedUnitsItemInfo icef)
             throws IOException {
         byte[] data = createUncompressedDataTiled();
         // TODO: we should be able to share this code
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] temp = new byte[4096];
-        long dataOffset = IMAGE_DATA_START;
+        long dataOffset = 0;
         for (int tileIndex = 0; tileIndex < NUM_TILES_HORIZ * NUM_TILES_VERT; tileIndex++) {
             ByteArrayOutputStream tileData = new ByteArrayOutputStream();
             Deflater compressor = new Deflater(Deflater.BEST_COMPRESSION, true);
@@ -1420,9 +1411,9 @@ public class WriteGenericallyCompressedFileTest {
             }
             compressor.end();
             outputStream.writeBytes(tileData.toByteArray());
-            ByteRange range = new ByteRange(dataOffset, tileData.size());
+            CompressedUnitInfo range = new CompressedUnitInfo(dataOffset, tileData.size());
             dataOffset += tileData.size();
-            icbr.addRange(range);
+            icef.addCompressedUnitInfo(range);
         }
         return outputStream.toByteArray();
     }
@@ -1546,6 +1537,10 @@ public class WriteGenericallyCompressedFileTest {
             box.writeTo(streamWriter);
         }
         File testOut = new File(outputPathName);
-        Files.write(testOut.toPath(), baos.toByteArray(), StandardOpenOption.CREATE);
+        Files.write(
+                testOut.toPath(),
+                baos.toByteArray(),
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING);
     }
 }
