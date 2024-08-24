@@ -54,10 +54,10 @@ import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
+import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.CoordinateReferenceSystemProperty;
 import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.ModelTiePointsProperty;
 import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.ModelTransformationProperty;
 import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.TiePoint;
-import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.WellKnownText2Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -520,10 +520,11 @@ public class CreateGeoHeifTest extends GIMIValidator {
         return prop;
     }
 
-    private WellKnownText2Property makeWKT2Property() {
-        WellKnownText2Property prop = new WellKnownText2Property();
+    private CoordinateReferenceSystemProperty makeWKT2Property() {
+        CoordinateReferenceSystemProperty prop = new CoordinateReferenceSystemProperty();
         // TODO: make sure it is not hard coded
-        prop.setWkt2(
+        prop.setCrsEncoding(new FourCC("wkt2"));
+        prop.setCrs(
                 "PROJCRS[\"GDA94 / MGA zone 55\",BASEGEOGCRS[\"GDA94\",DATUM[\"Geocentric Datum of Australia 1994\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101004,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4283]],CONVERSION[\"Transverse Mercator\",METHOD[\"Transverse Mercator\",ID[\"EPSG\",9807]],PARAMETER[\"Latitude of natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",147,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8802]],PARAMETER[\"Scale factor at natural origin\",0.9996,SCALEUNIT[\"unity\",1],ID[\"EPSG\",8805]],PARAMETER[\"False easting\",500000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",10000000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"easting\",east,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"northing\",north,ORDER[2],LENGTHUNIT[\"metre\",1]],ID[\"EPSG\",28355]]");
         return prop;
     }

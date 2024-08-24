@@ -34,10 +34,10 @@ import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
+import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.CoordinateReferenceSystemProperty;
 import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.ModelTiePoints3DProperty;
 import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.ModelTiePointsProperty;
 import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.ModelTransformationProperty;
-import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.WellKnownText2Property;
 
 class GIMIValidator {
     protected void checkAllOtherFieldsAreZero(UncompressedFrameConfigBox uncC) {
@@ -840,7 +840,7 @@ class GIMIValidator {
                 // Nothing
             } else if (property instanceof ModelTiePoints3DProperty tiePointsProperty) {
                 // Nothing
-            } else if (property instanceof WellKnownText2Property wkt2) {
+            } else if (property instanceof CoordinateReferenceSystemProperty wkt2) {
                 // Nothing
             } else {
                 fail("TODO: property: " + property.toString());

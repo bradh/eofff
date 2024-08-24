@@ -976,7 +976,7 @@ public class WriteGenericallyCompressedFileTest {
         ipco.addProperty(makeCompressionConfigurationBoxWholeFileZlib());
         iprp.setItemProperties(ipco);
 
-        iprp.addItemPropertyAssociation(makePropertyAssociations());
+        iprp.addItemPropertyAssociation(makePropertyAssociations_whole_file());
 
         return iprp;
     }
@@ -992,7 +992,7 @@ public class WriteGenericallyCompressedFileTest {
         ipco.addProperty(icef);
         iprp.setItemProperties(ipco);
 
-        iprp.addItemPropertyAssociation(makePropertyAssociations());
+        iprp.addItemPropertyAssociation(makePropertyAssociations_with_icef());
 
         return iprp;
     }
@@ -1008,7 +1008,7 @@ public class WriteGenericallyCompressedFileTest {
         ipco.addProperty(icef);
         iprp.setItemProperties(ipco);
 
-        iprp.addItemPropertyAssociation(makePropertyAssociations());
+        iprp.addItemPropertyAssociation(makePropertyAssociations_with_icef());
 
         return iprp;
     }
@@ -1024,7 +1024,7 @@ public class WriteGenericallyCompressedFileTest {
         ipco.addProperty(icef);
         iprp.setItemProperties(ipco);
 
-        iprp.addItemPropertyAssociation(makePropertyAssociations());
+        iprp.addItemPropertyAssociation(makePropertyAssociations_with_icef());
 
         return iprp;
     }
@@ -1039,7 +1039,7 @@ public class WriteGenericallyCompressedFileTest {
         ipco.addProperty(new GenericallyCompressedUnitsItemInfo());
         iprp.setItemProperties(ipco);
 
-        iprp.addItemPropertyAssociation(makePropertyAssociations());
+        iprp.addItemPropertyAssociation(makePropertyAssociations_whole_file());
 
         return iprp;
     }
@@ -1055,7 +1055,7 @@ public class WriteGenericallyCompressedFileTest {
         ipco.addProperty(icef);
         iprp.setItemProperties(ipco);
 
-        iprp.addItemPropertyAssociation(makePropertyAssociations());
+        iprp.addItemPropertyAssociation(makePropertyAssociations_with_icef());
 
         return iprp;
     }
@@ -1067,15 +1067,47 @@ public class WriteGenericallyCompressedFileTest {
         ipco.addProperty(makeUncompressedFrameConfigBox_rgb_component());
         ipco.addProperty(makeImageSpatialExtentsProperty());
         ipco.addProperty(makeCompressionConfigurationBoxWholeFileBrotli());
-        ipco.addProperty(new GenericallyCompressedUnitsItemInfo());
         iprp.setItemProperties(ipco);
 
-        iprp.addItemPropertyAssociation(makePropertyAssociations());
+        iprp.addItemPropertyAssociation(makePropertyAssociations_whole_file());
 
         return iprp;
     }
 
-    private ItemPropertyAssociation makePropertyAssociations() {
+    private ItemPropertyAssociation makePropertyAssociations_whole_file() {
+        ItemPropertyAssociation itemPropertyAssociation = new ItemPropertyAssociation();
+        {
+            AssociationEntry mainItemAssociations = new AssociationEntry();
+            mainItemAssociations.setItemId(MAIN_ITEM_ID);
+
+            PropertyAssociation associationToComponentDefinitionBox = new PropertyAssociation();
+            associationToComponentDefinitionBox.setPropertyIndex(1);
+            associationToComponentDefinitionBox.setEssential(true);
+            mainItemAssociations.addAssociation(associationToComponentDefinitionBox);
+
+            PropertyAssociation associationToUncompressedFrameConfigBox = new PropertyAssociation();
+            associationToUncompressedFrameConfigBox.setPropertyIndex(2);
+            associationToUncompressedFrameConfigBox.setEssential(true);
+            mainItemAssociations.addAssociation(associationToUncompressedFrameConfigBox);
+
+            PropertyAssociation associationToImageSpatialExtentsProperty =
+                    new PropertyAssociation();
+            associationToImageSpatialExtentsProperty.setPropertyIndex(3);
+            associationToImageSpatialExtentsProperty.setEssential(true);
+            mainItemAssociations.addAssociation(associationToImageSpatialExtentsProperty);
+
+            PropertyAssociation associationToCompressionConfigurationBox =
+                    new PropertyAssociation();
+            associationToCompressionConfigurationBox.setPropertyIndex(4);
+            associationToCompressionConfigurationBox.setEssential(true);
+            mainItemAssociations.addAssociation(associationToCompressionConfigurationBox);
+
+            itemPropertyAssociation.addEntry(mainItemAssociations);
+        }
+        return itemPropertyAssociation;
+    }
+
+    private ItemPropertyAssociation makePropertyAssociations_with_icef() {
         ItemPropertyAssociation itemPropertyAssociation = new ItemPropertyAssociation();
         {
             AssociationEntry mainItemAssociations = new AssociationEntry();

@@ -52,9 +52,9 @@ import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
+import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.CoordinateReferenceSystemProperty;
 import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.ModelTiePoints3DProperty;
 import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.TiePoint3D;
-import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.WellKnownText2Property;
 import org.testng.annotations.Test;
 import org.threeten.extra.scale.TaiInstant;
 import org.threeten.extra.scale.UtcInstant;
@@ -394,10 +394,11 @@ public class WriteRotterdamSentinel1Test {
         return prop;
     }
 
-    private WellKnownText2Property makeWKT2Property() {
-        WellKnownText2Property prop = new WellKnownText2Property();
+    private CoordinateReferenceSystemProperty makeWKT2Property() {
+        CoordinateReferenceSystemProperty prop = new CoordinateReferenceSystemProperty();
         // TODO: make sure it is not hard coded
-        prop.setWkt2(
+        prop.setCrsEncoding(new FourCC("wkt2"));
+        prop.setCrs(
                 "GEOGCRS[\"WGS 84\",ENSEMBLE[\"World Geodetic System 1984 ensemble\",MEMBER[\"World Geodetic System 1984 (Transit)\"],MEMBER[\"World Geodetic System 1984 (G730)\"],MEMBER[\"World Geodetic System 1984 (G873)\"],MEMBER[\"World Geodetic System 1984 (G1150)\"],MEMBER[\"World Geodetic System 1984 (G1674)\"],MEMBER[\"World Geodetic System 1984 (G1762)\"],MEMBER[\"World Geodetic System 1984 (G2139)\"],ELLIPSOID[\"WGS 84\",6378137,298.257223563,LENGTHUNIT[\"metre\",1]],ENSEMBLEACCURACY[2.0]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],CS[ellipsoidal,2],AXIS[\"geodetic latitude (Lat)\",north,ORDER[1],ANGLEUNIT[\"degree\",0.0174532925199433]],AXIS[\"geodetic longitude (Lon)\",east,ORDER[2],ANGLEUNIT[\"degree\",0.0174532925199433]],USAGE[SCOPE[\"Horizontal component of 3D system.\"],AREA[\"World.\"],BBOX[-90,-180,90,180]],ID[\"EPSG\",4326]]");
         return prop;
     }
