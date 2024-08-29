@@ -819,7 +819,7 @@ public class WriteGenericallyCompressedFileTest {
     }
 
     private byte[] readCompressedHevcBytes() throws IOException {
-        return Files.readAllBytes(Paths.get("hevc_body.bin"));
+        return Files.readAllBytes(Paths.get("/home/bradh/testbed20/hevc_body.bin"));
     }
 
     private FileTypeBox createFileTypeBox() {

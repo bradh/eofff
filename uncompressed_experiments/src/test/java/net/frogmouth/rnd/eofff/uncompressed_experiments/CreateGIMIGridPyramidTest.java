@@ -106,7 +106,7 @@ public class CreateGIMIGridPyramidTest extends GIMIValidator {
     private final String path;
 
     public CreateGIMIGridPyramidTest() throws IOException {
-        path = "/home/bradh/gdal_hacks/ACT2017-cog.tif";
+        path = "/home/bradh/testbed20/ACT2017-cog.tif";
         mil.nga.tiff.TIFFImage tiffImage = mil.nga.tiff.TiffReader.readTiff(new File(path));
         directories = tiffImage.getFileDirectories();
         final FileDirectory directory = directories.get(0);

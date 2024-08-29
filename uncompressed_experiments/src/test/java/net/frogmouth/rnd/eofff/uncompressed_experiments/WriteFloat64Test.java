@@ -281,7 +281,7 @@ public class WriteFloat64Test {
         // TODO: we should expose this in the file
         ByteOrder source_endian = ByteOrder.LITTLE_ENDIAN;
         String sourcePath =
-                "/home/bradh/eofff/uncompressed_experiments/ACT Government/DEM/1 Metre/ACT2020_DEM_6876082_55_01_001.tif";
+                "/home/bradh/testbed20/ACT Government/DEM/1 Metre/ACT2020_DEM_6876082_55_01_001.tif";
         mil.nga.tiff.TIFFImage tiffImage = mil.nga.tiff.TiffReader.readTiff(new File(sourcePath));
         List<mil.nga.tiff.FileDirectory> directories = tiffImage.getFileDirectories();
         FileDirectory directory = directories.get(0);

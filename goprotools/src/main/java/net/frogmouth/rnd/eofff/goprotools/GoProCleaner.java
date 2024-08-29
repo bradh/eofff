@@ -450,7 +450,8 @@ class GoProCleaner {
         ipco.addProperty(ispe); // prop = 2
 
         TAIClockInfoItemProperty taic = new TAIClockInfoItemProperty();
-        taic.setReferenceSourceType((byte) 2);
+        taic.setClock_resolution(TAIClockInfoItemProperty.CLOCK_RESOLUTION_MICROSECOND);
+        taic.setClock_type((byte) 2);
         ipco.addProperty(taic); // prop = 3
 
         for (int i = 0; i < numImages; i++) {
