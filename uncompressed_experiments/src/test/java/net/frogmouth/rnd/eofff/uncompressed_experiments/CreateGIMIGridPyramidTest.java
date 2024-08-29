@@ -51,6 +51,8 @@ import net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceBox;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
+import net.frogmouth.rnd.eofff.ogc.CoordinateReferenceSystemProperty;
+import net.frogmouth.rnd.eofff.ogc.ModelTransformationProperty;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampBox;
@@ -61,8 +63,6 @@ import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
-import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.CoordinateReferenceSystemProperty;
-import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.ModelTransformationProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -611,9 +611,9 @@ public class CreateGIMIGridPyramidTest extends GIMIValidator {
 
         TAIClockInfoItemProperty taic = new TAIClockInfoItemProperty();
         taic.setTimeUncertainty(24 * 60 * 60 * GIMIUtils.NANOS_PER_SECOND);
-        taic.setCorrectionOffset(0);
-        taic.setClockDriftRate(Float.NaN);
-        taic.setReferenceSourceType((byte) 0x01);
+        taic.setClock_resolution(TAIClockInfoItemProperty.CLOCK_RESOLUTION_MICROSECOND);
+        taic.setClock_drift_rate(TAIClockInfoItemProperty.CLOCK_DRIFT_RATE_UNKNOWN);
+        taic.setClock_type(TAIClockInfoItemProperty.CLOCK_TYPE_UNKNOWN);
         return taic;
     }
 

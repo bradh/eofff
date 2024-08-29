@@ -1,4 +1,4 @@
-package net.frogmouth.rnd.eofff.uncompressed_experiments.geo;
+package net.frogmouth.rnd.eofff.ogc;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -34,13 +34,14 @@ public class CoordinateReferenceSystemProperty extends ItemFullProperty {
 
     @Override
     public void writeTo(OutputStreamWriter writer) throws IOException {
+        this.writeBoxHeader(writer);
         writer.writeFourCC(crsEncoding);
         writer.writeNullTerminatedString(crs);
     }
 
     @Override
     public String toString(int nestingLevel) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
         sb.append("crsEncoding=");
         sb.append(crsEncoding.toString());
         sb.append(", crs=");

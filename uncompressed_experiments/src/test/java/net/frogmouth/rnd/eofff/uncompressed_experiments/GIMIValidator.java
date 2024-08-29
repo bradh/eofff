@@ -23,6 +23,10 @@ import net.frogmouth.rnd.eofff.isobmff.iprp.ItemPropertyContainerBox;
 import net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
+import net.frogmouth.rnd.eofff.ogc.CoordinateReferenceSystemProperty;
+import net.frogmouth.rnd.eofff.ogc.ModelTiePoints3DProperty;
+import net.frogmouth.rnd.eofff.ogc.ModelTiePointsProperty;
+import net.frogmouth.rnd.eofff.ogc.ModelTransformationProperty;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.cpal.ComponentPaletteProperty;
@@ -34,10 +38,6 @@ import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
-import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.CoordinateReferenceSystemProperty;
-import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.ModelTiePoints3DProperty;
-import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.ModelTiePointsProperty;
-import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.ModelTransformationProperty;
 
 class GIMIValidator {
     protected void checkAllOtherFieldsAreZero(UncompressedFrameConfigBox uncC) {

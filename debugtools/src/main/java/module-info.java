@@ -12,6 +12,8 @@ module net.frogmouth.rnd.eofff.debugtools {
     requires net.frogmouth.rnd.eofff.miaf;
     requires net.frogmouth.rnd.eofff.nalvideo;
     requires net.frogmouth.rnd.eofff.ts26_244;
+    requires net.frogmouth.rnd.eofff.uncompressed;
+    requires net.frogmouth.rnd.eofff.ogc;
     requires org.slf4j;
     requires org.apache.logging.log4j;
     requires org.apache.logging.log4j.slf4j2.impl;

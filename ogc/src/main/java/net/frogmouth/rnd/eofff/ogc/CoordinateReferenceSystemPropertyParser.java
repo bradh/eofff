@@ -1,43 +1,48 @@
-package net.frogmouth.rnd.eofff.uncompressed.taic;
+package net.frogmouth.rnd.eofff.ogc;
 
 import com.google.auto.service.AutoService;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.ParseContext;
 import net.frogmouth.rnd.eofff.isobmff.iprp.AbstractItemProperty;
-import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullPropertyParser;
+import net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @AutoService(net.frogmouth.rnd.eofff.isobmff.iprp.PropertyParser.class)
-public class TAIClockInfoItemPropertyParser extends ItemFullPropertyParser {
-    private static final Logger LOG = LoggerFactory.getLogger(TAIClockInfoItemPropertyParser.class);
+public class CoordinateReferenceSystemPropertyParser implements PropertyParser {
+    private static final Logger LOG =
+            LoggerFactory.getLogger(CoordinateReferenceSystemPropertyParser.class);
 
-    public TAIClockInfoItemPropertyParser() {}
+    public CoordinateReferenceSystemPropertyParser() {}
 
     @Override
     public FourCC getFourCC() {
-        return TAIClockInfoBox.TAIC_ATOM;
+        return CoordinateReferenceSystemProperty.MCRS_ATOM;
     }
 
     @Override
     public AbstractItemProperty parse(
             ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
-        TAIClockInfoItemProperty box = new TAIClockInfoItemProperty();
+        CoordinateReferenceSystemProperty box = new CoordinateReferenceSystemProperty();
         int version = parseContext.readByte();
         box.setVersion(version);
         if (!isSupportedVersion(version)) {
             LOG.warn("Got unsupported version {}, parsing as base box.", version);
-            return parseAsUnknownProperty(parseContext, initialOffset, boxSize, boxName);
+            return null;
         }
         box.setFlags(parseFlags(parseContext));
-        box.setTimeUncertainty(parseContext.readUnsignedInt64());
-        box.setClock_resolution(parseContext.readUnsignedInt32());
-        box.setClock_drift_rate(parseContext.readInt32());
-        box.setClock_type((byte) (parseContext.readUnsignedInt8() >> 6));
+        box.setCrsEncoding(parseContext.readFourCC());
+        box.setCrs(parseContext.readNullDelimitedString(boxSize));
         return box;
     }
 
     private boolean isSupportedVersion(int version) {
         return (version == 0x00);
+    }
+
+    protected int parseFlags(ParseContext parseContext) {
+        byte[] flags = new byte[3];
+        parseContext.readBytes(flags);
+        return ((flags[0] & 0xFF) << 16) | ((flags[1] & 0xFF) << 8) | (flags[2] & 0xFF);
     }
 }

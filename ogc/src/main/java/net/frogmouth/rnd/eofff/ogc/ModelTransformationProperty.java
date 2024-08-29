@@ -1,11 +1,13 @@
-package net.frogmouth.rnd.eofff.uncompressed_experiments.geo;
+package net.frogmouth.rnd.eofff.ogc;
 
 import java.io.IOException;
-import java.util.UUID;
+import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
+import net.frogmouth.rnd.eofff.isobmff.iprp.ItemFullProperty;
 
-public class ModelTransformationProperty extends AbstractUUIDProperty {
+public class ModelTransformationProperty extends ItemFullProperty {
 
+    public static final FourCC MTXF_ATOM = new FourCC("mtxf");
     private double m00;
     private double m01;
     private double m03;
@@ -16,6 +18,7 @@ public class ModelTransformationProperty extends AbstractUUIDProperty {
     // TODO: 3D case
 
     public ModelTransformationProperty() {
+        super(MTXF_ATOM);
         setFlags(0x01);
     }
 
@@ -68,13 +71,8 @@ public class ModelTransformationProperty extends AbstractUUIDProperty {
     }
 
     @Override
-    protected UUID getUUID() {
-        return UUID.fromString("763cf838-b630-440b-84f8-be44bf9910af");
-    }
-
-    @Override
     public void writeTo(OutputStreamWriter writer) throws IOException {
-        writeUUIDHeaderTo(writer);
+        this.writeBoxHeader(writer);
         writer.writeDouble64(m00);
         writer.writeDouble64(m01);
         writer.writeDouble64(m03);
@@ -85,8 +83,25 @@ public class ModelTransformationProperty extends AbstractUUIDProperty {
 
     @Override
     public String toString(int nestingLevel) {
-        StringBuilder sb = new StringBuilder();
-        // TODO: output
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
+        if ((getFlags() & 0x01) == 0x01) {
+            sb.append("2D, ");
+        } else {
+            sb.append("3D, ");
+        }
+        sb.append("m00=");
+        sb.append(m00);
+        sb.append(", m01=");
+        sb.append(m01);
+        sb.append(", m03=");
+        sb.append(m03);
+        sb.append(", m10=");
+        sb.append(m10);
+        sb.append(", m11=");
+        sb.append(m11);
+        sb.append(", m13=");
+        sb.append(m13);
+
         return sb.toString();
     }
 
@@ -98,7 +113,6 @@ public class ModelTransformationProperty extends AbstractUUIDProperty {
     @Override
     public long getBodySize() {
         long size = 0;
-        size += 16;
         if ((this.getFlags() & 0x01) == 0x01) {
             size += 6 * Double.BYTES;
         } else {

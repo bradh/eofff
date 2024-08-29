@@ -55,12 +55,8 @@ public class ComponentDefinitionBox extends ItemProperty {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("':");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = this.getBaseStringBuilder(nestingLevel);
         List<String> components = new ArrayList<>();
         this.componentDefinitions.forEach(
                 definition -> {

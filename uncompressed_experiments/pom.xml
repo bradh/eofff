@@ -28,7 +28,12 @@
             <artifactId>miaf</artifactId>
             <version>${project.version}</version>
         </dependency>
-                <dependency>
+        <dependency>
+            <groupId>net.frogmouth.rnd.eofff</groupId>
+            <artifactId>ogc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>net.frogmouth.rnd.ngiis</groupId>
             <artifactId>png</artifactId>
             <version>${project.version}</version>

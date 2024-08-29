@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="../ISM/Schematron/ISM/ISM_XML.sch" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<?xml-model href="../ISM/Schematron/ISMCAT/ISMCAT_XML.sch" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<!-- Notices - distEditionBlockReplace-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           vc:minVersion="1.0"
+           targetNamespace="urn:us:mil:nga:stnd:0076:ism"
+           xmlns:ism="urn:us:gov:ic:ism"
+           xmlns:arh="urn:us:gov:ic:arh"
+           xmlns:ntk="urn:us:gov:ic:ntk"
+           xmlns:gimi="urn:us:mil:nga:stnd:0076:ism"
+           ism:resourceElement="true"
+           xmlns:xhtml="http://www.w3.org/1999/xhtml-StopBrowserRendering"
+           ism:compliesWith="USGov"
+           ism:createDate="2011-12-01"
+           ism:ISMCATCESVersion="202405"
+           ism:DESVersion="202405"
+           ism:classification="U"
+           ism:ownerProducer="USA"
+           version="202405"
+           elementFormDefault="qualified"
+           attributeFormDefault="qualified">
+  <xs:import namespace="urn:us:gov:ic:ism" schemaLocation="ISM/Schema/ISM/IC-ISM.xsd"/>
+  <xs:import namespace="urn:us:gov:ic:arh" schemaLocation="ISM/Schema/ISM/IC-ARH.xsd"/>
+  <xs:import namespace="urn:us:gov:ic:ntk" schemaLocation="ISM/Schema/ISM/IC-NTK.xsd"/>
+  <xs:element name="GIMISecurity">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="gimi:File" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="ism:ISMRootNodeAttributeGroup"/>
+      <xs:attributeGroup ref="ism:ISMResourceAttributeOptionGroup"/>
+      <xs:attribute name="GIMISecVer" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="File">
+    <xs:complexType mixed="false">
+      <xs:sequence minOccurs="1" maxOccurs="unbounded">
+        <xs:element ref="arh:Security" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="gimi:Items" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="gimi:Tracks" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Items">
+    <xs:complexType mixed="false">
+      <xs:sequence minOccurs="1" maxOccurs="unbounded">
+        <xs:element ref="gimi:Item" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Item">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element ref="gimi:Security" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute name="itemID" type="gimi:ContentIDType" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Tracks">
+    <xs:complexType mixed="false">
+      <xs:sequence minOccurs="1" maxOccurs="unbounded">
+        <xs:element ref="gimi:Track" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Track">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element ref="gimi:Security" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="gimi:TrackPortions" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute name="trackID" type="gimi:ContentIDType" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TrackPortions">
+    <xs:complexType mixed="false">
+      <xs:sequence minOccurs="1" maxOccurs="unbounded">
+        <xs:element ref="gimi:TrackPortion" minOccurs="1" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TrackPortion">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element ref="gimi:Security" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute name="trackportionID" type="gimi:ContentIDType" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Security" type="gimi:SecurityType"/>
+  <xs:complexType name="SecurityType">
+ <xs:annotation>
+  <xs:documentation>
+    <xhtml:p ism:classification="U"
+             ism:ownerProducer="USA">Lifted from ISM to avoid the questionable rule 511 about security elements being required to be resource node true.</xhtml:p>
+  </xs:documentation>
+</xs:annotation>
+    <xs:sequence>
+      <xs:element ref="ntk:Access" minOccurs="0" maxOccurs="1"/>
+      <xs:element ref="ism:NoticeList" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+    <xs:attributeGroup ref="arh:ResourceNodeAttributeGroup"/>
+  </xs:complexType>
+  <xs:simpleType name="ContentIDType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}">
+      </xs:pattern>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

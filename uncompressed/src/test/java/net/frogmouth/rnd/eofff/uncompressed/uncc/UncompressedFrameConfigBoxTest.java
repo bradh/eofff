@@ -101,7 +101,7 @@ public class UncompressedFrameConfigBoxTest extends PropertyTestSupport {
         assertEquals(uncc.getNumTileColumnsMinusOne(), 255);
         assertEquals(uncc.getNumTileRowsMinusOne(), 127);
         assertEquals(
-                uncc.toString(),
+                uncc.toString(0),
                 "UncompressedFrameConfigBox 'uncC': profile=rgb3, Component{componentIndex=0, componentBitDepthMinusOne=7, componentFormat=UnsignedInteger, componentAlignSize=0},Component{componentIndex=1, componentBitDepthMinusOne=7, componentFormat=UnsignedInteger, componentAlignSize=0},Component{componentIndex=2, componentBitDepthMinusOne=7, componentFormat=UnsignedInteger, componentAlignSize=0}, sampling_type=YCbCr420, interleaveType=Pixel, blockSize=0, component_little_endian=true, block_pad_LSB=true, block_little_endian=true, block_reversed=true, pad_unknown=false, pixel_size=3, row_align_size=5, tile_align_size=7, num_tile_cols_minus_one=255, num_tile_rows_minus_one=127");
     }
 

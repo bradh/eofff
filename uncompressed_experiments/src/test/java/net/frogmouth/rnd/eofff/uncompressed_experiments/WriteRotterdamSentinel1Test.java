@@ -42,6 +42,9 @@ import net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceBox;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
+import net.frogmouth.rnd.eofff.ogc.CoordinateReferenceSystemProperty;
+import net.frogmouth.rnd.eofff.ogc.ModelTiePoints3DProperty;
+import net.frogmouth.rnd.eofff.ogc.TiePoint3D;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampBox;
@@ -52,9 +55,6 @@ import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
-import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.CoordinateReferenceSystemProperty;
-import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.ModelTiePoints3DProperty;
-import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.TiePoint3D;
 import org.testng.annotations.Test;
 import org.threeten.extra.scale.TaiInstant;
 import org.threeten.extra.scale.UtcInstant;
@@ -368,9 +368,9 @@ public class WriteRotterdamSentinel1Test {
 
         TAIClockInfoItemProperty taic = new TAIClockInfoItemProperty();
         taic.setTimeUncertainty(24 * 60 * 60 * GIMIUtils.NANOS_PER_SECOND);
-        taic.setCorrectionOffset(0);
-        taic.setClockDriftRate(Float.NaN);
-        taic.setReferenceSourceType((byte) 0x01);
+        taic.setClock_resolution(TAIClockInfoItemProperty.CLOCK_RESOLUTION_MICROSECOND);
+        taic.setClock_drift_rate(TAIClockInfoItemProperty.CLOCK_DRIFT_RATE_UNKNOWN);
+        taic.setClock_type(TAIClockInfoItemProperty.CLOCK_TYPE_UNKNOWN);
         return taic;
     }
 

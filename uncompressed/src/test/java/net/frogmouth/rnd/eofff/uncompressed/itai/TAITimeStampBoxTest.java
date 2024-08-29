@@ -44,7 +44,7 @@ public class TAITimeStampBoxTest extends PropertyTestSupport {
         assertEquals(itai.getFullName(), "TAITimeStampBox");
         assertTrue(itai.getFourCC().toString().equals("itai"));
         assertEquals(
-                itai.toString(),
+                itai.toString(0),
                 "TAITimeStampBox 'itai': TAI_time_stamp: invalid, status_bits: 0x00");
     }
 

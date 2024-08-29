@@ -16,7 +16,7 @@ public class TAIClockInfoItemPropertyTest extends PropertyTestSupport {
                 0x00,
                 0x00,
                 0x00,
-                0x21,
+                0x1D,
                 0x74,
                 0x61,
                 0x69,
@@ -33,18 +33,14 @@ public class TAIClockInfoItemPropertyTest extends PropertyTestSupport {
                 (byte) 0xff,
                 (byte) 0xff,
                 (byte) 0xff,
+                0x00,
+                0x00,
+                0x27,
+                0x10,
                 0x7f,
                 (byte) 0xff,
                 (byte) 0xff,
                 (byte) 0xff,
-                (byte) 0xff,
-                (byte) 0xff,
-                (byte) 0xff,
-                (byte) 0xff,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
                 0x00
             };
 
@@ -57,12 +53,13 @@ public class TAIClockInfoItemPropertyTest extends PropertyTestSupport {
         assertTrue(taic.getFourCC().toString().equals("taic"));
         assertEquals(
                 taic.toString(0),
-                "TAIClockInfoItemProperty 'taic': time_uncertainty: unknown, correction_offset: unknown, clock_drift_rate: unknown, reference_source_type: unknown");
+                "TAIClockInfoItemProperty 'taic': time_uncertainty: unknown, clock_resolution: 10000, clock_drift_rate: unknown, clock_type: unknown");
     }
 
     @Test
     public void checkWrite() throws IOException {
         TAIClockInfoItemProperty box = new TAIClockInfoItemProperty();
+        box.setClock_resolution(10000);
         assertEquals(box.getFullName(), "TAIClockInfoItemProperty");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter streamWriter = new OutputStreamWriter(baos);

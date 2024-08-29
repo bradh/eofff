@@ -87,12 +87,9 @@ public class UserDescriptionProperty extends ItemFullProperty {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': lang=");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = getBaseStringBuilder(nestingLevel);
+        sb.append("lang=");
         sb.append(getLang());
         sb.append(", name=");
         sb.append(getDescriptiveName());

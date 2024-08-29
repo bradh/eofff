@@ -5,6 +5,7 @@ import static org.testng.Assert.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
@@ -13,6 +14,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -44,6 +47,10 @@ import net.frogmouth.rnd.eofff.isobmff.iref.ItemReferenceBox;
 import net.frogmouth.rnd.eofff.isobmff.mdat.MediaDataBox;
 import net.frogmouth.rnd.eofff.isobmff.meta.MetaBox;
 import net.frogmouth.rnd.eofff.isobmff.pitm.PrimaryItemBox;
+import net.frogmouth.rnd.eofff.ogc.CoordinateReferenceSystemProperty;
+import net.frogmouth.rnd.eofff.ogc.ModelTiePointsProperty;
+import net.frogmouth.rnd.eofff.ogc.ModelTransformationProperty;
+import net.frogmouth.rnd.eofff.ogc.TiePoint;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinition;
 import net.frogmouth.rnd.eofff.uncompressed.cmpd.ComponentDefinitionBox;
 import net.frogmouth.rnd.eofff.uncompressed.itai.TAITimeStampBox;
@@ -54,10 +61,6 @@ import net.frogmouth.rnd.eofff.uncompressed.uncc.ComponentFormat;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.Interleaving;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.SamplingType;
 import net.frogmouth.rnd.eofff.uncompressed.uncc.UncompressedFrameConfigBox;
-import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.CoordinateReferenceSystemProperty;
-import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.ModelTiePointsProperty;
-import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.ModelTransformationProperty;
-import net.frogmouth.rnd.eofff.uncompressed_experiments.geo.TiePoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -65,10 +68,11 @@ import org.threeten.extra.scale.TaiInstant;
 import org.threeten.extra.scale.UtcInstant;
 
 public class CreateGeoHeifTest extends GIMIValidator {
+
     private static final Logger LOG = LoggerFactory.getLogger(CreateGeoHeifTest.class);
 
-    private static final long ALTERNATE_ITEM_ID = 1100;
-    private static final long FAKE_SECURITY_ITEM_ID = 1200;
+    private static final long PRIMARY_ITEM_ID = 1100;
+    private static final long SECURITY_ITEM_ID = 1200;
 
     private static final int LENGTH_OF_FREEBOX_HEADER = 8;
     private static final int NUM_BYTES_PER_PIXEL_RGB = 3;
@@ -77,33 +81,40 @@ public class CreateGeoHeifTest extends GIMIValidator {
     private final int tileHeight;
     private final int imageHeight;
     private final int imageWidth;
-    private static final int MDAT_START_GRID = 2030;
+    private static final int MDAT_START_GRID = 2030 + 896;
     private static final int MDAT_START_GRID_DATA = MDAT_START_GRID + 2 * Integer.BYTES;
     private final int tileSizeBytes;
 
-    private static final UUID GRID_ITEM_CONTENT_ID_UUID = UUID.randomUUID();
-    private static final String GRID_ITEM_CONTENT_ID = "urn:uuid:" + GRID_ITEM_CONTENT_ID_UUID;
-
-    private static final UUID FAKE_SECURITY_CONTENT_ID_UUID = UUID.randomUUID();
-    private static final String FAKE_SECURITY_CONTENT_ID =
-            "urn:uuid:" + FAKE_SECURITY_CONTENT_ID_UUID;
-    private final String FAKE_SECURITY_MIME_TYPE = "application/x.fake-dni-arh+xml";
-    private final String FAKE_SECURITY_XML =
-            """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <FakeSecurity xmlns="http://www.opengis.net/CodeSprint2023Oct/Security">
-                <FakeLevel>UNCLASSIFIED</FakeLevel>
-            </FakeSecurity>""";
+    private static final UUID PRIMARY_ITEM_CONTENT_ID_UUID = UUID.randomUUID();
+    private static final UUID SECURITY_CONTENT_ID_UUID = UUID.randomUUID();
+    private final String ISM_SECURITY_MIME_TYPE = "application/dni-arh+xml";
+    private final String ISM_SECURITY_XML =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                    + "<GIMISecurity xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:us:mil:nga:stnd:0076:ism\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:gimi=\"urn:us:mil:nga:stnd:0076:ism\" xmlns:arh=\"urn:us:gov:ic:arh\" xsi:schemaLocation=\"urn:us:mil:nga:stnd:0076:ism GIMI.xsd\" ism:DESVersion=\"202405\" ism:ISMCATCESVersion=\"202405\" gimi:GIMISecVer=\"1\">"
+                    + "<File>"
+                    + "<arh:Security ism:compliesWith=\"USGov USIC\" ism:resourceElement=\"true\" ism:createDate=\""
+                    + ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ISO_LOCAL_DATE)
+                    + "\" ism:classification=\"U\" ism:ownerProducer=\"USA\"/>"
+                    + "<Items>"
+                    + "<Item gimi:itemID=\""
+                    + PRIMARY_ITEM_CONTENT_ID_UUID
+                    + "\">"
+                    + "<gimi:Security ism:classification=\"U\" ism:ownerProducer=\"USA\"/>"
+                    + "</Item>"
+                    + "</Items>"
+                    + "</File>"
+                    + "</GIMISecurity>";
 
     private final FileDirectory directory;
     private static final UUID CONTENT_ID_UUID =
-            UUID.fromString("aac8ab7d-f519-5437-b7d3-c973d155e253");
+            UUID.fromString("4a66efa7-e541-526c-9427-9e77617feb7d");
 
-    private LocalDateTime TIMESTAMP = LocalDateTime.of(LocalDate.of(2017, 5, 7), LocalTime.MIN);
+    private final LocalDateTime TIMESTAMP =
+            LocalDateTime.of(LocalDate.of(2017, 5, 7), LocalTime.MIN);
 
     private final String path;
-    private int num_tile_columns;
-    private int num_tile_rows;
+    private final int num_tile_columns;
+    private final int num_tile_rows;
     List<Double> pixelScale;
     List<Double> modelTiePoint;
 
@@ -180,7 +191,7 @@ public class CreateGeoHeifTest extends GIMIValidator {
         MetaBox meta = new MetaBox();
         List<Box> boxes = new ArrayList<>();
         boxes.add(makeHandlerBox());
-        boxes.add(makePrimaryItemBox(ALTERNATE_ITEM_ID));
+        boxes.add(makePrimaryItemBox(PRIMARY_ITEM_ID));
         boxes.add(makeItemInfoBoxTile());
         boxes.add(makeItemLocationBox_tile());
         boxes.add(makeItemDataBox_tile());
@@ -195,7 +206,7 @@ public class CreateGeoHeifTest extends GIMIValidator {
         {
             ItemInfoEntry infe1 = new ItemInfoEntry();
             infe1.setVersion(2);
-            infe1.setItemID(ALTERNATE_ITEM_ID);
+            infe1.setItemID(PRIMARY_ITEM_ID);
             FourCC unci = new FourCC("unci");
             infe1.setItemType(unci.asUnsigned());
             infe1.setItemName("Alternate view");
@@ -204,10 +215,10 @@ public class CreateGeoHeifTest extends GIMIValidator {
         {
             ItemInfoEntry infe2 = new ItemInfoEntry();
             infe2.setVersion(2);
-            infe2.setItemID(FAKE_SECURITY_ITEM_ID);
+            infe2.setItemID(SECURITY_ITEM_ID);
             FourCC mime_fourcc = new FourCC("mime");
             infe2.setItemType(mime_fourcc.asUnsigned());
-            infe2.setContentType(FAKE_SECURITY_MIME_TYPE);
+            infe2.setContentType(ISM_SECURITY_MIME_TYPE);
             infe2.setItemName("Security Marking (Fake XML)");
             iinf.addItem(infe2);
         }
@@ -224,7 +235,7 @@ public class CreateGeoHeifTest extends GIMIValidator {
         {
             ILocItem alternateItemLocation = new ILocItem();
             alternateItemLocation.setConstructionMethod(0);
-            alternateItemLocation.setItemId(ALTERNATE_ITEM_ID);
+            alternateItemLocation.setItemId(PRIMARY_ITEM_ID);
             alternateItemLocation.setBaseOffset(MDAT_START_GRID_DATA);
             ILocExtent alternateItemExtent = new ILocExtent();
             alternateItemExtent.setExtentIndex(0);
@@ -236,7 +247,7 @@ public class CreateGeoHeifTest extends GIMIValidator {
         {
             ILocItem fakeSecurityItemLocation = new ILocItem();
             fakeSecurityItemLocation.setConstructionMethod(1);
-            fakeSecurityItemLocation.setItemId(FAKE_SECURITY_ITEM_ID);
+            fakeSecurityItemLocation.setItemId(SECURITY_ITEM_ID);
             fakeSecurityItemLocation.setBaseOffset(0);
             ILocExtent securityExtent = new ILocExtent();
             securityExtent.setExtentIndex(0);
@@ -249,7 +260,7 @@ public class CreateGeoHeifTest extends GIMIValidator {
     }
 
     private byte[] getFakeSecurityXMLBytes(boolean dump) {
-        byte[] securityXMLBytes = FAKE_SECURITY_XML.getBytes(StandardCharsets.UTF_8);
+        byte[] securityXMLBytes = ISM_SECURITY_XML.getBytes(StandardCharsets.UTF_8);
         return securityXMLBytes;
     }
 
@@ -278,7 +289,7 @@ public class CreateGeoHeifTest extends GIMIValidator {
         {
             ItemPropertyAssociation ipma = new ItemPropertyAssociation();
             AssociationEntry entryImage = new AssociationEntry();
-            entryImage.setItemId(ALTERNATE_ITEM_ID);
+            entryImage.setItemId(PRIMARY_ITEM_ID);
             {
                 PropertyAssociation associationToImageSpatialExtentsProperty =
                         new PropertyAssociation();
@@ -344,7 +355,7 @@ public class CreateGeoHeifTest extends GIMIValidator {
             ipma.addEntry(entryImage);
 
             AssociationEntry entrySecurity = new AssociationEntry();
-            entrySecurity.setItemId(FAKE_SECURITY_ITEM_ID);
+            entrySecurity.setItemId(SECURITY_ITEM_ID);
             {
                 PropertyAssociation associationToContentId = new PropertyAssociation();
                 associationToContentId.setPropertyIndex(5);
@@ -378,8 +389,8 @@ public class CreateGeoHeifTest extends GIMIValidator {
         ItemReferenceBox iref = new ItemReferenceBox();
         {
             ContentDescribes cdsc = new ContentDescribes();
-            cdsc.setFromItemId(FAKE_SECURITY_ITEM_ID);
-            cdsc.addReference(ALTERNATE_ITEM_ID);
+            cdsc.setFromItemId(SECURITY_ITEM_ID);
+            cdsc.addReference(PRIMARY_ITEM_ID);
             iref.addItem(cdsc);
         }
         return iref;
@@ -445,16 +456,20 @@ public class CreateGeoHeifTest extends GIMIValidator {
     private UUIDProperty makeContentIdPropertyGridItem() {
         UUIDProperty contentIdProperty = new UUIDProperty();
         contentIdProperty.setExtendedType(CONTENT_ID_UUID);
-        contentIdProperty.setPayload(GRID_ITEM_CONTENT_ID.getBytes(StandardCharsets.UTF_8));
-        System.out.println(contentIdProperty.toString());
+        ByteBuffer bb = ByteBuffer.allocate(16);
+        bb.putLong(PRIMARY_ITEM_CONTENT_ID_UUID.getMostSignificantBits());
+        bb.putLong(PRIMARY_ITEM_CONTENT_ID_UUID.getLeastSignificantBits());
+        contentIdProperty.setPayload(bb.array());
         return contentIdProperty;
     }
 
     private UUIDProperty makeContentIdPropertyFakeSecurity() {
         UUIDProperty contentIdProperty = new UUIDProperty();
         contentIdProperty.setExtendedType(CONTENT_ID_UUID);
-        contentIdProperty.setPayload(FAKE_SECURITY_CONTENT_ID.getBytes(StandardCharsets.UTF_8));
-        System.out.println(contentIdProperty.toString());
+        ByteBuffer bb = ByteBuffer.allocate(16);
+        bb.putLong(SECURITY_CONTENT_ID_UUID.getMostSignificantBits());
+        bb.putLong(SECURITY_CONTENT_ID_UUID.getLeastSignificantBits());
+        contentIdProperty.setPayload(bb.array());
         return contentIdProperty;
     }
 
@@ -475,10 +490,10 @@ public class CreateGeoHeifTest extends GIMIValidator {
     private TAIClockInfoItemProperty makeClockInfoItemProperty() {
 
         TAIClockInfoItemProperty taic = new TAIClockInfoItemProperty();
-        taic.setTimeUncertainty(24 * 60 * 60 * GIMIUtils.NANOS_PER_SECOND);
-        taic.setCorrectionOffset(0);
-        taic.setClockDriftRate(Float.NaN);
-        taic.setReferenceSourceType((byte) 0x01);
+        taic.setTimeUncertainty(24L * 60L * 60L * GIMIUtils.NANOS_PER_SECOND);
+        taic.setClock_resolution(TAIClockInfoItemProperty.CLOCK_RESOLUTION_MICROSECOND);
+        taic.setClock_drift_rate(TAIClockInfoItemProperty.CLOCK_DRIFT_RATE_UNKNOWN);
+        taic.setClock_type(TAIClockInfoItemProperty.CLOCK_TYPE_UNKNOWN);
         return taic;
     }
 

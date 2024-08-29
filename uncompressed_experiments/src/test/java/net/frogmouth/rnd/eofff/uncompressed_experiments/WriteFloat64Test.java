@@ -363,9 +363,9 @@ public class WriteFloat64Test {
 
         TAIClockInfoItemProperty taic = new TAIClockInfoItemProperty();
         taic.setTimeUncertainty(24 * 60 * 60 * GIMIUtils.NANOS_PER_SECOND);
-        taic.setCorrectionOffset(0);
-        taic.setClockDriftRate(Float.NaN);
-        taic.setReferenceSourceType((byte) 0x01);
+        taic.setClock_resolution(TAIClockInfoItemProperty.CLOCK_RESOLUTION_MICROSECOND);
+        taic.setClock_drift_rate(TAIClockInfoItemProperty.CLOCK_DRIFT_RATE_UNKNOWN);
+        taic.setClock_type(TAIClockInfoItemProperty.CLOCK_TYPE_UNKNOWN);
         return taic;
     }
 }

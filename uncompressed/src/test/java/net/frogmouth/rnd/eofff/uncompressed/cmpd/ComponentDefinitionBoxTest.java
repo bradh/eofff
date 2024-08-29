@@ -79,8 +79,8 @@ public class ComponentDefinitionBoxTest extends PropertyTestSupport {
         assertEquals(defn2.getComponentType(), 5);
         assertNull(defn2.getComponentTypeUri());
         assertEquals(
-                cmpd.toString(),
-                "ComponentDefinitionBox 'cmpd': component=Red component (R) (4), component=Blue component (B) (6), component=Green component (G) (5)");
+                cmpd.toString(0),
+                "ComponentDefinitionBox 'cmpd':  component=Red component (R) (4), component=Blue component (B) (6), component=Green component (G) (5)");
     }
 
     @Test
@@ -125,7 +125,7 @@ public class ComponentDefinitionBoxTest extends PropertyTestSupport {
         assertEquals(defn1.getComponentType(), 1);
         assertNull(defn1.getComponentTypeUri());
         assertEquals(
-                cmpd.toString(),
-                "ComponentDefinitionBox 'cmpd': component=User-defined component (32768), URI:http://example.com/comp3, component=Luma component (Y) (1)");
+                cmpd.toString(0),
+                "ComponentDefinitionBox 'cmpd':  component=User-defined component (32768), URI:http://example.com/comp3, component=Luma component (Y) (1)");
     }
 }

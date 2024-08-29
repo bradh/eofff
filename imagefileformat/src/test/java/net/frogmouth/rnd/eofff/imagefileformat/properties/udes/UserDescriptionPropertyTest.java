@@ -32,7 +32,7 @@ public class UserDescriptionPropertyTest extends PropertyTestSupport {
         byte[] bytes = baos.toByteArray();
         assertEquals(bytes, UDES_BYTES);
         assertEquals(
-                box.toString(),
+                box.toString(0),
                 "UserDescriptionProperty 'udes': lang=en-AU, name=test name, description=descript., tags=test,demo");
     }
 

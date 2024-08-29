@@ -27,6 +27,8 @@ public class ParseContext {
             ValueLayout.JAVA_LONG.withByteAlignment(1).withOrder(ByteOrder.BIG_ENDIAN);
     static final ValueLayout.OfFloat FLOAT_BIG_ENDIAN =
             ValueLayout.JAVA_FLOAT.withByteAlignment(1).withOrder(ByteOrder.BIG_ENDIAN);
+    static final ValueLayout.OfDouble DOUBLE_BIG_ENDIAN =
+            ValueLayout.JAVA_DOUBLE.withByteAlignment(1).withOrder(ByteOrder.BIG_ENDIAN);
 
     public ParseContext(MemorySegment memorySegment) {
         this.memorySegment = memorySegment;
@@ -129,6 +131,12 @@ public class ParseContext {
         float f = memorySegment.get(FLOAT_BIG_ENDIAN, cursor);
         cursor += Float.BYTES;
         return f;
+    }
+
+    public double readDouble64() {
+        double d = memorySegment.get(DOUBLE_BIG_ENDIAN, cursor);
+        cursor += Double.BYTES;
+        return d;
     }
 
     public Brand readBrand() {

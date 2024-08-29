@@ -45,12 +45,9 @@ public class TAITimeStampBox extends ItemFullProperty {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFullName());
-        sb.append(" '");
-        sb.append(getFourCC());
-        sb.append("': TAI_time_stamp: ");
+    public String toString(int nestingLevel) {
+        StringBuilder sb = getBaseStringBuilder(nestingLevel);
+        sb.append("TAI_time_stamp: ");
         if (time_stamp_packet == null) {
             sb.append(" unknown");
         } else {
