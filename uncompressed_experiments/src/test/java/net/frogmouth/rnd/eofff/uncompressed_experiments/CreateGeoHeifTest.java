@@ -82,7 +82,7 @@ public class CreateGeoHeifTest extends GIMIValidator {
     private final int imageHeight;
     private final int imageWidth;
     private static final int MDAT_START_GRID = 2030 + 896;
-    private static final int MDAT_START_GRID_DATA = MDAT_START_GRID + 2 * Integer.BYTES;
+    private static final int MDAT_START_DATA = MDAT_START_GRID + 2 * Integer.BYTES;
     private final int tileSizeBytes;
 
     private static final UUID PRIMARY_ITEM_CONTENT_ID_UUID = UUID.randomUUID();
@@ -219,7 +219,7 @@ public class CreateGeoHeifTest extends GIMIValidator {
             FourCC mime_fourcc = new FourCC("mime");
             infe2.setItemType(mime_fourcc.asUnsigned());
             infe2.setContentType(ISM_SECURITY_MIME_TYPE);
-            infe2.setItemName("Security Marking (Fake XML)");
+            infe2.setItemName("Security Marking (ISM.XML)");
             iinf.addItem(infe2);
         }
         return iinf;
@@ -233,40 +233,40 @@ public class CreateGeoHeifTest extends GIMIValidator {
         iloc.setIndexSize(4);
         iloc.setVersion(1);
         {
-            ILocItem alternateItemLocation = new ILocItem();
-            alternateItemLocation.setConstructionMethod(0);
-            alternateItemLocation.setItemId(PRIMARY_ITEM_ID);
-            alternateItemLocation.setBaseOffset(MDAT_START_GRID_DATA);
+            ILocItem primaryItemLocation = new ILocItem();
+            primaryItemLocation.setConstructionMethod(0);
+            primaryItemLocation.setItemId(PRIMARY_ITEM_ID);
+            primaryItemLocation.setBaseOffset(MDAT_START_DATA);
             ILocExtent alternateItemExtent = new ILocExtent();
             alternateItemExtent.setExtentIndex(0);
             alternateItemExtent.setExtentOffset(0);
             alternateItemExtent.setExtentLength(tileSizeBytes * num_tile_columns * num_tile_rows);
-            alternateItemLocation.addExtent(alternateItemExtent);
-            iloc.addItem(alternateItemLocation);
+            primaryItemLocation.addExtent(alternateItemExtent);
+            iloc.addItem(primaryItemLocation);
         }
         {
-            ILocItem fakeSecurityItemLocation = new ILocItem();
-            fakeSecurityItemLocation.setConstructionMethod(1);
-            fakeSecurityItemLocation.setItemId(SECURITY_ITEM_ID);
-            fakeSecurityItemLocation.setBaseOffset(0);
+            ILocItem securityItemLocation = new ILocItem();
+            securityItemLocation.setConstructionMethod(1);
+            securityItemLocation.setItemId(SECURITY_ITEM_ID);
+            securityItemLocation.setBaseOffset(0);
             ILocExtent securityExtent = new ILocExtent();
             securityExtent.setExtentIndex(0);
             securityExtent.setExtentOffset(0);
-            securityExtent.setExtentLength(getFakeSecurityXMLBytes(false).length);
-            fakeSecurityItemLocation.addExtent(securityExtent);
-            iloc.addItem(fakeSecurityItemLocation);
+            securityExtent.setExtentLength(getSecurityXMLBytes(false).length);
+            securityItemLocation.addExtent(securityExtent);
+            iloc.addItem(securityItemLocation);
         }
         return iloc;
     }
 
-    private byte[] getFakeSecurityXMLBytes(boolean dump) {
+    private byte[] getSecurityXMLBytes(boolean dump) {
         byte[] securityXMLBytes = ISM_SECURITY_XML.getBytes(StandardCharsets.UTF_8);
         return securityXMLBytes;
     }
 
     private ItemDataBox makeItemDataBox_tile() throws IOException {
         ItemDataBoxBuilder itemDataBoxBuilder = new ItemDataBoxBuilder();
-        itemDataBoxBuilder.addData(this.getFakeSecurityXMLBytes(true));
+        itemDataBoxBuilder.addData(this.getSecurityXMLBytes(true));
         return itemDataBoxBuilder.build();
     }
 
@@ -277,7 +277,7 @@ public class CreateGeoHeifTest extends GIMIValidator {
         ipco.addProperty(makeImageSpatialExtentsProperty_grid()); // 2
         ipco.addProperty(makeUncompressedFrameConfigBox_tiled_item()); // 3
         ipco.addProperty(makeContentIdPropertyGridItem()); // 4
-        ipco.addProperty(makeContentIdPropertyFakeSecurity()); // 5
+        ipco.addProperty(makeContentIdPropertySecurity()); // 5
         ipco.addProperty(makeUserDescription_copyright()); // 6
         ipco.addProperty(makeClockInfoItemProperty()); // 7
         ipco.addProperty(makeTimeStampBox()); // 8
@@ -463,7 +463,7 @@ public class CreateGeoHeifTest extends GIMIValidator {
         return contentIdProperty;
     }
 
-    private UUIDProperty makeContentIdPropertyFakeSecurity() {
+    private UUIDProperty makeContentIdPropertySecurity() {
         UUIDProperty contentIdProperty = new UUIDProperty();
         contentIdProperty.setExtendedType(CONTENT_ID_UUID);
         ByteBuffer bb = ByteBuffer.allocate(16);
