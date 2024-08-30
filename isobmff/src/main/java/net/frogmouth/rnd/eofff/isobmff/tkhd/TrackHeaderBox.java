@@ -17,12 +17,12 @@ public class TrackHeaderBox extends FullBox {
 
     private long creationTime;
     private long modificationTime;
-    private long trackId;
+    private long trackId = 1;
     private long duration;
-    private int layer;
-    private int alternateGroup;
-    private int volume;
-    private int[] matrix;
+    private int layer = 0;
+    private int alternateGroup = 0;
+    private int volume = 0;
+    private int[] matrix = {65536, 0, 0, 0, 65536, 0, 0, 0, 1073741824};
     private long width;
     private long height;
 
@@ -191,8 +191,8 @@ public class TrackHeaderBox extends FullBox {
         for (int i : matrix) {
             stream.writeInt((int) i);
         }
-        stream.writeInt((int) width);
-        stream.writeInt((int) height);
+        stream.writeInt((int) width << 16);
+        stream.writeInt((int) height << 16);
     }
 
     @Override

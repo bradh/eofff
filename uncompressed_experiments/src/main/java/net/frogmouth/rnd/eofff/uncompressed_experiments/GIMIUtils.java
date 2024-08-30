@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.udes.UserDescriptionProperty;
 import net.frogmouth.rnd.eofff.imagefileformat.properties.uuid.UUIDProperty;
+import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBox;
 import net.frogmouth.rnd.eofff.isobmff.iprp.AbstractItemProperty;
 import net.frogmouth.rnd.eofff.isobmff.iprp.AssociationEntry;
@@ -47,7 +48,7 @@ public class GIMIUtils {
 
     public static HandlerBox makeHandlerBox() {
         HandlerBox hdlr = new HandlerBox();
-        hdlr.setHandlerType("pict");
+        hdlr.setHandlerType(new FourCC("pict"));
         hdlr.setName("");
         return hdlr;
     }

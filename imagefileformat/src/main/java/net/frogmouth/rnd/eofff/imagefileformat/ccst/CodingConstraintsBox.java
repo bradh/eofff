@@ -5,6 +5,11 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
+/**
+ * Coding constraints box.
+ *
+ * <p>See ISO/IEC 23008-12:2022 Section 7.2.3.
+ */
 public class CodingConstraintsBox extends FullBox {
 
     public static final FourCC CCST_ATOM = new FourCC("ccst");

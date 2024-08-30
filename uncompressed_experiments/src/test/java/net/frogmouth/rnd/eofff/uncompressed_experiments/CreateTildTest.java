@@ -143,7 +143,7 @@ public class CreateTildTest extends GIMIValidator {
 
     private HandlerBox makeHandlerBox() {
         HandlerBox hdlr = new HandlerBox();
-        hdlr.setHandlerType("pict");
+        hdlr.setHandlerType(new FourCC("pict"));
         hdlr.setName("");
         return hdlr;
     }

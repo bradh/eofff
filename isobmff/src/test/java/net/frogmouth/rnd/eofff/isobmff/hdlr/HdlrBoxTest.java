@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import org.testng.annotations.Test;
 
@@ -15,7 +16,11 @@ public class HdlrBoxTest {
     @Test
     public void checkWrite() throws IOException {
         HandlerBox box =
-                new HandlerBoxBuilder().withVersion(0).withFlags(0).withHandlerType("meta").build();
+                new HandlerBoxBuilder()
+                        .withVersion(0)
+                        .withFlags(0)
+                        .withHandlerType(new FourCC("meta"))
+                        .build();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter streamWriter = new OutputStreamWriter(baos);
         box.writeTo(streamWriter);

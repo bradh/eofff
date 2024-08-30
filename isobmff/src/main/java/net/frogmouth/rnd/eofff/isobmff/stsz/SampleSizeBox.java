@@ -16,7 +16,7 @@ public class SampleSizeBox extends FullBox {
 
     public static final FourCC STSZ_ATOM = new FourCC("stsz");
 
-    private long sampleSize;
+    private long sampleSize = 0;
     private long sampleCount;
     private final List<Long> entries = new ArrayList<>();
 

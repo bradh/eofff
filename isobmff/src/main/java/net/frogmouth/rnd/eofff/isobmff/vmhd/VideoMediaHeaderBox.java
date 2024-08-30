@@ -13,7 +13,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 public class VideoMediaHeaderBox extends FullBox {
     public static final FourCC VMHD_ATOM = new FourCC("vmhd");
     private int graphicsmode = 0;
-    private int[] opcolor;
+    private int[] opcolor = {0, 0, 0};
 
     public VideoMediaHeaderBox() {
         super(VMHD_ATOM);

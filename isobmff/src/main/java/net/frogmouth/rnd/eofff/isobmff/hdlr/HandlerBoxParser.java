@@ -30,7 +30,7 @@ public class HandlerBoxParser extends FullBoxParser {
         }
         box.setFlags(parseFlags(parseContext));
         box.setPreDefined(parseContext.readInt32());
-        box.setHandlerType(parseContext.readFourCC().toString());
+        box.setHandlerType(parseContext.readFourCC());
         box.setReserved0(parseContext.readInt32());
         box.setReserved1(parseContext.readInt32());
         box.setReserved2(parseContext.readInt32());

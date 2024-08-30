@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBox;
 import net.frogmouth.rnd.eofff.isobmff.hdlr.HandlerBoxBuilder;
@@ -38,7 +39,11 @@ public class MetaBoxTest {
     @Test
     public void checkWrite() throws IOException {
         HandlerBox hdlr =
-                new HandlerBoxBuilder().withVersion(0).withFlags(0).withHandlerType("meta").build();
+                new HandlerBoxBuilder()
+                        .withVersion(0)
+                        .withFlags(0)
+                        .withHandlerType(new FourCC("meta"))
+                        .build();
         ItemInfoEntry infe0 =
                 new ItemInfoEntryBuilder()
                         .withVersion(2)

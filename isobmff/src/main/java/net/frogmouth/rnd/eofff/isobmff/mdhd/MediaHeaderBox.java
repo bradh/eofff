@@ -17,9 +17,9 @@ public class MediaHeaderBox extends FullBox {
 
     private long creationTime;
     private long modificationTime;
-    private long timescale;
+    private long timescale = 1000;
     private long duration;
-    private ISO639Language language;
+    private ISO639Language language = new ISO639Language("und");
 
     public MediaHeaderBox() {
         super(MDHD_ATOM);

@@ -360,7 +360,7 @@ class GoProCleaner {
         MetaBox meta = new MetaBox();
 
         HandlerBox hdlr = new HandlerBox();
-        hdlr.setHandlerType("pict");
+        hdlr.setHandlerType(new FourCC("pict"));
         hdlr.setName("File metadata and images");
         meta.addNestedBox(hdlr);
 

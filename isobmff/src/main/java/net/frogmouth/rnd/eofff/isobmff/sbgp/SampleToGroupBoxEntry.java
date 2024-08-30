@@ -4,6 +4,9 @@ import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public record SampleToGroupBoxEntry(long sampleCount, long groupDescriptionIndex) {
+
+    public static final int BYTES = Integer.BYTES + Integer.BYTES;
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

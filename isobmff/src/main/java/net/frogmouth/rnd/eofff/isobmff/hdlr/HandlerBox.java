@@ -15,12 +15,12 @@ public class HandlerBox extends FullBox {
 
     public static final FourCC HDLR_ATOM = new FourCC("hdlr");
 
-    private int preDefined;
-    private String handlerType;
-    private int reserved0;
-    private int reserved1;
-    private int reserved2;
-    private String name;
+    private int preDefined = 0;
+    private FourCC handlerType;
+    private int reserved0 = 0;
+    private int reserved1 = 0;
+    private int reserved2 = 0;
+    private String name = "";
 
     public HandlerBox() {
         super(HDLR_ATOM);
@@ -50,11 +50,11 @@ public class HandlerBox extends FullBox {
         this.preDefined = preDefined;
     }
 
-    public String getHandlerType() {
+    public FourCC getHandlerType() {
         return handlerType;
     }
 
-    public void setHandlerType(String handlerType) {
+    public void setHandlerType(FourCC handlerType) {
         this.handlerType = handlerType;
     }
 
@@ -94,7 +94,7 @@ public class HandlerBox extends FullBox {
     public void writeTo(OutputStreamWriter stream) throws IOException {
         this.writeBoxHeader(stream);
         stream.writeInt(0); // predefined
-        stream.write(this.handlerType.getBytes(StandardCharsets.US_ASCII));
+        stream.writeFourCC(this.handlerType);
         stream.writeInt(this.reserved0);
         stream.writeInt(this.reserved1);
         stream.writeInt(this.reserved2);

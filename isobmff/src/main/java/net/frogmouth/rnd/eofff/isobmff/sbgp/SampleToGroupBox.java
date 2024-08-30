@@ -7,6 +7,11 @@ import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
+/**
+ * Sample to Group Box.
+ *
+ * <p>See ISO/IEC 14496-12:2022 Section 8.9.2.
+ */
 public class SampleToGroupBox extends FullBox {
     public static final FourCC SBGP_ATOM = new FourCC("sbgp");
 
@@ -61,6 +66,18 @@ public class SampleToGroupBox extends FullBox {
         for (SampleToGroupBoxEntry item : entries) {
             item.writeTo(writer);
         }
+    }
+
+    @Override
+    public long getBodySize() {
+        long size = 0;
+        size += Integer.BYTES;
+        if (groupingTypeParameter != null) {
+            size += Integer.BYTES;
+        }
+        size += Integer.BYTES;
+        size += (SampleToGroupBoxEntry.BYTES * entries.size());
+        return size;
     }
 
     @Override

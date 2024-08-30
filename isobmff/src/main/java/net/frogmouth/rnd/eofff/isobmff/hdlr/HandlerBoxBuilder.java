@@ -1,10 +1,12 @@
 package net.frogmouth.rnd.eofff.isobmff.hdlr;
 
+import net.frogmouth.rnd.eofff.isobmff.FourCC;
+
 public class HandlerBoxBuilder {
 
     private int version;
     private int flags;
-    private String handlerType;
+    private FourCC handlerType;
     private String name = "";
 
     public HandlerBoxBuilder() {}
@@ -19,7 +21,7 @@ public class HandlerBoxBuilder {
         return this;
     }
 
-    public HandlerBoxBuilder withHandlerType(String handlerType) {
+    public HandlerBoxBuilder withHandlerType(FourCC handlerType) {
         this.handlerType = handlerType;
         return this;
     }

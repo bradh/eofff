@@ -14,6 +14,7 @@ public class HVC1SampleEntry extends VisualSampleEntry {
 
     public HVC1SampleEntry() {
         super(HVC1_ATOM);
+        setCompressorName("HEVC");
     }
 
     @Override

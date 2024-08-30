@@ -87,7 +87,7 @@ public class ConformanceC001Test {
         assertEquals(nestedBox0.getFourCC(), new FourCC("hdlr"));
         HandlerBox hdlr = (HandlerBox) nestedBox0;
         assertEquals(hdlr.getFullName(), "HandlerBox");
-        assertEquals(hdlr.getHandlerType(), "pict");
+        assertEquals(hdlr.getHandlerType(), new FourCC("pict"));
         assertEquals(hdlr.getPreDefined(), 0);
         assertEquals(hdlr.getName(), "");
         assertEquals(hdlr.getReserved0(), 0);

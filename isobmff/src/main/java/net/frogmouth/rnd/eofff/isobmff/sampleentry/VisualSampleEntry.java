@@ -15,11 +15,11 @@ public abstract class VisualSampleEntry extends BaseSampleEntry implements Sampl
 
     private int width;
     private int height;
-    private long horizontalResolution;
-    private long verticalResolution;
-    private int frameCount;
+    private long horizontalResolution = 0x00480000;
+    private long verticalResolution = 0x00480000;
+    private int frameCount = 1;
     private String compressorName;
-    private int depth;
+    private int depth = 0x0018;
 
     public VisualSampleEntry(FourCC format) {
         super(format);

@@ -147,7 +147,7 @@ public class WrapHDF5ImageTest {
 
     protected HandlerBox makeHandlerBox() {
         HandlerBox hdlr = new HandlerBox();
-        hdlr.setHandlerType("pict");
+        hdlr.setHandlerType(new FourCC("pict"));
         hdlr.setName("");
         return hdlr;
     }

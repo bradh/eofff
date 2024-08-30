@@ -1,6 +1,9 @@
 package net.frogmouth.rnd.eofff.isobmff.mvhd;
 
 import java.io.IOException;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
@@ -16,15 +19,19 @@ public class MovieHeaderBox extends FullBox {
 
     private long creationTime;
     private long modificationTime;
-    private long timescale;
+    private long timescale = 1000L;
     private long duration;
-    private double rate;
-    private double volume;
-    private int[] matrix;
-    private long nextTrackId;
+    private double rate = 1.0;
+    private double volume = 1.0;
+    private int[] matrix = {65536, 0, 0, 0, 65536, 0, 0, 0, 1073741824};
+    private long nextTrackId = 2;
 
     public MovieHeaderBox() {
         super(MVHD_ATOM);
+        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+        ZonedDateTime epoch = ZonedDateTime.of(1904, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+        creationTime = ChronoUnit.SECONDS.between(epoch, now);
+        modificationTime = creationTime;
     }
 
     @Override
