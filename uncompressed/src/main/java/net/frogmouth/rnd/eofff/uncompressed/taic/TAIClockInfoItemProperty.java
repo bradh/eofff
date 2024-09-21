@@ -16,8 +16,11 @@ public class TAIClockInfoItemProperty extends ItemFullProperty {
 
     public static final long TIME_UNCERTAINTY_UNKNOWN = 0xFFFFFFFFFFFFFFFFl;
     public static final long CLOCK_RESOLUTION_MICROSECOND = 0x1000;
+    public static final long CLOCK_RESOLUTION_NANOSECOND = 0x0001;
     public static final int CLOCK_DRIFT_RATE_UNKNOWN = 0x7FFFFFFF;
     public static final byte CLOCK_TYPE_UNKNOWN = 0;
+    public static final byte CLOCK_TYPE_CANNOT_SYNCHRONISE = 1;
+    public static final byte CLOCK_TYPE_CAN_SYNCHRONISE = 2;
 
     private long time_uncertainty = TIME_UNCERTAINTY_UNKNOWN;
     private long clock_resolution = CLOCK_RESOLUTION_MICROSECOND;

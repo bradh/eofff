@@ -27,6 +27,7 @@ module net.frogmouth.rnd.eofff.uncompressed {
     exports net.frogmouth.rnd.eofff.uncompressed.cmpc;
     exports net.frogmouth.rnd.eofff.uncompressed.cmpd;
     exports net.frogmouth.rnd.eofff.uncompressed.cpal;
+    exports net.frogmouth.rnd.eofff.uncompressed.cpat;
     exports net.frogmouth.rnd.eofff.uncompressed.depi;
     exports net.frogmouth.rnd.eofff.uncompressed.disi;
     exports net.frogmouth.rnd.eofff.uncompressed.icef;

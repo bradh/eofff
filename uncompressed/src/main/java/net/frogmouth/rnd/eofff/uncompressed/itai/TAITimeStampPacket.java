@@ -8,6 +8,7 @@ public class TAITimeStampPacket {
     public static final long BYTES = Long.BYTES + Byte.BYTES;
 
     public static final long TIME_STAMP_INVALID = 0xFFFFFFFFFFFFFFFFl;
+    public static final byte STATUS_SYNC_VALID = (byte) 0x80;
     private long TAI_time_stamp = TIME_STAMP_INVALID;
     private byte status_bits = 0x00;
 

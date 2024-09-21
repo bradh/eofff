@@ -40,9 +40,10 @@ public class PixelInformationPropertyParser extends ItemFullPropertyParser {
                 int infoBits = parseContext.readUnsignedInt8();
                 int channelIDC = infoBits >> 5;
                 supplementalChannelInfo.setChannelIDC(channelIDC);
-                int channelDataType = (infoBits & 0x18) >> 3;
-                supplementalChannelInfo.setChannelDataType(channelDataType);
+                int channelFormat = (infoBits & 0x18) >> 3;
+                supplementalChannelInfo.setChannelFormat(channelFormat);
                 if (box.hasSubsampling()) {
+                    int subsampling_bits = parseContext.readUnsignedInt8();
                     // TODO: parse out
                 }
                 if ((infoBits & 0b00000100) != 0) {

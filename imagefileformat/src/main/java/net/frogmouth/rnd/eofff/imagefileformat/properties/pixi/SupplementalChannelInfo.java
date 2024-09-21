@@ -9,7 +9,7 @@ import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 public class SupplementalChannelInfo {
 
     private int channelIDC; // TODO: enum?
-    private int channelDataType; // TODO: enum?
+    private int channelFormat; // TODO: enum?
     // TODO: subsampling type
     private String channelLabel;
 
@@ -21,12 +21,12 @@ public class SupplementalChannelInfo {
         this.channelIDC = channelIDC;
     }
 
-    public int getChannelDataType() {
-        return channelDataType;
+    public int getChannelFormat() {
+        return channelFormat;
     }
 
-    public void setChannelDataType(int channelDataType) {
-        this.channelDataType = channelDataType;
+    public void setChannelFormat(int channelFormat) {
+        this.channelFormat = channelFormat;
     }
 
     public String getChannelLabel() {
@@ -50,7 +50,7 @@ public class SupplementalChannelInfo {
 
     public void writeTo(OutputStreamWriter stream) throws IOException {
         boolean channelLabelPresent = isChannelLabelPresent();
-        int b = ((channelIDC << 5) | (channelDataType << 3) | (channelLabelPresent ? (1 << 2) : 0));
+        int b = ((channelIDC << 5) | (channelFormat << 3) | (channelLabelPresent ? (1 << 2) : 0));
         stream.writeByte(b);
         // TODO: subsampling
         if (channelLabelPresent) {
@@ -69,10 +69,10 @@ public class SupplementalChannelInfo {
         sb.append(channelIDC);
         sb.append(" (");
         sb.append(lookupChannelIDC());
-        sb.append("), channel_data_type=");
-        sb.append(channelDataType);
+        sb.append("), channel_format=");
+        sb.append(channelFormat);
         sb.append(" (");
-        sb.append(lookupChannelDataType());
+        sb.append(lookupChannelFormat());
         sb.append("), channel_label_present=");
         sb.append(this.isChannelLabelPresent());
         // TODO: subsampling
@@ -91,8 +91,8 @@ public class SupplementalChannelInfo {
         };
     }
 
-    private String lookupChannelDataType() {
-        return switch (this.channelDataType) {
+    private String lookupChannelFormat() {
+        return switch (this.channelFormat) {
             case 0 -> "unsigned integer";
             case 1 -> "signed integer";
             case 2 -> "floating point";
