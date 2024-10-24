@@ -3,7 +3,7 @@ package net.frogmouth.rnd.ngiis.eventmessage;
 import java.io.IOException;
 import net.frogmouth.rnd.eofff.isobmff.FourCC;
 import net.frogmouth.rnd.eofff.isobmff.FullBox;
-import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;;
+import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 
 public class EventMessageInstanceBox extends FullBox {
 

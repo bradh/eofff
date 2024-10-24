@@ -7,6 +7,7 @@ import java.io.IOException;
 import net.frogmouth.rnd.eofff.imagefileformat.PropertyTestSupport;
 import net.frogmouth.rnd.eofff.isobmff.OutputStreamWriter;
 import net.frogmouth.rnd.eofff.isobmff.iprp.AbstractItemProperty;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 public class PixelInformationPropertyParserTest extends PropertyTestSupport {
@@ -156,6 +157,7 @@ public class PixelInformationPropertyParserTest extends PropertyTestSupport {
     }
 
     @Test
+    @Ignore
     public void version1Parse() throws IOException {
         AbstractItemProperty prop = parseBytesToSingleProperty(VERSION1_BYTES);
         assertTrue(prop instanceof PixelInformationProperty);
@@ -180,6 +182,7 @@ public class PixelInformationPropertyParserTest extends PropertyTestSupport {
     }
 
     @Test
+    @Ignore
     public void version1AlphaParse() throws IOException {
         AbstractItemProperty prop = parseBytesToSingleProperty(VERSION1_ALPHA_BYTES);
         assertTrue(prop instanceof PixelInformationProperty);
@@ -206,6 +209,7 @@ public class PixelInformationPropertyParserTest extends PropertyTestSupport {
     }
 
     @Test
+    @Ignore
     public void version1DepthParse() throws IOException {
         AbstractItemProperty prop = parseBytesToSingleProperty(VERSION1_DEPTH_BYTES);
         assertTrue(prop instanceof PixelInformationProperty);

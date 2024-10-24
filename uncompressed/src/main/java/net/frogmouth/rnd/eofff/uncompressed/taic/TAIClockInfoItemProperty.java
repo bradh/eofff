@@ -15,8 +15,8 @@ public class TAIClockInfoItemProperty extends ItemFullProperty {
     public static final FourCC TAIC_ATOM = new FourCC("taic");
 
     public static final long TIME_UNCERTAINTY_UNKNOWN = 0xFFFFFFFFFFFFFFFFl;
-    public static final long CLOCK_RESOLUTION_MICROSECOND = 0x1000;
-    public static final long CLOCK_RESOLUTION_NANOSECOND = 0x0001;
+    public static final long CLOCK_RESOLUTION_MICROSECOND = 1000;
+    public static final long CLOCK_RESOLUTION_NANOSECOND = 1;
     public static final int CLOCK_DRIFT_RATE_UNKNOWN = 0x7FFFFFFF;
     public static final byte CLOCK_TYPE_UNKNOWN = 0;
     public static final byte CLOCK_TYPE_CANNOT_SYNCHRONISE = 1;

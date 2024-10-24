@@ -9,7 +9,7 @@
     <groupId>net.frogmouth.rnd.ngiis</groupId>
     <artifactId>eventmessage</artifactId>
     <packaging>jar</packaging>
-<dependencies>
+    <dependencies>
         <dependency>
             <groupId>net.frogmouth.rnd.eofff</groupId>
             <artifactId>isobmff</artifactId>

@@ -39,4 +39,20 @@ public class BitReader {
     public boolean hasRemaining() {
         return ((currentByte <= (data.length - 1)) && (bitsLeftInByte > 0));
     }
+
+    public void byteAlign() {
+        bitsLeftInByte = Byte.SIZE;
+        currentByte++;
+    }
+
+    public byte[] readBytes(int numBytes) {
+        byte[] res = new byte[numBytes];
+        System.arraycopy(this.data, this.currentByte, res, 0, numBytes);
+        currentByte += numBytes;
+        return res;
+    }
+
+    public long getCursorPosition() {
+        return currentByte;
+    }
 }

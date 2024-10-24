@@ -81,7 +81,7 @@ public class CreateGeoAVIFTest extends GIMIValidator {
     private final List<Double> modelTiePoint;
     private final String heifFile;
     private MediaDataBox mdat;
-    private List<Box> sourceBoxes;
+    private final List<Box> sourceBoxes;
 
     public CreateGeoAVIFTest() throws IOException, InterruptedException {
         path = "/home/bradh/testbed20/geoheif/test.tif";

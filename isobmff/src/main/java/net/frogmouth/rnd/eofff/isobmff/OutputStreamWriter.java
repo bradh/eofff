@@ -10,6 +10,8 @@ import java.util.UUID;
 public class OutputStreamWriter {
 
     private final OutputStream outputStream;
+    private byte bits = 0;
+    private int bitcount = 0;
 
     public OutputStreamWriter(OutputStream outputStream) {
         this.outputStream = outputStream;
@@ -24,6 +26,37 @@ public class OutputStreamWriter {
     // }
     public void writeByte(int i) throws IOException {
         outputStream.write(i);
+    }
+
+    public void writeBit(boolean b) throws IOException {
+        writeBit(b ? 1 : 0);
+    }
+
+    public void writeBit(int i) throws IOException {
+        if (i > 1) {
+            throw new IOException("bits are 0 or 1");
+        }
+        // System.out.println("writing bit: " + i);
+        bits = (byte) (bits << 1);
+        bits = (byte) (bits | i);
+        bitcount += 1;
+        if (bitcount == 8) {
+            writeByte(bits);
+            bits = 0;
+            bitcount = 0;
+        }
+    }
+
+    public void writeBits(int val, int num) throws IOException {
+        for (int i = num - 1; i >= 0; i--) {
+            int m = 1 << i;
+            boolean b = ((val & m) == m);
+            writeBit(b);
+        }
+    }
+
+    public void alignToByteBoundary() throws IOException {
+        writeBits(0, 8 - bitcount);
     }
 
     public void writeNullTerminatedString(String name) throws IOException {
