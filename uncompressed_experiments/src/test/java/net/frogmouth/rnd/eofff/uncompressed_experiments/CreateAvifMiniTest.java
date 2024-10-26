@@ -32,7 +32,8 @@ public class CreateAvifMiniTest extends GIMIValidator {
             FileParser fileParser = new FileParser();
             sourceBoxes =
                     fileParser.parse(
-                            Path.of("/home/bradh/eofff/uncompressed_experiments/Untitled.avif"));
+                            Path.of(
+                                    "/home/bradh/eofff/uncompressed_experiments/src/test/resources/lightning128x128.avif"));
             for (Box box : sourceBoxes) {
                 if (box instanceof MediaDataBox mdatSource) {
                     mdat = mdatSource;

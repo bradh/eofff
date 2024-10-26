@@ -22,6 +22,9 @@ public class MinimizedImageBoxParser extends FullBoxParser {
 
     @Override
     public Box parse(ParseContext parseContext, long initialOffset, long boxSize, FourCC boxName) {
+        if (boxSize == 8) {
+            return null;
+        }
         MinimizedImageBox box = new MinimizedImageBox();
         System.out.println("initial position: " + parseContext.getCursorPosition());
         long remainingBytesInBox = boxSize - (parseContext.getCursorPosition() - initialOffset);
