@@ -17,6 +17,7 @@ public class ColourInformationProperty extends ItemProperty {
     private short transferCharacteristics;
     private short matrixCoefficients;
     private boolean fullRange;
+    private byte[] iccProfileBytes;
 
     public ColourInformationProperty() {
         super(COLR_ATOM);
@@ -62,6 +63,14 @@ public class ColourInformationProperty extends ItemProperty {
         this.fullRange = fullRange;
     }
 
+    public byte[] getIccProfileBytes() {
+        return iccProfileBytes;
+    }
+
+    public void setIccProfileBytes(byte[] iccProfileBytes) {
+        this.iccProfileBytes = iccProfileBytes;
+    }
+
     @Override
     public long getBodySize() {
         int size = 0;
@@ -72,9 +81,9 @@ public class ColourInformationProperty extends ItemProperty {
             size += Short.BYTES;
             size += Byte.BYTES;
         } else if (colourType.equals(RICC)) {
-            throw new UnsupportedOperationException("implement rICC");
+            size += this.iccProfileBytes.length;
         } else if (colourType.equals(PROF)) {
-            throw new UnsupportedOperationException("implement prof");
+            size += this.iccProfileBytes.length;
         } else {
             throw new UnsupportedOperationException("implement " + colourType.toString());
         }
@@ -95,6 +104,8 @@ public class ColourInformationProperty extends ItemProperty {
             writer.writeShort(transferCharacteristics);
             writer.writeShort(matrixCoefficients);
             writer.writeByte(this.fullRange ? 0x80 : 0x00);
+        } else if (colourType.equals(PROF) || colourType.equals(RICC)) {
+            writer.write(iccProfileBytes);
         } else {
             throw new UnsupportedOperationException("implement write of " + colourType.toString());
         }
@@ -117,6 +128,10 @@ public class ColourInformationProperty extends ItemProperty {
             sb.append(String.format("0x%04x", this.matrixCoefficients));
             sb.append(", full_range_flag=");
             sb.append((this.fullRange ? "1" : "0"));
+        } else if (colourType.equals(PROF) || colourType.equals(RICC)) {
+            sb.append("icc_profile: ");
+            sb.append(this.iccProfileBytes.length);
+            sb.append(" bytes");
         } else {
             throw new UnsupportedOperationException(
                     "implement toString() for " + colourType.toString());

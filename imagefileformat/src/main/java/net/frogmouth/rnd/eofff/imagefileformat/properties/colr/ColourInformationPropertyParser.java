@@ -34,6 +34,11 @@ public class ColourInformationPropertyParser implements PropertyParser {
             box.setMatrixCoefficients((short) parseContext.readUnsignedInt16());
             var flag = parseContext.readByte();
             box.setFullRange(((flag & 0x80) == 0x80));
+        } else if (box.getColourType().equals(new FourCC("prof"))
+                || box.getColourType().equals(new FourCC("rICC"))) {
+            box.setIccProfileBytes(
+                    parseContext.getBytes(
+                            initialOffset + boxSize - parseContext.getCursorPosition()));
         } else {
             throw new UnsupportedOperationException(
                     "need to parse: " + box.getColourType().toString());

@@ -129,6 +129,10 @@ public class AV1CodecConfigurationBox extends ItemProperty {
     @Override
     public void writeTo(OutputStreamWriter writer) throws IOException {
         this.writeBoxHeader(writer);
+        writeBodyTo(writer);
+    }
+
+    public void writeBodyTo(OutputStreamWriter writer) throws IOException {
         writer.writeByte(version | 0x80);
         writer.writeByte((seq_profile << 5) | seq_level_idx_0);
         int flags = (seq_tier_0 ? 0x80 : 0);

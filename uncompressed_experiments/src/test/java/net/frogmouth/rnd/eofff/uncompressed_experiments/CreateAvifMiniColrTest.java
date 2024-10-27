@@ -27,21 +27,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-public class CreateAvifMiniTest extends GIMIValidator {
+public class CreateAvifMiniColrTest extends GIMIValidator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CreateAvifMiniTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CreateAvifMiniColrTest.class);
     private MediaDataBox mdat;
     private AV1CodecConfigurationBox av1C;
     private final List<Box> sourceBoxes;
 
-    public CreateAvifMiniTest() throws IOException, InterruptedException, URISyntaxException {
+    public CreateAvifMiniColrTest() throws IOException, InterruptedException, URISyntaxException {
         {
             FileParser fileParser = new FileParser();
             sourceBoxes =
                     fileParser.parse(
                             Path.of(
-                                    CreateAvifMiniTest.class
-                                            .getResource("/lightning128x128.avif")
+                                    CreateAvifMiniColrTest.class
+                                            .getResource("/lightning128x128_colr.avif")
                                             .toURI()));
             for (Box box : sourceBoxes) {
                 if (box instanceof MetaBox meta) {
@@ -71,7 +71,7 @@ public class CreateAvifMiniTest extends GIMIValidator {
 
         MinimizedImageBox mini = createMiniBox();
         boxes.add(mini);
-        writeBoxes(boxes, "lightning_mini.avif");
+        writeBoxes(boxes, "lightning_mini_colr.avif");
     }
 
     private void writeBoxes(List<Box> boxes, String outputPathName) throws IOException {
@@ -98,13 +98,6 @@ public class CreateAvifMiniTest extends GIMIValidator {
     private MinimizedImageBox createMiniBox() throws IOException {
         MinimizedImageBox mini = new MinimizedImageBox();
         mini.setFullRangeFlag(true);
-        if (av1C.isHigh_bitdepth() && av1C.isTwelve_bit()) {
-            mini.setBitDepth(12);
-        } else if (av1C.isHigh_bitdepth()) {
-            mini.setBitDepth(10);
-        } else {
-            mini.setBitDepth(8);
-        }
         if (av1C.isChroma_subsampling_y()) {
             mini.setChromaSubsampling(MinimizedImageBox.ChromaSubsampling.HorizontalAndVertical);
         } else if (av1C.isChroma_subsampling_x()) {
