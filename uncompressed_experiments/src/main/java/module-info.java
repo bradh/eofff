@@ -13,6 +13,7 @@ module net.frogmouth.rnd.eofff.uncompressed_experiments {
     requires net.frogmouth.rnd.ngiis.png;
     requires net.frogmouth.rnd.ngiis.cine;
     requires net.frogmouth.rnd.eofff.av1isobmff;
+    requires net.frogmouth.rnd.eofff.jpeg2000;
     requires net.frogmouth.rnd.eofff.uncompressed;
     requires org.slf4j;
     requires org.apache.commons.io;

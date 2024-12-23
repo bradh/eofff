@@ -84,7 +84,8 @@ public class CreateGeoAVIFTest extends GIMIValidator {
     private final List<Box> sourceBoxes;
 
     public CreateGeoAVIFTest() throws IOException, InterruptedException {
-        path = "/home/bradh/testbed20/geoheif/test.tif";
+        // path = "/home/bradh/testbed20/geoheif/test.tif";
+        path = "/home/bradh/testbed20/geoheif/small_test_epoch.tif";
         mil.nga.tiff.TIFFImage tiffImage = mil.nga.tiff.TiffReader.readTiff(new File(path));
         List<mil.nga.tiff.FileDirectory> directories = tiffImage.getFileDirectories();
         directory = directories.get(0);
@@ -135,7 +136,7 @@ public class CreateGeoAVIFTest extends GIMIValidator {
         }
         boxes.add(meta);
         boxes.add(mdat);
-        writeBoxes(boxes, "geo.avif");
+        writeBoxes(boxes, "geo_small_itrf_epoch.avif");
     }
 
     private void writeBoxes(List<Box> boxes, String outputPathName) throws IOException {
@@ -437,10 +438,11 @@ public class CreateGeoAVIFTest extends GIMIValidator {
 
     private CoordinateReferenceSystemProperty makeWKT2Property() {
         CoordinateReferenceSystemProperty prop = new CoordinateReferenceSystemProperty();
-        // TODO: make sure it is not hard coded
         prop.setCrsEncoding(new FourCC("wkt2"));
         prop.setCrs(
-                "PROJCRS[\"GDA94 / MGA zone 55\",BASEGEOGCRS[\"GDA94\",DATUM[\"Geocentric Datum of Australia 1994\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101004,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4283]],CONVERSION[\"Transverse Mercator\",METHOD[\"Transverse Mercator\",ID[\"EPSG\",9807]],PARAMETER[\"Latitude of natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",147,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8802]],PARAMETER[\"Scale factor at natural origin\",0.9996,SCALEUNIT[\"unity\",1],ID[\"EPSG\",8805]],PARAMETER[\"False easting\",500000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",10000000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"easting\",east,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"northing\",north,ORDER[2],LENGTHUNIT[\"metre\",1]],ID[\"EPSG\",28355]]");
+                "GEODCRS[\"ITRF2020\",DATUM[\"unnamed\",ELLIPSOID[\"unnamed\",6378137,298.257222101004,LENGTHUNIT[\"metre\",1]],ID[\"EPSG\",1322]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9122]]],CS[Cartesian,3],AXIS[\"(X)\",geocentricX,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"(Y)\",geocentricY,ORDER[2],LENGTHUNIT[\"metre\",1]],AXIS[\"(Z)\",geocentricZ,ORDER[3],LENGTHUNIT[\"metre\",1]]]");
+        prop.setFlags(1);
+        prop.setEpoch(2021.3);
         return prop;
     }
 }

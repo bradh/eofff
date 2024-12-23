@@ -22,4 +22,5 @@ module net.frogmouth.rnd.eofff.jpeg2000 {
     exports net.frogmouth.rnd.eofff.jpeg2000.fileformat;
     exports net.frogmouth.rnd.eofff.jpeg2000.fileformat.ihdr;
     exports net.frogmouth.rnd.eofff.jpeg2000.fileformat.jp2c;
+    exports net.frogmouth.rnd.eofff.jpeg2000.sampleentry;
 }

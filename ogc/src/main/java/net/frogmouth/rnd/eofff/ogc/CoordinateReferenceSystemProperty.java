@@ -10,6 +10,7 @@ public class CoordinateReferenceSystemProperty extends ItemFullProperty {
 
     public FourCC crsEncoding;
     private String crs;
+    private float epoch;
     public static final FourCC MCRS_ATOM = new FourCC("mcrs");
 
     public CoordinateReferenceSystemProperty() {
@@ -37,6 +38,9 @@ public class CoordinateReferenceSystemProperty extends ItemFullProperty {
         this.writeBoxHeader(writer);
         writer.writeFourCC(crsEncoding);
         writer.writeNullTerminatedString(crs);
+        if ((this.getFlags() & 0x01) == 0x01) {
+            writer.writeDouble32(epoch);
+        }
     }
 
     @Override
@@ -60,6 +64,14 @@ public class CoordinateReferenceSystemProperty extends ItemFullProperty {
         size += FourCC.BYTES;
         size += crs.getBytes(StandardCharsets.UTF_8).length;
         size += 1;
+        if ((this.getFlags() & 0x01) == 0x01) {
+            size += Float.BYTES;
+        }
         return size;
+    }
+
+    public void setEpoch(double d) {
+        this.setFlags(1);
+        this.epoch = (float) d;
     }
 }
